@@ -1,3 +1,8 @@
+var camera;
+var leftMouseButtonDown = false;
+var rightMouseButtonDown = false;
+var mouseLastPos = {};
+
 //----------------------------------------------------------------------------
 function createDefaultFragmentShader(context)
 {
@@ -52,6 +57,145 @@ function createDefaultVertexShader(context)
 }
 
 //----------------------------------------------------------------------------
+function relMouseCoords(event)
+{
+  var totalOffsetX = 0;
+  var totalOffsetY = 0;
+  var canvasX = 0;
+  var canvasY = 0;
+  var currentElement = this;
+
+  do
+  {
+    totalOffsetX += currentElement.offsetLeft;
+    totalOffsetY += currentElement.offsetTop;
+  }
+  while(currentElement = currentElement.offsetParent)
+
+  canvasX = event.pageX - totalOffsetX;
+  canvasY = event.pageY - totalOffsetY;
+
+  return {x:canvasX, y:canvasY}
+}
+HTMLCanvasElement.prototype.relMouseCoords = relMouseCoords;
+
+//----------------------------------------------------------------------------
+function handleMouseMove(event)
+{
+  console.log('handleMouseMove');
+  var canvas = document.getElementById("glcanvas");
+  var outsideCanvas = false;
+  
+  coords = canvas.relMouseCoords(event);
+  
+  currentMousePos = {};  
+  if (coords.x < 0)
+  {
+    currentMousePos.x = 0;
+    outsideCanvas = true;
+  }
+  else
+  {
+    currentMousePos.x = coords.x;
+  }
+
+  if (coords.y < 0)
+  {
+    currentMousePos.y = 0;
+    outsideCanvas = true;
+  }
+  else
+  {
+    currentMousePos.y = coords.y;
+  }
+
+  if (outsideCanvas == true)
+  {
+    return;
+  }
+
+  if (leftMouseButtonDown)
+  {
+    // Do something
+  }
+
+  if (rightMouseButtonDown)
+  { 
+    console.log('rightMouseButtonDown');
+    
+    zTrans = currentMousePos.y - mouseLastPos.y;
+    
+    console.log(zTrans);
+
+    camera.zoom(zTrans * 0.5);
+  }
+
+  mouseLastPos.x = currentMousePos.x;
+  mouseLastPos.y = currentMousePos.y;
+
+}
+
+//----------------------------------------------------------------------------
+function handleMouseDown(event)
+{
+  var canvas = document.getElementById("glcanvas");  
+
+  if (event.button == 0)
+  {
+    leftMouseButtonDown = true;
+  }
+  if (event.button == 2)
+  {
+    rightMouseButtonDown = true;
+  }
+  if (event.button == 4)
+  {
+    middileMouseButtonDown = true;
+  }
+
+  coords = canvas.relMouseCoords(event);
+
+  if (coords.x < 0)
+  {
+    mouseLastPos.x = 0;
+  }
+  else
+  {
+    mouseLastPos.x = coords.x;
+  }
+
+  if (coords.y < 0)
+  {
+    mouseLastPos.y = 0;
+  }
+  else
+  {
+    mouseLastPos.y = coords.y;
+  }
+
+  return false;
+}
+
+//----------------------------------------------------------------------------
+function handleMouseUp(event)
+{
+  if (event.button == 0)
+  {
+    leftMouseButtonDown = false;
+  }
+  if (event.button == 2)
+  {
+    rightMouseButtonDown = false;
+  }
+  if (event.button == 4)
+  {
+    middileMouseButtonDown = false;
+  }
+
+  return false;
+}
+
+//----------------------------------------------------------------------------
 function start()
 {
 	var canvas = document.getElementById("glcanvas");
@@ -67,14 +211,29 @@ function start()
     gl.depthFunc(gl.LEQUAL);                                // Near things obscure far things
     gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);      // Clear the color as well as the depth buffer.
     
-    initShaders();
+    initScene();
     
-    initBuffers();
-    
-    initTextures();
+    document.onmousedown = handleMouseDown;
+    document.onmouseup = handleMouseUp;
+    document.onmousemove = handleMouseMove;
+    document.oncontextmenu=new Function("return false");
     
     setInterval(drawScene, 15);
   }
+}
+
+//----------------------------------------------------------------------------
+function initScene()
+{
+  initShaders();
+  
+  initBuffers();
+  
+  initTextures();
+  
+  camera = new vesCamera();
+  camera.setPosition(0.0, 0.0, 400.0);
+  camera.setFocalPoint(0.0, 0.0, 0.0);  
 }
 
 //----------------------------------------------------------------------------
@@ -158,11 +317,10 @@ function initBuffers()
 function drawScene() 
 {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  
+  perspectiveMatrix = camera.projectionMatrix(1680.0/1050.0, 0.1, 1000.0);
 
-  perspectiveMatrix = makePerspective(45, 640.0/480.0, 0.1, 1000.0);
-
-  loadIdentity();
-  mvTranslate([-0.0, 0.0, -400.0]);
+  loadIdentity();  
 
   gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesBuffer);
   gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
@@ -224,8 +382,8 @@ function mvTranslate(v)
 function setMatrixUniforms() 
 {
   var pUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
-  gl.uniformMatrix4fv(pUniform, false, new Float32Array(perspectiveMatrix.flatten()));
+  gl.uniformMatrix4fv(pUniform, false, perspectiveMatrix);
 
   var mvUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
-  gl.uniformMatrix4fv(mvUniform, false, new Float32Array(mvMatrix.flatten()));
+  gl.uniformMatrix4fv(mvUniform, false, camera.viewMatrix());
 }
