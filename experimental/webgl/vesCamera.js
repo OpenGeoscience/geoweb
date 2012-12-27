@@ -53,7 +53,29 @@ function vesCamera()
     // TODO: If the distance between focal point and the camera position
     // goes really low then we run into issues
   }
-
+  
+  //----------------------------------------------------------------------------
+  this.pan = function(dx, dy)
+  {
+    this.computeOrthogonalAxes();
+    
+    this.m_position[0] += this.m_right[0] * dx;
+    this.m_position[1] += this.m_viewUp[1] * dy;    
+    
+    this.m_focalPoint[0] += this.m_right[0] * dx;
+    this.m_focalPoint[1] += this.m_viewUp[1] * dy;    
+  }
+  
+  //----------------------------------------------------------------------------
+  this.computeOrthogonalAxes = function()
+  {
+    dir = new vec3.create();
+    vec3.direction(this.m_focalPoint, this.m_position, dir);
+    vec3.normalize(dir);
+    vec3.cross(dir, this.m_viewUp, this.m_right);
+    vec3.normalize(this.m_right);
+  }
+  
   //----------------------------------------------------------------------------
   this.yaw = function(degrees)
   {
@@ -78,11 +100,7 @@ function vesCamera()
 //    console.log(this.m_viewUp);
     mat4.multiplyVec3(mat, this.m_position, this.m_position);   
 
-    dir = new vec3.create();
-    vec3.direction(this.m_focalPoint, this.m_position, dir);
-    vec3.normalize(dir);
-    vec3.cross(dir, this.m_viewUp, this.m_right);
-    vec3.normalize(this.m_right);
+    this.computeOrthogonalAxes();
   }
 
 

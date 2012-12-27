@@ -116,23 +116,25 @@ function handleMouseMove(event)
 
   if (leftMouseButtonDown)
   {
-    // Do something
+    dx = currentMousePos.x - mouseLastPos.x;
+    dy = currentMousePos.y - mouseLastPos.y;
+    
+    // Scale
+    dx *= 0.5;    
+    dy *= 0.5;
+    
+    // Move the scnee in the direction of movement of mouse;
+    camera.pan(-dx, dy);
   }
 
   if (rightMouseButtonDown)
   { 
-    console.log('rightMouseButtonDown');
-    
-    zTrans = currentMousePos.y - mouseLastPos.y;
-    
-    console.log(zTrans);
-
+    zTrans = currentMousePos.y - mouseLastPos.y;    
     camera.zoom(zTrans * 0.5);
   }
 
   mouseLastPos.x = currentMousePos.x;
   mouseLastPos.y = currentMousePos.y;
-
 }
 
 //----------------------------------------------------------------------------
