@@ -2,8 +2,10 @@
 function createDefaultFragmentShader(context)
 {
   var fragmentShaderSource = [
+   'varying highp vec2 vTextureCoord;',
+   'uniform sampler2D uSampler;',
    'void main(void) {',
-   'gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);',
+     'gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));',
    '}'
   ].join('\n');
   
@@ -24,12 +26,15 @@ function createDefaultFragmentShader(context)
 function createDefaultVertexShader(context)
 {
   var vertexShaderSource = [
-    'attribute vec3 aVertexPosition;', 
+    'attribute vec3 aVertexPosition;',
+    'attribute vec2 aTextureCoord;',
     'uniform mat4 uMVMatrix;',
-    'uniform mat4 uPMatrix;',   
+    'uniform mat4 uPMatrix;',
+    'varying highp vec2 vTextureCoord;',
     'void main(void)', 
     '{',       
     'gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);',
+    ' vTextureCoord = aTextureCoord;',
     '}'
   ].join('\n');
   
@@ -65,6 +70,8 @@ function start()
     initShaders();
     
     initBuffers();
+    
+    initTextures();
     
     setInterval(drawScene, 15);
   }
@@ -112,6 +119,9 @@ function initShaders()
    
   vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
   gl.enableVertexAttribArray(vertexPositionAttribute);
+  
+  textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
+  gl.enableVertexAttribArray(textureCoordAttribute);
 }
 
 //----------------------------------------------------------------------------
@@ -122,13 +132,26 @@ function initBuffers()
    
   var vertices = 
   [
-    1.0,  1.0,  0.0,
-    -1.0, 1.0,  0.0,
-    1.0,  -1.0, 0.0,
-    -1.0, -1.0, 0.0
+    180.0,  90.0,  0.0,
+    -180.0, 90.0,  0.0,
+    180.0,  -90.0, 0.0,
+    -180.0, -90.0, 0.0
   ];
    
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);   
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);  
+  
+  squareVerticesTextureCoordBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesTextureCoordBuffer);
+   
+  var textureCoordinates = [    
+    1.0,  1.0,
+    0.0,  1.0,
+    1.0,  0.0,
+    0.0,  0.0    
+  ];
+   
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinates),
+                gl.STATIC_DRAW);
 }
 
 //----------------------------------------------------------------------------
@@ -136,34 +159,64 @@ function drawScene()
 {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-  perspectiveMatrix = makePerspective(45, 640.0/480.0, 0.1, 100.0);
+  perspectiveMatrix = makePerspective(45, 640.0/480.0, 0.1, 1000.0);
 
   loadIdentity();
-  mvTranslate([-0.0, 0.0, -6.0]);
+  mvTranslate([-0.0, 0.0, -400.0]);
 
   gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesBuffer);
   gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+  
+  // Set the texture coordinates attribute for the vertices.  
+  gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesTextureCoordBuffer);
+  gl.vertexAttribPointer(textureCoordAttribute, 2, gl.FLOAT, false, 0, 0);
+  
+  // Specify the texture to map onto the faces.  
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, worldTexture);
+  gl.uniform1i(gl.getUniformLocation(shaderProgram, "uSampler"), 0);
+  
   setMatrixUniforms();
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+}
+
+//----------------------------------------------------------------------------
+function initTextures()
+{
+  worldTexture = gl.createTexture();
+  worldImage = new Image();
+  worldImage.onload = function() { handleTextureLoaded(worldImage, worldTexture); }
+  worldImage.src = "land_shallow_topo_2048.png";
+}
+
+//----------------------------------------------------------------------------
+function handleTextureLoaded(image, texture) 
+{
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+  gl.generateMipmap(gl.TEXTURE_2D);
+  gl.bindTexture(gl.TEXTURE_2D, null);
 }
 
 //Utility functions
 //----------------------------------------------------------------------------
 function loadIdentity() 
 {
-mvMatrix = Matrix.I(4);
+  mvMatrix = Matrix.I(4);
 }
 
 //----------------------------------------------------------------------------
 function multMatrix(m) 
 {
-mvMatrix = mvMatrix.x(m);
+  mvMatrix = mvMatrix.x(m);
 }
 
 //----------------------------------------------------------------------------
 function mvTranslate(v) 
 {
-multMatrix(Matrix.Translation($V([v[0], v[1], v[2]])).ensure4x4());
+  multMatrix(Matrix.Translation($V([v[0], v[1], v[2]])).ensure4x4());
 }
 
 //----------------------------------------------------------------------------
@@ -175,5 +228,3 @@ function setMatrixUniforms()
   var mvUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
   gl.uniformMatrix4fv(mvUniform, false, new Float32Array(mvMatrix.flatten()));
 }
-
-
