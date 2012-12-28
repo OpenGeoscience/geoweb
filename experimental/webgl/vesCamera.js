@@ -1,4 +1,3 @@
-
 function vesCamera()
 {
   this.m_viewAngle = 30;
@@ -46,9 +45,9 @@ function vesCamera()
     this.m_position[1] += dir[1] * dz;
     this.m_position[2] += dir[2] * dz;
     
-    this.m_focalPoint[0] += dir[0] * dz;
-    this.m_focalPoint[1] += dir[1] * dz;
-    this.m_focalPoint[2] += dir[2] * dz;
+//    this.m_focalPoint[0] += dir[0] * dz;
+//    this.m_focalPoint[1] += dir[1] * dz;
+//    this.m_focalPoint[2] += dir[2] * dz;
 
     // TODO: If the distance between focal point and the camera position
     // goes really low then we run into issues
@@ -56,14 +55,11 @@ function vesCamera()
   
   //----------------------------------------------------------------------------
   this.pan = function(dx, dy)
-  {
-    this.computeOrthogonalAxes();
-    
-    this.m_position[0] += this.m_right[0] * dx;
-    this.m_position[1] += this.m_viewUp[1] * dy;    
-    
-    this.m_focalPoint[0] += this.m_right[0] * dx;
-    this.m_focalPoint[1] += this.m_viewUp[1] * dy;    
+  {      
+    this.m_position[0] += dx;
+    this.m_position[1] += dy;
+    this.m_focalPoint[0] += dx;
+    this.m_focalPoint[1] += dy;    
   }
   
   //----------------------------------------------------------------------------
@@ -159,9 +155,11 @@ function vesCamera()
   //----------------------------------------------------------------------------
   this.projectionMatrix = function(aspect, near, far)
   {
+    mat4.identity(this.m_projectionMatrix)
     mat4.perspective(this.m_viewAngle, aspect, near, far,
                      this.m_projectionMatrix);
 
+//    console.log("m_projectionMatrix ", this.m_projectionMatrix);
     return this.m_projectionMatrix;
   }
 }

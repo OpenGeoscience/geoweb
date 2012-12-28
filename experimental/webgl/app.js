@@ -4,6 +4,67 @@ var rightMouseButtonDown = false;
 var mouseLastPos = {};
 
 //----------------------------------------------------------------------------
+function worldToDisplay(worldPt, viewMatrix, projectionMatrix, width, height) 
+{
+  console.log('worldPt ', worldPt);
+  
+  var viewProjectionMatrix = mat4.create();
+  mat4.multiply(projectionMatrix, viewMatrix, viewProjectionMatrix); 
+  
+  // Transform world to clipping coordinates
+  var clipPt = vec4.create();
+  mat4.multiplyVec4(viewProjectionMatrix, worldPt, clipPt);
+  
+  if (clipPt[3] != 0.0)
+    {
+    clipPt[0] = clipPt[0] / clipPt[3];
+    clipPt[1] = clipPt[1] / clipPt[3];
+    clipPt[2] = clipPt[2] / clipPt[3];
+    clipPt[3] = 1.0;
+    }  
+  
+  var winX = Math.round( ( ( ( clipPt[0]) + 1 ) / 2.0) * width ); 
+  // We calculate -point3D.getY() because the screen Y axis is
+  // oriented top->down 
+  var winY = Math.round((( 1 - clipPt[1] ) / 2.0) *  height );  
+  var winZ = clipPt[2];
+  var winW = clipPt[3];
+  
+  console.log('worldToDisplay ', winX, winY, winZ);
+  
+  return vec4.createFrom(winX, winY, winZ, winW);
+}
+
+//----------------------------------------------------------------------------
+function displayToWorld(displayPt, viewMatrix, projectionMatrix, width, height) 
+{
+    console.log('displayPt ', displayPt);
+    
+    var x =  ( 2.0 * displayPt[0] / width )  - 1;    
+    var y = -( 2.0 * displayPt[1] / height ) + 1;
+    var z =  displayPt[2];
+    
+    var viewProjectionInverse = mat4.create();
+    mat4.multiply(projectionMatrix, viewMatrix, viewProjectionInverse);
+    mat4.inverse(viewProjectionInverse, viewProjectionInverse);
+
+    var worldPt = vec4.createFrom(x, y, z, 1);
+    mat4.multiplyVec4(viewProjectionInverse, worldPt, worldPt);
+    
+    if (worldPt[3] != 0.0)
+    {
+      worldPt[0] = worldPt[0] / worldPt[3];
+      worldPt[1] = worldPt[1] / worldPt[3];
+      worldPt[2] = worldPt[2] / worldPt[3];
+      worldPt[3] = 1.0;
+    }    
+    
+    console.log('displayToWorld ', worldPt);
+    
+    return worldPt;
+}
+
+//----------------------------------------------------------------------------
 function createDefaultFragmentShader(context)
 {
   var fragmentShaderSource = [
@@ -81,8 +142,7 @@ HTMLCanvasElement.prototype.relMouseCoords = relMouseCoords;
 
 //----------------------------------------------------------------------------
 function handleMouseMove(event)
-{
-  console.log('handleMouseMove');
+{  
   var canvas = document.getElementById("glcanvas");
   var outsideCanvas = false;
   
@@ -116,15 +176,24 @@ function handleMouseMove(event)
 
   if (leftMouseButtonDown)
   {
-    dx = currentMousePos.x - mouseLastPos.x;
-    dy = currentMousePos.y - mouseLastPos.y;
+    var focalPoint = camera.m_focalPoint;
+    var focusWorldPt = vec4.createFrom(focalPoint[0], focalPoint[1], focalPoint[2], 1);    
+    var focusDisplayPt = worldToDisplay(focusWorldPt, camera.m_viewMatrix,
+                           camera.m_projectionMatrix, 1680, 1050);
     
-    // Scale
-    dx *= 0.5;    
-    dy *= 0.5;
+    var displayPt1 = vec4.createFrom(currentMousePos.x, currentMousePos.y, focusDisplayPt[2], 1.0);
+    var displayPt2 = vec4.createFrom(mouseLastPos.x, mouseLastPos.y, focusDisplayPt[2], 1.0);
+    
+    var worldPt1 = displayToWorld(displayPt1, camera.m_viewMatrix,
+                     camera.m_projectionMatrix, 1680, 1050);
+    var worldPt2 = displayToWorld(displayPt2, camera.m_viewMatrix,
+        camera.m_projectionMatrix, 1680, 1050);
+    
+    dx = worldPt1[0] - worldPt2[0];
+    dy = worldPt1[1] - worldPt2[1];
     
     // Move the scnee in the direction of movement of mouse;
-    camera.pan(-dx, dy);
+    camera.pan(-dx, -dy);
   }
 
   if (rightMouseButtonDown)
