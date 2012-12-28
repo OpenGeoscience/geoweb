@@ -3,6 +3,9 @@ var leftMouseButtonDown = false;
 var rightMouseButtonDown = false;
 var mouseLastPos = {};
 
+// Disable console log
+console.log = function() {}
+
 //----------------------------------------------------------------------------
 function worldToDisplay(worldPt, viewMatrix, projectionMatrix, width, height) 
 {

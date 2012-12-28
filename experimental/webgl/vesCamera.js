@@ -6,6 +6,7 @@ function vesCamera()
   this.m_viewUp = vec3.create([0.0, 1.0, 0.0]);
   this.m_right = vec3.create([1.0, 0.0, 0.0]);
   this.m_pitchMatrix = mat4.create();
+  this.m_directionOfProjection = vec3.createFrom(0.0, 0.0, -1.0); 
   this.m_cache = vec3.create([1.0, 0.0, 0.0]);
 
   this.m_viewMatrix = mat4.create();
@@ -36,14 +37,30 @@ function vesCamera()
   {
     // Since our direction vector is changed, we need to first
     // calculate this new direction
-    dir = new vec3.create();
-    vec3.direction(this.m_focalPoint, this.m_position, dir);
+    var lastPosition = vec3.createFrom(this.m_position[0], this.m_position[1], 
+                                       this.m_position[2]);
+    
+    var deltaX =  this.m_directionOfProjection[0] * dz;
+    var deltaY =  this.m_directionOfProjection[1] * dz;
+    var deltaZ =  this.m_directionOfProjection[2] * dz;
 
-    lastPosition = this.m_position;
-
-    this.m_position[0] += dir[0] * dz;
-    this.m_position[1] += dir[1] * dz;
-    this.m_position[2] += dir[2] * dz;
+    this.m_position[0] += deltaX;
+    this.m_position[1] += deltaY;
+    this.m_position[2] += deltaZ;   
+     
+    var distance = vec3.create();
+    var directionOfProjection = vec3.create();    
+    vec3.subtract(this.m_focalPoint, this.m_position, distance);
+    vec3.normalize(distance, directionOfProjection)   
+    
+ 
+    if (vec3.dot(directionOfProjection, this.m_directionOfProjection) <= 0)
+    {
+      // We are on the other side of the focal point
+      this.m_position[0] = lastPosition[0];
+      this.m_position[1] = lastPosition[1];
+      this.m_position[2] = lastPosition[2];
+    }
     
 //    this.m_focalPoint[0] += dir[0] * dz;
 //    this.m_focalPoint[1] += dir[1] * dz;
@@ -148,6 +165,9 @@ function vesCamera()
     
     temp = vec3.create([this.m_viewMatrix[0], this.m_viewMatrix[1], this.m_viewMatrix[2]]);
     vec3.set(temp, this.m_cache);
+    
+    vec3.subtract(this.m_focalPoint, this.m_position, this.m_directionOfProjection);
+    vec3.normalize(this.m_directionOfProjection, this.m_directionOfProjection);
 
     return this.m_viewMatrix;
   }
