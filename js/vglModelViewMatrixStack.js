@@ -1,4 +1,4 @@
-function vesModelViewMatrixStack()
+function vglModelViewMatrixStack()
 {
   var mvMatrixStack = []
 

@@ -1,69 +1,137 @@
+
+//////////////////////////////////////////////////////////////////////////////
+///
+/// Globals
+///
+//////////////////////////////////////////////////////////////////////////////
+
 var camera;
 var leftMouseButtonDown = false;
 var rightMouseButtonDown = false;
 var mouseLastPos = {};
+var buffers = {};
+var bufferAttributeMap = {};
+var vertexAttributeMap = {};
 
 // Disable console log
 console.log = function() {}
 
 //----------------------------------------------------------------------------
-function worldToDisplay(worldPt, viewMatrix, projectionMatrix, width, height) 
+// TODO Move it somewhere else
+function createWorldPlane()
+{
+  var geom = new vglGeometryData();
+  var source = new vglSourceData();
+  source.addAttribute(vglVertexAttributeKeys.Position,
+                      vglDataType.Float,
+                      4,
+                      0,
+                      4 * 4,
+                      3,
+                      false);
+  source.addAttribute(vglVertexAttributeKeys.TextureCoordinate,
+      vglDataType.Float,
+      4,
+      12,
+      4 * 4,
+      3,
+      false);
+
+  var triIndices =
+  [
+    0,1,2,3
+  ];
+
+  var v1 = new vglVertexDataP3T3f();
+  v1.m_position = new Array(180.0,  90.0,  0.0);
+  v1.m_texCoordinate = new Array(1.0, 1.0, 0.0);
+
+  var v2 = new vglVertexDataP3T3f();
+  v2.m_position = new Array(-180.0, 90.0,  0.0);
+  v2.m_texCoordinate = new Array(0.0, 1.0, 0.0);
+
+  var v3 = new vglVertexDataP3T3f();
+  v3.m_position = new Array(180.0,  -90.0, 0.0);
+  v3.m_texCoordinate = new Array(1.0, 0.0, 0.0);
+
+  var v4 = new vglVertexDataP3T3f();
+  v4.m_position = new Array(-180.0, -90.0, 0.0);
+  v4.m_texCoordinate = new Array(0.0, 0.0, 0.0);
+
+  source.pushBack(v1);
+  source.pushBack(v2);
+  source.pushBack(v3);
+  source.pushBack(v4);
+
+  // Create primitives
+  var triangleStrip = new vglTriangleStrip();
+  triangleStrip.init();
+  triangleStrip.setIndices(triIndices);
+
+  geom.setName("World");
+  geom.addSource(source);
+  geom.addPrimitive(triangleStrip);
+  return geom;
+}
+
+//----------------------------------------------------------------------------
+function worldToDisplay(worldPt, viewMatrix, projectionMatrix, width, height)
 {
   console.log('worldPt ', worldPt);
-  
+
   var viewProjectionMatrix = mat4.create();
-  mat4.multiply(projectionMatrix, viewMatrix, viewProjectionMatrix); 
-  
+  mat4.multiply(projectionMatrix, viewMatrix, viewProjectionMatrix);
+
   // Transform world to clipping coordinates
   var clipPt = vec4.create();
   mat4.multiplyVec4(viewProjectionMatrix, worldPt, clipPt);
-  
+
   if (clipPt[3] != 0.0)
     {
     clipPt[0] = clipPt[0] / clipPt[3];
     clipPt[1] = clipPt[1] / clipPt[3];
     clipPt[2] = clipPt[2] / clipPt[3];
     clipPt[3] = 1.0;
-    }  
-  
-  var winX = Math.round( ( ( ( clipPt[0]) + 1 ) / 2.0) * width ); 
+    }
+
+  var winX = Math.round( ( ( ( clipPt[0]) + 1 ) / 2.0) * width );
   // We calculate -point3D.getY() because the screen Y axis is
-  // oriented top->down 
-  var winY = Math.round((( 1 - clipPt[1] ) / 2.0) *  height );  
+  // oriented top->down
+  var winY = Math.round((( 1 - clipPt[1] ) / 2.0) *  height );
   var winZ = clipPt[2];
   var winW = clipPt[3];
-  
+
   console.log('worldToDisplay ', winX, winY, winZ);
-  
+
   return vec4.createFrom(winX, winY, winZ, winW);
 }
 
 //----------------------------------------------------------------------------
-function displayToWorld(displayPt, viewMatrix, projectionMatrix, width, height) 
+function displayToWorld(displayPt, viewMatrix, projectionMatrix, width, height)
 {
     console.log('displayPt ', displayPt);
-    
-    var x =  ( 2.0 * displayPt[0] / width )  - 1;    
+
+    var x =  ( 2.0 * displayPt[0] / width )  - 1;
     var y = -( 2.0 * displayPt[1] / height ) + 1;
     var z =  displayPt[2];
-    
+
     var viewProjectionInverse = mat4.create();
     mat4.multiply(projectionMatrix, viewMatrix, viewProjectionInverse);
     mat4.inverse(viewProjectionInverse, viewProjectionInverse);
 
     var worldPt = vec4.createFrom(x, y, z, 1);
     mat4.multiplyVec4(viewProjectionInverse, worldPt, worldPt);
-    
+
     if (worldPt[3] != 0.0)
     {
       worldPt[0] = worldPt[0] / worldPt[3];
       worldPt[1] = worldPt[1] / worldPt[3];
       worldPt[2] = worldPt[2] / worldPt[3];
       worldPt[3] = 1.0;
-    }    
-    
+    }
+
     console.log('displayToWorld ', worldPt);
-    
+
     return worldPt;
 }
 
@@ -77,17 +145,17 @@ function createDefaultFragmentShader(context)
      'gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));',
    '}'
   ].join('\n');
-  
+
   shader = gl.createShader(gl.FRAGMENT_SHADER);
   gl.shaderSource(shader, fragmentShaderSource);
   gl.compileShader(shader);
-  
+
   // See if it compiled successfully
-  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {  
-      alert("An error occurred compiling the shaders: " + gl.getShaderInfoLog(shader));  
-      return null;  
+  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      alert("An error occurred compiling the shaders: " + gl.getShaderInfoLog(shader));
+      return null;
   }
-     
+
   return shader;
 }
 
@@ -100,24 +168,24 @@ function createDefaultVertexShader(context)
     'uniform mat4 uMVMatrix;',
     'uniform mat4 uPMatrix;',
     'varying highp vec2 vTextureCoord;',
-    'void main(void)', 
-    '{',       
+    'void main(void)',
+    '{',
     'gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);',
     ' vTextureCoord = aTextureCoord;',
     '}'
   ].join('\n');
-  
+
     shader = gl.createShader(gl.VERTEX_SHADER);
     gl.shaderSource(shader, vertexShaderSource);
     gl.compileShader(shader);
-  
+
   // See if it compiled successfully
-  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {  
-      alert("An error occurred compiling the shaders: " + gl.getShaderInfoLog(shader));  
-      return null;  
+  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      alert("An error occurred compiling the shaders: " + gl.getShaderInfoLog(shader));
+      return null;
   }
-     
-  return shader; 
+
+  return shader;
 }
 
 //----------------------------------------------------------------------------
@@ -145,13 +213,13 @@ HTMLCanvasElement.prototype.relMouseCoords = relMouseCoords;
 
 //----------------------------------------------------------------------------
 function handleMouseMove(event)
-{  
+{
   var canvas = document.getElementById("glcanvas");
   var outsideCanvas = false;
-  
+
   coords = canvas.relMouseCoords(event);
-  
-  currentMousePos = {};  
+
+  currentMousePos = {};
   if (coords.x < 0)
   {
     currentMousePos.x = 0;
@@ -180,28 +248,28 @@ function handleMouseMove(event)
   if (leftMouseButtonDown)
   {
     var focalPoint = camera.m_focalPoint;
-    var focusWorldPt = vec4.createFrom(focalPoint[0], focalPoint[1], focalPoint[2], 1);    
+    var focusWorldPt = vec4.createFrom(focalPoint[0], focalPoint[1], focalPoint[2], 1);
     var focusDisplayPt = worldToDisplay(focusWorldPt, camera.m_viewMatrix,
                            camera.m_projectionMatrix, 1680, 1050);
-    
+
     var displayPt1 = vec4.createFrom(currentMousePos.x, currentMousePos.y, focusDisplayPt[2], 1.0);
     var displayPt2 = vec4.createFrom(mouseLastPos.x, mouseLastPos.y, focusDisplayPt[2], 1.0);
-    
+
     var worldPt1 = displayToWorld(displayPt1, camera.m_viewMatrix,
                      camera.m_projectionMatrix, 1680, 1050);
     var worldPt2 = displayToWorld(displayPt2, camera.m_viewMatrix,
         camera.m_projectionMatrix, 1680, 1050);
-    
+
     dx = worldPt1[0] - worldPt2[0];
     dy = worldPt1[1] - worldPt2[1];
-    
+
     // Move the scnee in the direction of movement of mouse;
     camera.pan(-dx, -dy);
   }
 
   if (rightMouseButtonDown)
-  { 
-    zTrans = currentMousePos.y - mouseLastPos.y;    
+  {
+    zTrans = currentMousePos.y - mouseLastPos.y;
     camera.zoom(zTrans * 0.5);
   }
 
@@ -212,7 +280,7 @@ function handleMouseMove(event)
 //----------------------------------------------------------------------------
 function handleMouseDown(event)
 {
-  var canvas = document.getElementById("glcanvas");  
+  var canvas = document.getElementById("glcanvas");
 
   if (event.button == 0)
   {
@@ -272,26 +340,24 @@ function handleMouseUp(event)
 //----------------------------------------------------------------------------
 function start()
 {
-	var canvas = document.getElementById("glcanvas");
-	 
 	// Initialize the GL context
-  initWebGL(canvas);      
+	webGL();
 
   // Only continue if WebGL is available and working
-  if (gl) 
+  if (gl)
   {
     gl.clearColor(0.0, 0.0, 0.0, 1.0);                      // Set clear color to black, fully opaque
     gl.enable(gl.DEPTH_TEST);                               // Enable depth testing
     gl.depthFunc(gl.LEQUAL);                                // Near things obscure far things
     gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);      // Clear the color as well as the depth buffer.
-    
+
     initScene();
-    
+
     document.onmousedown = handleMouseDown;
     document.onmouseup = handleMouseUp;
     document.onmousemove = handleMouseMove;
     document.oncontextmenu=new Function("return false");
-    
+
     setInterval(drawScene, 15);
   }
 }
@@ -300,116 +366,125 @@ function start()
 function initScene()
 {
   initShaders();
-  
+
   initBuffers();
-  
+
   initTextures();
-  
-  camera = new vesCamera();
+
+  camera = new vglCamera();
   camera.setPosition(0.0, 0.0, 400.0);
-  camera.setFocalPoint(0.0, 0.0, 0.0);  
+  camera.setFocalPoint(0.0, 0.0, 0.0);
 }
 
 //----------------------------------------------------------------------------
-function initWebGL(canvas) 
-{
-  // Initialize the global variable gl to null.
-  gl = null;
-   
-  try 
-  {
-    // Try to grab the standard context. If it fails, fallback to experimental.
-    gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
-  }
-  catch(e) {}
-   
-  // If we don't have a GL context, give up now
-  if (!gl) 
-  {
-    alert("Unable to initialize WebGL. Your browser may not support it.");
-  }
-}
-
-//----------------------------------------------------------------------------
-function initShaders() 
+function initShaders()
 {
   var fragmentShader = createDefaultVertexShader(gl);
   var vertexShader = createDefaultFragmentShader(gl);
-  
-  // Create the shader program   
+
+  // Create the shader program
   shaderProgram = gl.createProgram();
   gl.attachShader(shaderProgram, vertexShader);
   gl.attachShader(shaderProgram, fragmentShader);
   gl.linkProgram(shaderProgram);
-   
-  // If creating the shader program failed, alert   
-  if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) 
+
+  // If creating the shader program failed, alert
+  if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS))
   {
     alert("Unable to initialize the shader program.");
   }
-   
+
   gl.useProgram(shaderProgram);
-   
+
   vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
   gl.enableVertexAttribArray(vertexPositionAttribute);
-  
+
   textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
   gl.enableVertexAttribArray(textureCoordAttribute);
+
+  vertexAttributeMap[vglVertexAttributeKeys.Position] = vertexPositionAttribute;
+  vertexAttributeMap[vglVertexAttributeKeys.TextureCoordinate] = textureCoordAttribute;
 }
 
 //----------------------------------------------------------------------------
 function initBuffers()
 {
-  squareVerticesBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesBuffer);
-   
-  var vertices = 
-  [
-    180.0,  90.0,  0.0,
-    -180.0, 90.0,  0.0,
-    180.0,  -90.0, 0.0,
-    -180.0, -90.0, 0.0
-  ];
-   
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);  
-  
-  squareVerticesTextureCoordBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesTextureCoordBuffer);
-   
-  var textureCoordinates = [    
-    1.0,  1.0,
-    0.0,  1.0,
-    1.0,  0.0,
-    0.0,  0.0    
-  ];
-   
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinates),
-                gl.STATIC_DRAW);
+  geom = this.createWorldPlane();
+  var numberOfSources = geom.numberOfSources();
+
+  var i = 0;
+  for (; i < numberOfSources; ++i)
+  {
+    var bufferId = gl.createBuffer();
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
+    gl.bufferData(gl.ARRAY_BUFFER, geom.source(i).data(), gl.STATIC_DRAW);
+
+    keys = geom.source(i).keys();
+
+    ks = [];
+    for (var j = 0; j < keys.length; ++j)
+    {
+      ks.push(keys[j]);
+    }
+
+    bufferAttributeMap[i] = ks;
+    buffers[i] = bufferId;
+  }
+
+  var numberOfPrimitives = geom.numberOfPrimitives();
+  for (var k = 0; k < numberOfPrimitives; ++k)
+  {
+    var bufferId = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, bufferId);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, geom.primitive(k).indices(), gl.STATIC_DRAW);
+    buffers[i++] = bufferId;
+  }
 }
 
 //----------------------------------------------------------------------------
-function drawScene() 
+function drawScene()
 {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  
+
   perspectiveMatrix = camera.projectionMatrix(1680.0/1050.0, 0.1, 1000.0);
 
-  loadIdentity();  
+  loadIdentity();
 
-  gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesBuffer);
-  gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
-  
-  // Set the texture coordinates attribute for the vertices.  
-  gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesTextureCoordBuffer);
-  gl.vertexAttribPointer(textureCoordAttribute, 2, gl.FLOAT, false, 0, 0);
-  
-  // Specify the texture to map onto the faces.  
+  var i = 0;
+  for (var bufferId in bufferAttributeMap)
+  {
+    if (bufferAttributeMap.hasOwnProperty(bufferId))
+    {
+      gl.bindBuffer(gl.ARRAY_BUFFER, buffers[i]);
+
+      for (var j = 0; j < bufferAttributeMap[i].length; ++j)
+      {
+        // TODO Fix this
+        gl.vertexAttribPointer(
+            vertexAttributeMap[bufferAttributeMap[i][j]], 3, gl.FLOAT, false, 0, 0);
+
+      }
+    }
+    ++i;
+  }
+
+  // Specify the texture to map onto the faces.
   gl.activeTexture(gl.TEXTURE0);
   gl.bindTexture(gl.TEXTURE_2D, worldTexture);
   gl.uniform1i(gl.getUniformLocation(shaderProgram, "uSampler"), 0);
-  
+
   setMatrixUniforms();
-  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+  // TODO Fix this
+  var noOfPrimitives = geom.numberOfPrimitives();
+  for (var j = 0; j < noOfPrimitives; ++j)
+  {
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers[i++]);
+    var primitive = geom.primitive(j);
+    gl.drawElements(gl.TRIANGLE_STRIP, primitive.numberOfIndices(),
+                    gl.UNSIGNED_SHORT,  0);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -422,7 +497,7 @@ function initTextures()
 }
 
 //----------------------------------------------------------------------------
-function handleTextureLoaded(image, texture) 
+function handleTextureLoaded(image, texture)
 {
   gl.bindTexture(gl.TEXTURE_2D, texture);
   gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
@@ -435,25 +510,25 @@ function handleTextureLoaded(image, texture)
 
 //Utility functions
 //----------------------------------------------------------------------------
-function loadIdentity() 
+function loadIdentity()
 {
   mvMatrix = Matrix.I(4);
 }
 
 //----------------------------------------------------------------------------
-function multMatrix(m) 
+function multMatrix(m)
 {
   mvMatrix = mvMatrix.x(m);
 }
 
 //----------------------------------------------------------------------------
-function mvTranslate(v) 
+function mvTranslate(v)
 {
   multMatrix(Matrix.Translation($V([v[0], v[1], v[2]])).ensure4x4());
 }
 
 //----------------------------------------------------------------------------
-function setMatrixUniforms() 
+function setMatrixUniforms()
 {
   var pUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
   gl.uniformMatrix4fv(pUniform, false, perspectiveMatrix);
