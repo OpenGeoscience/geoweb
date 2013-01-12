@@ -4,10 +4,11 @@ import os
 
 from mako.template import Template
 from mako.lookup import TemplateLookup
-template_dir = os.path.join(os.path.dirname(os.path.abspath(__file_)_), '../html')
+template_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../html')
 lookup = TemplateLookup(directories=[template_dir])
 
 JS_DIR = os.path.join(os.path.abspath("."), u"js")
+CONFIG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'app.conf')
 
 class Root(object):
     @cherrypy.expose
@@ -22,13 +23,7 @@ class Root(object):
       name = "My name is aashish"
       return name
 
-config = {'/js':
-                {'tools.staticdir.on': True,
-                 'tools.staticdir.dir': JS_DIR,
-                }
-        }
-
-cherrypy.tree.mount(Root(), '/', config=config)
+cherrypy.tree.mount(Root(), '/', config=CONFIG_FILE)
 
 if __name__ == '__main__':
     import os.path
