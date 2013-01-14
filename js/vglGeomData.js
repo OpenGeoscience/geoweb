@@ -168,16 +168,12 @@ vglPrimitive.prototype.setIndexCount = function(count)
 
 function vglTriangleStrip()
 {
-}
-
-inherit(vglTriangleStrip, vglPrimitive);
-
-vglTriangleStrip.prototype.init = function()
-{
   this.setPrimitiveType(vglPrimitiveRenderType.TriangleStrip);
   this.setIndicesValueType(vesPrimitiveIndicesValueType.UnsignedShort);
   this.setIndexCount(3);
 }
+
+inherit(vglTriangleStrip, vglPrimitive);
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -237,8 +233,9 @@ function vglSourceData()
   /// Return data
   this.data = function()
   {
-    alert(this.m_data);
-    return new Float32Array(this.m_data);
+    console.log(this.m_data);
+    this.m_glData = new Float32Array(this.m_data);
+    return this.m_glData;
   }
 
   ///
@@ -369,12 +366,13 @@ function vglSourceData()
   this.pushBack = function(value)
   {
     // TODO FIX this
-    this.m_data.push(value.m_position);
-    this.m_data.push(value.m_texCoordinate);
+    this.m_data = this.m_data.concat(value.m_position);
+    this.m_data = this.m_data.concat(value.m_texCoordinate);
   }
 
  this.m_attributesMap = {};
  this.m_data = [];
+ this.m_glData = 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////

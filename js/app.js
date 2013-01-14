@@ -14,7 +14,7 @@ var bufferAttributeMap = {};
 var vertexAttributeMap = {};
 
 // Disable console log
-console.log = function() {}
+//console.log = function() {}
 
 //----------------------------------------------------------------------------
 // TODO Move it somewhere else
@@ -26,14 +26,14 @@ function createWorldPlane()
                       vglDataType.Float,
                       4,
                       0,
-                      4 * 4,
+                      6 * 4,
                       3,
                       false);
   source.addAttribute(vglVertexAttributeKeys.TextureCoordinate,
       vglDataType.Float,
       4,
       12,
-      4 * 4,
+      6 * 4,
       3,
       false);
 
@@ -65,7 +65,6 @@ function createWorldPlane()
 
   // Create primitives
   var triangleStrip = new vglTriangleStrip();
-  triangleStrip.init();
   triangleStrip.setIndices(triIndices);
 
   geom.setName("World");
@@ -416,12 +415,12 @@ function initBuffers()
   for (; i < numberOfSources; ++i)
   {
     var bufferId = gl.createBuffer();
-
     gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
     gl.bufferData(gl.ARRAY_BUFFER, geom.source(i).data(), gl.STATIC_DRAW);
 
-    keys = geom.source(i).keys();
+    alert(geom.source(i).data()[0]);
 
+    keys = geom.source(i).keys();
     ks = [];
     for (var j = 0; j < keys.length; ++j)
     {
@@ -461,9 +460,14 @@ function drawScene()
       for (var j = 0; j < bufferAttributeMap[i].length; ++j)
       {
         // TODO Fix this
-        gl.vertexAttribPointer(
-            vertexAttributeMap[bufferAttributeMap[i][j]], 3, gl.FLOAT, false, 0, 0);
+        var key = bufferAttributeMap[i][j];
 
+        gl.vertexAttribPointer(vertexAttributeMap[key],
+            3,
+            gl.FLOAT,
+            false,
+            24,
+            geom.source(i).attributeOffset(key));
       }
     }
     ++i;
