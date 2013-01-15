@@ -21,21 +21,7 @@ var vertexAttributeMap = {};
 function createWorldPlane()
 {
   var geom = new vglGeometryData();
-  var source = new vglSourceData();
-  source.addAttribute(vglVertexAttributeKeys.Position,
-                      vglDataType.Float,
-                      4,
-                      0,
-                      6 * 4,
-                      3,
-                      false);
-  source.addAttribute(vglVertexAttributeKeys.TextureCoordinate,
-      vglDataType.Float,
-      4,
-      12,
-      6 * 4,
-      3,
-      false);
+  var source = new vglSourceDataP3t3f();
 
   var triIndices =
   [
@@ -417,8 +403,6 @@ function initBuffers()
     var bufferId = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
     gl.bufferData(gl.ARRAY_BUFFER, geom.source(i).data(), gl.STATIC_DRAW);
-
-    alert(geom.source(i).data()[0]);
 
     keys = geom.source(i).keys();
     ks = [];

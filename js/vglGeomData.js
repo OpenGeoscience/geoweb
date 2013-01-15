@@ -135,6 +135,11 @@ vglPrimitive.prototype.indexCount = function()
 {
   return this.m_indexCount;
 }
+/// Set index count (how many indices form a primitive)
+vglPrimitive.prototype.setIndexCount = function(count)
+{
+  this.m_indexCount = count;
+}
 
 /// Return indices value type
 vglPrimitive.prototype.indicesValueType = function()
@@ -154,12 +159,6 @@ vglPrimitive.prototype.setIndices = function(indicesArray)
   this.m_indices = new Uint16Array(indicesArray);
 }
 
-/// Set index count (how many indices form a primitive)
-vglPrimitive.prototype.setIndexCount = function(count)
-{
-  this.m_indexCount = count;
-}
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // vglTriangleStrip
@@ -168,6 +167,8 @@ vglPrimitive.prototype.setIndexCount = function(count)
 
 function vglTriangleStrip()
 {
+  vglPrimitive.call(this);
+
   this.setPrimitiveType(vglPrimitiveRenderType.TriangleStrip);
   this.setIndicesValueType(vesPrimitiveIndicesValueType.UnsignedShort);
   this.setIndexCount(3);
@@ -206,174 +207,192 @@ function vglVertexDataP3T3f()
 
 function vglSourceData()
 {
-  ////////////////////////////////////////////////////////////////////////////
-  function vglAttributeData()
-  {
-    /// Number of components per group
-    this.m_numberOfComponents = 0;
-
-    /// Type of data type (GL_FLOAT etc)
-    this.m_dataType = 0;
-
-    /// Size of data type
-    this.m_dataTypeSize = 0;
-
-    /// Specifies whether fixed-point data values should be normalized
-    /// (true) or converted directly as fixed-point values (false)
-    /// when they are accessed.
-    this.m_normalized = false;
-
-    /// Strides for each attribute.
-    this.m_stride = 0;
-
-    /// Offset
-    this.m_offset = 0;
-  }
-
-  /// Return data
-  this.data = function()
-  {
-    console.log(this.m_data);
-    this.m_glData = new Float32Array(this.m_data);
-    return this.m_glData;
-  }
-
-  ///
-  this.addAttribute = function(key, dataType, sizeOfDataType, offset, stride,
-                               noOfComponents, normalized)
-  {
-    if ( (key in this.m_attributesMap) == false )
-    {
-      var newAttr = new vglAttributeData();
-      newAttr.m_dataType = dataType;
-      newAttr.m_dataTypeSize = sizeOfDataType;
-      newAttr.m_offset = offset;
-      newAttr.m_stride = stride;
-      newAttr.m_numberOfComponents  = noOfComponents;
-      newAttr.m_normalized = normalized;
-
-      this.m_attributesMap[key] = newAttr;
-    }
-  }
-
-  /// Return size of the data
-  this.sizeOfArray = function()
-  {
-    return Object.size(this.m_data);
-  }
-
-  /// Return size of the data in bytes
-  this.sizeInByes = function()
-  {
-    var sizeInBytes = 0;
-    var keys = this.keys();
-
-    for (var i = 0; i < keys.length(); ++i)
-    {
-      sizeInBytes += this.numberOfComponents(keys[i]) *
-                       this.sizeOfAttributeDataType(keys[i]);
-    }
-
-    sizeInBytes *= this.sizeOfArray();
-
-    return sizeInBytes;
-  }
-
-  /// Check if there is attribute exists of a given key type
-  this.hasKey = function(key)
-  {
-    return (key in this.m_attributesMap);
-  }
-  /// Return keys of all attributes
-  this.keys = function()
-  {
-    return Object.keys(this.m_attributesMap);
-  }
-
-  ///
-  this.numberOfAttributes = function()
-  {
-    return Object.size(this.m_attributesMap);
-  }
-
-  ///
-  this.numberOfComponents = function(key)
-  {
-    if (key in this.m_attributesMap)
-    {
-      return this.m_attributesMap[key].m_numberOfComponents;
-    }
-
-    return 0;
-  }
-
-  ///
-  this.isAttributeNormalized = function(key)
-  {
-    if (key in this.m_attributesMap)
-    {
-      return this.m_attributesMap[key];
-    }
-
-    return false;
-  }
-
-  ///
-  this.sizeOfAttributeDataType = function(key)
-  {
-    if (key in this.m_attributesMap)
-    {
-      return this.m_attributesMap[key].m_dataTypeSize;
-    }
-
-    return 0;
-  }
-
-  ///
-  this.attributeDataType = function(key)
-  {
-    if (key in this.m_attributesMap)
-    {
-      return this.m_attributesMap[key].m_dataType;
-    }
-
-    return vglDataType.Undefined;
-  }
-
-  ///
-  this.attributeOffset = function(key)
-  {
-    if (key in this.m_attributesMap)
-    {
-      return this.m_attributesMap[key].m_offset;
-    }
-
-    return 0;
-  }
-
-  ///
-  this.attributeStride = function(key)
-  {
-    if (key in this.m_attributesMap)
-    {
-      return this.m_attributesMap[key].m_stride;
-    }
-
-    return 0;
-  }
-
-  ///
-  this.pushBack = function(value)
-  {
-    // TODO FIX this
-    this.m_data = this.m_data.concat(value.m_position);
-    this.m_data = this.m_data.concat(value.m_texCoordinate);
-  }
-
  this.m_attributesMap = {};
  this.m_data = [];
  this.m_glData = 0;
 }
+
+vglSourceData.prototype.vglAttributeData = function()
+{
+  /// Number of components per group
+  this.m_numberOfComponents = 0;
+
+  /// Type of data type (GL_FLOAT etc)
+  this.m_dataType = 0;
+
+  /// Size of data type
+  this.m_dataTypeSize = 0;
+
+  /// Specifies whether fixed-point data values should be normalized
+  /// (true) or converted directly as fixed-point values (false)
+  /// when they are accessed.
+  this.m_normalized = false;
+
+  /// Strides for each attribute.
+  this.m_stride = 0;
+
+  /// Offset
+  this.m_offset = 0;
+}
+
+/// Return data
+vglSourceData.prototype.data = function()
+{
+  console.log(this.m_data);
+  this.m_glData = new Float32Array(this.m_data);
+  return this.m_glData;
+}
+
+///
+vglSourceData.prototype.addAttribute =
+  function(key, dataType, sizeOfDataType, offset, stride,
+           noOfComponents, normalized)
+{
+  if ( (key in this.m_attributesMap) == false )
+  {
+    var newAttr = new this.vglAttributeData();
+    newAttr.m_dataType = dataType;
+    newAttr.m_dataTypeSize = sizeOfDataType;
+    newAttr.m_offset = offset;
+    newAttr.m_stride = stride;
+    newAttr.m_numberOfComponents  = noOfComponents;
+    newAttr.m_normalized = normalized;
+
+    this.m_attributesMap[key] = newAttr;
+  }
+}
+
+/// Return size of the data
+vglSourceData.prototype.sizeOfArray = function()
+{
+  return Object.size(this.m_data);
+}
+
+/// Return size of the data in bytes
+vglSourceData.prototype.sizeInByes = function()
+{
+  var sizeInBytes = 0;
+  var keys = this.keys();
+
+  for (var i = 0; i < keys.length(); ++i)
+  {
+    sizeInBytes += this.numberOfComponents(keys[i]) *
+                     this.sizeOfAttributeDataType(keys[i]);
+  }
+
+  sizeInBytes *= this.sizeOfArray();
+
+  return sizeInBytes;
+}
+
+/// Check if there is attribute exists of a given key type
+vglSourceData.prototype.hasKey = function(key)
+{
+  return (key in this.m_attributesMap);
+}
+/// Return keys of all attributes
+vglSourceData.prototype.keys = function()
+{
+  return Object.keys(this.m_attributesMap);
+}
+
+///
+vglSourceData.prototype.numberOfAttributes = function()
+{
+  return Object.size(this.m_attributesMap);
+}
+
+///
+vglSourceData.prototype.numberOfComponents = function(key)
+{
+  if (key in this.m_attributesMap)
+  {
+    return this.m_attributesMap[key].m_numberOfComponents;
+  }
+
+  return 0;
+}
+
+///
+vglSourceData.prototype.isAttributeNormalized = function(key)
+{
+  if (key in this.m_attributesMap)
+  {
+    return this.m_attributesMap[key];
+  }
+
+  return false;
+}
+
+///
+vglSourceData.prototype.sizeOfAttributeDataType = function(key)
+{
+  if (key in this.m_attributesMap)
+  {
+    return this.m_attributesMap[key].m_dataTypeSize;
+  }
+
+  return 0;
+}
+
+///
+vglSourceData.prototype.attributeDataType = function(key)
+{
+  if (key in this.m_attributesMap)
+  {
+    return this.m_attributesMap[key].m_dataType;
+  }
+
+  return vglDataType.Undefined;
+}
+
+///
+vglSourceData.prototype.attributeOffset = function(key)
+{
+  if (key in this.m_attributesMap)
+  {
+    return this.m_attributesMap[key].m_offset;
+  }
+
+  return 0;
+}
+
+///
+vglSourceData.prototype.attributeStride = function(key)
+{
+  if (key in this.m_attributesMap)
+  {
+    return this.m_attributesMap[key].m_stride;
+  }
+
+  return 0;
+}
+
+///
+vglSourceData.prototype.pushBack = function(value)
+{
+  // TODO FIX this
+  this.m_data = this.m_data.concat(value.m_position);
+  this.m_data = this.m_data.concat(value.m_texCoordinate);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// vglSourceDataP3t3f
+//
+//////////////////////////////////////////////////////////////////////////////
+
+function vglSourceDataP3t3f()
+{
+  vglSourceData.call(this);
+
+  this.addAttribute(vglVertexAttributeKeys.Position, vglDataType.Float,
+                    4, 0, 6 * 4, 3, false);
+  this.addAttribute(vglVertexAttributeKeys.TextureCoordinate,
+                    vglDataType.Float, 4, 12, 6 * 4, 3, false);
+}
+
+inherit(vglSourceDataP3t3f, vglSourceData);
 
 //////////////////////////////////////////////////////////////////////////////
 //
