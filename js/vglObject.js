@@ -16,25 +16,23 @@
   limitations under the License.
  ========================================================================*/
 
-function vglModelViewMatrixStack()
-{
-  var mvMatrixStack = []
+//////////////////////////////////////////////////////////////////////////////
+//
+// vglObject class
+//
+//////////////////////////////////////////////////////////////////////////////
 
-  this.pushMatrix = function(mat)
-  {
-    var copy = mat4.create();
-    mat4.set(mat, copy);
-    mvMatrixStack.push(copy);
-  }
+function vglObject() {
+  this.m_modified = false;
+}
 
-  this.popMatrix = function()
-  {
-    if (mvMatrixStack.length == 0)
-    {
-      throw "Invalid popMatrix!";
-    }
-    mat = mvMatrixStack.pop();
-
-    return mat;
-  }
+///
+///---------------------------------------------------------------------------
+vglObject.prototype.modified = function() {
+  return this.m_modified;
+}
+/// Set dirty
+///---------------------------------------------------------------------------
+vglObject.prototype.setModified = function(flag) {
+  this.m_modified = flag;
 }

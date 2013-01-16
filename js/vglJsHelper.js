@@ -16,25 +16,25 @@
   limitations under the License.
  ========================================================================*/
 
-function vglModelViewMatrixStack()
-{
-  var mvMatrixStack = []
+//////////////////////////////////////////////////////////////////////////////
+///
+/// This JS unit defines useful functions essential for VGL implementation
+///
+//////////////////////////////////////////////////////////////////////////////
 
-  this.pushMatrix = function(mat)
-  {
-    var copy = mat4.create();
-    mat4.set(mat, copy);
-    mvMatrixStack.push(copy);
-  }
-
-  this.popMatrix = function()
-  {
-    if (mvMatrixStack.length == 0)
-    {
-      throw "Invalid popMatrix!";
-    }
-    mat = mvMatrixStack.pop();
-
-    return mat;
-  }
+/// NOTE Refer JavaScript patterns
+function inherit(C, P) {
+  var F = function () {};
+  F.prototype = P.prototype;
+  C.prototype = new F();
+  C.uber = P.prototype;
+  C.prototype.constructor = C;
 }
+
+Object.size = function(obj) {
+    var size = 0, key;
+    for (key in obj) {
+        if (obj.hasOwnProperty(key)) size++;
+    }
+    return size;
+};

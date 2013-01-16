@@ -1,31 +1,27 @@
-//////////////////////////////////////////////////////////////////////////////
-///
-/// TODO: Move it somewhere else
-///
-//////////////////////////////////////////////////////////////////////////////
+/*========================================================================
+  VGL --- VTK WebGL Rendering Toolkit
 
-/// NOTE Refer JavaScript patterns
-function inherit(C, P) {
-  var F = function () {};
-  F.prototype = P.prototype;
-  C.prototype = new F();
-  C.uber = P.prototype;
-  C.prototype.constructor = C;
-}
+  Copyright 2013 Kitware, Inc.
 
-Object.size = function(obj) {
-    var size = 0, key;
-    for (key in obj) {
-        if (obj.hasOwnProperty(key)) size++;
-    }
-    return size;
-};
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+ ========================================================================*/
 
 //////////////////////////////////////////////////////////////////////////////
 //
 // Data types
 //
 //////////////////////////////////////////////////////////////////////////////
+
 var vglVertexAttributeKeys =
 {
   "Position"            : 0,
@@ -35,6 +31,7 @@ var vglVertexAttributeKeys =
   "Scalar"              : 4
 };
 
+// TODO Need to figure out how to initialize these values properly
 var vglDataType =
 {
   "Float"       : gl.FLOAT,
@@ -169,8 +166,8 @@ function vglTriangleStrip()
 {
   vglPrimitive.call(this);
 
-  this.setPrimitiveType(vglPrimitiveRenderType.TriangleStrip);
-  this.setIndicesValueType(vesPrimitiveIndicesValueType.UnsignedShort);
+  this.setPrimitiveType(gl.TRIANGLE_STRIP);
+  this.setIndicesValueType(gl.UNSIGNED_SHORT);
   this.setIndexCount(3);
 }
 
@@ -303,7 +300,7 @@ vglSourceData.prototype.numberOfAttributes = function()
 }
 
 ///
-vglSourceData.prototype.numberOfComponents = function(key)
+vglSourceData.prototype.attributeNumberOfComponents = function(key)
 {
   if (key in this.m_attributesMap)
   {
@@ -386,10 +383,10 @@ function vglSourceDataP3t3f()
 {
   vglSourceData.call(this);
 
-  this.addAttribute(vglVertexAttributeKeys.Position, vglDataType.Float,
+  this.addAttribute(vglVertexAttributeKeys.Position, gl.FLOAT,
                     4, 0, 6 * 4, 3, false);
   this.addAttribute(vglVertexAttributeKeys.TextureCoordinate,
-                    vglDataType.Float, 4, 12, 6 * 4, 3, false);
+                    gl.FLOAT, 4, 12, 6 * 4, 3, false);
 }
 
 inherit(vglSourceDataP3t3f, vglSourceData);
