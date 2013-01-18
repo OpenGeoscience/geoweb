@@ -210,4 +210,3 @@ vglCamera.prototype.projectionMatrix = function(aspect, near, far)
 
   return this.m_projectionMatrix;
 }
-

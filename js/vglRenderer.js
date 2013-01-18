@@ -85,6 +85,9 @@ vglRenderer.prototype.height = function()
 ///---------------------------------------------------------------------------
 vglRenderer.prototype.render = function()
 {
+  gl.clearColor(0.0, 0.0, 0.0, 1.0);
+  gl.enable(gl.DEPTH_TEST);
+  gl.depthFunc(gl.LEQUAL);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   perspectiveMatrix = camera.projectionMatrix(this.m_width / this.m_height, 0.1, 1000.0);
@@ -144,3 +147,65 @@ vglRenderer.prototype.removeActor = function(actor)
 
   return false;
 }
+
+//----------------------------------------------------------------------------
+function worldToDisplay(worldPt, viewMatrix, projectionMatrix, width, height) {
+  console.log('worldPt ', worldPt);
+
+  var viewProjectionMatrix = mat4.create();
+  mat4.multiply(projectionMatrix, viewMatrix, viewProjectionMatrix);
+
+  // Transform world to clipping coordinates
+  var clipPt = vec4.create();
+  mat4.multiplyVec4(viewProjectionMatrix, worldPt, clipPt);
+
+  if (clipPt[3] != 0.0)
+    {
+    clipPt[0] = clipPt[0] / clipPt[3];
+    clipPt[1] = clipPt[1] / clipPt[3];
+    clipPt[2] = clipPt[2] / clipPt[3];
+    clipPt[3] = 1.0;
+    }
+
+  var winX = Math.round( ( ( ( clipPt[0]) + 1 ) / 2.0) * width );
+  // We calculate -point3D.getY() because the screen Y axis is
+  // oriented top->down
+  var winY = Math.round((( 1 - clipPt[1] ) / 2.0) *  height );
+  var winZ = clipPt[2];
+  var winW = clipPt[3];
+
+  console.log('worldToDisplay ', winX, winY, winZ);
+
+  return vec4.createFrom(winX, winY, winZ, winW);
+}
+
+//----------------------------------------------------------------------------
+function displayToWorld(displayPt, viewMatrix, projectionMatrix, width, height)
+{
+    console.log('displayPt ', displayPt);
+
+    var x =  ( 2.0 * displayPt[0] / width )  - 1;
+    var y = -( 2.0 * displayPt[1] / height ) + 1;
+    var z =  displayPt[2];
+
+    var viewProjectionInverse = mat4.create();
+    mat4.multiply(projectionMatrix, viewMatrix, viewProjectionInverse);
+    mat4.inverse(viewProjectionInverse, viewProjectionInverse);
+
+    var worldPt = vec4.createFrom(x, y, z, 1);
+    mat4.multiplyVec4(viewProjectionInverse, worldPt, worldPt);
+
+    if (worldPt[3] != 0.0)
+    {
+      worldPt[0] = worldPt[0] / worldPt[3];
+      worldPt[1] = worldPt[1] / worldPt[3];
+      worldPt[2] = worldPt[2] / worldPt[3];
+      worldPt[3] = 1.0;
+    }
+
+    console.log('displayToWorld ', worldPt);
+
+    return worldPt;
+}
+
+

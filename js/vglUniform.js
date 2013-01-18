@@ -147,3 +147,29 @@ vglUniform.prototype.callGL = function(location) {
         break;
   }
 }
+
+///---------------------------------------------------------------------------
+vglUniform.prototype.update(renderState, program) {
+  // Should be implemented by the derived class
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// vglModelViewUniform class
+//
+//////////////////////////////////////////////////////////////////////////////
+
+///---------------------------------------------------------------------------
+function vglModelViewUniform(name) {
+  if (name.length == 0) {
+    name = "modelViewMatrix";
+  }
+
+  vglUniform.call(gl.FLOAT_MAT4, name, this);
+  this.set(mat4.create());
+}
+
+///---------------------------------------------------------------------------
+vglModelViewUniform.prototype.update(renderState, program) {
+  this.set(renderState.m_modelViewMatrix);
+}
