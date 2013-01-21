@@ -29,22 +29,29 @@ function vglVertexAttribute()
 }
 
 ///---------------------------------------------------------------------------
-vglVertexAttribute.prototype.bind = function(renderState, key) {
+vglVertexAttribute.prototype.name = function() {
+  return this.m_name;
+}
+
+
+///---------------------------------------------------------------------------
+vglVertexAttribute.prototype.bindVertexData = function(renderState, key) {
   var geometryData = renderState.m_mapper.geometryData();
   var sourceData = geometryData.sourceData(key);
   var program = renderState.m_material.shaderProgram();
 
-  glVertexAttribPointer(program.attributeLocation(this.m_name),
+  console.log("hhhhhh");
+  gl.vertexAttribPointer(program.attributeLocation(this.m_name),
                         sourceData.attributeNumberOfComponents(key),
-                        sourceData->attributeDataType(key),
-                        sourceData->normalized(key),
-                        sourceData->attributeStride(key),
-                        sourceData->attributeOffset(key));
+                        sourceData.attributeDataType(key),
+                        sourceData.normalized(key),
+                        sourceData.attributeStride(key),
+                        sourceData.attributeOffset(key));
 
   gl.enableVertexAttribArray(program.attributeLocation(this.m_name));
 }
 ///---------------------------------------------------------------------------
-vglVertexAttribute.prototype.undoBind = function(renderState, key) {
+vglVertexAttribute.prototype.undoBindVertexData = function(renderState, key) {
   var program = renderState.m_material.shaderProgram();
 
   gl.enableVertexAttribArray(program.attributeLocation(this.m_name));

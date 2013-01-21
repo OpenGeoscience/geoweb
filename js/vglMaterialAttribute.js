@@ -22,27 +22,26 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-//////////////////////////////////////////////////////////////////////////////
-//
-// vglMaterialAttribute class
-//
-//////////////////////////////////////////////////////////////////////////////
-
 function vglMaterialAttribute() {
   this.AttributeType =   {
     "Undefined" : 0x0,
-    "Shader" : 0x1,
+    "ShaderProgram" : 0x1,
     "Texture" : 0x2,
     "Blend" : 0x3,
     "Depth" : 0x4
   };
 
   vglObject.call(this);
-  this.m_attributeType = vglMaterialAttribute.AttributeType.Undefined;
+  this.m_type = this.AttributeType.Undefined;
   this.m_enabled = true;
 }
 
 inherit(vglMaterialAttribute, vglObject);
+
+///---------------------------------------------------------------------------
+vglMaterialAttribute.prototype.type = function() {
+  return this.m_type;
+}
 
 ///---------------------------------------------------------------------------
 vglMaterialAttribute.prototype.setup = function(renderState) {
@@ -59,7 +58,7 @@ vglMaterialAttribute.prototype.undoBind = function(renderState) {
 }
 
 ///---------------------------------------------------------------------------
-vglMaterialAttribute.prototype.setupVertexData(renderState, key) {
+vglMaterialAttribute.prototype.setupVertexData = function(renderState, key) {
   return false;
 }
 

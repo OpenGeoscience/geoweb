@@ -33,10 +33,10 @@ function vglMaterial()
   };
 
   vglObject.call(this);
-  this.shaderProgram = new vglShaderProgram();
+  this.m_shaderProgram = new vglShaderProgram();
   this.m_binNumber = 0;
   this.m_textureAttributes = {};
-  this.m_attributres = {};
+  this.m_attributes = {};
 }
 
 inherit(vglMaterial, vglObject);
@@ -56,16 +56,19 @@ vglMaterial.prototype.exists = function(attr) {
   if (attr.type() === vglMaterialAttribute.Texture) {
     return this.m_textureAttributes.hasOwnProperty(attr);
   } else {
-    return this.m_attributres.hasOwnProperty(attr);
+    return this.m_attributes.hasOwnProperty(attr);
   }
 }
 
 ///---------------------------------------------------------------------------
 vglMaterial.prototype.addAttribute = function(attr) {
+  console.log("Adding " + attr);
 
-  if this.exists(attr) {
+  if (this.exists(attr)) {
     return false;
   }
+
+  console.log("Adding 2" + attr);
 
   if (attr.type() === vglMaterialAttribute.Texture) {
     this.m_textureAttributes[attr.textureUnit()] = attr;
@@ -77,7 +80,9 @@ vglMaterial.prototype.addAttribute = function(attr) {
       this.m_shaderProgram = attr;
     }
 
-    this.m_attributres[attr.type()] = attr;
+    this.m_attributes[attr.type()] = attr;
+
+    console.log("Adding 3" + attr.type());
 
     return true;
   }
@@ -97,34 +102,49 @@ vglMaterial.prototype.render = function(renderState) {
 
 ///---------------------------------------------------------------------------
 vglMaterial.prototype.bind = function(renderState) {
-  for (var i = 0; i < this.m_attributes.length; ++i) {
-    this.m_attributes.bind(renderState);
+
+  for (var key in this.m_attributes) {
+    if (this.m_attributes.hasOwnProperty(key)) {
+      this.m_attributes[key].bind(renderState);
+    }
   }
 
-  for (var i = 0; i < this.m_textureAttributes.length; ++i) {
-    this.m_textureAttributes.bind(renderState);
+  for (var key in this.m_textureAttributes) {
+    if (this.m_textureAttributes.hasOwnProperty(key)) {
+      this.m_textureAttributes[key].bind(renderState);
+    }
   }
 }
 ///---------------------------------------------------------------------------
 vglMaterial.prototype.undoBind = function(renderState) {
-  for (var i = 0; i < this.m_attributes.length; ++i) {
-    this.m_attributes.undoBind(renderState);
+  for (var key in this.m_attributes) {
+    if (this.m_attributes.hasOwnProperty(key)) {
+      this.m_attributes.undoBind(renderState);
+    }
   }
 
-  for (var i = 0; i < this.m_textureAttributes.length; ++i) {
-    this.m_textureAttributes.undoBind(renderState);
+  for (var key in this.m_textureAttributes) {
+    if (this.m_textureAttributes.hasOwnProperty(key)) {
+      this.m_textureAttributes.undoBind(renderState);
+    }
   }
 }
 
 ///---------------------------------------------------------------------------
 vglMaterial.prototype.bindVertexData = function(renderState, key) {
-  for (var i = 0; i < this.m_attributes.length; ++i) {
-    this.m_attributes.bindVertexData(renderState);
+
+  for (var i in this.m_attributes) {
+    if (this.m_attributes.hasOwnProperty(i)) {
+      console.log("hey key is " + key);
+      this.m_attributes[i].bindVertexData(renderState, key);
+    }
   }
 }
 ///---------------------------------------------------------------------------
 vglMaterial.prototype.undoBindVertexData = function(renderState, key) {
-  for (var i = 0; i < this.m_attributes.length; ++i) {
-    this.m_attributes.undoBindVertexData(renderState);
+  for (var key in this.m_attributes) {
+    if (this.m_attributes.hasOwnProperty(key)) {
+      this.m_attributes.undoBindVertexData(renderState);
+    }
   }
 }

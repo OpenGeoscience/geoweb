@@ -22,8 +22,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-function vglGroupNode()
-{
+function vglGroupNode() {
   vglNode.call(this);
   this.m_children = new Array();
 }
@@ -133,18 +132,17 @@ vglGroupNode.prototype.traverseChildrenAndUpdateBounds = function(visitor)
 ///
 vglGroupNode.prototype.traverseChildren = function(visitor)
 {
-  if (visitor.mode() == vesVisitor::TraverseAllChildren)
+  if (visitor.mode() == vesVisitor.TraverseAllChildren)
   {
     for (var i = 0; i < this.m_children.length(); ++i)
     {
       this.m_children[i].accept(visitor);
-
     }
   }
 }
 
 ///
-vglGroupNode.prototype.updateBounds(childNode)
+vglGroupNode.prototype.updateBounds = function(childNode)
 {
   // TODO: Compute bounds here
 }

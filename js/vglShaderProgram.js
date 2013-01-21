@@ -25,8 +25,8 @@
 function vglShaderProgram() {
   vglMaterialAttribute.call(this);
 
+  this.m_type = this.AttributeType.ShaderProgram;
   this.m_programHandle = 0;
-
   this.m_shaders = new Array();
   this.m_uniforms = new Array();
   this.m_vertexAttributes = {};
@@ -43,7 +43,7 @@ vglShaderProgram.prototype.queryUniformLocation = function(name) {
 }
 
 ///---------------------------------------------------------------------------
-vglShaderProgram.prototype.queryAttributeLocation(name) {
+vglShaderProgram.prototype.queryAttributeLocation = function(name) {
   return gl.getAttribLocation(this.m_programHandle, name);
 }
 
@@ -54,7 +54,7 @@ vglShaderProgram.prototype.addShader = function(shader) {
   }
 
   for (var i = 0; i < this.m_shaders.length; ++i) {
-    if (this.m_shaders[i].shaderType() === shader.s haderType()) {
+    if (this.m_shaders[i].shaderType() === shader.shaderType()) {
       this.m_shaders.splice(this.m_shaders.indexOf(shader), 1);
     }
   }
@@ -102,7 +102,7 @@ vglShaderProgram.prototype.uniformExist = function() {
 vglShaderProgram.prototype.updateUniforms = function() {
   for (var i = 0; i < this.m_uniforms.length; ++i) {
     this.m_uniforms[i].callGL(
-      this.m_uniformNameToLocation[this.m_uniforms[i].name());
+      this.m_uniformNameToLocation[this.m_uniforms[i].name()]);
   }
 }
 
@@ -137,7 +137,7 @@ vglShaderProgram.prototype.cleanUp = function() {
 
 ///---------------------------------------------------------------------------
 vglShaderProgram.prototype.deleteProgram = function() {
-  gl.deleteProgram(this.m_programHandle;)
+  gl.deleteProgram(this.m_programHandle);
 }
 
 ///---------------------------------------------------------------------------
@@ -160,7 +160,7 @@ vglShaderProgram.prototype.bind = function(renderState) {
 
     // Compile shaders
     for (var i = 0; i < this.m_shaders.length; ++i) {
-      this.m_shaders[i].compileShader();
+      this.m_shaders[i].compile();
       this.m_shaders[i].attachShader(this.m_programHandle);
     }
 
@@ -197,22 +197,26 @@ vglShaderProgram.prototype.undoBind = function(renderState) {
 
 ///---------------------------------------------------------------------------
 vglShaderProgram.prototype.bindVertexData = function(renderState, key) {
-  if (this.m_vertexAttributes.hasOwnProperty(key)) {
-    this.m_vertexAttributes[key].bindVertexData(renderState, key);
+  for (i in this.m_vertexAttributes) {
+    if (this.m_vertexAttributes.hasOwnProperty(i)) {
+      this.m_vertexAttributes[i].bindVertexData(renderState, key);
+    }
   }
 }
 ///---------------------------------------------------------------------------
-vglShaderProgram.prototype.undoBindVertexData = function(renderState) {
-  if (this.m_vertexAttributes.hasOwnProperty(key)) {
-    this.m_vertexAttributes[key].undoBindVertexData(renderState, key);
+vglShaderProgram.prototype.undoBindVertexData = function(renderState, key) {
+  for (i in this.m_vertexAttributes) {
+    if (this.m_vertexAttributes.hasOwnProperty(i)) {
+      this.m_vertexAttributes[i].undoBindVertexData(renderState, key);
+    }
   }
 }
 
 ///---------------------------------------------------------------------------
 vglShaderProgram.prototype.bindUniforms = function() {
-  for (var i = 0; ; i < this.m_uniforms.length; ++i) {
-    this.m_uniformNameToLocation[this.m_uniforms[i]->name()] =
-      queryUniformLocation(this.m_uniforms[i]->name());
+  for (var i = 0; i < this.m_uniforms.length; ++i) {
+    this.m_uniformNameToLocation[this.m_uniforms[i].name()] =
+      this.queryUniformLocation(this.m_uniforms[i].name());
   }
 }
 ///---------------------------------------------------------------------------

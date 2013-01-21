@@ -311,11 +311,10 @@ vglSourceData.prototype.attributeNumberOfComponents = function(key)
 }
 
 ///
-vglSourceData.prototype.isAttributeNormalized = function(key)
+vglSourceData.prototype.normalized = function(key)
 {
-  if (key in this.m_attributesMap)
-  {
-    return this.m_attributesMap[key];
+  if (key in this.m_attributesMap) {
+    return this.m_attributesMap[key].m_normalized;
   }
 
   return false;
@@ -422,8 +421,7 @@ function vglGeometryData()
       // TODO Check if the incoming source has duplicate keys
 
       // NOTE This might not work on IE8 or lower
-      if (this.m_sources.indexOf(source) == -1)
-      {
+      if (this.m_sources.indexOf(source) == -1) {
         this.m_sources.push(source);
         return true;
       }
@@ -431,26 +429,31 @@ function vglGeometryData()
       return false;
     }
     /// Return source for a given index. Returns 0 if not found.
-    this.source = function(index)
-    {
-      if (index < this.m_sources.length)
-      {
+    this.source = function(index) {
+      if (index < this.m_sources.length) {
         return this.m_sources[index];
       }
 
       return 0;
     }
     /// Return number of sources
-    this.numberOfSources = function()
-    {
+    this.numberOfSources = function() {
       return this.m_sources.length;
+    }
+    /// Return source data given a key
+    this.sourceData = function(key) {
+      for (var i = 0; i < this.m_sources.length; ++i) {
+        if (this.m_sources[i].hasKey(key)) {
+          return this.m_sources[i];
+        }
+      }
+
+      return null;
     }
 
     /// Add new primitive
-    this.addPrimitive = function(primitive)
-    {
-      if (this.m_primitives.indexOf(primitive) == -1)
-      {
+    this.addPrimitive = function(primitive) {
+      if (this.m_primitives.indexOf(primitive) == -1) {
         this.m_primitives.push(primitive);
         return true;
       }
@@ -458,29 +461,24 @@ function vglGeometryData()
       return false;
     }
     /// Return primitive for a given index. Returns 0 if not found.
-    this.primitive = function(index)
-    {
-      if (index < this.m_primitives.length)
-      {
+    this.primitive = function(index) {
+      if (index < this.m_primitives.length) {
         return this.m_primitives[index];
       }
 
-      return 0;
+      return null;
     }
     /// Return number of primitives
-    this.numberOfPrimitives = function()
-    {
+    this.numberOfPrimitives = function() {
       return this.m_primitives.length;
     }
 
     /// Return bounds [minX, maxX, minY, maxY, minZ, maxZ]
-    this.bounds = function()
-    {
+    this.bounds = function() {
       return this.m_bounds;
     }
     /// Set bounds
-    this.setBounds = function(minX, maxX, minY, maxY, minZ, maxZ)
-    {
+    this.setBounds = function(minX, maxX, minY, maxY, minZ, maxZ) {
       this.m_bounds[0] = minX;
       this.m_bounds[1] = maxX;
       this.m_bounds[2] = minY;

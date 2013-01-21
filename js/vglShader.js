@@ -25,7 +25,7 @@
 function vglShader(type) {
   vglObject.call(this);
 
-  this.m_shaderHandle = 0;
+  this.m_shaderHandle = null;
   this.m_shaderType =  type;
   this.m_shaderSource = "";
   this.m_fileName = "";
@@ -70,7 +70,7 @@ vglShader.prototype.compile = function() {
   }
 
   gl.deleteShader(this.m_shaderHandle);
-  this.m_shaderHandle = gl.createShader(this.m_type);
+  this.m_shaderHandle = gl.createShader(this.m_shaderType);
   gl.shaderSource(this.m_shaderHandle, this.m_shaderSource);
   gl.compileShader(this.m_shaderHandle);
 

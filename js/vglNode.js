@@ -24,10 +24,10 @@
 
 function vglNode()
 {
-  this.call(vglBoundingObject, this);
+  vglBoundingObject.call(this);
 
-  this.m_parent = 0;
-  this.m_material = 0;
+  this.m_parent = null;
+  this.m_material = null;
   this.m_visible = true;
   this.m_overlay = false;
 }
@@ -69,10 +69,8 @@ vglNode.prototype.visible = function()
 }
 /// Set visibility of the node
 //----------------------------------------------------------------------------
-vglNode.prototype.setVisible = function(flag)
-{
-  if (flag !== this.m_visible)
-  {
+vglNode.prototype.setVisible = function(flag) {
+  if (flag !== this.m_visible)   {
     this.m_visible = flag;
     this.setModified();
     return true;
@@ -83,17 +81,17 @@ vglNode.prototype.setVisible = function(flag)
 
 /// Return parent of the node
 //----------------------------------------------------------------------------
-vglNode.prototype.parent = function()
-{
+vglNode.prototype.parent = function() {
   return this.m_parent;
 }
 /// Set parent of the node
 //----------------------------------------------------------------------------
-vglNode.prototype.setParent(parent)
+vglNode.prototype.setParent = function(parent)
 {
-  if (parent !== this.m_parent)
-  {
-    this.m_parent.removeChild(this);
+  if (parent !== this.m_parent) {
+    if (this.m_parent !== null) {
+      this.m_parent.removeChild(this);
+    }
     this.m_parent = parent;
     this.setModified();
     return true;
@@ -104,16 +102,13 @@ vglNode.prototype.setParent(parent)
 
 /// Return if node is an overlay or not
 //----------------------------------------------------------------------------
-vglNode.prototype.overlay = function()
-{
+vglNode.prototype.overlay = function() {
   return this.m_overlay;
 }
 /// Set node overlay state
 //----------------------------------------------------------------------------
-vglNode.prototype.setOverlay = function(flag)
-{
-  if (this.m_overlay !== flag)
-  {
+vglNode.prototype.setOverlay = function(flag) {
+  if (this.m_overlay !== flag)   {
     this.m_overlay = flag;
     this.setModified();
     return true;
@@ -124,23 +119,19 @@ vglNode.prototype.setOverlay = function(flag)
 
 ///  Traverse parent and their parent and so on
 //----------------------------------------------------------------------------
-vglNode.prototype.ascend = function(visitor)
-{
+vglNode.prototype.ascend = function(visitor) {
 }
 
 /// Traverse children
 //----------------------------------------------------------------------------
-vglNode.prototype.traverse = function(visitor)
-{
+vglNode.prototype.traverse = function(visitor) {
 }
 
 /// Reset bounds of the node. Actual bound calculation
 /// should be done in the concrete class.
 //----------------------------------------------------------------------------
-vglNode.prototype.computeBounds = function()
-{
-  if (this.boundsDirty())
-  {
+vglNode.prototype.computeBounds = function() {
+  if (this.boundsDirty())   {
     this.resetBounds();
   }
 }

@@ -22,9 +22,8 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-function vglBoundingObject()
-{
-  this.call(vglObject, this);
+function vglBoundingObject() {
+  vglObject.call(this);
 
   this.m_boundsDirty = true;
   this.m_bounds = new Array(6);
@@ -34,14 +33,12 @@ inherit(vglBoundingObject, vglObject);
 
 /// Return dirty state of bounds
 //----------------------------------------------------------------------------
-vglBoundingObject.prototype.boundsDirty = function()
-{
+vglBoundingObject.prototype.boundsDirty = function() {
   return this.m_boundsDirty;
 }
 /// Set bounds dirty
 //----------------------------------------------------------------------------
-vglBoundingObject.prototype.setBoundsDirty = function(flag)
-{
+vglBoundingObject.prototype.setBoundsDirty = function(flag) {
   if (this.m_boundsDirty !== flag)
   {
     this.m_boundsDirty = flag;
@@ -54,15 +51,13 @@ vglBoundingObject.prototype.setBoundsDirty = function(flag)
 
 /// Return current bounds
 //----------------------------------------------------------------------------
-vglBoundingObject.prototype.bounds  = function()
-{
+vglBoundingObject.prototype.bounds  = function() {
   return this.m_bounds;
 }
 /// Set current bounds
 //----------------------------------------------------------------------------
 vglBoundingObject.prototype.setBounds = function(minX, maxX, minY, maxY,
-                                                  minZ, maxZ)
-{
+                                                  minZ, maxZ) {
   this.m_bounds[0] = minX;
   this.m_bounds[1] = maxX;
   this.m_bounds[2] = minY;
@@ -77,6 +72,5 @@ vglBoundingObject.prototype.setBounds = function(minX, maxX, minY, maxY,
 
 /// Request computing bounds. Should be implemented by the concrete class
 //----------------------------------------------------------------------------
-vglBoundingObject.prototype.computeBounds = function()
-{
+vglBoundingObject.prototype.computeBounds = function() {
 }

@@ -58,7 +58,7 @@ function vglUniform(type, name) {
 
   this.m_type = type;
   this.m_name = name;
-  this.m_dataArray = new Array(this.getTypeNumberOfComponents(this.m_type);
+  this.m_dataArray = new Array(this.getTypeNumberOfComponents(this.m_type));
   this.m_numberOfElements = 1;
 }
 
@@ -78,31 +78,31 @@ vglUniform.prototype.get = function() {
 }
 ///---------------------------------------------------------------------------
 vglUniform.prototype.set = function(value) {
-  if (value instanceof mat4) {
+  if (value instanceof mat4.constructor) {
     for (var i = 0; i < 16; ++i)
     {
       this.m_dataArray[i] = value[i];
     }
   }
-  else if (value instanceof mat3) {
+  else if (value instanceof mat3.constructor) {
     for (var i = 0; i < 9; ++i)
     {
       this.m_dataArray[i] = value[i];
     }
   }
-  else if (value instanceof vec4) {
+  else if (value instanceof vec4.constructor) {
     for (var i = 0; i < 4; ++i)
     {
       this.m_dataArray[i] = value[i];
     }
   }
-  else if (value instanceof vec3) {
+  else if (value instanceof vec3.constructor) {
     for (var i = 0; i < 3; ++i)
     {
       this.m_dataArray[i] = value[i];
     }
   }
-  else if (value instanceof vec2) {
+  else if (value instanceof vec2.constructor) {
     for (var i = 0; i < 2; ++i)
     {
       this.m_dataArray[i] = value[i];
@@ -149,7 +149,7 @@ vglUniform.prototype.callGL = function(location) {
 }
 
 ///---------------------------------------------------------------------------
-vglUniform.prototype.update(renderState, program) {
+vglUniform.prototype.update = function(renderState, program) {
   // Should be implemented by the derived class
 }
 
@@ -161,6 +161,9 @@ vglUniform.prototype.update(renderState, program) {
 
 ///---------------------------------------------------------------------------
 function vglModelViewUniform(name) {
+
+  vglUniform.call(this);
+
   if (name.length == 0) {
     name = "modelViewMatrix";
   }
@@ -169,7 +172,33 @@ function vglModelViewUniform(name) {
   this.set(mat4.create());
 }
 
+inherit(vglModelViewUniform, vglUniform);
+
 ///---------------------------------------------------------------------------
-vglModelViewUniform.prototype.update(renderState, program) {
+vglModelViewUniform.prototype.update = function(renderState, program) {
+  this.set(renderState.m_modelViewMatrix);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// vesProjectionUniform class
+//
+//////////////////////////////////////////////////////////////////////////////
+
+function vglProjectionUniform(name) {
+  vglUniform.call(this);
+
+  if (name.length == 0) {
+    name = "projectionMatrix";
+  }
+
+  vglUniform.call(gl.FLOAT_MAT4, name, this);
+  this.set(mat4.create());
+}
+
+inherit(vglProjectionUniform, vglUniform);
+
+///---------------------------------------------------------------------------
+vglProjectionUniform.prototype.update = function(renderState, program) {
   this.set(renderState.m_modelViewMatrix);
 }

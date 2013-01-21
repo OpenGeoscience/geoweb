@@ -22,12 +22,12 @@
 function cpApp() {
   this.m_leftMouseButtonDown = false;
   this.m_rightMouseButtonDown = false;
-  this.m_mouseLastPos = {};
+  this.m_mouseLastPos = {x : 0, y : 0};
   this.m_renderer = new vglRenderer();
   this.m_camera = this.m_renderer.camera();
 
   //--------------------------------------------------------------------------
-  function createMap() {
+  this.createMap = function() {
     // TODO Move it somewhere else
     var geom = new vglGeometryData();
     var source = new vglSourceDataP3t3f();
@@ -68,13 +68,17 @@ function cpApp() {
 
     var mat = new vglMaterial();
     var prog = new vglShaderProgram();
-    var fragmentShader = createDefaultVertexShader(gl);
-    var vertexShader = createDefaultFragmentShader(gl);
+    var vertexShader = this.createDefaultVertexShader(gl);
+    var fragmentShader = this.createDefaultFragmentShader(gl);
     var posVertAttr = new vglVertexAttribute("aVertexPosition");
     var texCoordVertAttr = new vglVertexAttribute("aTextureCoord");
+    var modelViewUniform = new vglModelViewUniform("modelViewMatrix");
+    var projectionUniform = new vglProjectionUniform("projectionMatrix");
 
     prog.addVertexAttribute(posVertAttr);
     prog.addVertexAttribute(texCoordVertAttr);
+    prog.addUniform(modelViewUniform);
+    prog.addUniform(projectionUniform);
     prog.addShader(fragmentShader);
     prog.addShader(vertexShader);
     mat.addAttribute(prog);
@@ -87,44 +91,44 @@ function cpApp() {
   }
 
   //--------------------------------------------------------------------------
-  function createDefaultFragmentShader(context)
+  this.createDefaultFragmentShader = function(context)
   {
     var fragmentShaderSource = [
      'varying highp vec2 vTextureCoord;',
      'uniform sampler2D uSampler;',
      'void main(void) {',
-       'gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));',
+       'gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);',
      '}'
     ].join('\n');
 
-    shader = vglShader(gl.FRAGMENT_SHADER);
+    var shader = new vglShader(gl.FRAGMENT_SHADER);
     shader.setShaderSource(fragmentShaderSource);
     return shader;
   }
 
   //--------------------------------------------------------------------------
-  function createDefaultVertexShader(context)
+  this.createDefaultVertexShader = function(context)
   {
     var vertexShaderSource = [
       'attribute vec3 aVertexPosition;',
       'attribute vec2 aTextureCoord;',
-      'uniform mat4 uMVMatrix;',
-      'uniform mat4 uPMatrix;',
+      'uniform mat4 modelViewMatrix;',
+      'uniform mat4 projectionMatrix;',
       'varying highp vec2 vTextureCoord;',
       'void main(void)',
       '{',
-      'gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);',
+      'gl_Position = vec4(aVertexPosition, 1.0);',
       ' vTextureCoord = aTextureCoord;',
       '}'
     ].join('\n');
 
-    shader = vglShader(gl.VERTEX_SHADER);
+    var shader = new vglShader(gl.VERTEX_SHADER);
     shader.setShaderSource(vertexShaderSource);
     return shader;
   }
 
   //--------------------------------------------------------------------------
-  function relMouseCoords(event)
+  this.relMouseCoords = function(event)
   {
     var totalOffsetX = 0;
     var totalOffsetY = 0;
@@ -132,12 +136,10 @@ function cpApp() {
     var canvasY = 0;
     var currentElement = this;
 
-    do
-    {
+    do {
       totalOffsetX += currentElement.offsetLeft;
       totalOffsetY += currentElement.offsetTop;
-    }
-    while(currentElement = currentElement.offsetParent)
+    } while(currentElement = currentElement.offsetParent)
 
     canvasX = event.pageX - totalOffsetX;
     canvasY = event.pageY - totalOffsetY;
@@ -146,41 +148,33 @@ function cpApp() {
   }
 
   //--------------------------------------------------------------------------
-  function handleMouseMove(event) {
+  this.handleMouseMove = function(event) {
     var canvas = document.getElementById("glcanvas");
     var outsideCanvas = false;
 
     coords = canvas.relMouseCoords(event);
 
-    currentMousePos = {};
-    if (coords.x < 0)
-    {
+    var currentMousePos = {x : 0, y : 0};
+    if (coords.x < 0) {
       currentMousePos.x = 0;
       outsideCanvas = true;
-    }
-    else
-    {
+    } else {
       currentMousePos.x = coords.x;
     }
 
-    if (coords.y < 0)
-    {
+    if (coords.y < 0) {
       currentMousePos.y = 0;
       outsideCanvas = true;
-    }
-    else
-    {
+    } else {
       currentMousePos.y = coords.y;
     }
 
-    if (outsideCanvas == true)
-    {
+    if (outsideCanvas == true) {
       return;
     }
 
-    if (this.m_leftMouseButtonDown)
-    {
-      var focalPoint = this.m_camera.m_focalPoint;
+    if (this.m_leftMouseButtonDown) {
+      var focalPoint = this.m_camera.focalPoint();
       var focusWorldPt = vec4.createFrom(
         focalPoint[0], focalPoint[1], focalPoint[2], 1);
 
@@ -200,7 +194,7 @@ function cpApp() {
       dx = worldPt1[0] - worldPt2[0];
       dy = worldPt1[1] - worldPt2[1];
 
-      // Move the scnee in the direction of movement of mouse;
+      // Move the scene in the direction of movement of mouse;
       this.m_camera.pan(-dx, -dy);
     }
 
@@ -214,39 +208,30 @@ function cpApp() {
   }
 
   //--------------------------------------------------------------------------
-  function handleMouseDown(event) {
+  this.handleMouseDown = function(event) {
     var canvas = document.getElementById("glcanvas");
 
-    if (event.button == 0)
-    {
+    if (event.button == 0) {
       this.m_leftMouseButtonDown = true;
     }
-    if (event.button == 2)
-    {
+    if (event.button == 2) {
       this.m_rightMouseButtonDown = true;
     }
-    if (event.button == 4)
-    {
+    if (event.button == 4)  {
 //      middileMouseButtonDown = true;
     }
 
     coords = canvas.relMouseCoords(event);
 
-    if (coords.x < 0)
-    {
+    if (coords.x < 0) {
       this.m_mouseLastPos.x = 0;
-    }
-    else
-    {
+    } else  {
       this.m_mouseLastPos.x = coords.x;
     }
 
-    if (coords.y < 0)
-    {
+    if (coords.y < 0) {
       this.m_mouseLastPos.y = 0;
-    }
-    else
-    {
+    } else {
       this.m_mouseLastPos.y = coords.y;
     }
 
@@ -254,7 +239,7 @@ function cpApp() {
   }
 
   ///-------------------------------------------------------------------------
-  function handleMouseUp(event) {
+  this.handleMouseUp = function(event) {
     if (event.button == 0) {
       this.m_leftMouseButtonDown = false;
     }
@@ -269,26 +254,25 @@ function cpApp() {
   }
 
   ///-------------------------------------------------------------------------
-  function start() {
+  this.start = function() {
     // Initialize the GL context
     webGL();
 
     // Only continue if WebGL is available and working
     if (gl) {
-      initScene();
-
-      document.onmousedown = handleMouseDown;
-      document.onmouseup = handleMouseUp;
-      document.onmousemove = handleMouseMove;
-      document.oncontextmenu=new Function("return false");
-      HTMLCanvasElement.prototype.relMouseCoords = relMouseCoords;
+      this.initScene();
+//      document.onmousedown = this.handleMouseDown;
+//      document.onmouseup = this.handleMouseUp;
+//      document.onmousemove = this.handleMouseMove;
+//      document.oncontextmenu = new Function("return false");
+      HTMLCanvasElement.prototype.relMouseCoords = this.relMouseCoords;
     } else {
       console.log("[ERROR] Invalid GL context");
     }
   }
 
   ///-------------------------------------------------------------------------
-  function initScene() {
+  this.initScene = function() {
     var map = this.createMap();
     this.m_renderer.addActor(map);
     this.m_renderer.camera().setPosition(0.0, 0.0, 400.0);
@@ -296,15 +280,14 @@ function cpApp() {
   }
 
 ///-------------------------------------------------------------------------
-  function drawScene() {
+  this.drawScene = function() {
     this.m_renderer.render();
   }
 }
 
 ///---------------------------------------------------------------------------
-function main()
-{
+function main() {
   var app = new cpApp();
   app.start();
-  setInterval(app.drawScene, 15);
+  app.drawScene();
 }
