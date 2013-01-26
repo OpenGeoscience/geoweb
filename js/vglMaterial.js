@@ -62,13 +62,10 @@ vglMaterial.prototype.exists = function(attr) {
 
 ///---------------------------------------------------------------------------
 vglMaterial.prototype.addAttribute = function(attr) {
-  console.log("Adding " + attr);
 
   if (this.exists(attr)) {
     return false;
   }
-
-  console.log("Adding 2" + attr);
 
   if (attr.type() === vglMaterialAttribute.Texture) {
     this.m_textureAttributes[attr.textureUnit()] = attr;
@@ -76,14 +73,11 @@ vglMaterial.prototype.addAttribute = function(attr) {
     return true;
   } else {
     // Shader is a very special attribute
-    if (attr.type() === vglMaterialAttribute.Shader) {
+    if (attr.type() === vglMaterialAttributeType.ShaderProgram) {
       this.m_shaderProgram = attr;
     }
 
     this.m_attributes[attr.type()] = attr;
-
-    console.log("Adding 3" + attr.type());
-
     return true;
   }
 
@@ -135,7 +129,6 @@ vglMaterial.prototype.bindVertexData = function(renderState, key) {
 
   for (var i in this.m_attributes) {
     if (this.m_attributes.hasOwnProperty(i)) {
-      console.log("hey key is " + key);
       this.m_attributes[i].bindVertexData(renderState, key);
     }
   }

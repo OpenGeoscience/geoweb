@@ -22,10 +22,19 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
+vglVertexAttributeKeys = {
+  "Position"            : 0,
+  "Normal"              : 1,
+  "TextureCoordinate"   : 2,
+  "Color"               : 3,
+  "Scalar"              : 4,
+  "CountAttributeIndex" : 5
+};
+
 ///---------------------------------------------------------------------------
-function vglVertexAttribute()
+function vglVertexAttribute(name)
 {
-  this.m_name = "";
+  this.m_name = name;
 }
 
 ///---------------------------------------------------------------------------
@@ -40,7 +49,6 @@ vglVertexAttribute.prototype.bindVertexData = function(renderState, key) {
   var sourceData = geometryData.sourceData(key);
   var program = renderState.m_material.shaderProgram();
 
-  console.log("hhhhhh");
   gl.vertexAttribPointer(program.attributeLocation(this.m_name),
                         sourceData.attributeNumberOfComponents(key),
                         sourceData.attributeDataType(key),
@@ -54,5 +62,5 @@ vglVertexAttribute.prototype.bindVertexData = function(renderState, key) {
 vglVertexAttribute.prototype.undoBindVertexData = function(renderState, key) {
   var program = renderState.m_material.shaderProgram();
 
-  gl.enableVertexAttribArray(program.attributeLocation(this.m_name));
+  gl.disableVertexAttribArray(program.attributeLocation(this.m_name));
 }

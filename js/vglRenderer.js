@@ -24,7 +24,7 @@
 
 ///---------------------------------------------------------------------------
 function vglRenderState() {
-  this.m_modelViewMatrix = null;
+  this.m_modelViewMatrix = mat4.create();
   this.m_projectionMatrix = null;
   this.m_material = null;
   this.m_mapper = null;
@@ -85,14 +85,15 @@ vglRenderer.prototype.render = function() {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   perspectiveMatrix = this.m_camera.projectionMatrix(
-    this.m_width / this.m_height, 0.1, 1000.0);
+  (this.m_width / this.m_height), 0.1, 1000.0);
 
   var renSt = new vglRenderState();
   renSt.m_projectionMatrix = perspectiveMatrix;
+
   var children = this.m_sceneRoot.children();
   for (var i = 0; i < children.length; ++i) {
     var actor = children[i];
-    renSt.m_modelViewMatrix = actor.matrix();
+    mat4.multiply(this.m_camera.viewMatrix(), actor.matrix(), renSt.m_modelViewMatrix);
     renSt.m_material = actor.material();
     renSt.m_mapper = actor.mapper();
 

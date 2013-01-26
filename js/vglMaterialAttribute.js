@@ -22,8 +22,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-function vglMaterialAttribute() {
-  this.AttributeType =   {
+vglMaterialAttributeType =   {
     "Undefined" : 0x0,
     "ShaderProgram" : 0x1,
     "Texture" : 0x2,
@@ -31,11 +30,11 @@ function vglMaterialAttribute() {
     "Depth" : 0x4
   };
 
+function vglMaterialAttribute() {
   vglObject.call(this);
-  this.m_type = this.AttributeType.Undefined;
+  this.m_type = vglMaterialAttributeType.Undefined;
   this.m_enabled = true;
 }
-
 inherit(vglMaterialAttribute, vglObject);
 
 ///---------------------------------------------------------------------------

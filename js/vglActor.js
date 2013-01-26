@@ -100,6 +100,9 @@ vglActor.prototype.setReferenceFrame = function(referenceFrame) {
 /// Return affine transformation for the actor.
 //----------------------------------------------------------------------------
 vglActor.prototype.modelViewMatrix = function() {
+  var mat = mat4.create();
+  mat4.identity(mat);
+  return mat;
 }
 
 /// \copydoc vesTransformInterace::matrix

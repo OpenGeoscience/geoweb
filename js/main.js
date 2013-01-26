@@ -75,8 +75,10 @@ function cpApp() {
     var modelViewUniform = new vglModelViewUniform("modelViewMatrix");
     var projectionUniform = new vglProjectionUniform("projectionMatrix");
 
-    prog.addVertexAttribute(posVertAttr);
-    prog.addVertexAttribute(texCoordVertAttr);
+    prog.addVertexAttribute(posVertAttr,
+      vglVertexAttributeKeys.Position);
+    prog.addVertexAttribute(texCoordVertAttr,
+      vglVertexAttributeKeys.TextureCoordinate);
     prog.addUniform(modelViewUniform);
     prog.addUniform(projectionUniform);
     prog.addShader(fragmentShader);
@@ -94,10 +96,10 @@ function cpApp() {
   this.createDefaultFragmentShader = function(context)
   {
     var fragmentShaderSource = [
-     'varying highp vec2 vTextureCoord;',
+     'varying highp vec3 vTextureCoord;',
      'uniform sampler2D uSampler;',
      'void main(void) {',
-       'gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);',
+       'gl_FragColor = vec4(vTextureCoord.x, vTextureCoord.y, 0.0, 1.0);',
      '}'
     ].join('\n');
 
@@ -111,13 +113,13 @@ function cpApp() {
   {
     var vertexShaderSource = [
       'attribute vec3 aVertexPosition;',
-      'attribute vec2 aTextureCoord;',
+      'attribute vec3 aTextureCoord;',
       'uniform mat4 modelViewMatrix;',
       'uniform mat4 projectionMatrix;',
-      'varying highp vec2 vTextureCoord;',
+      'varying highp vec3 vTextureCoord;',
       'void main(void)',
       '{',
-      'gl_Position = vec4(aVertexPosition, 1.0);',
+      'gl_Position = projectionMatrix * modelViewMatrix * vec4(aVertexPosition, 1.0);',
       ' vTextureCoord = aTextureCoord;',
       '}'
     ].join('\n');
@@ -275,7 +277,7 @@ function cpApp() {
   this.initScene = function() {
     var map = this.createMap();
     this.m_renderer.addActor(map);
-    this.m_renderer.camera().setPosition(0.0, 0.0, 400.0);
+    this.m_renderer.camera().setPosition(0.0, 0.0, 800.0);
     this.m_renderer.camera().setFocalPoint(0.0, 0.0, 0.0);
   }
 

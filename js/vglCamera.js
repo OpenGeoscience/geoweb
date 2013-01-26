@@ -179,6 +179,8 @@ vglCamera.prototype.pitch = function(degrees)
 //----------------------------------------------------------------------------
 vglCamera.prototype.viewMatrix = function()
 {
+  this.computeOrthogonalAxes();
+
   mat4.lookAt(this.m_position, this.m_focalPoint, this.m_viewUp, this.m_viewMatrix);
 
   temp = vec3.create([this.m_viewMatrix[0], this.m_viewMatrix[1], this.m_viewMatrix[2]]);
@@ -191,7 +193,6 @@ vglCamera.prototype.viewMatrix = function()
     this.m_viewUp[1] = -this.m_viewUp[1];
     this.m_viewUp[2] = -this.m_viewUp[2];
     mat4.lookAt(this.m_position, this.m_focalPoint, this.m_viewUp, this.m_viewMatrix);
-
   }
 
   temp = vec3.create([this.m_viewMatrix[0], this.m_viewMatrix[1], this.m_viewMatrix[2]]);

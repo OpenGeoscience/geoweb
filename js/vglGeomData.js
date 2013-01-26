@@ -206,7 +206,7 @@ function vglSourceData()
 {
  this.m_attributesMap = {};
  this.m_data = [];
- this.m_glData = 0;
+ this.m_glData = null;
 }
 
 vglSourceData.prototype.vglAttributeData = function()
@@ -235,7 +235,6 @@ vglSourceData.prototype.vglAttributeData = function()
 /// Return data
 vglSourceData.prototype.data = function()
 {
-  console.log(this.m_data);
   this.m_glData = new Float32Array(this.m_data);
   return this.m_glData;
 }
@@ -266,7 +265,7 @@ vglSourceData.prototype.sizeOfArray = function()
 }
 
 /// Return size of the data in bytes
-vglSourceData.prototype.sizeInByes = function()
+vglSourceData.prototype.sizeInBytes = function()
 {
   var sizeInBytes = 0;
   var keys = this.keys();
