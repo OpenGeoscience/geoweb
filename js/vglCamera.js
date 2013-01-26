@@ -47,13 +47,17 @@ inherit(vglCamera, vglGroupNode);
 vglCamera.prototype.setPosition = function(x, y, z) {
   this.m_position = vec3.create([x, y, z]);
 }
+///---------------------------------------------------------------------------
+vglCamera.prototype.position = function() {
+  return this.m_position;
+}
 
 ///---------------------------------------------------------------------------
 vglCamera.prototype.setFocalPoint = function(x, y, z) {
   this.m_focalPoint = vec3.create([x, y, z]);
 }
-///
-vglCamera.prototype.focalPoints = function() {
+//////---------------------------------------------------------------------------
+vglCamera.prototype.focalPoint = function() {
   return this.m_focalPoint;
 }
 
