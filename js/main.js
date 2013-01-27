@@ -149,6 +149,24 @@ function drawScene() {
   app.drawScene();
 }
 
+//--------------------------------------------------------------------------
+function handleTextureLoaded(image, texture) {
+//  gl.bindTexture(gl.TEXTURE_2D, texture);
+//  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+//  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+//  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+//  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+//  gl.generateMipmap(gl.TEXTURE_2D);
+//  gl.bindTexture(gl.TEXTURE_2D, null);
+  texture.setImage(image);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+///
+/// Application class
+///
+//////////////////////////////////////////////////////////////////////////////
+
 ///---------------------------------------------------------------------------
 function cpApp() {
   this.m_leftMouseButtonDown = false;
@@ -210,6 +228,9 @@ function cpApp() {
     var texCoordVertAttr = new vglVertexAttribute("aTextureCoord");
     var modelViewUniform = new vglModelViewUniform("modelViewMatrix");
     var projectionUniform = new vglProjectionUniform("projectionMatrix");
+    var worldTexture = new vglTexture();
+    var samplerUniform = new vglUniform(gl.INT, "uSampler");
+    samplerUniform.set(0);
 
     prog.addVertexAttribute(posVertAttr,
       vglVertexAttributeKeys.Position);
@@ -217,9 +238,18 @@ function cpApp() {
       vglVertexAttributeKeys.TextureCoordinate);
     prog.addUniform(modelViewUniform);
     prog.addUniform(projectionUniform);
+    prog.addUniform(samplerUniform);
     prog.addShader(fragmentShader);
     prog.addShader(vertexShader);
     mat.addAttribute(prog);
+
+    // Setup texture
+    worldImage = new Image();
+    worldImage.onload = function() {
+      handleTextureLoaded(worldImage, worldTexture);
+    }
+    worldImage.src = "./data/land_shallow_topo_2048.png";
+    mat.addAttribute(worldTexture);
 
     var actor = new vglActor();
     actor.setMapper(mapper);
@@ -231,12 +261,12 @@ function cpApp() {
   //--------------------------------------------------------------------------
   this.createDefaultFragmentShader = function(context) {
     var fragmentShaderSource = [
-     'varying highp vec3 vTextureCoord;',
-     'uniform sampler2D uSampler;',
-     'void main(void) {',
-       'gl_FragColor = vec4(vTextureCoord.x, vTextureCoord.y, 0.0, 1.0);',
-     '}'
-    ].join('\n');
+      'varying highp vec3 vTextureCoord;',
+      'uniform sampler2D uSampler;',
+      'void main(void) {',
+        'gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));',
+      '}'
+     ].join('\n');
 
     var shader = new vglShader(gl.FRAGMENT_SHADER);
     shader.setShaderSource(fragmentShaderSource);
@@ -299,6 +329,5 @@ function cpApp() {
 function main() {
   app = new cpApp();
   app.start();
-
   setInterval(drawScene, 15);
 }

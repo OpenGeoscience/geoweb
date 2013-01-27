@@ -67,7 +67,7 @@ vglMaterial.prototype.addAttribute = function(attr) {
     return false;
   }
 
-  if (attr.type() === vglMaterialAttribute.Texture) {
+  if (attr.type() === vglMaterialAttributeType.Texture) {
     this.m_textureAttributes[attr.textureUnit()] = attr;
     this.setModified(true);
     return true;
@@ -103,9 +103,9 @@ vglMaterial.prototype.bind = function(renderState) {
     }
   }
 
-  for (var key in this.m_textureAttributes) {
-    if (this.m_textureAttributes.hasOwnProperty(key)) {
-      this.m_textureAttributes[key].bind(renderState);
+  for (var index in this.m_textureAttributes) {
+    if (this.m_textureAttributes.hasOwnProperty(index)) {
+      this.m_textureAttributes[index].bind(renderState);
     }
   }
 }
