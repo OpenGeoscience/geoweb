@@ -17,7 +17,7 @@
  ========================================================================*/
 
 // Disable console log
-console.log = function() {}
+//console.log = function() {}
 
 //--------------------------------------------------------------------------
 this.relMouseCoords = function(event) {
@@ -175,47 +175,263 @@ function cpApp() {
   this.m_renderer = new vglRenderer();
   this.m_camera = this.m_renderer.camera();
 
+
+  this.END_OF_INPUT = -1;
+  this.base64Chars = new Array('A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','0','1','2','3','4','5','6','7','8','9','+','/');
+  this.base64Str = "";
+  this.base64Count = 0;
+  this.reverseBase64Chars = new Array();
+    for (var i=0; i < this.base64Chars.length; i++) { this.reverseBase64Chars[this.base64Chars[i]] = i; };
+
+
 //--------------------------------------------------------------------------
   this.camera = function() {
     return this.m_camera;
   }
 
+
+//--------------------------------------------------------------------------
+  this.ntos = function (n) {
+      n=n.toString(16);
+      if (n.length == 1) n='0'+n;
+      n='%'+n;
+      return unescape(n);
+  }
+
+//--------------------------------------------------------------------------
+  this.readReverseBase64 = function () {
+        if (!this.base64Str) return this.END_OF_INPUT;
+        while (true) {
+            if (this.base64Count >= this.base64Str.length) return this.END_OF_INPUT;
+            var nextCharacter = this.base64Str.charAt(this.base64Count);
+            this.base64Count++;
+            if (this.reverseBase64Chars[nextCharacter]) {
+                return this.reverseBase64Chars[nextCharacter];
+            }
+            if (nextCharacter == 'A') return 0;
+        }
+        return this.END_OF_INPUT;
+    }
+
+//--------------------------------------------------------------------------
+  this.decode64 = function(str) {
+      this.base64Str = str;
+      this.base64Count = 0;
+
+      var result = '';
+      var inBuffer = new Array(4);
+      var done = false;
+      while (!done && (inBuffer[0] = this.readReverseBase64()) != this.END_OF_INPUT && (inBuffer[1] = this.readReverseBase64()) != this.END_OF_INPUT) {
+          inBuffer[2] = this.readReverseBase64();
+          inBuffer[3] = this.readReverseBase64();
+          result += this.ntos((((inBuffer[0] << 2) & 0xff)| inBuffer[1] >> 4));
+          if (inBuffer[2] != this.END_OF_INPUT) {
+              result +=  this.ntos((((inBuffer[1] << 4) & 0xff)| inBuffer[2] >> 2));
+              if (inBuffer[3] != this.END_OF_INPUT) {
+                  result +=  this.ntos((((inBuffer[2] << 6)  & 0xff) | inBuffer[3]));
+              } else {
+                  done = true;
+              }
+          } else {
+              done = true;
+          }
+      }
+      return result;
+  }
+
+  //--------------------------------------------------------------------------
+  this.parseObject = function() {
+      console.log("PARSING OBJECT")
+
+      obj.data = this.decode64(obj.coded);
+
+      var geom = new vglGeometryData();
+      geom.setName("World");
+
+      var points = new vglSourceDataP3t3f();
+      var triangles = new vglTriangles();
+
+      geom.addSource(points);
+      geom.addPrimitive(triangles);
+
+      var ss = []; pos = 0;
+      for(i=0; i<obj.data.length; i++) ss[i] = obj.data.charCodeAt(i) & 0xff;
+
+      size = (ss[pos++]) + (ss[pos++] << 8) + (ss[pos++] << 16) + (ss[pos++] << 24);
+      type = String.fromCharCode(ss[pos++]);
+      obj.type = type;
+      obj.father = this;
+
+      if (type == 'L'){
+          console.log("Lines")
+          obj.numberOfPoints = (ss[pos++]) + (ss[pos++] << 8) + (ss[pos++] << 16) + (ss[pos++] << 24);
+          console.log(obj.numberOfPoints)
+          //Getting Points
+          test = new Int8Array(obj.numberOfPoints*4*3); for(i=0; i<obj.numberOfPoints*4*3; i++) test[i] = ss[pos++];
+          obj.points = new Float32Array(test.buffer);
+          //Generating Normals
+          test = new Array(obj.numberOfPoints*3); for(i=0; i<obj.numberOfPoints*3; i++) test[i] = 0.0;
+          obj.normals = new Float32Array(test);
+          //Getting Colors
+          test = []; for(i=0; i<obj.numberOfPoints*4; i++) test[i] = ss[pos++]/255.0;
+          obj.colors = new Float32Array(test);
+
+          obj.numberOfIndex = (ss[pos++]) + (ss[pos++] << 8) + (ss[pos++] << 16) + (ss[pos++] << 24);
+          console.log(obj.numberOfIndex)
+
+          //Getting Index
+          test = new Int8Array(obj.numberOfIndex*2); for(i=0; i<obj.numberOfIndex*2; i++) test[i] = ss[pos++];
+          obj.index = new Uint16Array(test.buffer);
+          //Getting Matrix
+          test = new Int8Array(16*4); for(i=0; i<16*4; i++) test[i] = ss[pos++];
+          obj.matrix = new Float32Array(test.buffer);
+
+/*
+          //Creating Buffers
+          obj.lbuff = this.gl.createBuffer(); this.gl.bindBuffer(this.gl.ARRAY_BUFFER, obj.lbuff);
+          this.gl.bufferData(this.gl.ARRAY_BUFFER, obj.points, this.gl.STATIC_DRAW); obj.lbuff.itemSize = 3;
+
+          obj.nbuff = this.gl.createBuffer(); this.gl.bindBuffer(this.gl.ARRAY_BUFFER, obj.nbuff);
+          this.gl.bufferData(this.gl.ARRAY_BUFFER, obj.normals, this.gl.STATIC_DRAW);  obj.nbuff.itemSize = 3;
+
+          obj.cbuff = this.gl.createBuffer(); this.gl.bindBuffer(this.gl.ARRAY_BUFFER, obj.cbuff);
+          this.gl.bufferData(this.gl.ARRAY_BUFFER, obj.colors, this.gl.STATIC_DRAW);   obj.cbuff.itemSize = 4;
+
+          obj.ibuff = this.gl.createBuffer(); this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, obj.ibuff);
+          this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, obj.index, this.gl.STREAM_DRAW);
+
+          obj.render = this.renderLine;
+*/
+      }
+
+      //-=-=-=-=-=[ MESH ]=-=-=-=-=-
+      else if (type == 'M'){
+          console.log("Surface")
+          obj.numberOfVertices = (ss[pos++]) + (ss[pos++] << 8) + (ss[pos++] << 16) + (ss[pos++] << 24);
+          console.log(obj.numberOfVertices)
+          //Getting Vertices
+          test = new Int8Array(obj.numberOfVertices*4*3);
+          for(i=0; i<obj.numberOfVertices*4*3; i++) {
+              test[i] = ss[pos++];
+          }
+          obj.vertices = new Float32Array(test.buffer);
+
+          //Getting Normals
+          test = new Int8Array(obj.numberOfVertices*4*3); for(i=0; i<obj.numberOfVertices*4*3; i++) test[i] = ss[pos++];
+          obj.normals = new Float32Array(test.buffer);
+
+          for(i=0; i<obj.numberOfVertices; i++) {
+              var v1 = new vglVertexDataP3T3f();
+              v1.m_position = new Array(obj.vertices[i*3+0], obj.vertices[i*3+1], obj.vertices[i*3+2]);
+              //v1.m_normal = new Array(obj.normals[i*3+0], obj.normals[i*3+1], obj.normals[i*3+2]);
+              v1.m_texCoordinate = new Array(obj.normals[i*3+0], obj.normals[i*3+1], obj.normals[i*3+2]);
+              points.pushBack(v1);
+          }
+
+          //Getting Colors
+          test = []; for(i=0; i<obj.numberOfVertices*4; i++) test[i] = ss[pos++]/255.0;
+          obj.colors = new Float32Array(test);
+
+          obj.numberOfIndex = (ss[pos++]) + (ss[pos++] << 8) + (ss[pos++] << 16) + (ss[pos++] << 24);
+          //Getting Index
+          test = new Int8Array(obj.numberOfIndex*2); for(i=0; i<obj.numberOfIndex*2; i++) test[i] = ss[pos++];
+          obj.index = new Uint16Array(test.buffer);
+          triangles.setIndices(obj.index);
+
+          //Getting Matrix
+          test = new Int8Array(16*4); for(i=0; i<16*4; i++) test[i] = ss[pos++];
+          obj.matrix = new Float32Array(test.buffer);
+          //Getting TCoord
+          obj.tcoord = null;
+
+/*
+          //Create Buffers
+          obj.vbuff = this.gl.createBuffer(); this.gl.bindBuffer(this.gl.ARRAY_BUFFER, obj.vbuff);
+          this.gl.bufferData(this.gl.ARRAY_BUFFER, obj.vertices, this.gl.STATIC_DRAW); obj.vbuff.itemSize = 3;
+
+          obj.nbuff = this.gl.createBuffer(); this.gl.bindBuffer(this.gl.ARRAY_BUFFER, obj.nbuff);
+          this.gl.bufferData(this.gl.ARRAY_BUFFER, obj.normals, this.gl.STATIC_DRAW);  obj.nbuff.itemSize = 3;
+
+          obj.cbuff = this.gl.createBuffer(); this.gl.bindBuffer(this.gl.ARRAY_BUFFER, obj.cbuff);
+          this.gl.bufferData(this.gl.ARRAY_BUFFER, obj.colors, this.gl.STATIC_DRAW);   obj.cbuff.itemSize = 4;
+
+          obj.ibuff = this.gl.createBuffer(); this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, obj.ibuff);
+          this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, obj.index, this.gl.STREAM_DRAW);
+
+          obj.render = this.renderMesh;
+*/
+      }
+
+      // ColorMap Widget
+      else if (type == 'C'){
+          console.log("colormap")
+
+          obj.numOfColors = size;
+
+          //Getting Position
+          test = new Int8Array(2*4); for(i=0; i<2*4; i++) test[i] = ss[pos++];
+          obj.position = new Float32Array(test.buffer);
+
+          //Getting Size
+          test = new Int8Array(2*4); for(i=0; i<2*4; i++) test[i] = ss[pos++];
+          obj.size = new Float32Array(test.buffer);
+
+          //Getting Colors
+          obj.colors = [];
+          for(c=0; c<obj.numOfColors; c++){
+              test = new Int8Array(4); for(i=0; i<4; i++) test[i] = ss[pos++];
+              v = new Float32Array(test.buffer);
+              xrgb = [v[0], ss[pos++], ss[pos++], ss[pos++]];
+              obj.colors[c] = xrgb;
+          }
+
+          obj.orientation = ss[pos++];
+          obj.numOfLabels = ss[pos++];
+          tt = "";
+          for(jj=0; jj<(ss.length-pos); jj++) tt = tt + String.fromCharCode(ss[pos+jj]);
+          obj.title = tt;
+
+/*
+        obj.render = this.renderColorMap;
+*/
+      }
+
+      // Points
+      else if (type == 'P'){
+          console.log("POINTS")
+
+          obj.numberOfPoints = (ss[pos++]) + (ss[pos++] << 8) + (ss[pos++] << 16) + (ss[pos++] << 24);
+          console.log(obj.numberOfPoints)
+          //Getting Points
+          test = new Int8Array(obj.numberOfPoints*4*3); for(i=0; i<obj.numberOfPoints*4*3; i++) test[i] = ss[pos++];
+          obj.points = new Float32Array(test.buffer);
+
+          //Getting Colors
+          test = []; for(i=0; i<obj.numberOfPoints*4; i++) test[i] = ss[pos++]/255.0;
+          obj.colors = new Float32Array(test);
+
+          //Getting Matrix //Wendel
+          test = new Int8Array(16*4); for(i=0; i<16*4; i++) test[i] = ss[pos++];
+          obj.matrix = new Float32Array(test.buffer);
+/*
+
+          //Creating Buffers
+          obj.pbuff = this.gl.createBuffer(); this.gl.bindBuffer(this.gl.ARRAY_BUFFER, obj.pbuff);
+          this.gl.bufferData(this.gl.ARRAY_BUFFER, obj.points, this.gl.STATIC_DRAW); obj.pbuff.itemSize = 3;
+
+          obj.cbuff = this.gl.createBuffer(); this.gl.bindBuffer(this.gl.ARRAY_BUFFER, obj.cbuff);
+          this.gl.bufferData(this.gl.ARRAY_BUFFER, obj.colors, this.gl.STATIC_DRAW);   obj.cbuff.itemSize = 4;
+
+          obj.render = this.renderPoints;
+*/
+      }
+      return geom;
+  }
+
   //--------------------------------------------------------------------------
   this.createMap = function() {
-    // TODO Move it somewhere else
-    var geom = new vglGeometryData();
-    var source = new vglSourceDataP3t3f();
 
-    var triIndices = [ 0,1,2,3 ];
-
-    var v1 = new vglVertexDataP3T3f();
-    v1.m_position = new Array(180.0,  90.0,  0.0);
-    v1.m_texCoordinate = new Array(1.0, 1.0, 0.0);
-
-    var v2 = new vglVertexDataP3T3f();
-    v2.m_position = new Array(-180.0, 90.0,  0.0);
-    v2.m_texCoordinate = new Array(0.0, 1.0, 0.0);
-
-    var v3 = new vglVertexDataP3T3f();
-    v3.m_position = new Array(180.0,  -90.0, 0.0);
-    v3.m_texCoordinate = new Array(1.0, 0.0, 0.0);
-
-    var v4 = new vglVertexDataP3T3f();
-    v4.m_position = new Array(-180.0, -90.0, 0.0);
-    v4.m_texCoordinate = new Array(0.0, 0.0, 0.0);
-
-    source.pushBack(v1);
-    source.pushBack(v2);
-    source.pushBack(v3);
-    source.pushBack(v4);
-
-    // Create primitives
-    var triangleStrip = new vglTriangleStrip();
-    triangleStrip.setIndices(triIndices);
-
-    geom.setName("World");
-    geom.addSource(source);
-    geom.addPrimitive(triangleStrip);
+    var geom = this.parseObject();
 
     var mapper = new vglMapper();
     mapper.setGeometryData(geom);
@@ -264,7 +480,7 @@ function cpApp() {
       'varying highp vec3 vTextureCoord;',
       'uniform sampler2D uSampler;',
       'void main(void) {',
-        'gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));',
+        'gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);',
       '}'
      ].join('\n');
 
