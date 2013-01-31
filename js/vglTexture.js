@@ -99,15 +99,20 @@ vglTexture.prototype.undoBind = function(renderState) {
 }
 
 ///---------------------------------------------------------------------------
+vglTexture.prototype.handleTextureLoaded = function(image) {
+  this.m_image = image;
+  this.updateDimensions();
+  this.setModified(true);
+}
+
+///---------------------------------------------------------------------------
 vglTexture.prototype.image = function() {
   return this.m_image;
 }
 ///---------------------------------------------------------------------------
 vglTexture.prototype.setImage = function(image) {
   if (image !== null) {
-    this.m_image = image;
-    this.updateDimensions();
-    this.setModified(true);
+    image.onload = this.handleTextureLoaded(image);
     return true;
   }
 
@@ -251,11 +256,3 @@ vglTexture.prototype.updateDimensions = function() {
     this.m_depth = 0; // Only 2D images are supported now
   }
 }
-
-
-
-
-
-
-
-
