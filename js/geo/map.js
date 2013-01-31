@@ -15,15 +15,15 @@ geoModule.latlng = function(lat, lng) {
 
 ///---------------------------------------------------------------------------
 geoModule.mapOptions = function() {
-  var m_zoom  = 10;
-  var m_center = geoModule.latlng(0.0, 0.0);
+  this.zoom  = 10;
+  this.center = geoModule.latlng(0.0, 0.0);
 
   return {
     zoom : function() {
-      return m_zoom;
+      return zoom;
     },
     center : function() {
-      return m_center;
+      return center;
     }
   };
 };
@@ -34,14 +34,10 @@ geoModule.map = function(node, options) {
   var m_options = options;
 
   if (!options.center) {
-    m_options.m_center = geoModule.latlng(0.0, 0.0);
-  } else {
-    m_options.m_center = m_options.center;
+    m_options.center = geoModule.latlng(0.0, 0.0);
   }
   if (!options.zoom) {
-    m_options.m_zoom = 10;
-  } else {
-    m_options.m_zoom = m_options.zoom;
+    m_options.zoom = 10;
   }
 
   var m_renderer = new vglRenderer();
@@ -49,8 +45,8 @@ geoModule.map = function(node, options) {
   ///-------------------------------------------------------------------------
   function initScene() {
 
-    m_renderer.camera().setPosition(m_options.m_center.lat(), m_options.m_center.lng(), 800.0);
-    m_renderer.camera().setFocalPoint(m_options.m_center.lat(), m_options.m_center.lng(), 0.0);
+    m_renderer.camera().setPosition(m_options.center.lat(), m_options.center.lng(), 800.0);
+    m_renderer.camera().setFocalPoint(m_options.center.lat(), m_options.center.lng(), 0.0);
   }
 
   ///-------------------------------------------------------------------------
