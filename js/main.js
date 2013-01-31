@@ -248,7 +248,7 @@ function cpApp() {
       var geom = new vglGeometryData();
       geom.setName("World");
 
-      var points = new vglSourceDataP3t3f();
+      var points = new vglSourceDataP3N3f();
       var triangles = new vglTriangles();
 
       geom.addSource(points);
@@ -309,11 +309,9 @@ function cpApp() {
           console.log("Surface")
           obj.numberOfVertices = (ss[pos++]) + (ss[pos++] << 8) + (ss[pos++] << 16) + (ss[pos++] << 24);
           console.log(obj.numberOfVertices)
+
           //Getting Vertices
-          test = new Int8Array(obj.numberOfVertices*4*3);
-          for(i=0; i<obj.numberOfVertices*4*3; i++) {
-              test[i] = ss[pos++];
-          }
+          test = new Int8Array(obj.numberOfVertices*4*3); for(i=0; i<obj.numberOfVertices*4*3; i++) test[i] = ss[pos++];
           obj.vertices = new Float32Array(test.buffer);
 
           //Getting Normals
@@ -321,10 +319,11 @@ function cpApp() {
           obj.normals = new Float32Array(test.buffer);
 
           for(i=0; i<obj.numberOfVertices; i++) {
-              var v1 = new vglVertexDataP3T3f();
+              var v1 = new vglVertexDataP3N3f();
               v1.m_position = new Array(obj.vertices[i*3+0], obj.vertices[i*3+1], obj.vertices[i*3+2]);
-              //v1.m_normal = new Array(obj.normals[i*3+0], obj.normals[i*3+1], obj.normals[i*3+2]);
-              v1.m_texCoordinate = new Array(obj.normals[i*3+0], obj.normals[i*3+1], obj.normals[i*3+2]);
+              v1.m_normal = new Array(obj.normals[i*3+0], obj.normals[i*3+1], obj.normals[i*3+2]);
+              //if (i<10) console.log(v1.m_position + " " + v1.m_normal);
+              //v1.m_texCoordinate = new Array(obj.normals[i*3+0], obj.normals[i*3+1], obj.normals[i*3+2]);
               points.pushBack(v1);
           }
 
@@ -438,34 +437,25 @@ function cpApp() {
 
     var mat = new vglMaterial();
     var prog = new vglShaderProgram();
-    var vertexShader = this.createDefaultVertexShader(gl);
-    var fragmentShader = this.createDefaultFragmentShader(gl);
+
     var posVertAttr = new vglVertexAttribute("aVertexPosition");
-    var texCoordVertAttr = new vglVertexAttribute("aTextureCoord");
+    prog.addVertexAttribute(posVertAttr, vglVertexAttributeKeys.Position);
+    var posNormAttr = new vglVertexAttribute("aVertexNormal");
+    prog.addVertexAttribute(posNormAttr, vglVertexAttributeKeys.Normal);
+
     var modelViewUniform = new vglModelViewUniform("modelViewMatrix");
-    var projectionUniform = new vglProjectionUniform("projectionMatrix");
-    var worldTexture = new vglTexture();
-    var samplerUniform = new vglUniform(gl.INT, "uSampler");
-    samplerUniform.set(0);
-
-    prog.addVertexAttribute(posVertAttr,
-      vglVertexAttributeKeys.Position);
-    prog.addVertexAttribute(texCoordVertAttr,
-      vglVertexAttributeKeys.TextureCoordinate);
     prog.addUniform(modelViewUniform);
-    prog.addUniform(projectionUniform);
-    prog.addUniform(samplerUniform);
-    prog.addShader(fragmentShader);
-    prog.addShader(vertexShader);
-    mat.addAttribute(prog);
 
-    // Setup texture
-    worldImage = new Image();
-    worldImage.onload = function() {
-      handleTextureLoaded(worldImage, worldTexture);
-    }
-    worldImage.src = "./data/land_shallow_topo_2048.png";
-    mat.addAttribute(worldTexture);
+    var projectionUniform = new vglProjectionUniform("projectionMatrix");
+    prog.addUniform(projectionUniform);
+
+    var fragmentShader = this.createDefaultFragmentShader(gl);
+    prog.addShader(fragmentShader);
+
+    var vertexShader = this.createDefaultVertexShader(gl);
+    prog.addShader(vertexShader);
+
+    mat.addAttribute(prog);
 
     var actor = new vglActor();
     actor.setMapper(mapper);
@@ -477,10 +467,10 @@ function cpApp() {
   //--------------------------------------------------------------------------
   this.createDefaultFragmentShader = function(context) {
     var fragmentShaderSource = [
-      'varying highp vec3 vTextureCoord;',
-      'uniform sampler2D uSampler;',
+      'precision mediump float;',
+      'varying vec3 vNormal;',
       'void main(void) {',
-        'gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);',
+        'gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0) * vec4(vNormal, 1.0);',
       '}'
      ].join('\n');
 
@@ -493,14 +483,14 @@ function cpApp() {
   this.createDefaultVertexShader = function(context) {
     var vertexShaderSource = [
       'attribute vec3 aVertexPosition;',
-      'attribute vec3 aTextureCoord;',
+      'attribute vec3 aVertexNormal;',
       'uniform mat4 modelViewMatrix;',
       'uniform mat4 projectionMatrix;',
-      'varying highp vec3 vTextureCoord;',
+      'varying vec3 vNormal;',
       'void main(void)',
       '{',
       'gl_Position = projectionMatrix * modelViewMatrix * vec4(aVertexPosition, 1.0);',
-      ' vTextureCoord = aTextureCoord;',
+      'vNormal = aVertexNormal;',
       '}'
     ].join('\n');
 
@@ -531,7 +521,7 @@ function cpApp() {
   this.initScene = function() {
     var map = this.createMap();
     this.m_renderer.addActor(map);
-    this.m_renderer.camera().setPosition(0.0, 0.0, 800.0);
+    this.m_renderer.camera().setPosition(0.0, 0.0, 10.0);
     this.m_renderer.camera().setFocalPoint(0.0, 0.0, 0.0);
   }
 
