@@ -373,11 +373,11 @@ vglSourceData.prototype.pushBack = function(value)
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// vglSourceDataP3t3f
+// vglSourceDataP3T3f
 //
 //////////////////////////////////////////////////////////////////////////////
 
-function vglSourceDataP3t3f()
+function vglSourceDataP3T3f()
 {
   vglSourceData.call(this);
 
@@ -387,7 +387,7 @@ function vglSourceDataP3t3f()
                     gl.FLOAT, 4, 12, 6 * 4, 3, false);
 }
 
-inherit(vglSourceDataP3t3f, vglSourceData);
+inherit(vglSourceDataP3T3f, vglSourceData);
 
 //////////////////////////////////////////////////////////////////////////////
 //
