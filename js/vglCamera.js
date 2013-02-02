@@ -89,8 +89,7 @@ vglCamera.prototype.zoom  = function(dz)
   vec3.normalize(distance, directionOfProjection)
 
 
-  if (vec3.dot(directionOfProjection, this.m_directionOfProjection) <= 0)
-  {
+  if (vec3.dot(directionOfProjection, this.m_directionOfProjection) <= 0) {
     // We are on the other side of the focal point
     this.m_position[0] = lastPosition[0];
     this.m_position[1] = lastPosition[1];
@@ -214,6 +213,5 @@ vglCamera.prototype.projectionMatrix = function(aspect, near, far)
   mat4.identity(this.m_projectionMatrix)
   mat4.perspective(this.m_viewAngle, aspect, near, far,
                    this.m_projectionMatrix);
-
   return this.m_projectionMatrix;
 }

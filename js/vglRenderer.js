@@ -84,6 +84,9 @@ vglRenderer.prototype.render = function() {
   gl.depthFunc(gl.LEQUAL);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+  // TODO Call it only once
+  this.resize();
+
   perspectiveMatrix = this.m_camera.projectionMatrix(
   (this.m_width / this.m_height), 0.1, 1000.0);
 
@@ -112,7 +115,7 @@ vglRenderer.prototype.resetCameraClippingRange = function() {
 /// Resize viewport based on the new width and height of the window
 ///---------------------------------------------------------------------------
 vglRenderer.prototype.resize = function() {
-  // TODO
+  gl.viewport(0, 0, this.m_width, this.m_height);
 }
 
 /// Add new actor to the collection. This is required if the actor
@@ -140,7 +143,7 @@ vglRenderer.prototype.removeActor = function(actor) {
 
 //----------------------------------------------------------------------------
 function worldToDisplay(worldPt, viewMatrix, projectionMatrix, width, height) {
-  console.log('worldPt ', worldPt);
+//  console.log('worldPt ', worldPt);
 
   var viewProjectionMatrix = mat4.create();
   mat4.multiply(projectionMatrix, viewMatrix, viewProjectionMatrix);
@@ -164,14 +167,14 @@ function worldToDisplay(worldPt, viewMatrix, projectionMatrix, width, height) {
   var winZ = clipPt[2];
   var winW = clipPt[3];
 
-  console.log('worldToDisplay ', winX, winY, winZ);
+//  console.log('worldToDisplay ', winX, winY, winZ);
 
   return vec4.createFrom(winX, winY, winZ, winW);
 }
 
 //----------------------------------------------------------------------------
 function displayToWorld(displayPt, viewMatrix, projectionMatrix, width, height) {
-    console.log('displayPt ', displayPt);
+//    console.log('displayPt ', displayPt);
 
     var x =  ( 2.0 * displayPt[0] / width )  - 1;
     var y = -( 2.0 * displayPt[1] / height ) + 1;
@@ -192,7 +195,7 @@ function displayToWorld(displayPt, viewMatrix, projectionMatrix, width, height) 
       worldPt[3] = 1.0;
     }
 
-    console.log('displayToWorld ', worldPt);
+//    console.log('displayToWorld ', worldPt);
 
     return worldPt;
 }

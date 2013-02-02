@@ -17,15 +17,21 @@
  ========================================================================*/
 
 // Disable console log
-console.log = function() {}
+//  console.log = function() {}
 
 ///---------------------------------------------------------------------------
 function main() {
 
   var mapOptions = {
-    zoom : 10,
+    zoom : 1,
     center : ogs.geo.latlng(30.0, 70.0)
   };
 
-  var map = ogs.geo.map(document.getElementById("glcanvas"), mapOptions);
+  var myMap = ogs.geo.map(document.getElementById("glcanvas"), mapOptions);
+
+  $(myMap).on('CameraEvent', function() {
+    // For test purposes only
+    console.log("Yohoo.....camera has been moved or something");
+  });
+
 }
