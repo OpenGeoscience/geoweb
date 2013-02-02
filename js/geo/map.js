@@ -18,6 +18,11 @@
 
 ///---------------------------------------------------------------------------
 geoModule.latlng = function(lat, lng) {
+  // Check against no use of new()
+  if (!(this instanceof geoModule.latlng)) {
+    return new geoModule.latlng(lat, lng);
+  }
+
   var m_lat = lat;
   var m_lng = lng;
 
@@ -33,17 +38,13 @@ geoModule.latlng = function(lat, lng) {
 
 ///---------------------------------------------------------------------------
 geoModule.mapOptions = function() {
+  // Check against no use of new()
+  if (!(this instanceof geoModule.mapOptions)) {
+    return new geoModule.mapOptions();
+  }
+
   this.zoom  = 10;
   this.center = geoModule.latlng(0.0, 0.0);
-
-  return {
-    zoom : function() {
-      return zoom;
-    },
-    center : function() {
-      return center;
-    }
-  };
 };
 
 ///---------------------------------------------------------------------------
@@ -117,7 +118,7 @@ geoModule.map = function(node, options) {
     return shader;
   }
 
-///-------------------------------------------------------------------------
+  ///-------------------------------------------------------------------------
   function createDefaultVertexShader(context) {
     var vertexShaderSource = [
       'attribute vec3 aVertexPosition;',
@@ -137,7 +138,7 @@ geoModule.map = function(node, options) {
     return shader;
   }
 
-//--------------------------------------------------------------------------
+  ///-------------------------------------------------------------------------
   function relMouseCoords(event) {
     var totalOffsetX = 0;
     var totalOffsetY = 0;
@@ -156,7 +157,7 @@ geoModule.map = function(node, options) {
     return {x:canvasX, y:canvasY}
   }
 
-  //--------------------------------------------------------------------------
+  ///-------------------------------------------------------------------------
   function handleMouseMove(event) {
     var canvas = m_node;
     var outsideCanvas = false;
@@ -217,7 +218,7 @@ geoModule.map = function(node, options) {
     m_mouseLastPos.y = currentMousePos.y;
   }
 
-  //--------------------------------------------------------------------------
+  ///-------------------------------------------------------------------------
   function handleMouseDown(event) {
     var canvas = m_node;
 
@@ -264,6 +265,8 @@ geoModule.map = function(node, options) {
   }
 
   // TODO use zoom and center options
+
+  ///-------------------------------------------------------------------------
   var m_baseLayer = (function() {
     // TODO Move it somewhere else
     var geom = new vglGeometryData();
@@ -349,6 +352,46 @@ geoModule.map = function(node, options) {
 
     return actor;
   })();
+
+  /// Public member functions
+
+  /**
+   * Add layer to the map
+   *
+   * @method addLayer
+   * @param {geo.layer} layer to be added to the map
+   * @return {Boolean}
+   */
+  ///-------------------------------------------------------------------------
+  this.addLayer = function(layer) {
+    if (!layer) {
+      // TODO Check if the layer already exists
+      // TODO Set the rendering order correctly
+      m_renderer.addActor(layer);
+
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * Remove layer from the map
+   *
+   * @method removeLayer
+   * @param {geo.layer} layer that should be removed from the map
+   * @return {Boolean}
+   */
+  ///-------------------------------------------------------------------------
+  this.removeLayer = function(layer) {
+    if (!layer) {
+      m_renderer.removeActor(layer);
+
+      return true;
+    }
+
+    return false;
+  }
 
   return this;
 };
