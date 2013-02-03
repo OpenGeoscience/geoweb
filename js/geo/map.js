@@ -149,12 +149,12 @@ geoModule.map = function(node, options) {
     do {
       totalOffsetX += currentElement.offsetLeft;
       totalOffsetY += currentElement.offsetTop;
-    } while(currentElement = currentElement.offsetParent)
+    } while(currentElement === currentElement.offsetParent);
 
     canvasX = event.pageX - totalOffsetX;
     canvasY = event.pageY - totalOffsetY;
 
-    return {x:canvasX, y:canvasY}
+    return {x:canvasX, y:canvasY};
   }
 
   ///-------------------------------------------------------------------------
@@ -178,7 +178,7 @@ geoModule.map = function(node, options) {
       currentMousePos.y = coords.y;
     }
 
-    if (outsideCanvas == true) {
+    if (outsideCanvas === true) {
       return;
     }
 
@@ -222,13 +222,13 @@ geoModule.map = function(node, options) {
   function handleMouseDown(event) {
     var canvas = m_node;
 
-    if (event.button == 0) {
+    if (event.button === 0) {
       m_leftMouseButtonDown = true;
     }
-    if (event.button == 2) {
+    if (event.button === 2) {
       m_rightMouseButtonDown = true;
     }
-    if (event.button == 4)  {
+    if (event.button === 4)  {
 //        middileMouseButtonDown = true;
     }
 
@@ -251,13 +251,13 @@ geoModule.map = function(node, options) {
 
   ///-------------------------------------------------------------------------
   function handleMouseUp(event) {
-    if (event.button == 0) {
+    if (event.button === 0) {
       m_leftMouseButtonDown = false;
     }
-    if (event.button == 2) {
+    if (event.button === 2) {
       m_rightMouseButtonDown = false;
     }
-    if (event.button == 4) {
+    if (event.button === 4) {
 //      middileMouseButtonDown = false;
     }
 
@@ -345,7 +345,7 @@ geoModule.map = function(node, options) {
     document.onmousedown = handleMouseDown;
     document.onmouseup = handleMouseUp;
     document.onmousemove = handleMouseMove;
-    document.oncontextmenu = new Function("return false");
+    document.oncontextmenu = function() {return false;}
     HTMLCanvasElement.prototype.relMouseCoords = relMouseCoords;
 
     draw();
@@ -373,7 +373,7 @@ geoModule.map = function(node, options) {
     }
 
     return false;
-  }
+  };
 
   /**
    * Remove layer from the map
@@ -391,7 +391,7 @@ geoModule.map = function(node, options) {
     }
 
     return false;
-  }
+  };
 
   return this;
 };

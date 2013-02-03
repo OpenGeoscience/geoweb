@@ -22,105 +22,87 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-var TraversalMode
-{
+var TraversalMode = {
   "TraverseNone"           : 0x1,
   "TraverseParents"        : 0x2,
   "TraverseAllChildren"    : 0x4,
   "TraverseActiveChildren" : 0x8
-}
+};
 
-var VisitorType
-{
+var VisitorType = {
   "ActorVisitor"  : 0x1,
   "UpdateVisitor" : 0x2,
   "EventVisitor"  : 0x4,
   "CullVisitor"   : 0x8
 };
 
-function vglVisitor()
-{
+function vglVisitor() {
   vglObject.call(this);
   this.m_visitorType =  VisitorType.UpdateVisitor;
   this.m_traversalMode = TraversalMode.TraverseAllChildren;
-  this.m_modelViewMatrixStack = new Array();
-  this.m_projectionMatrixStack = new Array();
+  this.m_modelViewMatrixStack = [];
+  this.m_projectionMatrixStack = [];
 }
 
 inherit(vglVisitor, vglObject);
 
 ///
-vglVisitor.prototype.pushModelViewMatrix = function(mat)
-{
+vglVisitor.prototype.pushModelViewMatrix = function(mat) {
   this.m_modelViewMatrixStack.push(mat);
-}
-vglVisitor.prototype.popModelViewMatrix = function()
-{
+};
+vglVisitor.prototype.popModelViewMatrix = function() {
   this.m_modelViewMatrixStack.pop();
-}
+};
 
 ///
-vglVisitor.prototype.pushProjectionMatrix = function(mat)
-{
+vglVisitor.prototype.pushProjectionMatrix = function(mat) {
   this.m_projectionMatrixStack.push(mat);
-}
-vglVisitor.prototype.popProjectionMatrix = function()
-{
+};
+vglVisitor.prototype.popProjectionMatrix = function() {
   this.m_projectionMatrixStack.pop();
-}
+};
 
 ///
-vglVisitor.prototype.modelViewMatrix = function()
-{
+vglVisitor.prototype.modelViewMatrix = function() {
   mvMat = mat4.create();
   mat4.identity(mvMat);
 
-  for (var i = 0; i < this.m_modelViewMatrixStack.length; ++i)
-  {
+  for (var i = 0; i < this.m_modelViewMatrixStack.length; ++i) {
     mat4.multiply(mvMat, this.m_modelViewMatrixStack[i], mvMat);
   }
 
   return mvMat;
-}
+};
 
 ///
-vglVisitor.prototype.projectionMatrix = function()
-{
+vglVisitor.prototype.projectionMatrix = function() {
   projMat = mat4.create();
   mat4.identity(projMat);
 
-  for (var i = 0; i < this.m_modelViewMatrixStack.length; ++i)
-  {
+  for (var i = 0; i < this.m_modelViewMatrixStack.length; ++i) {
     mat4.multiply(mvMat, this.m_modelViewMatrixStack[i], projMat);
   }
 
   return projMat;
-}
+};
 
 ///
-vglVisitor.prototype.traverse = function(node)
-{
-  if (node instanceof vglNode)
-  {
-    if (this.m_traversalMode === TraversalMode.TraverseParents)
-    {
+vglVisitor.prototype.traverse = function(node) {
+  if (node instanceof vglNode) {
+    if (this.m_traversalMode === TraversalMode.TraverseParents) {
       node.ascend(this);
-    }
-    else
-    {
+    } else {
       node.traverse(this);
     }
   }
-}
+};
 
 ///
-vglVisitor.prototype.visit(node)
-{
+vglVisitor.prototype.visit = function(node) {
   this.traverse(node);
-}
+};
 
 ///
-vglVisitor.prototype.visit(actor)
-{
+vglVisitor.prototype.visit = function(actor) {
   this.traverse(actor);
-}
+};

@@ -47,54 +47,54 @@ inherit(vglActor, vglNode);
 //----------------------------------------------------------------------------
 vglActor.prototype.center  = function() {
   return m_center;
-}
+};
 /// Set center of transformations
 //----------------------------------------------------------------------------
 vglActor.prototype.setCenter = function(x, y, z) {
   this.m_center[0] = x;
   this.m_center[1] = y;
   this.m_center[2] = z;
-}
+};
 
 /// Get rotation as described by angle (in radians) and axis
 /// ( axis(x, y, z), angle )
 ///---------------------------------------------------------------------------
 vglActor.prototype.rotation = function() {
-}
+};
 /// Set rotation as described by angle (in radians) and axis
 /// ( axis(x, y, z), angle )
 //----------------------------------------------------------------------------
 vglActor.prototype.setRotation = function(angle, x, y, z) {
-}
+};
 
 /// Get scale in x, y and z directions
 //----------------------------------------------------------------------------
 vglActor.prototype.scale = function() {
-}
+};
 /// Set scale in x, y and z directions
 //----------------------------------------------------------------------------
 vglActor.prototype.setScale = function(x, y, z) {
-}
+};
 
 /// Get translation in x, y and z directions
 //----------------------------------------------------------------------------
 vglActor.prototype.translation = function() {
-}
+};
 /// Set translation in x, y and z directions
 //----------------------------------------------------------------------------
 vglActor.prototype.setTranslation = function(x, y, z) {
-}
+};
 
 /// Get reference frame for the transformations. Possible values
 /// are Absolute and Relative.
 //----------------------------------------------------------------------------
 vglActor.prototype.referenceFrame = function() {
-}
+};
 /// Set reference frame for the transformations. Possible values
 /// are Absolute and Relative.
 //----------------------------------------------------------------------------
 vglActor.prototype.setReferenceFrame = function(referenceFrame) {
-}
+};
 
 /// Evaluate the transform associated with the vtkActor.
 /// Return affine transformation for the actor.
@@ -103,50 +103,50 @@ vglActor.prototype.modelViewMatrix = function() {
   var mat = mat4.create();
   mat4.identity(mat);
   return mat;
-}
+};
 
 /// \copydoc vesTransformInterace::matrix
 //----------------------------------------------------------------------------
 vglActor.prototype.matrix = function() {
   return this.modelViewMatrix();
-}
+};
 
 /// Get mapper of the actor
 /// \sa vglMapper
 //----------------------------------------------------------------------------
 vglActor.prototype.mapper = function() {
   return this.m_mapper;
-}
+};
 /// Set mapper for the actor
 /// \sa vglMapper
 //----------------------------------------------------------------------------
 vglActor.prototype.setMapper = function(mapper) {
   this.m_mapper = mapper;
-}
+};
 
 /// \copydoc vglNode::accept()
 //----------------------------------------------------------------------------
 vglActor.prototype.accept = function(visitor) {
   // TODO
-}
+};
 
 /// \copydoc vglNode::ascend()
 //----------------------------------------------------------------------------
 vglActor.prototype.ascend = function(visitor) {
   // TODO
-}
+};
 
 /// Compute object space to world space matrix
 //----------------------------------------------------------------------------
 vglActor.prototype.computeLocalToWorldMatrix = function(matrix, visitor) {
-}
+};
 
 /// Compute world space to object space matrix
 //----------------------------------------------------------------------------
 vglActor.prototype.computeWorldToLocalMatrix = function(matrix, visitor) {
-}
+};
 
 /// Compute actor bounds
 //----------------------------------------------------------------------------
 vglActor.prototype.computeBounds = function() {
-}
+};

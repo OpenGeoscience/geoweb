@@ -54,7 +54,7 @@ function vglUniform(type, name) {
       default:
           return 0;
     }
-  }
+  };
 
   this.m_type = type;
   this.m_name = name;
@@ -65,48 +65,49 @@ function vglUniform(type, name) {
 ///---------------------------------------------------------------------------
 vglUniform.prototype.name = function() {
   return this.m_name;
-}
+};
 
 ///---------------------------------------------------------------------------
 vglUniform.prototype.type = function() {
   return this.m_type;
-}
+};
 
 ///---------------------------------------------------------------------------
 vglUniform.prototype.get = function() {
   // TODO
-}
+};
 ///---------------------------------------------------------------------------
 vglUniform.prototype.set = function(value) {
+  var i = 0;
   if (value instanceof mat4.constructor) {
-    for (var i = 0; i < 16; ++i) {
+    for (i = 0; i < 16; ++i) {
       this.m_dataArray[i] = value[i];
     }
   }
   else if (value instanceof mat3.constructor) {
-    for (var i = 0; i < 9; ++i) {
+    for (i = 0; i < 9; ++i) {
       this.m_dataArray[i] = value[i];
     }
   }
   else if (value instanceof vec4.constructor) {
-    for (var i = 0; i < 4; ++i) {
+    for (i = 0; i < 4; ++i) {
       this.m_dataArray[i] = value[i];
     }
   }
   else if (value instanceof vec3.constructor) {
-    for (var i = 0; i < 3; ++i) {
+    for (i = 0; i < 3; ++i) {
       this.m_dataArray[i] = value[i];
     }
   }
   else if (value instanceof vec2.constructor) {
-    for (var i = 0; i < 2; ++i) {
+    for (i = 0; i < 2; ++i) {
       this.m_dataArray[i] = value[i];
     }
   }
   else {
     this.m_dataArray[0] = value;
   }
-}
+};
 
 ///---------------------------------------------------------------------------
 vglUniform.prototype.callGL = function(location) {
@@ -139,12 +140,12 @@ vglUniform.prototype.callGL = function(location) {
     default:
         break;
   }
-}
+};
 
 ///---------------------------------------------------------------------------
 vglUniform.prototype.update = function(renderState, program) {
   // Should be implemented by the derived class
-}
+};
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -155,7 +156,7 @@ vglUniform.prototype.update = function(renderState, program) {
 ///---------------------------------------------------------------------------
 function vglModelViewUniform(name) {
 
-  if (name.length == 0) {
+  if (name.length === 0) {
     name = "modelViewMatrix";
   }
 
@@ -168,7 +169,7 @@ inherit(vglModelViewUniform, vglUniform);
 ///---------------------------------------------------------------------------
 vglModelViewUniform.prototype.update = function(renderState, program) {
   this.set(renderState.m_modelViewMatrix);
-}
+};
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -177,7 +178,7 @@ vglModelViewUniform.prototype.update = function(renderState, program) {
 //////////////////////////////////////////////////////////////////////////////
 
 function vglProjectionUniform(name) {
-  if (name.length == 0) {
+  if (name.length === 0) {
     name = "projectionMatrix";
   }
 
@@ -190,4 +191,4 @@ inherit(vglProjectionUniform, vglUniform);
 ///---------------------------------------------------------------------------
 vglProjectionUniform.prototype.update = function(renderState, program) {
   this.set(renderState.m_projectionMatrix);
-}
+};

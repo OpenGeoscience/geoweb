@@ -27,8 +27,8 @@ function vglShaderProgram() {
 
   this.m_type = vglMaterialAttributeType.ShaderProgram;
   this.m_programHandle = 0;
-  this.m_shaders = new Array();
-  this.m_uniforms = new Array();
+  this.m_shaders = [];
+  this.m_uniforms = [];
   this.m_vertexAttributes = {};
 
   this.m_uniformNameToLocation = {};
@@ -40,12 +40,12 @@ inherit(vglShaderProgram, vglMaterialAttribute);
 ///---------------------------------------------------------------------------
 vglShaderProgram.prototype.queryUniformLocation = function(name) {
   return gl.getUniformLocation(this.m_programHandle, name);
-}
+};
 
 ///---------------------------------------------------------------------------
 vglShaderProgram.prototype.queryAttributeLocation = function(name) {
   return gl.getAttribLocation(this.m_programHandle, name);
-}
+};
 
 ///---------------------------------------------------------------------------
 vglShaderProgram.prototype.addShader = function(shader) {
@@ -64,7 +64,7 @@ vglShaderProgram.prototype.addShader = function(shader) {
   this.setModified();
 
   return true;
-}
+};
 
 ///---------------------------------------------------------------------------
 vglShaderProgram.prototype.addUniform = function(uniform) {
@@ -75,28 +75,28 @@ vglShaderProgram.prototype.addUniform = function(uniform) {
   this.m_uniforms.push(uniform);
 
   this.setModified();
-}
+};
 
 ///---------------------------------------------------------------------------
 vglShaderProgram.prototype.addVertexAttribute = function(attr, key) {
   this.m_vertexAttributes[key] = attr;
 
   this.setModified();
-}
+};
 
 ///---------------------------------------------------------------------------
 vglShaderProgram.prototype.uniformLocation = function(name) {
   return this.m_uniformNameToLocation[name];
-}
+};
 ///---------------------------------------------------------------------------
 vglShaderProgram.prototype.attributeLocation = function(name) {
   return this.m_vertexAttributeNameToLocation[name];
-}
+};
 
 ///---------------------------------------------------------------------------
 vglShaderProgram.prototype.uniformExist = function() {
   // TODO
-}
+};
 
 ///---------------------------------------------------------------------------
 vglShaderProgram.prototype.updateUniforms = function() {
@@ -104,7 +104,7 @@ vglShaderProgram.prototype.updateUniforms = function() {
     this.m_uniforms[i].callGL(
       this.m_uniformNameToLocation[this.m_uniforms[i].name()]);
   }
-}
+};
 
 ///---------------------------------------------------------------------------
 vglShaderProgram.prototype.link = function() {
@@ -117,49 +117,50 @@ vglShaderProgram.prototype.link = function() {
   }
 
   return true;
-}
+};
 
 ///---------------------------------------------------------------------------
 vglShaderProgram.prototype.validate = function() {
   // TODO
-}
+};
 
 ///---------------------------------------------------------------------------
 vglShaderProgram.prototype.use = function() {
   gl.useProgram(this.m_programHandle);
-}
+};
 
 ///---------------------------------------------------------------------------
 vglShaderProgram.prototype.cleanUp = function() {
   this.deleteVertexAndFragment();
   this.deleteProgram();
-}
+};
 
 ///---------------------------------------------------------------------------
 vglShaderProgram.prototype.deleteProgram = function() {
   gl.deleteProgram(this.m_programHandle);
-}
+};
 
 ///---------------------------------------------------------------------------
 vglShaderProgram.prototype.deleteVertexAndFragment = function() {
   for (var i = 0; i < this.m_shaders.length; ++i) {
     gl.deleteShader(this.m_shaders[i].shaderHandle());
   }
-}
+};
 
 ///---------------------------------------------------------------------------
 vglShaderProgram.prototype.bind = function(renderState) {
-  if (this.m_programHandle === 0 || this.modified()) {
+  var i = 0;
 
+  if (this.m_programHandle === 0 || this.modified()) {
     this.m_programHandle = gl.createProgram();
 
-    if (this.m_programHandle == 0) {
+    if (this.m_programHandle === 0) {
       console.log("[ERROR] Cannot create Program Object");
       return false;
     }
 
     // Compile shaders
-    for (var i = 0; i < this.m_shaders.length; ++i) {
+    for (i = 0; i < this.m_shaders.length; ++i) {
       this.m_shaders[i].compile();
       this.m_shaders[i].attachShader(this.m_programHandle);
     }
@@ -183,32 +184,30 @@ vglShaderProgram.prototype.bind = function(renderState) {
   }
 
   // Call update callback.
-  for (var i = 0; i < this.m_uniforms.length; ++i) {
+  for (i = 0; i < this.m_uniforms.length; ++i) {
     this.m_uniforms[i].update(renderState, this);
   }
 
   // Now update values to GL.
   this.updateUniforms();
-}
+};
 ///---------------------------------------------------------------------------
 vglShaderProgram.prototype.undoBind = function(renderState) {
   // Do nothing
-}
+};
 
 ///---------------------------------------------------------------------------
 vglShaderProgram.prototype.bindVertexData = function(renderState, key) {
-
   if (this.m_vertexAttributes.hasOwnProperty(key)) {
     this.m_vertexAttributes[key].bindVertexData(renderState, key);
   }
-
-}
+};
 ///---------------------------------------------------------------------------
 vglShaderProgram.prototype.undoBindVertexData = function(renderState, key) {
   if (this.m_vertexAttributes.hasOwnProperty(key)) {
     this.m_vertexAttributes[key].undoBindVertexData(renderState, key);
   }
-}
+};
 
 ///---------------------------------------------------------------------------
 vglShaderProgram.prototype.bindUniforms = function() {
@@ -216,7 +215,7 @@ vglShaderProgram.prototype.bindUniforms = function() {
     this.m_uniformNameToLocation[this.m_uniforms[i].name()] =
       this.queryUniformLocation(this.m_uniforms[i].name());
   }
-}
+};
 ///---------------------------------------------------------------------------
 vglShaderProgram.prototype.bindAttributes = function() {
   var index = 0;
@@ -225,4 +224,4 @@ vglShaderProgram.prototype.bindAttributes = function() {
     gl.bindAttribLocation(this.m_programHandle, index, name);
     this.m_vertexAttributeNameToLocation[name] = index++;
   }
-}
+};

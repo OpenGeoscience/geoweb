@@ -65,6 +65,6 @@ geoModule.layer = function(options) {
   var m_visible = options.visible || true;
 
   return this;
-}
+};
 
 inherit(geoModule.layer, vglObject);

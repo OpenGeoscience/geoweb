@@ -17,7 +17,7 @@
  ========================================================================*/
 
 // Disable console log
-console.log = function() {}
+console.log = function() {};
 
 //--------------------------------------------------------------------------
 this.relMouseCoords = function(event) {
@@ -30,13 +30,13 @@ this.relMouseCoords = function(event) {
   do {
     totalOffsetX += currentElement.offsetLeft;
     totalOffsetY += currentElement.offsetTop;
-  } while(currentElement = currentElement.offsetParent)
+  } while(currentElement === currentElement.offsetParent);
 
   canvasX = event.pageX - totalOffsetX;
   canvasY = event.pageY - totalOffsetY;
 
-  return {x:canvasX, y:canvasY}
-}
+  return {x:canvasX, y:canvasY};
+};
 
 //--------------------------------------------------------------------------
 this.handleMouseMove = function(event) {
@@ -60,7 +60,7 @@ this.handleMouseMove = function(event) {
     currentMousePos.y = coords.y;
   }
 
-  if (outsideCanvas == true) {
+  if (outsideCanvas === true) {
     return;
   }
 
@@ -96,19 +96,19 @@ this.handleMouseMove = function(event) {
 
   app.m_mouseLastPos.x = currentMousePos.x;
   app.m_mouseLastPos.y = currentMousePos.y;
-}
+};
 
 //--------------------------------------------------------------------------
 this.handleMouseDown = function(event) {
   var canvas = document.getElementById("glcanvas");
 
-  if (event.button == 0) {
+  if (event.button === 0) {
     this.m_leftMouseButtonDown = true;
   }
-  if (event.button == 2) {
+  if (event.button === 2) {
     this.m_rightMouseButtonDown = true;
   }
-  if (event.button == 4)  {
+  if (event.button === 4)  {
 //      middileMouseButtonDown = true;
   }
 
@@ -127,22 +127,22 @@ this.handleMouseDown = function(event) {
   }
 
   return false;
-}
+};
 
 ///-------------------------------------------------------------------------
 this.handleMouseUp = function(event) {
-  if (event.button == 0) {
+  if (event.button === 0) {
     this.m_leftMouseButtonDown = false;
   }
-  if (event.button == 2) {
+  if (event.button === 2) {
     this.m_rightMouseButtonDown = false;
   }
-  if (event.button == 4) {
+  if (event.button === 4) {
     middileMouseButtonDown = false;
   }
 
   return false;
-}
+};
 
 ///---------------------------------------------------------------------------
 function drawScene() {
@@ -171,7 +171,7 @@ function cpApp() {
 //--------------------------------------------------------------------------
   this.camera = function() {
     return this.m_camera;
-  }
+  };
 
   //--------------------------------------------------------------------------
   this.createMap = function() {
@@ -240,7 +240,7 @@ function cpApp() {
     worldImage = new Image();
     worldImage.onload = function() {
       handleTextureLoaded(worldImage, worldTexture);
-    }
+    };
     worldImage.src = "./data/land_shallow_topo_2048.png";
     mat.addAttribute(worldTexture);
 
@@ -249,7 +249,7 @@ function cpApp() {
     actor.setMaterial(mat);
 
     return actor;
-  }
+  };
 
   //--------------------------------------------------------------------------
   this.createDefaultFragmentShader = function(context) {
@@ -264,7 +264,7 @@ function cpApp() {
     var shader = new vglShader(gl.FRAGMENT_SHADER);
     shader.setShaderSource(fragmentShaderSource);
     return shader;
-  }
+  };
 
   //--------------------------------------------------------------------------
   this.createDefaultVertexShader = function(context) {
@@ -284,7 +284,7 @@ function cpApp() {
     var shader = new vglShader(gl.VERTEX_SHADER);
     shader.setShaderSource(vertexShaderSource);
     return shader;
-  }
+  };
 
   ///-------------------------------------------------------------------------
   this.start = function() {
@@ -297,12 +297,12 @@ function cpApp() {
       document.onmousedown = handleMouseDown;
       document.onmouseup = handleMouseUp;
       document.onmousemove = handleMouseMove;
-      document.oncontextmenu = new Function("return false");
+      document.oncontextmenu = function(){"return false";};
       HTMLCanvasElement.prototype.relMouseCoords = relMouseCoords;
     } else {
       console.log("[ERROR] Invalid GL context");
     }
-  }
+  };
 
   ///-------------------------------------------------------------------------
   this.initScene = function() {
@@ -310,12 +310,12 @@ function cpApp() {
     this.m_renderer.addActor(map);
     this.m_renderer.camera().setPosition(0.0, 0.0, 800.0);
     this.m_renderer.camera().setFocalPoint(0.0, 0.0, 0.0);
-  }
+  };
 
 ///-------------------------------------------------------------------------
   this.drawScene = function() {
     this.m_renderer.render();
-  }
+  };
 }
 
 ///---------------------------------------------------------------------------

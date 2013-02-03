@@ -24,14 +24,13 @@
 
 function vglGroupNode() {
   vglNode.call(this);
-  this.m_children = new Array();
+  this.m_children = [];
 }
 
 inherit(vglGroupNode, vglNode);
 
 ///
-vglGroupNode.prototype.setVisible = function(flag)
-{
+vglGroupNode.prototype.setVisible = function(flag) {
   if (vglNode.prototype.setVisible.call(this, flag) !== true)
   {
     return false;
@@ -43,15 +42,12 @@ vglGroupNode.prototype.setVisible = function(flag)
   }
 
   return true;
-}
+};
 
 ///
-vglGroupNode.prototype.addChild = function(childNode)
-{
-  if (childNode instanceof vglNode)
-  {
-    if (this.m_children.indexOf(childNode) === -1)
-    {
+vglGroupNode.prototype.addChild = function(childNode) {
+  if (childNode instanceof vglNode) {
+    if (this.m_children.indexOf(childNode) === -1) {
       childNode.setParent(this);
       this.m_children.push(childNode);
       this.setBoundsDirty(true);
@@ -62,37 +58,31 @@ vglGroupNode.prototype.addChild = function(childNode)
   }
 
   return false;
-}
+};
 
 ///
-vglGroupNode.prototype.removeChild = function(childNode)
-{
-  if (childNode.parent() === this)
-  {
+vglGroupNode.prototype.removeChild = function(childNode) {
+  if (childNode.parent() === this) {
     var index = this.m_children.indexof(childNode);
     this.m_children.splice(index, 1);
     this.setBoundsDirty(true);
     return true;
   }
-}
+};
 
 ///
-vglGroupNode.prototype.children = function()
-{
+vglGroupNode.prototype.children = function() {
   return this.m_children;
-}
+};
 
 ///
-vglGroupNode.prototype.accept = function(visitor)
-{
+vglGroupNode.prototype.accept = function(visitor) {
   visitor.visit(this);
-}
+};
 
 ///
-vglGroupNode.prototype.traverse = function(visitor)
-{
-  switch (visitor.type())
-  {
+vglGroupNode.prototype.traverse = function(visitor) {
+  switch (visitor.type()) {
   case vglVisitor.UpdateVisitor:
     this.traverseChildrenAndUpdateBounds(visitor);
     break;
@@ -102,24 +92,20 @@ vglGroupNode.prototype.traverse = function(visitor)
   default:
     break;
   }
-}
+};
 
 ///
-vglGroupNode.prototype.traverseChildrenAndUpdateBounds = function(visitor)
-{
+vglGroupNode.prototype.traverseChildrenAndUpdateBounds = function(visitor) {
   this.computeBounds();
 
-  if (visitor.mode() === vglVisitor.TraverseAllChildren)
-  {
-    for (var i = 0; i < this.m_children.length(); ++i)
-    {
+  if (visitor.mode() === vglVisitor.TraverseAllChildren) {
+    for (var i = 0; i < this.m_children.length(); ++i) {
       this.m_children[i].accept(visitor);
       this.updateBounds(this.m_children[i]);
     }
   }
 
-  if (this.m_parent && this.boundsDirty())
-  {
+  if (this.m_parent && this.boundsDirty()) {
     // Flag parents bounds dirty.
     this.m_parent.setBoundsDirty(true);
   }
@@ -127,23 +113,19 @@ vglGroupNode.prototype.traverseChildrenAndUpdateBounds = function(visitor)
   // Since by now, we have updated the node bounds it is
   // safe to mark that bounds are no longer dirty anymore
   this.setBoundsDirty(false);
-}
+};
 
 ///
-vglGroupNode.prototype.traverseChildren = function(visitor)
-{
-  if (visitor.mode() == vesVisitor.TraverseAllChildren)
-  {
-    for (var i = 0; i < this.m_children.length(); ++i)
-    {
+vglGroupNode.prototype.traverseChildren = function(visitor) {
+  if (visitor.mode() == vesVisitor.TraverseAllChildren) {
+    for (var i = 0; i < this.m_children.length(); ++i) {
       this.m_children[i].accept(visitor);
     }
   }
-}
+};
 
 ///
-vglGroupNode.prototype.updateBounds = function(childNode)
-{
+vglGroupNode.prototype.updateBounds = function(childNode) {
   // TODO: Compute bounds here
-}
+};
 

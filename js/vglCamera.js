@@ -22,8 +22,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-function vglCamera()
-{
+function vglCamera() {
   vglGroupNode.call(this);
 
   this.m_viewAngle = 30;
@@ -46,30 +45,28 @@ inherit(vglCamera, vglGroupNode);
 //----------------------------------------------------------------------------
 vglCamera.prototype.setPosition = function(x, y, z) {
   this.m_position = vec3.create([x, y, z]);
-}
+};
 ///---------------------------------------------------------------------------
 vglCamera.prototype.position = function() {
   return this.m_position;
-}
+};
 
 ///---------------------------------------------------------------------------
 vglCamera.prototype.setFocalPoint = function(x, y, z) {
   this.m_focalPoint = vec3.create([x, y, z]);
-}
+};
 //////---------------------------------------------------------------------------
 vglCamera.prototype.focalPoint = function() {
   return this.m_focalPoint;
-}
-
+};
 
 //----------------------------------------------------------------------------
 vglCamera.prototype.setViewUpDirection = function(x, y, z) {
   this.m_viewUp = vec3.create([x, y, z]);
-}
+};
 
 //----------------------------------------------------------------------------
-vglCamera.prototype.zoom  = function(dz)
-{
+vglCamera.prototype.zoom  = function(dz) {
   // Since our direction vector is changed, we need to first
   // calculate this new direction
   var lastPosition = vec3.createFrom(this.m_position[0], this.m_position[1],
@@ -86,8 +83,7 @@ vglCamera.prototype.zoom  = function(dz)
   var distance = vec3.create();
   var directionOfProjection = vec3.create();
   vec3.subtract(this.m_focalPoint, this.m_position, distance);
-  vec3.normalize(distance, directionOfProjection)
-
+  vec3.normalize(distance, directionOfProjection);
 
   if (vec3.dot(directionOfProjection, this.m_directionOfProjection) <= 0) {
     // We are on the other side of the focal point
@@ -102,31 +98,28 @@ vglCamera.prototype.zoom  = function(dz)
 
   // TODO: If the distance between focal point and the camera position
   // goes really low then we run into issues
-}
+};
 
 //----------------------------------------------------------------------------
-vglCamera.prototype.pan = function(dx, dy)
-{
+vglCamera.prototype.pan = function(dx, dy) {
   this.m_position[0] += dx;
   this.m_position[1] += dy;
   this.m_focalPoint[0] += dx;
   this.m_focalPoint[1] += dy;
-}
+};
 
 //----------------------------------------------------------------------------
-vglCamera.prototype.computeOrthogonalAxes = function()
-{
+vglCamera.prototype.computeOrthogonalAxes = function() {
   dir = new vec3.create();
   vec3.direction(this.m_focalPoint, this.m_position, dir);
   vec3.normalize(dir);
   vec3.cross(dir, this.m_viewUp, this.m_right);
   vec3.normalize(this.m_right);
-}
+};
 
 //----------------------------------------------------------------------------
-vglCamera.prototype.yaw = function(degrees)
-{
-  radians = degrees * (3.14 / 180.0)
+vglCamera.prototype.yaw = function(degrees) {
+  radians = degrees * (3.14 / 180.0);
 
   mat = mat4.create();
   mat4.identity(mat);
@@ -148,13 +141,11 @@ vglCamera.prototype.yaw = function(degrees)
   mat4.multiplyVec3(mat, this.m_position, this.m_position);
 
   this.computeOrthogonalAxes();
-}
-
+};
 
 //----------------------------------------------------------------------------
-vglCamera.prototype.pitch = function(degrees)
-{
-  radians = degrees * (3.14 / 180.0)
+vglCamera.prototype.pitch = function(degrees) {
+  radians = degrees * (3.14 / 180.0);
 
   mat = mat4.create();
   mat4.identity(mat);
@@ -177,11 +168,10 @@ vglCamera.prototype.pitch = function(degrees)
 
   // Now update the position
   mat4.multiplyVec3(mat, this.m_position, this.m_position);
-}
+};
 
 //----------------------------------------------------------------------------
-vglCamera.prototype.viewMatrix = function()
-{
+vglCamera.prototype.viewMatrix = function() {
   this.computeOrthogonalAxes();
 
   mat4.lookAt(this.m_position, this.m_focalPoint, this.m_viewUp, this.m_viewMatrix);
@@ -205,13 +195,12 @@ vglCamera.prototype.viewMatrix = function()
   vec3.normalize(this.m_directionOfProjection, this.m_directionOfProjection);
 
   return this.m_viewMatrix;
-}
+};
 
 //----------------------------------------------------------------------------
-vglCamera.prototype.projectionMatrix = function(aspect, near, far)
-{
-  mat4.identity(this.m_projectionMatrix)
+vglCamera.prototype.projectionMatrix = function(aspect, near, far) {
+  mat4.identity(this.m_projectionMatrix);
   mat4.perspective(this.m_viewAngle, aspect, near, far,
                    this.m_projectionMatrix);
   return this.m_projectionMatrix;
-}
+};

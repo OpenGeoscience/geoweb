@@ -32,16 +32,14 @@ vglVertexAttributeKeys = {
 };
 
 ///---------------------------------------------------------------------------
-function vglVertexAttribute(name)
-{
+function vglVertexAttribute(name) {
   this.m_name = name;
 }
 
 ///---------------------------------------------------------------------------
 vglVertexAttribute.prototype.name = function() {
   return this.m_name;
-}
-
+};
 
 ///---------------------------------------------------------------------------
 vglVertexAttribute.prototype.bindVertexData = function(renderState, key) {
@@ -57,10 +55,10 @@ vglVertexAttribute.prototype.bindVertexData = function(renderState, key) {
                         sourceData.attributeOffset(key));
 
   gl.enableVertexAttribArray(program.attributeLocation(this.m_name));
-}
+};
 ///---------------------------------------------------------------------------
 vglVertexAttribute.prototype.undoBindVertexData = function(renderState, key) {
   var program = renderState.m_material.shaderProgram();
 
   gl.disableVertexAttribArray(program.attributeLocation(this.m_name));
-}
+};

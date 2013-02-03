@@ -40,32 +40,32 @@ inherit(vglMaterialAttribute, vglObject);
 ///---------------------------------------------------------------------------
 vglMaterialAttribute.prototype.type = function() {
   return this.m_type;
-}
+};
 
 ///---------------------------------------------------------------------------
 vglMaterialAttribute.prototype.setup = function(renderState) {
   return false;
-}
+};
 
 ///---------------------------------------------------------------------------
 vglMaterialAttribute.prototype.bind  = function(renderState) {
   return false;
-}
+};
 ///---------------------------------------------------------------------------
 vglMaterialAttribute.prototype.undoBind = function(renderState) {
   return false;
-}
+};
 
 ///---------------------------------------------------------------------------
 vglMaterialAttribute.prototype.setupVertexData = function(renderState, key) {
   return false;
-}
+};
 
 ///---------------------------------------------------------------------------
 vglMaterialAttribute.prototype.bindVertexData = function(renderState, key) {
   return false;
-}
+};
 ///---------------------------------------------------------------------------
 vglMaterialAttribute.prototype.undoBindVertexData = function(renderState, key) {
   return false;
-}
+};

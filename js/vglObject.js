@@ -30,9 +30,9 @@ function vglObject() {
 ///---------------------------------------------------------------------------
 vglObject.prototype.modified = function() {
   return this.m_modified;
-}
+};
 /// Set dirty
 ///---------------------------------------------------------------------------
 vglObject.prototype.setModified = function(flag) {
   this.m_modified = flag;
-}
+};
