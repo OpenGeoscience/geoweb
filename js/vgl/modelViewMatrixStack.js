@@ -16,7 +16,12 @@
   limitations under the License.
  ========================================================================*/
 
-function vglModelViewMatrixStack()
+
+
+/**
+ * Not used right now
+ */
+function modelViewMatrixStack()
 {
   var mvMatrixStack = [];
 

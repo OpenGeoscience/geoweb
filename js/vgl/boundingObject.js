@@ -18,27 +18,27 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// vglBoundingObject class
+// boundingObject class
 //
 //////////////////////////////////////////////////////////////////////////////
 
-function vglBoundingObject() {
-  vglObject.call(this);
+vglModule.boundingObject = function() {
+  vglModule.object.call(this);
 
   this.m_boundsDirty = true;
   this.m_bounds = new Array(6);
 }
 
-inherit(vglBoundingObject, vglObject);
+inherit(vglModule.boundingObject, vglModule.object);
 
 /// Return dirty state of bounds
 //----------------------------------------------------------------------------
-vglBoundingObject.prototype.boundsDirty = function() {
+vglModule.boundingObject.prototype.boundsDirty = function() {
   return this.m_boundsDirty;
 };
 /// Set bounds dirty
 //----------------------------------------------------------------------------
-vglBoundingObject.prototype.setBoundsDirty = function(flag) {
+vglModule.boundingObject.prototype.setBoundsDirty = function(flag) {
   if (this.m_boundsDirty !== flag)
   {
     this.m_boundsDirty = flag;
@@ -51,12 +51,12 @@ vglBoundingObject.prototype.setBoundsDirty = function(flag) {
 
 /// Return current bounds
 //----------------------------------------------------------------------------
-vglBoundingObject.prototype.bounds  = function() {
+vglModule.boundingObject.prototype.bounds  = function() {
   return this.m_bounds;
 };
 /// Set current bounds
 //----------------------------------------------------------------------------
-vglBoundingObject.prototype.setBounds = function(minX, maxX, minY, maxY,
+vglModule.boundingObject.prototype.setBounds = function(minX, maxX, minY, maxY,
                                                   minZ, maxZ) {
   this.m_bounds[0] = minX;
   this.m_bounds[1] = maxX;
@@ -72,5 +72,5 @@ vglBoundingObject.prototype.setBounds = function(minX, maxX, minY, maxY,
 
 /// Request computing bounds. Should be implemented by the concrete class
 //----------------------------------------------------------------------------
-vglBoundingObject.prototype.computeBounds = function() {
+vglModule.boundingObject.prototype.computeBounds = function() {
 };

@@ -25,28 +25,28 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-function vglVTKUnpack () {
+vglModule.vtkUnpack = function() {
   this.reverseBase64Chars = [];
   for (var i=0; i < this.base64Chars.length; i++) {
     this.reverseBase64Chars[this.base64Chars[i]] = i;
   };
 }
 
-vglVTKUnpack.prototype.base64Chars =
+vglModule.vtkUnpack.prototype.base64Chars =
   ['A','B','C','D','E','F','G','H','I','J','K','L','M',
    'N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
    'a','b','c','d','e','f','g','h','i','j','k','l','m',
    'n','o','p','q','r','s','t','u','v','w','x','y','z',
    '0','1','2','3','4','5','6','7','8','9','+','/'];
 
-vglVTKUnpack.prototype.END_OF_INPUT = -1;
+vglModule.vtkUnpack.prototype.END_OF_INPUT = -1;
 
-vglVTKUnpack.prototype.base64Str = "";
+vglModule.vtkUnpack.prototype.base64Str = "";
 
-vglVTKUnpack.prototype.base64Count = 0;
+vglModule.vtkUnpack.prototype.base64Count = 0;
 
 //--------------------------------------------------------------------------
-vglVTKUnpack.prototype.ntos = function (n) {
+vglModule.vtkUnpack.prototype.ntos = function (n) {
   n=n.toString(16);
   if (n.length == 1) n='0'+n;
   n='%'+n;
@@ -54,7 +54,7 @@ vglVTKUnpack.prototype.ntos = function (n) {
 }
 
 //--------------------------------------------------------------------------
-vglVTKUnpack.prototype.readReverseBase64 = function () {
+vglModule.vtkUnpack.prototype.readReverseBase64 = function () {
   if (!this.base64Str) return this.END_OF_INPUT;
     while (true) {
       if (this.base64Count >= this.base64Str.length) return this.END_OF_INPUT;
@@ -70,7 +70,7 @@ vglVTKUnpack.prototype.readReverseBase64 = function () {
   }
 
 //--------------------------------------------------------------------------
-vglVTKUnpack.prototype.decode64 = function(str) {
+vglModule.vtkUnpack.prototype.decode64 = function(str) {
   this.base64Str = str;
   this.base64Count = 0;
 
@@ -98,7 +98,7 @@ vglVTKUnpack.prototype.decode64 = function(str) {
 }
 
 //--------------------------------------------------------------------------
-vglVTKUnpack.prototype.parseObject = function(buffer) {
+vglModule.vtkUnpack.prototype.parseObject = function(buffer) {
   console.log("PARSING OBJECT")
   obj = {};
   obj.coded = buffer;

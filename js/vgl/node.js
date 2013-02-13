@@ -18,12 +18,12 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// vglNode class
+// node class
 //
 //////////////////////////////////////////////////////////////////////////////
 
-function vglNode() {
-  vglBoundingObject.call(this);
+vglModule.node = function() {
+  vglModule.boundingObject.call(this);
 
   this.m_parent = null;
   this.m_material = null;
@@ -31,22 +31,22 @@ function vglNode() {
   this.m_overlay = false;
 }
 
-inherit(vglNode, vglBoundingObject);
+inherit(vglModule.node, vglModule.boundingObject);
 
 /// Accept visitor for scene traversal
 //----------------------------------------------------------------------------
-vglNode.prototype.accept = function(visitor) {
+vglModule.node.prototype.accept = function(visitor) {
   visitor.visit(this);
 };
 
 /// Return active material
 //----------------------------------------------------------------------------
-vglNode.prototype.material = function() {
+vglModule.node.prototype.material = function() {
   return this.m_material;
 };
 /// Set current material
 //----------------------------------------------------------------------------
-vglNode.prototype.setMaterial = function(material) {
+vglModule.node.prototype.setMaterial = function(material) {
   if (material !== this.m_material)
   {
     this.m_material = material;
@@ -59,12 +59,12 @@ vglNode.prototype.setMaterial = function(material) {
 
 /// Return node's visibility
 //----------------------------------------------------------------------------
-vglNode.prototype.visible = function() {
+vglModule.node.prototype.visible = function() {
   return this.m_visible;
 };
 /// Set visibility of the node
 //----------------------------------------------------------------------------
-vglNode.prototype.setVisible = function(flag) {
+vglModule.node.prototype.setVisible = function(flag) {
   if (flag !== this.m_visible)   {
     this.m_visible = flag;
     this.setModified();
@@ -76,12 +76,12 @@ vglNode.prototype.setVisible = function(flag) {
 
 /// Return parent of the node
 //----------------------------------------------------------------------------
-vglNode.prototype.parent = function() {
+vglModule.node.prototype.parent = function() {
   return this.m_parent;
 };
 /// Set parent of the node
 //----------------------------------------------------------------------------
-vglNode.prototype.setParent = function(parent) {
+vglModule.node.prototype.setParent = function(parent) {
   if (parent !== this.m_parent) {
     if (this.m_parent !== null) {
       this.m_parent.removeChild(this);
@@ -96,12 +96,12 @@ vglNode.prototype.setParent = function(parent) {
 
 /// Return if node is an overlay or not
 //----------------------------------------------------------------------------
-vglNode.prototype.overlay = function() {
+vglModule.node.prototype.overlay = function() {
   return this.m_overlay;
 };
 /// Set node overlay state
 //----------------------------------------------------------------------------
-vglNode.prototype.setOverlay = function(flag) {
+vglModule.node.prototype.setOverlay = function(flag) {
   if (this.m_overlay !== flag)   {
     this.m_overlay = flag;
     this.setModified();
@@ -113,18 +113,18 @@ vglNode.prototype.setOverlay = function(flag) {
 
 ///  Traverse parent and their parent and so on
 //----------------------------------------------------------------------------
-vglNode.prototype.ascend = function(visitor) {
+vglModule.node.prototype.ascend = function(visitor) {
 };
 
 /// Traverse children
 //----------------------------------------------------------------------------
-vglNode.prototype.traverse = function(visitor) {
+vglModule.node.prototype.traverse = function(visitor) {
 };
 
-/// Reset bounds of the node. Actual bound calculation
+/// Reset bounds of the vglModule.node. Actual bound calculation
 /// should be done in the concrete class.
 //----------------------------------------------------------------------------
-vglNode.prototype.computeBounds = function() {
+vglModule.node.prototype.computeBounds = function() {
   if (this.boundsDirty())   {
     this.resetBounds();
   }

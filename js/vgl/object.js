@@ -18,29 +18,21 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// Globals
+// vglObject class
 //
 //////////////////////////////////////////////////////////////////////////////
 
-gl = 0;
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-function initWebGL(canvas)
-{
-  // Initialize the global variable gl to null.
-  gl = null;
-
-  try {
-    // Try to grab the standard context. If it fails, fallback to experimental.
-    gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
-  }
-  catch(e){
-  }
-
-  // If we don't have a GL context, give up now
-  if (!gl) {
-    alert("Unable to initialize WebGL. Your browser may not support it.");
-  }
+vglModule.object = function() {
+  this.m_modified = false;
 }
+
+///
+///---------------------------------------------------------------------------
+vglModule.object.prototype.modified = function() {
+  return this.m_modified;
+};
+/// Set dirty
+///---------------------------------------------------------------------------
+vglModule.object.prototype.setModified = function(flag) {
+  this.m_modified = flag;
+};

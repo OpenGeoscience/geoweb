@@ -49,7 +49,7 @@ geoModule.layer = function(options) {
   }
 
   // Register with base class
-  vglActor.call(this);
+  vgl.actor.call(this);
 
   /// Members initialization
   var m_opacity = options.opacity || 1.0;

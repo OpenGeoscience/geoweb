@@ -18,7 +18,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// vglVisitor class
+// visitor class
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -36,7 +36,7 @@ var VisitorType = {
   "CullVisitor"   : 0x8
 };
 
-function vglVisitor() {
+function visitor() {
   vglObject.call(this);
   this.m_visitorType =  VisitorType.UpdateVisitor;
   this.m_traversalMode = TraversalMode.TraverseAllChildren;
@@ -44,26 +44,26 @@ function vglVisitor() {
   this.m_projectionMatrixStack = [];
 }
 
-inherit(vglVisitor, vglObject);
+inherit(visitor, vglObject);
 
 ///
-vglVisitor.prototype.pushModelViewMatrix = function(mat) {
+visitor.prototype.pushModelViewMatrix = function(mat) {
   this.m_modelViewMatrixStack.push(mat);
 };
-vglVisitor.prototype.popModelViewMatrix = function() {
+visitor.prototype.popModelViewMatrix = function() {
   this.m_modelViewMatrixStack.pop();
 };
 
 ///
-vglVisitor.prototype.pushProjectionMatrix = function(mat) {
+visitor.prototype.pushProjectionMatrix = function(mat) {
   this.m_projectionMatrixStack.push(mat);
 };
-vglVisitor.prototype.popProjectionMatrix = function() {
+visitor.prototype.popProjectionMatrix = function() {
   this.m_projectionMatrixStack.pop();
 };
 
 ///
-vglVisitor.prototype.modelViewMatrix = function() {
+visitor.prototype.modelViewMatrix = function() {
   mvMat = mat4.create();
   mat4.identity(mvMat);
 
@@ -75,7 +75,7 @@ vglVisitor.prototype.modelViewMatrix = function() {
 };
 
 ///
-vglVisitor.prototype.projectionMatrix = function() {
+visitor.prototype.projectionMatrix = function() {
   projMat = mat4.create();
   mat4.identity(projMat);
 
@@ -87,8 +87,8 @@ vglVisitor.prototype.projectionMatrix = function() {
 };
 
 ///
-vglVisitor.prototype.traverse = function(node) {
-  if (node instanceof vglNode) {
+visitor.prototype.traverse = function(node) {
+  if (node instanceof node) {
     if (this.m_traversalMode === TraversalMode.TraverseParents) {
       node.ascend(this);
     } else {
@@ -98,11 +98,11 @@ vglVisitor.prototype.traverse = function(node) {
 };
 
 ///
-vglVisitor.prototype.visit = function(node) {
+visitor.prototype.visit = function(node) {
   this.traverse(node);
 };
 
 ///
-vglVisitor.prototype.visit = function(actor) {
+visitor.prototype.visit = function(actor) {
   this.traverse(actor);
 };

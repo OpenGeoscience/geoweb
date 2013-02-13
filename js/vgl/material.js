@@ -18,12 +18,12 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// vglMaterial class
+// material class
 //
 //////////////////////////////////////////////////////////////////////////////
 
 ///---------------------------------------------------------------------------
-function vglMaterial() {
+vglModule.material = function() {
   this.RenderBin = {
     "Default"     : 0,
     "Opaque"      : 1,
@@ -31,28 +31,28 @@ function vglMaterial() {
     "Overlay"     : 20
   };
 
-  vglObject.call(this);
-  this.m_shaderProgram = new vglShaderProgram();
+  vglModule.object.call(this);
+  this.m_shaderProgram = new vglModule.shaderProgram();
   this.m_binNumber = 0;
   this.m_textureAttributes = {};
   this.m_attributes = {};
 }
 
-inherit(vglMaterial, vglObject);
+inherit(vglModule.material, vglModule.object);
 
 ///---------------------------------------------------------------------------
-vglMaterial.prototype.binNumber = function() {
+vglModule.material.prototype.binNumber = function() {
   return this.m_binNumber;
 };
 ///---------------------------------------------------------------------------
-vglMaterial.prototype.setBinNumber = function(binNo) {
+vglModule.material.prototype.setBinNumber = function(binNo) {
   this.m_binNumber = binNo;
   this.setModified();
 };
 
 ///---------------------------------------------------------------------------
-vglMaterial.prototype.exists = function(attr) {
-  if (attr.type() === vglMaterialAttribute.Texture) {
+vglModule.material.prototype.exists = function(attr) {
+  if (attr.type() === vglModule.materialAttribute.Texture) {
     return this.m_textureAttributes.hasOwnProperty(attr);
   } else {
     return this.m_attributes.hasOwnProperty(attr);
@@ -60,19 +60,19 @@ vglMaterial.prototype.exists = function(attr) {
 };
 
 ///---------------------------------------------------------------------------
-vglMaterial.prototype.addAttribute = function(attr) {
+vglModule.material.prototype.addAttribute = function(attr) {
 
   if (this.exists(attr)) {
     return false;
   }
 
-  if (attr.type() === vglMaterialAttributeType.Texture) {
+  if (attr.type() === materialAttributeType.Texture) {
     this.m_textureAttributes[attr.textureUnit()] = attr;
     this.setModified(true);
     return true;
   } else {
     // Shader is a very special attribute
-    if (attr.type() === vglMaterialAttributeType.ShaderProgram) {
+    if (attr.type() === materialAttributeType.ShaderProgram) {
       this.m_shaderProgram = attr;
     }
 
@@ -84,17 +84,17 @@ vglMaterial.prototype.addAttribute = function(attr) {
 };
 
 ///---------------------------------------------------------------------------
-vglMaterial.prototype.shaderProgram = function() {
+vglModule.material.prototype.shaderProgram = function() {
   return this.m_shaderProgram;
 };
 
 ///---------------------------------------------------------------------------
-vglMaterial.prototype.render = function(renderState) {
+vglModule.material.prototype.render = function(renderState) {
   this.bind(renderState);
 };
 
 ///---------------------------------------------------------------------------
-vglMaterial.prototype.bind = function(renderState) {
+vglModule.material.prototype.bind = function(renderState) {
 
   for (var key in this.m_attributes) {
     if (this.m_attributes.hasOwnProperty(key)) {
@@ -109,7 +109,7 @@ vglMaterial.prototype.bind = function(renderState) {
   }
 };
 ///---------------------------------------------------------------------------
-vglMaterial.prototype.undoBind = function(renderState) {
+vglModule.material.prototype.undoBind = function(renderState) {
   var key = null;
   for (key in this.m_attributes) {
     if (this.m_attributes.hasOwnProperty(key)) {
@@ -125,7 +125,7 @@ vglMaterial.prototype.undoBind = function(renderState) {
 };
 
 ///---------------------------------------------------------------------------
-vglMaterial.prototype.bindVertexData = function(renderState, key) {
+vglModule.material.prototype.bindVertexData = function(renderState, key) {
 
   for (var i in this.m_attributes) {
     if (this.m_attributes.hasOwnProperty(i)) {
@@ -134,7 +134,7 @@ vglMaterial.prototype.bindVertexData = function(renderState, key) {
   }
 };
 ///---------------------------------------------------------------------------
-vglMaterial.prototype.undoBindVertexData = function(renderState, key) {
+vglModule.material.prototype.undoBindVertexData = function(renderState, key) {
   for (var i in this.m_attributes) {
     if (this.m_attributes.hasOwnProperty(i)) {
       this.m_attributes.undoBindVertexData(renderState, key);

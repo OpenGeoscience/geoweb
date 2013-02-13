@@ -18,11 +18,11 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// vglVertexAttribute class
+// vertexAttribute class
 //
 //////////////////////////////////////////////////////////////////////////////
 
-vglVertexAttributeKeys = {
+vglModule.vertexAttributeKeys = {
   "Position"            : 0,
   "Normal"              : 1,
   "TextureCoordinate"   : 2,
@@ -32,17 +32,17 @@ vglVertexAttributeKeys = {
 };
 
 ///---------------------------------------------------------------------------
-function vglVertexAttribute(name) {
+vglModule.vertexAttribute = function (name) {
   this.m_name = name;
 }
 
 ///---------------------------------------------------------------------------
-vglVertexAttribute.prototype.name = function() {
+vglModule.vertexAttribute.prototype.name = function() {
   return this.m_name;
 };
 
 ///---------------------------------------------------------------------------
-vglVertexAttribute.prototype.bindVertexData = function(renderState, key) {
+vglModule.vertexAttribute.prototype.bindVertexData = function(renderState, key) {
   var geometryData = renderState.m_mapper.geometryData();
   var sourceData = geometryData.sourceData(key);
   var program = renderState.m_material.shaderProgram();
@@ -57,7 +57,7 @@ vglVertexAttribute.prototype.bindVertexData = function(renderState, key) {
   gl.enableVertexAttribArray(program.attributeLocation(this.m_name));
 };
 ///---------------------------------------------------------------------------
-vglVertexAttribute.prototype.undoBindVertexData = function(renderState, key) {
+vglModule.vertexAttribute.prototype.undoBindVertexData = function(renderState, key) {
   var program = renderState.m_material.shaderProgram();
 
   gl.disableVertexAttribArray(program.attributeLocation(this.m_name));

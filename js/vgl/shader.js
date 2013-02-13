@@ -18,12 +18,12 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// vglShader class
+// shader class
 //
 //////////////////////////////////////////////////////////////////////////////
 
-function vglShader(type) {
-  vglObject.call(this);
+vglModule.shader = function(type) {
+  vglModule.object.call(this);
 
   this.m_shaderHandle = null;
   this.m_shaderType =  type;
@@ -31,39 +31,39 @@ function vglShader(type) {
   this.m_fileName = "";
 }
 
-inherit(vglShader, vglObject);
+inherit(vglModule.shader, vglModule.object);
 
 ///---------------------------------------------------------------------------
-vglShader.prototype.shaderHandle = function() {
+vglModule.shader.prototype.shaderHandle = function() {
 };
 
 ///---------------------------------------------------------------------------
-vglShader.prototype.shaderType = function() {
+vglModule.shader.prototype.shaderType = function() {
   return this.m_shaderType;
 };
 
 ///---------------------------------------------------------------------------
-vglShader.prototype.fileName = function() {
+vglModule.shader.prototype.fileName = function() {
   return this.m_fileName;
 };
 ///---------------------------------------------------------------------------
-vglShader.prototype.setFileName = function(fileName) {
+vglModule.shader.prototype.setFileName = function(fileName) {
   this.m_fileName = fileName;
 };
 
 ///---------------------------------------------------------------------------
-vglShader.prototype.shaderSource = function() {
+vglModule.shader.prototype.shaderSource = function() {
   return this.m_shaderSource;
 };
 ///---------------------------------------------------------------------------
-vglShader.prototype.setShaderSource = function(source) {
+vglModule.shader.prototype.setShaderSource = function(source) {
   this.m_shaderSource = source;
 
   this.setModified(true);
 };
 
 ///---------------------------------------------------------------------------
-vglShader.prototype.compile = function() {
+vglModule.shader.prototype.compile = function() {
 
   if (this.modified() === false) {
     return null;
@@ -86,6 +86,6 @@ vglShader.prototype.compile = function() {
 };
 
 ///---------------------------------------------------------------------------
-vglShader.prototype.attachShader = function(programHandle) {
+vglModule.shader.prototype.attachShader = function(programHandle) {
   gl.attachShader(programHandle, this.m_shaderHandle);
 };

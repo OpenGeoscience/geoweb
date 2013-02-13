@@ -18,11 +18,11 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// vglMaterialAttribute class
+// materialAttribute class
 //
 //////////////////////////////////////////////////////////////////////////////
 
-vglMaterialAttributeType =   {
+materialAttributeType =   {
     "Undefined" : 0x0,
     "ShaderProgram" : 0x1,
     "Texture" : 0x2,
@@ -30,42 +30,42 @@ vglMaterialAttributeType =   {
     "Depth" : 0x4
   };
 
-function vglMaterialAttribute() {
-  vglObject.call(this);
-  this.m_type = vglMaterialAttributeType.Undefined;
+vglModule.materialAttribute = function() {
+  vglModule.object.call(this);
+  this.m_type = materialAttributeType.Undefined;
   this.m_enabled = true;
 }
-inherit(vglMaterialAttribute, vglObject);
+inherit(vglModule.materialAttribute, vglModule.object);
 
 ///---------------------------------------------------------------------------
-vglMaterialAttribute.prototype.type = function() {
+vglModule.materialAttribute.prototype.type = function() {
   return this.m_type;
 };
 
 ///---------------------------------------------------------------------------
-vglMaterialAttribute.prototype.setup = function(renderState) {
+vglModule.materialAttribute.prototype.setup = function(renderState) {
   return false;
 };
 
 ///---------------------------------------------------------------------------
-vglMaterialAttribute.prototype.bind  = function(renderState) {
+vglModule.materialAttribute.prototype.bind  = function(renderState) {
   return false;
 };
 ///---------------------------------------------------------------------------
-vglMaterialAttribute.prototype.undoBind = function(renderState) {
-  return false;
-};
-
-///---------------------------------------------------------------------------
-vglMaterialAttribute.prototype.setupVertexData = function(renderState, key) {
+vglModule.materialAttribute.prototype.undoBind = function(renderState) {
   return false;
 };
 
 ///---------------------------------------------------------------------------
-vglMaterialAttribute.prototype.bindVertexData = function(renderState, key) {
+vglModule.materialAttribute.prototype.setupVertexData = function(renderState, key) {
+  return false;
+};
+
+///---------------------------------------------------------------------------
+vglModule.materialAttribute.prototype.bindVertexData = function(renderState, key) {
   return false;
 };
 ///---------------------------------------------------------------------------
-vglMaterialAttribute.prototype.undoBindVertexData = function(renderState, key) {
+vglModule.materialAttribute.prototype.undoBindVertexData = function(renderState, key) {
   return false;
 };

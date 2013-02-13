@@ -15,26 +15,26 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  ========================================================================*/
-/// \class vglMapper
+/// \class mapper
 /// \ingroup vgl
 /// \brief Mapper contains a geometry data and has the responsibility of rendering
 /// the geometry appropriately.
 ///
 /// Actor and mapper works in pair where mapper takes the responsibility of
-/// rendering a geometry using OpenGL ES 2.0 API. vglMapper defines
+/// rendering a geometry using OpenGL ES 2.0 API. mapper defines
 /// a light weight polydata rendering entity that works in conjunction with a
-/// vglActor.
+/// actor.
 ///
-/// \see vglBoundingObject vglActor vglGeometryData
+/// \see boundingObject actor vglGeometryData
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// vglMapper class
+// mapper class
 //
 //////////////////////////////////////////////////////////////////////////////
 
-function vglMapper() {
-  vglBoundingObject.call(this);
+vglModule.mapper = function() {
+  vglModule.boundingObject.call(this);
 
   this.m_dirty = true;
   this.m_geomData = 0;
@@ -42,21 +42,21 @@ function vglMapper() {
   this.m_bufferVertexAttributeMap = {};
 }
 
-inherit(vglMapper, vglBoundingObject);
+inherit(vglModule.mapper, vglModule.boundingObject);
 
 /// Compute bounds of the data
 //----------------------------------------------------------------------------
-vglMapper.prototype.computeBounds = function() {
+vglModule.mapper.prototype.computeBounds = function() {
 };
 
 /// Return stored geometry data if any
 //----------------------------------------------------------------------------
-vglMapper.prototype.geometryData = function() {
+vglModule.mapper.prototype.geometryData = function() {
   return this.m_geomData;
 };
 /// Set geometry data for the mapper
 //----------------------------------------------------------------------------
-vglMapper.prototype.setGeometryData = function(geom) {
+vglModule.mapper.prototype.setGeometryData = function(geom) {
   if (this.m_geomData !== geom )   {
     this.m_geomData = geom;
 
@@ -67,7 +67,7 @@ vglMapper.prototype.setGeometryData = function(geom) {
 
 /// Render
 //----------------------------------------------------------------------------
-vglMapper.prototype.render = function(renderState) {
+vglModule.mapper.prototype.render = function(renderState) {
   // Bind material
 
   if (this.m_dirty) {
@@ -108,7 +108,7 @@ vglMapper.prototype.render = function(renderState) {
 
 /// Delete previously created buffers
 //----------------------------------------------------------------------------
-vglMapper.prototype.deleteVertexBufferObjects = function() {
+vglModule.mapper.prototype.deleteVertexBufferObjects = function() {
   for (var i = 0 ; i < this.m_buffers.length; ++i)   {
     gl.deleteBuffer(this.m_buffers[i]);
   }
@@ -116,7 +116,7 @@ vglMapper.prototype.deleteVertexBufferObjects = function() {
 
 /// Create new buffers
 //----------------------------------------------------------------------------
-vglMapper.prototype.createVertexBufferObjects = function() {
+vglModule.mapper.prototype.createVertexBufferObjects = function() {
   if (this.m_geomData) {
     var numberOfSources = this.m_geomData.numberOfSources();
     var i = 0;
@@ -150,14 +150,14 @@ vglMapper.prototype.createVertexBufferObjects = function() {
 
 /// Clear cache related to buffers
 //----------------------------------------------------------------------------
-vglMapper.prototype.cleanUpDrawObjects = function() {
+vglModule.mapper.prototype.cleanUpDrawObjects = function() {
   this.m_bufferVertexAttributeMap = {};
   this.m_buffers = [];
 };
 
 /// Setup draw objects; Delete old ones and create new ones
 //----------------------------------------------------------------------------
-vglMapper.prototype.setupDrawObjects = function(renderState) {
+vglModule.mapper.prototype.setupDrawObjects = function(renderState) {
   // Delete buffer objects from past if any.
   this.deleteVertexBufferObjects();
 

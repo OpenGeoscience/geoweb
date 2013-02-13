@@ -18,14 +18,14 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// vglShaderProgram class
+// shaderProgram class
 //
 //////////////////////////////////////////////////////////////////////////////
 
-function vglShaderProgram() {
-  vglMaterialAttribute.call(this);
+vglModule.shaderProgram = function() {
+  vglModule.materialAttribute.call(this);
 
-  this.m_type = vglMaterialAttributeType.ShaderProgram;
+  this.m_type = materialAttributeType.ShaderProgram;
   this.m_programHandle = 0;
   this.m_shaders = [];
   this.m_uniforms = [];
@@ -35,20 +35,20 @@ function vglShaderProgram() {
   this.m_vertexAttributeNameToLocation = {};
 }
 
-inherit(vglShaderProgram, vglMaterialAttribute);
+inherit(vglModule.shaderProgram, vglModule.materialAttribute);
 
 ///---------------------------------------------------------------------------
-vglShaderProgram.prototype.queryUniformLocation = function(name) {
+vglModule.shaderProgram.prototype.queryUniformLocation = function(name) {
   return gl.getUniformLocation(this.m_programHandle, name);
 };
 
 ///---------------------------------------------------------------------------
-vglShaderProgram.prototype.queryAttributeLocation = function(name) {
+vglModule.shaderProgram.prototype.queryAttributeLocation = function(name) {
   return gl.getAttribLocation(this.m_programHandle, name);
 };
 
 ///---------------------------------------------------------------------------
-vglShaderProgram.prototype.addShader = function(shader) {
+vglModule.shaderProgram.prototype.addShader = function(shader) {
   if (this.m_shaders.indexOf(shader) > -1)   {
     return false;
   }
@@ -67,7 +67,7 @@ vglShaderProgram.prototype.addShader = function(shader) {
 };
 
 ///---------------------------------------------------------------------------
-vglShaderProgram.prototype.addUniform = function(uniform) {
+vglModule.shaderProgram.prototype.addUniform = function(uniform) {
   if (this.m_uniforms.indexOf(uniform) > -1) {
     return false;
   }
@@ -78,28 +78,28 @@ vglShaderProgram.prototype.addUniform = function(uniform) {
 };
 
 ///---------------------------------------------------------------------------
-vglShaderProgram.prototype.addVertexAttribute = function(attr, key) {
+vglModule.shaderProgram.prototype.addVertexAttribute = function(attr, key) {
   this.m_vertexAttributes[key] = attr;
 
   this.setModified();
 };
 
 ///---------------------------------------------------------------------------
-vglShaderProgram.prototype.uniformLocation = function(name) {
+vglModule.shaderProgram.prototype.uniformLocation = function(name) {
   return this.m_uniformNameToLocation[name];
 };
 ///---------------------------------------------------------------------------
-vglShaderProgram.prototype.attributeLocation = function(name) {
+vglModule.shaderProgram.prototype.attributeLocation = function(name) {
   return this.m_vertexAttributeNameToLocation[name];
 };
 
 ///---------------------------------------------------------------------------
-vglShaderProgram.prototype.uniformExist = function() {
+vglModule.shaderProgram.prototype.uniformExist = function() {
   // TODO
 };
 
 ///---------------------------------------------------------------------------
-vglShaderProgram.prototype.updateUniforms = function() {
+vglModule.shaderProgram.prototype.updateUniforms = function() {
   for (var i = 0; i < this.m_uniforms.length; ++i) {
     this.m_uniforms[i].callGL(
       this.m_uniformNameToLocation[this.m_uniforms[i].name()]);
@@ -107,7 +107,7 @@ vglShaderProgram.prototype.updateUniforms = function() {
 };
 
 ///---------------------------------------------------------------------------
-vglShaderProgram.prototype.link = function() {
+vglModule.shaderProgram.prototype.link = function() {
   gl.linkProgram(this.m_programHandle);
 
   // If creating the shader program failed, alert
@@ -120,35 +120,35 @@ vglShaderProgram.prototype.link = function() {
 };
 
 ///---------------------------------------------------------------------------
-vglShaderProgram.prototype.validate = function() {
+vglModule.shaderProgram.prototype.validate = function() {
   // TODO
 };
 
 ///---------------------------------------------------------------------------
-vglShaderProgram.prototype.use = function() {
+vglModule.shaderProgram.prototype.use = function() {
   gl.useProgram(this.m_programHandle);
 };
 
 ///---------------------------------------------------------------------------
-vglShaderProgram.prototype.cleanUp = function() {
+vglModule.shaderProgram.prototype.cleanUp = function() {
   this.deleteVertexAndFragment();
   this.deleteProgram();
 };
 
 ///---------------------------------------------------------------------------
-vglShaderProgram.prototype.deleteProgram = function() {
+vglModule.shaderProgram.prototype.deleteProgram = function() {
   gl.deleteProgram(this.m_programHandle);
 };
 
 ///---------------------------------------------------------------------------
-vglShaderProgram.prototype.deleteVertexAndFragment = function() {
+vglModule.shaderProgram.prototype.deleteVertexAndFragment = function() {
   for (var i = 0; i < this.m_shaders.length; ++i) {
     gl.deleteShader(this.m_shaders[i].shaderHandle());
   }
 };
 
 ///---------------------------------------------------------------------------
-vglShaderProgram.prototype.bind = function(renderState) {
+vglModule.shaderProgram.prototype.bind = function(renderState) {
   var i = 0;
 
   if (this.m_programHandle === 0 || this.modified()) {
@@ -192,32 +192,32 @@ vglShaderProgram.prototype.bind = function(renderState) {
   this.updateUniforms();
 };
 ///---------------------------------------------------------------------------
-vglShaderProgram.prototype.undoBind = function(renderState) {
+vglModule.shaderProgram.prototype.undoBind = function(renderState) {
   // Do nothing
 };
 
 ///---------------------------------------------------------------------------
-vglShaderProgram.prototype.bindVertexData = function(renderState, key) {
+vglModule.shaderProgram.prototype.bindVertexData = function(renderState, key) {
   if (this.m_vertexAttributes.hasOwnProperty(key)) {
     this.m_vertexAttributes[key].bindVertexData(renderState, key);
   }
 };
 ///---------------------------------------------------------------------------
-vglShaderProgram.prototype.undoBindVertexData = function(renderState, key) {
+vglModule.shaderProgram.prototype.undoBindVertexData = function(renderState, key) {
   if (this.m_vertexAttributes.hasOwnProperty(key)) {
     this.m_vertexAttributes[key].undoBindVertexData(renderState, key);
   }
 };
 
 ///---------------------------------------------------------------------------
-vglShaderProgram.prototype.bindUniforms = function() {
+vglModule.shaderProgram.prototype.bindUniforms = function() {
   for (var i = 0; i < this.m_uniforms.length; ++i) {
     this.m_uniformNameToLocation[this.m_uniforms[i].name()] =
       this.queryUniformLocation(this.m_uniforms[i].name());
   }
 };
 ///---------------------------------------------------------------------------
-vglShaderProgram.prototype.bindAttributes = function() {
+vglModule.shaderProgram.prototype.bindAttributes = function() {
   var index = 0;
   for (var i in this.m_vertexAttributes) {
     var name = this.m_vertexAttributes[i].name();

@@ -18,11 +18,11 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// vglUniform class
+// uniform class
 //
 //////////////////////////////////////////////////////////////////////////////
 
-function vglUniform(type, name) {
+vglModule.uniform = function(type, name) {
   this.getTypeNumberOfComponents = function(type) {
     switch (type) {
       case gl.FLOAT:
@@ -63,21 +63,21 @@ function vglUniform(type, name) {
 }
 
 ///---------------------------------------------------------------------------
-vglUniform.prototype.name = function() {
+vglModule.uniform.prototype.name = function() {
   return this.m_name;
 };
 
 ///---------------------------------------------------------------------------
-vglUniform.prototype.type = function() {
+vglModule.uniform.prototype.type = function() {
   return this.m_type;
 };
 
 ///---------------------------------------------------------------------------
-vglUniform.prototype.get = function() {
+vglModule.uniform.prototype.get = function() {
   // TODO
 };
 ///---------------------------------------------------------------------------
-vglUniform.prototype.set = function(value) {
+vglModule.uniform.prototype.set = function(value) {
   var i = 0;
   if (value instanceof mat4.constructor) {
     for (i = 0; i < 16; ++i) {
@@ -110,7 +110,7 @@ vglUniform.prototype.set = function(value) {
 };
 
 ///---------------------------------------------------------------------------
-vglUniform.prototype.callGL = function(location) {
+vglModule.uniform.prototype.callGL = function(location) {
   if (this.m_numberElements < 1)
     return;
 
@@ -143,7 +143,7 @@ vglUniform.prototype.callGL = function(location) {
 };
 
 ///---------------------------------------------------------------------------
-vglUniform.prototype.update = function(renderState, program) {
+vglModule.uniform.prototype.update = function(renderState, program) {
   // Should be implemented by the derived class
 };
 
@@ -154,20 +154,20 @@ vglUniform.prototype.update = function(renderState, program) {
 //////////////////////////////////////////////////////////////////////////////
 
 ///---------------------------------------------------------------------------
-function vglModelViewUniform(name) {
+vglModule.modelViewUniform = function(name) {
 
   if (name.length === 0) {
     name = "modelViewMatrix";
   }
 
-  vglUniform.call(this, gl.FLOAT_MAT4, name);
+  vglModule.uniform.call(this, gl.FLOAT_MAT4, name);
   this.set(mat4.create());
 }
 
-inherit(vglModelViewUniform, vglUniform);
+inherit(vglModule.modelViewUniform, vglModule.uniform);
 
 ///---------------------------------------------------------------------------
-vglModelViewUniform.prototype.update = function(renderState, program) {
+vglModule.modelViewUniform.prototype.update = function(renderState, program) {
   this.set(renderState.m_modelViewMatrix);
 };
 
@@ -177,18 +177,18 @@ vglModelViewUniform.prototype.update = function(renderState, program) {
 //
 //////////////////////////////////////////////////////////////////////////////
 
-function vglProjectionUniform(name) {
+vglModule.projectionUniform  = function(name) {
   if (name.length === 0) {
     name = "projectionMatrix";
   }
 
-  vglUniform.call(this, gl.FLOAT_MAT4, name);
+  vglModule.uniform.call(this, gl.FLOAT_MAT4, name);
   this.set(mat4.create());
 }
 
-inherit(vglProjectionUniform, vglUniform);
+inherit(vglModule.projectionUniform, vglModule.uniform);
 
 ///---------------------------------------------------------------------------
-vglProjectionUniform.prototype.update = function(renderState, program) {
+vglModule.projectionUniform.prototype.update = function(renderState, program) {
   this.set(renderState.m_projectionMatrix);
 };

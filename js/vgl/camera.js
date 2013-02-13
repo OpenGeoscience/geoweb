@@ -18,12 +18,12 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// vglCamera class
+// camera class
 //
 //////////////////////////////////////////////////////////////////////////////
 
-function vglCamera() {
-  vglGroupNode.call(this);
+vglModule.camera = function() {
+  vglModule.groupNode.call(this);
 
   this.m_viewAngle = 30;
   this.m_position = vec3.create([0.0, 0.0, 5.0]);
@@ -40,33 +40,33 @@ function vglCamera() {
   mat4.identity(this.m_pitchMatrix);
 }
 
-inherit(vglCamera, vglGroupNode);
+inherit(vglModule.camera, vglModule.groupNode);
 
 //----------------------------------------------------------------------------
-vglCamera.prototype.setPosition = function(x, y, z) {
+vglModule.camera.prototype.setPosition = function(x, y, z) {
   this.m_position = vec3.create([x, y, z]);
 };
 ///---------------------------------------------------------------------------
-vglCamera.prototype.position = function() {
+vglModule.camera.prototype.position = function() {
   return this.m_position;
 };
 
 ///---------------------------------------------------------------------------
-vglCamera.prototype.setFocalPoint = function(x, y, z) {
+vglModule.camera.prototype.setFocalPoint = function(x, y, z) {
   this.m_focalPoint = vec3.create([x, y, z]);
 };
 //////---------------------------------------------------------------------------
-vglCamera.prototype.focalPoint = function() {
+vglModule.camera.prototype.focalPoint = function() {
   return this.m_focalPoint;
 };
 
 //----------------------------------------------------------------------------
-vglCamera.prototype.setViewUpDirection = function(x, y, z) {
+vglModule.camera.prototype.setViewUpDirection = function(x, y, z) {
   this.m_viewUp = vec3.create([x, y, z]);
 };
 
 //----------------------------------------------------------------------------
-vglCamera.prototype.zoom  = function(dz) {
+vglModule.camera.prototype.zoom  = function(dz) {
   // Since our direction vector is changed, we need to first
   // calculate this new direction
   var lastPosition = vec3.createFrom(this.m_position[0], this.m_position[1],
@@ -101,7 +101,7 @@ vglCamera.prototype.zoom  = function(dz) {
 };
 
 //----------------------------------------------------------------------------
-vglCamera.prototype.pan = function(dx, dy) {
+vglModule.camera.prototype.pan = function(dx, dy) {
   this.m_position[0] += dx;
   this.m_position[1] += dy;
   this.m_focalPoint[0] += dx;
@@ -109,7 +109,7 @@ vglCamera.prototype.pan = function(dx, dy) {
 };
 
 //----------------------------------------------------------------------------
-vglCamera.prototype.computeOrthogonalAxes = function() {
+vglModule.camera.prototype.computeOrthogonalAxes = function() {
   dir = new vec3.create();
   vec3.direction(this.m_focalPoint, this.m_position, dir);
   vec3.normalize(dir);
@@ -118,7 +118,7 @@ vglCamera.prototype.computeOrthogonalAxes = function() {
 };
 
 //----------------------------------------------------------------------------
-vglCamera.prototype.yaw = function(degrees) {
+vglModule.camera.prototype.yaw = function(degrees) {
   radians = degrees * (3.14 / 180.0);
 
   mat = mat4.create();
@@ -144,7 +144,7 @@ vglCamera.prototype.yaw = function(degrees) {
 };
 
 //----------------------------------------------------------------------------
-vglCamera.prototype.pitch = function(degrees) {
+vglModule.camera.prototype.pitch = function(degrees) {
   radians = degrees * (3.14 / 180.0);
 
   mat = mat4.create();
@@ -171,7 +171,7 @@ vglCamera.prototype.pitch = function(degrees) {
 };
 
 //----------------------------------------------------------------------------
-vglCamera.prototype.viewMatrix = function() {
+vglModule.camera.prototype.viewMatrix = function() {
   this.computeOrthogonalAxes();
 
   mat4.lookAt(this.m_position, this.m_focalPoint, this.m_viewUp, this.m_viewMatrix);
@@ -198,7 +198,7 @@ vglCamera.prototype.viewMatrix = function() {
 };
 
 //----------------------------------------------------------------------------
-vglCamera.prototype.projectionMatrix = function(aspect, near, far) {
+vglModule.camera.prototype.projectionMatrix = function(aspect, near, far) {
   mat4.identity(this.m_projectionMatrix);
   mat4.perspective(this.m_viewAngle, aspect, near, far,
                    this.m_projectionMatrix);

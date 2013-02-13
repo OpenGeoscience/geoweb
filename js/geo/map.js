@@ -70,6 +70,7 @@ geoModule.map = function(node, options) {
   var m_mouseLastPos = {x : 0, y : 0};
 
   initWebGL(node);
+
   var m_options = options;
 
   if (!options.center) {
@@ -82,7 +83,7 @@ geoModule.map = function(node, options) {
   // TODO For now using the JQuery
   $(this).on('CameraEvent', draw);
 
-  var m_renderer = new vglRenderer();
+  var m_renderer = new ogs.vgl.renderer();
   var m_camera = m_renderer.camera();
 
   /**
@@ -117,7 +118,7 @@ geoModule.map = function(node, options) {
   /**
    *
    * @param context
-   * @returns {vglShader}
+   * @returns {ogs.vgl.shader}
    */
   function createDefaultFragmentShader(context) {
     var fragmentShaderSource = [
@@ -128,7 +129,7 @@ geoModule.map = function(node, options) {
       '}'
      ].join('\n');
 
-    var shader = new vglShader(gl.FRAGMENT_SHADER);
+    var shader = new ogs.vgl.shader(gl.FRAGMENT_SHADER);
     shader.setShaderSource(fragmentShaderSource);
     return shader;
   }
@@ -136,7 +137,7 @@ geoModule.map = function(node, options) {
   /**
    *
    * @param context
-   * @returns {vglShader}
+   * @returns {ogs.vgl.shader}
    */
   function createDefaultVertexShader(context) {
     var vertexShaderSource = [
@@ -152,7 +153,7 @@ geoModule.map = function(node, options) {
       '}'
     ].join('\n');
 
-    var shader = new vglShader(gl.VERTEX_SHADER);
+    var shader = new ogs.vgl.shader(gl.VERTEX_SHADER);
     shader.setShaderSource(vertexShaderSource);
     return shader;
   }
@@ -212,7 +213,7 @@ geoModule.map = function(node, options) {
       var focusWorldPt = vec4.createFrom(
         focalPoint[0], focalPoint[1], focalPoint[2], 1);
 
-      var focusDisplayPt = worldToDisplay(focusWorldPt,
+      var focusDisplayPt = ogs.vgl.renderer.worldToDisplay(focusWorldPt,
         m_camera.m_viewMatrix, m_camera.m_projectionMatrix, 1680, 1050);
 
       var displayPt1 = vec4.createFrom(
@@ -220,9 +221,11 @@ geoModule.map = function(node, options) {
       var displayPt2 = vec4.createFrom(
         m_mouseLastPos.x, m_mouseLastPos.y, focusDisplayPt[2], 1.0);
 
-      var worldPt1 = displayToWorld(displayPt1, m_camera.m_viewMatrix,
+      var worldPt1 = ogs.vgl.renderer.displayToWorld(
+        displayPt1, m_camera.m_viewMatrix,
         m_camera.m_projectionMatrix, 1680, 1050);
-      var worldPt2 = displayToWorld(displayPt2, m_camera.m_viewMatrix,
+      var worldPt2 = ogs.vgl.renderer.displayToWorld(
+        displayPt2, m_camera.m_viewMatrix,
         m_camera.m_projectionMatrix, 1680, 1050);
 
       dx = worldPt1[0] - worldPt2[0];
@@ -300,24 +303,24 @@ geoModule.map = function(node, options) {
    */
   var m_baseLayer = (function() {
     // TODO Move it somewhere else
-    var geom = new vglGeometryData();
-    var source = new vglSourceDataP3T3f();
+    var geom = new ogs.vgl.geometryData();
+    var source = new ogs.vgl.sourceDataP3T3f();
 
     var triIndices = [ 0,1,2,3 ];
 
-    var v1 = new vglVertexDataP3T3f();
+    var v1 = new ogs.vgl.vertexDataP3T3f();
     v1.m_position = new Array(180.0,  90.0,  0.0);
     v1.m_texCoordinate = new Array(1.0, 1.0, 0.0);
 
-    var v2 = new vglVertexDataP3T3f();
+    var v2 = new ogs.vgl.vertexDataP3T3f();
     v2.m_position = new Array(-180.0, 90.0,  0.0);
     v2.m_texCoordinate = new Array(0.0, 1.0, 0.0);
 
-    var v3 = new vglVertexDataP3T3f();
+    var v3 = new ogs.vgl.vertexDataP3T3f();
     v3.m_position = new Array(180.0,  -90.0, 0.0);
     v3.m_texCoordinate = new Array(1.0, 0.0, 0.0);
 
-    var v4 = new vglVertexDataP3T3f();
+    var v4 = new ogs.vgl.vertexDataP3T3f();
     v4.m_position = new Array(-180.0, -90.0, 0.0);
     v4.m_texCoordinate = new Array(0.0, 0.0, 0.0);
 
@@ -327,32 +330,32 @@ geoModule.map = function(node, options) {
     source.pushBack(v4);
 
     // Create primitives
-    var triangleStrip = new vglTriangleStrip();
+    var triangleStrip = new ogs.vgl.triangleStrip();
     triangleStrip.setIndices(triIndices);
 
     geom.setName("WorldMap");
     geom.addSource(source);
     geom.addPrimitive(triangleStrip);
 
-    var mapper = new vglMapper();
+    var mapper = new ogs.vgl.mapper();
     mapper.setGeometryData(geom);
 
-    var mat = new vglMaterial();
-    var prog = new vglShaderProgram();
+    var mat = new ogs.vgl.material();
+    var prog = new ogs.vgl.shaderProgram();
     var vertexShader = createDefaultVertexShader(gl);
     var fragmentShader = createDefaultFragmentShader(gl);
-    var posVertAttr = new vglVertexAttribute("aVertexPosition");
-    var texCoordVertAttr = new vglVertexAttribute("aTextureCoord");
-    var modelViewUniform = new vglModelViewUniform("modelViewMatrix");
-    var projectionUniform = new vglProjectionUniform("projectionMatrix");
-    var worldTexture = new vglTexture();
-    var samplerUniform = new vglUniform(gl.INT, "uSampler");
+    var posVertAttr = new ogs.vgl.vertexAttribute("aVertexPosition");
+    var texCoordVertAttr = new ogs.vgl.vertexAttribute("aTextureCoord");
+    var modelViewUniform = new ogs.vgl.modelViewUniform("modelViewMatrix");
+    var projectionUniform = new ogs.vgl.projectionUniform("projectionMatrix");
+    var worldTexture = new ogs.vgl.texture();
+    var samplerUniform = new ogs.vgl.uniform(gl.INT, "uSampler");
     samplerUniform.set(0);
 
     prog.addVertexAttribute(posVertAttr,
-      vglVertexAttributeKeys.Position);
+      vglModule.vertexAttributeKeys.Position);
     prog.addVertexAttribute(texCoordVertAttr,
-      vglVertexAttributeKeys.TextureCoordinate);
+      vglModule.vertexAttributeKeys.TextureCoordinate);
     prog.addUniform(modelViewUniform);
     prog.addUniform(projectionUniform);
     prog.addUniform(samplerUniform);
@@ -368,7 +371,7 @@ geoModule.map = function(node, options) {
     worldImage.src = "./data/land_shallow_topo_2048.png";
     mat.addAttribute(worldTexture);
 
-    var actor = new vglActor();
+    var actor = new ogs.vgl.actor();
     actor.setMapper(mapper);
     actor.setMaterial(mat);
     m_renderer.addActor(actor);

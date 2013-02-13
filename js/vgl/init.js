@@ -18,21 +18,9 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// vglObject class
+// Globals
 //
 //////////////////////////////////////////////////////////////////////////////
 
-function vglObject() {
-  this.m_modified = false;
-}
-
-///
-///---------------------------------------------------------------------------
-vglObject.prototype.modified = function() {
-  return this.m_modified;
-};
-/// Set dirty
-///---------------------------------------------------------------------------
-vglObject.prototype.setModified = function(flag) {
-  this.m_modified = flag;
-};
+/// Define ogs.geo namespace
+var vglModule = ogs.namespace("vgl");

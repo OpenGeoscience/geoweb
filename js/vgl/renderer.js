@@ -23,7 +23,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 ///---------------------------------------------------------------------------
-function vglRenderState() {
+vglModule.renderState = function() {
   this.m_modelViewMatrix = mat4.create();
   this.m_projectionMatrix = null;
   this.m_material = null;
@@ -32,53 +32,52 @@ function vglRenderState() {
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// vglRenderer class
+// renderer class
 //
 //////////////////////////////////////////////////////////////////////////////
 
-
 ///---------------------------------------------------------------------------
-function vglRenderer() {
-  vglObject.call(this);
+vglModule.renderer = function() {
+  vglModule.object.call(this);
 
   this.m_width = 1280;
   this.m_height = 1024;
   this.m_clippingRange = [0.1, 1000.0];
-  this.m_sceneRoot = new vglGroupNode();
-  this.m_camera = new vglCamera();
+  this.m_sceneRoot = new vglModule.groupNode();
+  this.m_camera = new vglModule.camera();
 
   this.m_camera.addChild(this.m_sceneRoot);
 }
 
-inherit(vglRenderer, vglObject);
+inherit(vglModule.renderer, vglModule.object);
 
 /// Get scene root. Do not change scene root or its data unless
 /// required in some special circumstances.
 ///---------------------------------------------------------------------------
-vglRenderer.prototype.sceneRoot = function() {
+vglModule.renderer.prototype.sceneRoot = function() {
   return this.m_sceneRoot;
 };
 
 /// Get main camera of the renderer
 ///---------------------------------------------------------------------------
-vglRenderer.prototype.camera = function() {
+vglModule.renderer.prototype.camera = function() {
   return this.m_camera;
 };
 
 /// Get width of renderer
 ///---------------------------------------------------------------------------
-vglRenderer.prototype.width = function() {
+vglModule.renderer.prototype.width = function() {
   return this.m_width;
 };
 /// Get height of renderer
 ///---------------------------------------------------------------------------
-vglRenderer.prototype.height = function() {
+vglModule.renderer.prototype.height = function() {
   return this.m_height;
 };
 
 /// Render the scene
 ///---------------------------------------------------------------------------
-vglRenderer.prototype.render = function() {
+vglModule.renderer.prototype.render = function() {
   gl.clearColor(0.5, 0.5, 0.5, 1.0);
   gl.enable(gl.DEPTH_TEST);
   gl.depthFunc(gl.LEQUAL);
@@ -90,7 +89,7 @@ vglRenderer.prototype.render = function() {
   perspectiveMatrix = this.m_camera.projectionMatrix(
   (this.m_width / this.m_height), 0.1, 1000.0);
 
-  var renSt = new vglRenderState();
+  var renSt = new vglModule.renderState();
   renSt.m_projectionMatrix = perspectiveMatrix;
 
   var children = this.m_sceneRoot.children();
@@ -108,21 +107,21 @@ vglRenderer.prototype.render = function() {
 
 /// Recalculate camera's clipping range
 ///---------------------------------------------------------------------------
-vglRenderer.prototype.resetCameraClippingRange = function() {
+vglModule.renderer.prototype.resetCameraClippingRange = function() {
   // TODO
 };
 
 /// Resize viewport based on the new width and height of the window
 ///---------------------------------------------------------------------------
-vglRenderer.prototype.resize = function() {
+vglModule.renderer.prototype.resize = function() {
   gl.viewport(0, 0, this.m_width, this.m_height);
 };
 
 /// Add new actor to the collection. This is required if the actor
-/// needs to be rendered by the renderer.
+/// needs to be rendered by the vglModule.renderer.
 ///---------------------------------------------------------------------------
-vglRenderer.prototype.addActor = function(actor) {
-  if (actor instanceof vglActor) {
+vglModule.renderer.prototype.addActor = function(actor) {
+  if (actor instanceof vglModule.actor) {
     this.m_sceneRoot.addChild(actor);
     return true;
   }
@@ -132,7 +131,7 @@ vglRenderer.prototype.addActor = function(actor) {
 /// Remove the actor from the collection.This method will
 /// not trigger reset camera.
 ///---------------------------------------------------------------------------
-vglRenderer.prototype.removeActor = function(actor) {
+vglModule.renderer.prototype.removeActor = function(actor) {
   if (actor in this.m_sceneRoot.children()) {
     this.m_sceneRoot.removeChild(actor);
     return true;
@@ -142,7 +141,8 @@ vglRenderer.prototype.removeActor = function(actor) {
 };
 
 //----------------------------------------------------------------------------
-function worldToDisplay(worldPt, viewMatrix, projectionMatrix, width, height) {
+vglModule.renderer.worldToDisplay = function(
+  worldPt, viewMatrix, projectionMatrix, width, height) {
   var viewProjectionMatrix = mat4.create();
   mat4.multiply(projectionMatrix, viewMatrix, viewProjectionMatrix);
 
@@ -168,7 +168,8 @@ function worldToDisplay(worldPt, viewMatrix, projectionMatrix, width, height) {
 }
 
 //----------------------------------------------------------------------------
-function displayToWorld(displayPt, viewMatrix, projectionMatrix, width, height) {
+vglModule.renderer.displayToWorld = function(
+  displayPt, viewMatrix, projectionMatrix, width, height) {
     var x =  ( 2.0 * displayPt[0] / width )  - 1;
     var y = -( 2.0 * displayPt[1] / height ) + 1;
     var z =  displayPt[2];
