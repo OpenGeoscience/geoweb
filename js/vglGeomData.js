@@ -175,6 +175,23 @@ inherit(vglTriangleStrip, vglPrimitive);
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// vglTriangleStrip
+//
+//////////////////////////////////////////////////////////////////////////////
+
+function vglTriangles()
+{
+  vglPrimitive.call(this);
+
+  this.setPrimitiveType(gl.TRIANGLES);
+  this.setIndicesValueType(gl.UNSIGNED_SHORT);
+  this.setIndexCount(3);
+}
+
+inherit(vglTriangles, vglPrimitive);
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // vglVertexData
 //
 //////////////////////////////////////////////////////////////////////////////
@@ -368,7 +385,7 @@ vglSourceData.prototype.pushBack = function(value)
 {
   // TODO FIX this
   this.m_data = this.m_data.concat(value.m_position);
-  this.m_data = this.m_data.concat(value.m_texCoordinate);
+  this.m_data = this.m_data.concat(value.m_normal);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -381,13 +398,31 @@ function vglSourceDataP3T3f()
 {
   vglSourceData.call(this);
 
-  this.addAttribute(vglVertexAttributeKeys.Position, gl.FLOAT,
-                    4, 0, 6 * 4, 3, false);
+  this.addAttribute(vglVertexAttributeKeys.Position,
+                    gl.FLOAT, 4,  0, 6 * 4, 3, false);
   this.addAttribute(vglVertexAttributeKeys.TextureCoordinate,
                     gl.FLOAT, 4, 12, 6 * 4, 3, false);
 }
 
 inherit(vglSourceDataP3T3f, vglSourceData);
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// vglSourceDataP3N3f
+//
+//////////////////////////////////////////////////////////////////////////////
+
+function vglSourceDataP3N3f()
+{
+  vglSourceData.call(this);
+
+  this.addAttribute(vglVertexAttributeKeys.Position,
+                    gl.FLOAT, 4,  0, 6 * 4, 3, false);
+  this.addAttribute(vglVertexAttributeKeys.Normal,
+                    gl.FLOAT, 4, 12, 6 * 4, 3, false);
+}
+
+inherit(vglSourceDataP3N3f, vglSourceData);
 
 //////////////////////////////////////////////////////////////////////////////
 //
