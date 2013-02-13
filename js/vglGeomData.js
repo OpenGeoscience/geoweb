@@ -200,160 +200,195 @@ function vglVertexDataP3T3f() {
 //////////////////////////////////////////////////////////////////////////////
 
 function vglSourceData() {
- this.m_attributesMap = {};
- this.m_data = [];
- this.m_glData = null;
-}
 
-vglSourceData.prototype.vglAttributeData = function() {
-  /// Number of components per group
-  this.m_numberOfComponents = 0;
+  /**
+   * Check against no use of new()
+   */
+  if (!(this instanceof vglSourceData)) {
+    return new vglSourceData();
+  }
 
-  /// Type of data type (GL_FLOAT etc)
-  this.m_dataType = 0;
+  /**
+   * Private variables
+   */
+  var m_attributesMap = {};
+  var m_data = [];
+  var m_glData = null;
 
-  /// Size of data type
-  this.m_dataTypeSize = 0;
+  var vglAttributeData = function() {
+    /// Number of components per group
+    this.m_numberOfComponents = 0;
 
-  /// Specifies whether fixed-point data values should be normalized
-  /// (true) or converted directly as fixed-point values (false)
-  /// when they are accessed.
-  this.m_normalized = false;
+    /// Type of data type (GL_FLOAT etc)
+    m_dataType = 0;
 
-  /// Strides for each attribute.
-  this.m_stride = 0;
+    /// Size of data type
+    m_dataTypeSize = 0;
 
-  /// Offset
-  this.m_offset = 0;
-};
+    /// Specifies whether fixed-point data values should be normalized
+    /// (true) or converted directly as fixed-point values (false)
+    /// when they are accessed.
+    this.m_normalized = false;
 
-/// Return data
-vglSourceData.prototype.data = function() {
-  this.m_glData = new Float32Array(this.m_data);
-  return this.m_glData;
-};
+    /// Strides for each attribute.
+    this.m_stride = 0;
 
-///
-vglSourceData.prototype.addAttribute =
-  function(key, dataType, sizeOfDataType, offset, stride,
+    /// Offset
+    this.m_offset = 0;
+  };
+
+  /// Return data
+  this.data = function() {
+    this.m_glData = new Float32Array(m_data);
+    return this.m_glData;
+  };
+
+  /**
+   *
+   */
+  this.addAttribute =
+    function(key, dataType, sizeOfDataType, offset, stride,
            noOfComponents, normalized) {
-  if ( (key in this.m_attributesMap) === false ) {
-    var newAttr = new this.vglAttributeData();
-    newAttr.m_dataType = dataType;
-    newAttr.m_dataTypeSize = sizeOfDataType;
-    newAttr.m_offset = offset;
-    newAttr.m_stride = stride;
-    newAttr.m_numberOfComponents  = noOfComponents;
-    newAttr.m_normalized = normalized;
+    if ( (key in m_attributesMap) === false ) {
+      var newAttr = new vglAttributeData();
+      newAttr.m_dataType = dataType;
+      newAttr.m_dataTypeSize = sizeOfDataType;
+      newAttr.m_offset = offset;
+      newAttr.m_stride = stride;
+      newAttr.m_numberOfComponents  = noOfComponents;
+      newAttr.m_normalized = normalized;
 
-    this.m_attributesMap[key] = newAttr;
-  }
-};
+      m_attributesMap[key] = newAttr;
+    }
+  };
 
-/// Return size of the data
-vglSourceData.prototype.sizeOfArray = function() {
-  return Object.size(this.m_data);
-};
+  /**
+   * Return size of the data
+   */
+  this.sizeOfArray = function() {
+    return Object.size(m_data);
+  };
 
-/// Return size of the data in bytes
-vglSourceData.prototype.sizeInBytes = function() {
-  var sizeInBytes = 0;
-  var keys = this.keys();
+  /**
+   * Return size of the data in bytes
+   */
+  this.sizeInBytes = function() {
+    var sizeInBytes = 0;
+    var keys = this.keys();
 
-  for (var i = 0; i < keys.length(); ++i) {
-    sizeInBytes += this.numberOfComponents(keys[i]) *
+    for (var i = 0; i < keys.length(); ++i) {
+      sizeInBytes += this.numberOfComponents(keys[i]) *
                      this.sizeOfAttributeDataType(keys[i]);
+    }
+
+    sizeInBytes *= this.sizeOfArray();
+
+    return sizeInBytes;
+  };
+
+  /**
+   * Check if there is attribute exists of a given key type
+   */
+  this.hasKey = function(key) {
+    return (key in m_attributesMap);
+  };
+
+  /**
+   * Return keys of all attributes
+   */
+  this.keys = function() {
+    return Object.keys(m_attributesMap);
+  };
+
+  /**
+   *
+   */
+  this.numberOfAttributes = function() {
+    return Object.size(m_attributesMap);
+  };
+
+  /**
+   *
+   */
+  this.attributeNumberOfComponents = function(key) {
+    if (key in m_attributesMap) {
+      return m_attributesMap[key].m_numberOfComponents;
+    }
+
+    return 0;
+  };
+
+  /**
+   *
+   */
+  this.normalized = function(key) {
+    if (key in m_attributesMap) {
+    return m_attributesMap[key].m_normalized;
+    }
+
+    return false;
+  };
+
+  /**
+   *
+   */
+  this.sizeOfAttributeDataType = function(key) {
+    if (key in m_attributesMap) {
+      return m_attributesMap[key].m_dataTypeSize;
+    }
+
+    return 0;
+  };
+
+  /**
+   *
+   */
+  this.attributeDataType = function(key) {
+    if (key in m_attributesMap) {
+      return m_attributesMap[key].m_dataType;
+    }
+
+    return vglDataType.Undefined;
+  };
+
+  /**
+   *
+   */
+  this.attributeOffset = function(key) {
+    if (key in m_attributesMap) {
+      return m_attributesMap[key].m_offset;
+    }
+
+    return 0;
+  };
+
+  /**
+   *
+   */
+  this.attributeStride = function(key) {
+    if (key in m_attributesMap) {
+      return m_attributesMap[key].m_stride;
+    }
+
+    return 0;
+  };
+
+  /**
+   *
+   */
+  this.pushBack = function(vertexData) {
+    // Should be implemented by the base class
   }
 
-  sizeInBytes *= this.sizeOfArray();
-
-  return sizeInBytes;
-};
-
-/// Check if there is attribute exists of a given key type
-vglSourceData.prototype.hasKey = function(key) {
-  return (key in this.m_attributesMap);
-};
-/// Return keys of all attributes
-vglSourceData.prototype.keys = function() {
-  return Object.keys(this.m_attributesMap);
-};
-
-///
-vglSourceData.prototype.numberOfAttributes = function() {
-  return Object.size(this.m_attributesMap);
-};
-
-///
-vglSourceData.prototype.attributeNumberOfComponents = function(key) {
-  if (key in this.m_attributesMap) {
-    return this.m_attributesMap[key].m_numberOfComponents;
+  /**
+   *
+   */
+  this.insert = function(data) {
+    m_data = m_data.concat(data);
   }
 
-  return 0;
-};
-
-///
-vglSourceData.prototype.normalized = function(key) {
-  if (key in this.m_attributesMap) {
-    return this.m_attributesMap[key].m_normalized;
-  }
-
-  return false;
-};
-
-///
-vglSourceData.prototype.sizeOfAttributeDataType = function(key) {
-  if (key in this.m_attributesMap) {
-    return this.m_attributesMap[key].m_dataTypeSize;
-  }
-
-  return 0;
-};
-
-///
-vglSourceData.prototype.attributeDataType = function(key) {
-  if (key in this.m_attributesMap) {
-    return this.m_attributesMap[key].m_dataType;
-  }
-
-  return vglDataType.Undefined;
-};
-
-///
-vglSourceData.prototype.attributeOffset = function(key) {
-  if (key in this.m_attributesMap) {
-    return this.m_attributesMap[key].m_offset;
-  }
-
-  return 0;
-};
-
-///
-vglSourceData.prototype.attributeStride = function(key) {
-  if (key in this.m_attributesMap) {
-    return this.m_attributesMap[key].m_stride;
-  }
-
-  return 0;
-};
-
-///
-vglSourceData.prototype.pushBack = function(value) {
-  // TODO FIX this
-  if (value.hasOwnProperty("m_position")) {
-    this.m_data = this.m_data.concat(value.m_position);
-  }
-
-  if (value.hasOwnProperty("m_normal")) {
-    this.m_data = this.m_data.concat(value.m_normal);
-  }
-
-  if (value.hasOwnProperty("m_texCoordinate")) {
-    this.m_data = this.m_data.concat(value.m_texCoordinate);
-  }
-};
-
+  return this;
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -362,12 +397,29 @@ vglSourceData.prototype.pushBack = function(value) {
 //////////////////////////////////////////////////////////////////////////////
 
 function vglSourceDataP3T3f() {
+  /**
+   * Check against no use of new()
+   */
+  if (!(this instanceof vglSourceDataP3T3f)) {
+    return new vglSourceDataP3T3f();
+  }
+
   vglSourceData.call(this);
 
   this.addAttribute(vglVertexAttributeKeys.Position,
                     gl.FLOAT, 4,  0, 6 * 4, 3, false);
   this.addAttribute(vglVertexAttributeKeys.TextureCoordinate,
                     gl.FLOAT, 4, 12, 6 * 4, 3, false);
+
+  /**
+   *
+   */
+  this.pushBack = function(value) {
+    this.insert(value.m_position);
+    this.insert(value.m_texCoordinate);
+  };
+
+  return this;
 }
 
 inherit(vglSourceDataP3T3f, vglSourceData);
@@ -380,12 +432,30 @@ inherit(vglSourceDataP3T3f, vglSourceData);
 
 function vglSourceDataP3N3f()
 {
+  /**
+   * Check against no use of new()
+   */
+  if (!(this instanceof vglSourceDataP3N3f)) {
+    return new vglSourceDataP3N3f();
+  }
+
   vglSourceData.call(this);
 
   this.addAttribute(vglVertexAttributeKeys.Position,
                     gl.FLOAT, 4,  0, 6 * 4, 3, false);
   this.addAttribute(vglVertexAttributeKeys.Normal,
                     gl.FLOAT, 4, 12, 6 * 4, 3, false);
+
+
+  /**
+   *
+   */
+  this.pushBack = function(value) {
+    this.insert(value.m_position);
+    this.insert(value.m_texCoordinate);
+  };
+
+  return this;
 }
 
 inherit(vglSourceDataP3N3f, vglSourceData);
