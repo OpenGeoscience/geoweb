@@ -22,8 +22,9 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-/// Layer options
-///---------------------------------------------------------------------------
+/**
+ *
+ */
 geoModule.layerOptions = function() {
 
   // Check against no use of new()
@@ -38,8 +39,9 @@ geoModule.layerOptions = function() {
   return this;
 };
 
-/// Layer base class
-///---------------------------------------------------------------------------
+/**
+ *
+ */
 geoModule.layer = function(options) {
 
   if (!(this instanceof geoModule.layer)) {

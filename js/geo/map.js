@@ -16,7 +16,9 @@
   limitations under the License.
  ========================================================================*/
 
-///---------------------------------------------------------------------------
+/**
+ *
+ */
 geoModule.latlng = function(lat, lng) {
   // Check against no use of new()
   if (!(this instanceof geoModule.latlng)) {
@@ -36,7 +38,9 @@ geoModule.latlng = function(lat, lng) {
   };
 };
 
-///---------------------------------------------------------------------------
+/**
+ *
+ */
 geoModule.mapOptions = function() {
   // Check against no use of new()
   if (!(this instanceof geoModule.mapOptions)) {
@@ -47,7 +51,9 @@ geoModule.mapOptions = function() {
   this.center = geoModule.latlng(0.0, 0.0);
 };
 
-///---------------------------------------------------------------------------
+/**
+ *
+ */
 geoModule.map = function(node, options) {
 
   // Check against no use of new()
@@ -79,7 +85,9 @@ geoModule.map = function(node, options) {
   var m_renderer = new vglRenderer();
   var m_camera = m_renderer.camera();
 
-  ///-------------------------------------------------------------------------
+  /**
+   *
+   */
   function initScene() {
     // TODO We got to get the orhto projection working
     var distance = 600;
@@ -95,7 +103,10 @@ geoModule.map = function(node, options) {
     m_initialized = true;
   }
 
-  ///-------------------------------------------------------------------------
+  /**
+   *
+   * @param event
+   */
   function draw(event) {
     if (m_initialized === false) {
       initScene();
@@ -103,7 +114,11 @@ geoModule.map = function(node, options) {
     m_renderer.render();
   }
 
-  ///-------------------------------------------------------------------------
+  /**
+   *
+   * @param context
+   * @returns {vglShader}
+   */
   function createDefaultFragmentShader(context) {
     var fragmentShaderSource = [
       'varying highp vec3 vTextureCoord;',
@@ -118,7 +133,11 @@ geoModule.map = function(node, options) {
     return shader;
   }
 
-  ///-------------------------------------------------------------------------
+  /**
+   *
+   * @param context
+   * @returns {vglShader}
+   */
   function createDefaultVertexShader(context) {
     var vertexShaderSource = [
       'attribute vec3 aVertexPosition;',
@@ -138,7 +157,11 @@ geoModule.map = function(node, options) {
     return shader;
   }
 
-  ///-------------------------------------------------------------------------
+  /**
+   *
+   * @param event
+   *
+   */
   function relMouseCoords(event) {
     var totalOffsetX = 0;
     var totalOffsetY = 0;
@@ -157,7 +180,9 @@ geoModule.map = function(node, options) {
     return {x:canvasX, y:canvasY};
   }
 
-  ///-------------------------------------------------------------------------
+  /**
+   *
+   */
   function handleMouseMove(event) {
     var canvas = m_node;
     var outsideCanvas = false;
@@ -218,7 +243,9 @@ geoModule.map = function(node, options) {
     m_mouseLastPos.y = currentMousePos.y;
   }
 
-  ///-------------------------------------------------------------------------
+  /**
+   *
+   */
   function handleMouseDown(event) {
     var canvas = m_node;
 
@@ -249,7 +276,9 @@ geoModule.map = function(node, options) {
     return false;
   }
 
-  ///-------------------------------------------------------------------------
+  /**
+   *
+   */
   function handleMouseUp(event) {
     if (event.button === 0) {
       m_leftMouseButtonDown = false;
@@ -266,7 +295,9 @@ geoModule.map = function(node, options) {
 
   // TODO use zoom and center options
 
-  ///-------------------------------------------------------------------------
+  /**
+   *
+   */
   var m_baseLayer = (function() {
     // TODO Move it somewhere else
     var geom = new vglGeometryData();
@@ -362,7 +393,6 @@ geoModule.map = function(node, options) {
    * @param {geo.layer} layer to be added to the map
    * @return {Boolean}
    */
-  ///-------------------------------------------------------------------------
   this.addLayer = function(layer) {
     if (!layer) {
       // TODO Check if the layer already exists
@@ -382,7 +412,6 @@ geoModule.map = function(node, options) {
    * @param {geo.layer} layer that should be removed from the map
    * @return {Boolean}
    */
-  ///-------------------------------------------------------------------------
   this.removeLayer = function(layer) {
     if (!layer) {
       m_renderer.removeActor(layer);
