@@ -40,7 +40,7 @@ function vglTexture() {
 
   this.m_internalFormat = null;
 
-  this.m_image = null
+  this.m_image = null;
 }
 
 inherit(vglTexture, vglMaterialAttribute);
@@ -78,7 +78,7 @@ vglTexture.prototype.setup = function(renderState) {
     gl.bindTexture(gl.TEXTURE_2D, null);
     this.setModified(false);
   }
-}
+};
 
 ///---------------------------------------------------------------------------
 vglTexture.prototype.bind = function(renderState) {
@@ -92,32 +92,37 @@ vglTexture.prototype.bind = function(renderState) {
 
   gl.activeTexture(gl.TEXTURE0);
   gl.bindTexture(gl.TEXTURE_2D, this.m_textureHandle);
-}
+};
 ///---------------------------------------------------------------------------
 vglTexture.prototype.undoBind = function(renderState) {
   gl.bindTexture(gl.TEXTURE_2D, 0);
-}
+};
+
+///---------------------------------------------------------------------------
+vglTexture.prototype.handleTextureLoaded = function(image) {
+  this.m_image = image;
+  this.updateDimensions();
+  this.setModified(true);
+};
 
 ///---------------------------------------------------------------------------
 vglTexture.prototype.image = function() {
   return this.m_image;
-}
+};
 ///---------------------------------------------------------------------------
 vglTexture.prototype.setImage = function(image) {
   if (image !== null) {
-    this.m_image = image;
-    this.updateDimensions();
-    this.setModified(true);
+    image.onload = this.handleTextureLoaded(image);
     return true;
   }
 
   return false;
-}
+};
 
 ///---------------------------------------------------------------------------
 vglTexture.prototype.textureUnit = function() {
   return this.m_textureUnit;
-}
+};
 ///---------------------------------------------------------------------------
 vglTexture.prototype.setTextureUnit = function(unit) {
   if (this.m_textureUnit === unit) {
@@ -127,12 +132,12 @@ vglTexture.prototype.setTextureUnit = function(unit) {
   this.m_textureUnit = unit;
   this.setModified(true);
   return true;
-}
+};
 
 ///---------------------------------------------------------------------------
 vglTexture.prototype.width = function() {
   return this.m_width;
-}
+};
 ///---------------------------------------------------------------------------
 vglTexture.prototype.setWidth = function(width) {
   if (this.m_image === null) {
@@ -143,12 +148,12 @@ vglTexture.prototype.setWidth = function(width) {
   this.setModified(true);
 
   return true;
-}
+};
 
 ///---------------------------------------------------------------------------
 vglTexture.prototype.depth = function() {
   return this.m_depth;
-}
+};
 ///---------------------------------------------------------------------------
 vglTexture.prototype.setDepth = function(depth) {
   if (this.m_image === null) {
@@ -159,17 +164,17 @@ vglTexture.prototype.setDepth = function(depth) {
   this.setModified(true);
 
   return true;
-}
+};
 
 ///---------------------------------------------------------------------------
 vglTexture.prototype.textureHandle = function() {
   return this.m_textureHandle;
-}
+};
 
 ///---------------------------------------------------------------------------
 vglTexture.prototype.internalFormat = function() {
   return this.m_internalFormat;
-}
+};
 ///---------------------------------------------------------------------------
 vglTexture.prototype.setInternalFormat = function(internalFormat) {
   if (this.m_internalFormat !== internalFormat) {
@@ -180,12 +185,12 @@ vglTexture.prototype.setInternalFormat = function(internalFormat) {
   }
 
   return false;
-}
+};
 
 ///---------------------------------------------------------------------------
 vglTexture.prototype.pixelFormat = function() {
   return this.m_pixelFormat;
-}
+};
 ///---------------------------------------------------------------------------
 vglTexture.prototype.setPixelFormat = function(pixelFormat) {
   if (this.m_image === null) {
@@ -195,12 +200,12 @@ vglTexture.prototype.setPixelFormat = function(pixelFormat) {
   this.m_pixelFormat = pixelFormat;
   this.setModified(true);
   return true;
-}
+};
 
 ///---------------------------------------------------------------------------
 vglTexture.prototype.pixelDataType = function() {
   return this.m_pixelDataType;
-}
+};
 ///---------------------------------------------------------------------------
 vglTexture.prototype.setPixelDataType = function(pixelDataType) {
   if (this.m_image === null) {
@@ -212,7 +217,7 @@ vglTexture.prototype.setPixelDataType = function(pixelDataType) {
   this.setModified(true);
 
   return true;
-}
+};
 
 ///---------------------------------------------------------------------------
 vglTexture.prototype.computeInternalFormatUsingImage = function() {
@@ -241,21 +246,13 @@ vglTexture.prototype.computeInternalFormatUsingImage = function() {
   this.m_internalFormat = gl.RGBA;
   this.m_pixelFormat = gl.RGBA;
   this.m_pixelDataType = gl.UNSIGNED_BYTE;
-}
+};
 
 ///---------------------------------------------------------------------------
 vglTexture.prototype.updateDimensions = function() {
-  if (this.m_image != null) {
+  if (this.m_image !== null) {
     this.m_width = this.m_image.width;
     this.m_height = this.m_image.height;
     this.m_depth = 0; // Only 2D images are supported now
   }
-}
-
-
-
-
-
-
-
-
+};

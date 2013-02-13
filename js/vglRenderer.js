@@ -57,24 +57,24 @@ inherit(vglRenderer, vglObject);
 ///---------------------------------------------------------------------------
 vglRenderer.prototype.sceneRoot = function() {
   return this.m_sceneRoot;
-}
+};
 
 /// Get main camera of the renderer
 ///---------------------------------------------------------------------------
 vglRenderer.prototype.camera = function() {
   return this.m_camera;
-}
+};
 
 /// Get width of renderer
 ///---------------------------------------------------------------------------
 vglRenderer.prototype.width = function() {
   return this.m_width;
-}
+};
 /// Get height of renderer
 ///---------------------------------------------------------------------------
 vglRenderer.prototype.height = function() {
   return this.m_height;
-}
+};
 
 /// Render the scene
 ///---------------------------------------------------------------------------
@@ -83,6 +83,9 @@ vglRenderer.prototype.render = function() {
   gl.enable(gl.DEPTH_TEST);
   gl.depthFunc(gl.LEQUAL);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+  // TODO Call it only once
+  this.resize();
 
   perspectiveMatrix = this.m_camera.projectionMatrix(
   (this.m_width / this.m_height), 0.1, 1000.0);
@@ -101,19 +104,19 @@ vglRenderer.prototype.render = function() {
     renSt.m_material.render(renSt);
     renSt.m_mapper.render(renSt);
   }
-}
+};
 
 /// Recalculate camera's clipping range
 ///---------------------------------------------------------------------------
 vglRenderer.prototype.resetCameraClippingRange = function() {
   // TODO
-}
+};
 
 /// Resize viewport based on the new width and height of the window
 ///---------------------------------------------------------------------------
 vglRenderer.prototype.resize = function() {
-  // TODO
-}
+  gl.viewport(0, 0, this.m_width, this.m_height);
+};
 
 /// Add new actor to the collection. This is required if the actor
 /// needs to be rendered by the renderer.
@@ -125,7 +128,7 @@ vglRenderer.prototype.addActor = function(actor) {
   }
 
   return false;
-}
+};
 /// Remove the actor from the collection.This method will
 /// not trigger reset camera.
 ///---------------------------------------------------------------------------
@@ -136,12 +139,10 @@ vglRenderer.prototype.removeActor = function(actor) {
   }
 
   return false;
-}
+};
 
 //----------------------------------------------------------------------------
 function worldToDisplay(worldPt, viewMatrix, projectionMatrix, width, height) {
-  //console.log('worldPt ', worldPt);
-
   var viewProjectionMatrix = mat4.create();
   mat4.multiply(projectionMatrix, viewMatrix, viewProjectionMatrix);
 
@@ -149,8 +150,7 @@ function worldToDisplay(worldPt, viewMatrix, projectionMatrix, width, height) {
   var clipPt = vec4.create();
   mat4.multiplyVec4(viewProjectionMatrix, worldPt, clipPt);
 
-  if (clipPt[3] != 0.0)
-    {
+  if (clipPt[3] !== 0.0) {
     clipPt[0] = clipPt[0] / clipPt[3];
     clipPt[1] = clipPt[1] / clipPt[3];
     clipPt[2] = clipPt[2] / clipPt[3];
@@ -164,15 +164,11 @@ function worldToDisplay(worldPt, viewMatrix, projectionMatrix, width, height) {
   var winZ = clipPt[2];
   var winW = clipPt[3];
 
-  //console.log('worldToDisplay ', winX, winY, winZ);
-
   return vec4.createFrom(winX, winY, winZ, winW);
 }
 
 //----------------------------------------------------------------------------
 function displayToWorld(displayPt, viewMatrix, projectionMatrix, width, height) {
-    //console.log('displayPt ', displayPt);
-
     var x =  ( 2.0 * displayPt[0] / width )  - 1;
     var y = -( 2.0 * displayPt[1] / height ) + 1;
     var z =  displayPt[2];
@@ -184,17 +180,12 @@ function displayToWorld(displayPt, viewMatrix, projectionMatrix, width, height) 
     var worldPt = vec4.createFrom(x, y, z, 1);
     mat4.multiplyVec4(viewProjectionInverse, worldPt, worldPt);
 
-    if (worldPt[3] != 0.0)
-    {
+    if (worldPt[3] !== 0.0) {
       worldPt[0] = worldPt[0] / worldPt[3];
       worldPt[1] = worldPt[1] / worldPt[3];
       worldPt[2] = worldPt[2] / worldPt[3];
       worldPt[3] = 1.0;
     }
 
-    //console.log('displayToWorld ', worldPt);
-
     return worldPt;
 }
-
-

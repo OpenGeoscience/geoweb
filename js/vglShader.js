@@ -35,32 +35,32 @@ inherit(vglShader, vglObject);
 
 ///---------------------------------------------------------------------------
 vglShader.prototype.shaderHandle = function() {
-}
+};
 
 ///---------------------------------------------------------------------------
 vglShader.prototype.shaderType = function() {
   return this.m_shaderType;
-}
+};
 
 ///---------------------------------------------------------------------------
 vglShader.prototype.fileName = function() {
   return this.m_fileName;
-}
+};
 ///---------------------------------------------------------------------------
 vglShader.prototype.setFileName = function(fileName) {
   this.m_fileName = fileName;
-}
+};
 
 ///---------------------------------------------------------------------------
 vglShader.prototype.shaderSource = function() {
   return this.m_shaderSource;
-}
+};
 ///---------------------------------------------------------------------------
 vglShader.prototype.setShaderSource = function(source) {
   this.m_shaderSource = source;
 
   this.setModified(true);
-}
+};
 
 ///---------------------------------------------------------------------------
 vglShader.prototype.compile = function() {
@@ -83,9 +83,9 @@ vglShader.prototype.compile = function() {
   }
 
   return this.m_shaderHandle;
-}
+};
 
 ///---------------------------------------------------------------------------
 vglShader.prototype.attachShader = function(programHandle) {
   gl.attachShader(programHandle, this.m_shaderHandle);
-}
+};

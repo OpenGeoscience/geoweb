@@ -22,8 +22,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-function vglNode()
-{
+function vglNode() {
   vglBoundingObject.call(this);
 
   this.m_parent = null;
@@ -36,21 +35,18 @@ inherit(vglNode, vglBoundingObject);
 
 /// Accept visitor for scene traversal
 //----------------------------------------------------------------------------
-vglNode.prototype.accept = function(visitor)
-{
+vglNode.prototype.accept = function(visitor) {
   visitor.visit(this);
-}
+};
 
 /// Return active material
 //----------------------------------------------------------------------------
-vglNode.prototype.material = function()
-{
+vglNode.prototype.material = function() {
   return this.m_material;
-}
+};
 /// Set current material
 //----------------------------------------------------------------------------
-vglNode.prototype.setMaterial = function(material)
-{
+vglNode.prototype.setMaterial = function(material) {
   if (material !== this.m_material)
   {
     this.m_material = material;
@@ -59,14 +55,13 @@ vglNode.prototype.setMaterial = function(material)
   }
 
   return false;
-}
+};
 
 /// Return node's visibility
 //----------------------------------------------------------------------------
-vglNode.prototype.visible = function()
-{
+vglNode.prototype.visible = function() {
   return this.m_visible;
-}
+};
 /// Set visibility of the node
 //----------------------------------------------------------------------------
 vglNode.prototype.setVisible = function(flag) {
@@ -77,17 +72,16 @@ vglNode.prototype.setVisible = function(flag) {
   }
 
   return false;
-}
+};
 
 /// Return parent of the node
 //----------------------------------------------------------------------------
 vglNode.prototype.parent = function() {
   return this.m_parent;
-}
+};
 /// Set parent of the node
 //----------------------------------------------------------------------------
-vglNode.prototype.setParent = function(parent)
-{
+vglNode.prototype.setParent = function(parent) {
   if (parent !== this.m_parent) {
     if (this.m_parent !== null) {
       this.m_parent.removeChild(this);
@@ -98,13 +92,13 @@ vglNode.prototype.setParent = function(parent)
   }
 
   return false;
-}
+};
 
 /// Return if node is an overlay or not
 //----------------------------------------------------------------------------
 vglNode.prototype.overlay = function() {
   return this.m_overlay;
-}
+};
 /// Set node overlay state
 //----------------------------------------------------------------------------
 vglNode.prototype.setOverlay = function(flag) {
@@ -115,17 +109,17 @@ vglNode.prototype.setOverlay = function(flag) {
   }
 
   return false;
-}
+};
 
 ///  Traverse parent and their parent and so on
 //----------------------------------------------------------------------------
 vglNode.prototype.ascend = function(visitor) {
-}
+};
 
 /// Traverse children
 //----------------------------------------------------------------------------
 vglNode.prototype.traverse = function(visitor) {
-}
+};
 
 /// Reset bounds of the node. Actual bound calculation
 /// should be done in the concrete class.
@@ -134,4 +128,4 @@ vglNode.prototype.computeBounds = function() {
   if (this.boundsDirty())   {
     this.resetBounds();
   }
-}
+};

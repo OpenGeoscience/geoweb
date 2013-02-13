@@ -23,8 +23,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 ///---------------------------------------------------------------------------
-function vglMaterial()
-{
+function vglMaterial() {
   this.RenderBin = {
     "Default"     : 0,
     "Opaque"      : 1,
@@ -44,12 +43,12 @@ inherit(vglMaterial, vglObject);
 ///---------------------------------------------------------------------------
 vglMaterial.prototype.binNumber = function() {
   return this.m_binNumber;
-}
+};
 ///---------------------------------------------------------------------------
 vglMaterial.prototype.setBinNumber = function(binNo) {
   this.m_binNumber = binNo;
   this.setModified();
-}
+};
 
 ///---------------------------------------------------------------------------
 vglMaterial.prototype.exists = function(attr) {
@@ -58,7 +57,7 @@ vglMaterial.prototype.exists = function(attr) {
   } else {
     return this.m_attributes.hasOwnProperty(attr);
   }
-}
+};
 
 ///---------------------------------------------------------------------------
 vglMaterial.prototype.addAttribute = function(attr) {
@@ -82,17 +81,17 @@ vglMaterial.prototype.addAttribute = function(attr) {
   }
 
   return false;
-}
+};
 
 ///---------------------------------------------------------------------------
 vglMaterial.prototype.shaderProgram = function() {
   return this.m_shaderProgram;
-}
+};
 
 ///---------------------------------------------------------------------------
 vglMaterial.prototype.render = function(renderState) {
   this.bind(renderState);
-}
+};
 
 ///---------------------------------------------------------------------------
 vglMaterial.prototype.bind = function(renderState) {
@@ -108,21 +107,22 @@ vglMaterial.prototype.bind = function(renderState) {
       this.m_textureAttributes[index].bind(renderState);
     }
   }
-}
+};
 ///---------------------------------------------------------------------------
 vglMaterial.prototype.undoBind = function(renderState) {
-  for (var key in this.m_attributes) {
+  var key = null;
+  for (key in this.m_attributes) {
     if (this.m_attributes.hasOwnProperty(key)) {
       this.m_attributes.undoBind(renderState);
     }
   }
 
-  for (var key in this.m_textureAttributes) {
+  for (key in this.m_textureAttributes) {
     if (this.m_textureAttributes.hasOwnProperty(key)) {
       this.m_textureAttributes.undoBind(renderState);
     }
   }
-}
+};
 
 ///---------------------------------------------------------------------------
 vglMaterial.prototype.bindVertexData = function(renderState, key) {
@@ -132,12 +132,12 @@ vglMaterial.prototype.bindVertexData = function(renderState, key) {
       this.m_attributes[i].bindVertexData(renderState, key);
     }
   }
-}
+};
 ///---------------------------------------------------------------------------
 vglMaterial.prototype.undoBindVertexData = function(renderState, key) {
-  for (var key in this.m_attributes) {
-    if (this.m_attributes.hasOwnProperty(key)) {
-      this.m_attributes.undoBindVertexData(renderState);
+  for (var i in this.m_attributes) {
+    if (this.m_attributes.hasOwnProperty(i)) {
+      this.m_attributes.undoBindVertexData(renderState, key);
     }
   }
-}
+};

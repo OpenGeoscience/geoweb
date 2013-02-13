@@ -18,21 +18,53 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// vglObject class
+// Layer base class
 //
 //////////////////////////////////////////////////////////////////////////////
 
-function vglObject() {
-  this.m_modified = false;
-}
+/// Layer options
+///---------------------------------------------------------------------------
+geoModule.layerOptions = function() {
 
-///
-///---------------------------------------------------------------------------
-vglObject.prototype.modified = function() {
-  return this.m_modified;
+  // Check against no use of new()
+  if (!(this instanceof geoModule.layerOptions)) {
+    return new geoModule.layerOptions();
+  }
+
+  this.opacity  = 1;
+  this.showAttribution = true;
+  this.visible = true;
+
+  return this;
 };
-/// Set dirty
+
+/// Layer base class
 ///---------------------------------------------------------------------------
-vglObject.prototype.setModified = function(flag) {
-  this.m_modified = flag;
+geoModule.layer = function(options) {
+
+  if (!(this instanceof geoModule.layer)) {
+    return new geoModule.layer(options);
+  }
+
+  // Register with base class
+  vglActor.call(this);
+
+  /// Members initialization
+  var m_opacity = options.opacity || 1.0;
+
+  // Check
+  if (m_opacity > 1.0) {
+    m_opacity = 1.0;
+    console.log("[warning] Opacity cannot be greater than 1.0");
+  }
+  else if (m_opacity < 0.0) {
+    console.log("[warning] Opacity cannot be less than 1.0");
+  }
+
+  var m_showAttribution = options.showAttribution || true;
+  var m_visible = options.visible || true;
+
+  return this;
 };
+
+inherit(geoModule.layer, vglObject);
