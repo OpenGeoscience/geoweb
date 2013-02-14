@@ -3,7 +3,7 @@ module.exports = function(grunt) {
   // Project configuration.
   grunt.initConfig({
     lint: {
-      all: ['grunt.js', '*.js', 'geo/*.js', 'core/*.js']
+      all: ['grunt.js', '*.js', 'vgl/*.js', 'geo/*.js', 'core/*.js']
     },
     jshint: {
       options: {
