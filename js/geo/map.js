@@ -379,7 +379,7 @@ geoModule.map = function(node, options) {
     document.onmousedown = handleMouseDown;
     document.onmouseup = handleMouseUp;
     document.onmousemove = handleMouseMove;
-    document.oncontextmenu = function() {return false;}
+    document.oncontextmenu = function() {return false;};
     HTMLCanvasElement.prototype.relMouseCoords = relMouseCoords;
 
     draw();

@@ -40,7 +40,7 @@ vglModule.mapper = function() {
   this.m_geomData = 0;
   this.m_buffers = [];
   this.m_bufferVertexAttributeMap = {};
-}
+};
 
 inherit(vglModule.mapper, vglModule.boundingObject);
 

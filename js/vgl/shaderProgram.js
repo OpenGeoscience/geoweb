@@ -33,7 +33,7 @@ vglModule.shaderProgram = function() {
 
   this.m_uniformNameToLocation = {};
   this.m_vertexAttributeNameToLocation = {};
-}
+};
 
 inherit(vglModule.shaderProgram, vglModule.materialAttribute);
 

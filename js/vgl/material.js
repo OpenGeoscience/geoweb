@@ -36,7 +36,7 @@ vglModule.material = function() {
   this.m_binNumber = 0;
   this.m_textureAttributes = {};
   this.m_attributes = {};
-}
+};
 
 inherit(vglModule.material, vglModule.object);
 

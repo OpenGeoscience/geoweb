@@ -34,7 +34,8 @@ vglModule.materialAttribute = function() {
   vglModule.object.call(this);
   this.m_type = materialAttributeType.Undefined;
   this.m_enabled = true;
-}
+};
+
 inherit(vglModule.materialAttribute, vglModule.object);
 
 ///---------------------------------------------------------------------------

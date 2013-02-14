@@ -60,7 +60,7 @@ vglModule.uniform = function(type, name) {
   this.m_name = name;
   this.m_dataArray = [this.getTypeNumberOfComponents(this.m_type)];
   this.m_numberOfElements = 1;
-}
+};
 
 ///---------------------------------------------------------------------------
 vglModule.uniform.prototype.name = function() {
@@ -162,7 +162,7 @@ vglModule.modelViewUniform = function(name) {
 
   vglModule.uniform.call(this, gl.FLOAT_MAT4, name);
   this.set(mat4.create());
-}
+};
 
 inherit(vglModule.modelViewUniform, vglModule.uniform);
 
@@ -184,7 +184,7 @@ vglModule.projectionUniform  = function(name) {
 
   vglModule.uniform.call(this, gl.FLOAT_MAT4, name);
   this.set(mat4.create());
-}
+};
 
 inherit(vglModule.projectionUniform, vglModule.uniform);
 

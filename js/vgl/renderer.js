@@ -28,7 +28,7 @@ vglModule.renderState = function() {
   this.m_projectionMatrix = null;
   this.m_material = null;
   this.m_mapper = null;
-}
+};
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -47,7 +47,7 @@ vglModule.renderer = function() {
   this.m_camera = new vglModule.camera();
 
   this.m_camera.addChild(this.m_sceneRoot);
-}
+};
 
 inherit(vglModule.renderer, vglModule.object);
 
@@ -165,7 +165,7 @@ vglModule.renderer.worldToDisplay = function(
   var winW = clipPt[3];
 
   return vec4.createFrom(winX, winY, winZ, winW);
-}
+};
 
 //----------------------------------------------------------------------------
 vglModule.renderer.displayToWorld = function(
@@ -189,4 +189,4 @@ vglModule.renderer.displayToWorld = function(
     }
 
     return worldPt;
-}
+};

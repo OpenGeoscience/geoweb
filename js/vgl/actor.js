@@ -39,7 +39,7 @@ vglModule.actor = function() {
   this.m_referenceFrame = 0;
 
   this.m_mapper = 0;
-}
+};
 
 inherit(vglModule.actor, vglModule.node);
 

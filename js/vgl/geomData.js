@@ -84,7 +84,7 @@ vglModule.primitive = function() {
   this.m_primitiveType = 0;
   this.m_indicesValueType = 0;
   this.m_indices = 0;
-}
+};
 
 /// Data
 vglModule.primitive.prototype.indices = function() {
@@ -152,7 +152,7 @@ vglModule.triangleStrip = function() {
   this.setPrimitiveType(gl.TRIANGLE_STRIP);
   this.setIndicesValueType(gl.UNSIGNED_SHORT);
   this.setIndexCount(3);
-}
+};
 
 inherit(vglModule.triangleStrip, vglModule.primitive);
 
@@ -168,7 +168,7 @@ vglModule.triangles = function() {
   this.setPrimitiveType(gl.TRIANGLES);
   this.setIndicesValueType(gl.UNSIGNED_SHORT);
   this.setIndexCount(3);
-}
+};
 
 inherit(vglModule.triangles, vglModule.primitive);
 
@@ -180,17 +180,17 @@ inherit(vglModule.triangles, vglModule.primitive);
 
 vglModule.vertexDataP3f = function() {
     this.m_position = [];
-}
+};
 
 vglModule.vertexDataP3N3f = function() {
     this.m_position = [];
     this.m_normal = [];
-}
+};
 
 vglModule.vertexDataP3T3f = function() {
     this.m_position = [];
     this.m_texCoordinate = [];
-}
+};
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -377,17 +377,17 @@ vglModule.sourceData = function() {
    */
   this.pushBack = function(vertexData) {
     // Should be implemented by the base class
-  }
+  };
 
   /**
    *
    */
   this.insert = function(data) {
     m_data = m_data.concat(data);
-  }
+  };
 
   return this;
-}
+};
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -419,7 +419,7 @@ vglModule.sourceDataP3T3f = function() {
   };
 
   return this;
-}
+};
 
 inherit(vglModule.sourceDataP3T3f, vglModule.sourceData);
 
@@ -454,7 +454,7 @@ vglModule.sourceDataP3N3f = function() {
   };
 
   return this;
-}
+};
 
 inherit(vglModule.sourceDataP3N3f, vglModule.sourceData);
 

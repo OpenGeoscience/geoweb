@@ -38,7 +38,7 @@ vglModule.camera = function() {
   this.m_projectionMatrix = mat4.create();
 
   mat4.identity(this.m_pitchMatrix);
-}
+};
 
 inherit(vglModule.camera, vglModule.groupNode);
 

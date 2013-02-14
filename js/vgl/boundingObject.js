@@ -27,7 +27,7 @@ vglModule.boundingObject = function() {
 
   this.m_boundsDirty = true;
   this.m_bounds = new Array(6);
-}
+};
 
 inherit(vglModule.boundingObject, vglModule.object);
 
@@ -39,8 +39,7 @@ vglModule.boundingObject.prototype.boundsDirty = function() {
 /// Set bounds dirty
 //----------------------------------------------------------------------------
 vglModule.boundingObject.prototype.setBoundsDirty = function(flag) {
-  if (this.m_boundsDirty !== flag)
-  {
+  if (this.m_boundsDirty !== flag) {
     this.m_boundsDirty = flag;
     this.setModified();
     return true;

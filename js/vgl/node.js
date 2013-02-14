@@ -29,7 +29,7 @@ vglModule.node = function() {
   this.m_material = null;
   this.m_visible = true;
   this.m_overlay = false;
-}
+};
 
 inherit(vglModule.node, vglModule.boundingObject);
 

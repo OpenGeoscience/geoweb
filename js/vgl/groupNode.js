@@ -25,7 +25,7 @@
 vglModule.groupNode = function() {
   vglModule.node.call(this);
   this.m_children = [];
-}
+};
 
 inherit(vglModule.groupNode, vglModule.node);
 

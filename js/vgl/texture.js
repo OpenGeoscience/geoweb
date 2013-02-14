@@ -41,7 +41,7 @@ vglModule.texture = function() {
   this.m_internalFormat = null;
 
   this.m_image = null;
-}
+};
 
 inherit(vglModule.texture, vglModule.materialAttribute);
 

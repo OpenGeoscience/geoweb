@@ -29,7 +29,7 @@ vglModule.shader = function(type) {
   this.m_shaderType =  type;
   this.m_shaderSource = "";
   this.m_fileName = "";
-}
+};
 
 inherit(vglModule.shader, vglModule.object);
 

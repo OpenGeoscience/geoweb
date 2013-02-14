@@ -34,7 +34,7 @@ vglModule.vertexAttributeKeys = {
 ///---------------------------------------------------------------------------
 vglModule.vertexAttribute = function (name) {
   this.m_name = name;
-}
+};
 
 ///---------------------------------------------------------------------------
 vglModule.vertexAttribute.prototype.name = function() {
