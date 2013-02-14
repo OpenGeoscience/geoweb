@@ -1,3 +1,6 @@
+'''
+  cherryd -i py -c py/app.conf
+'''
 import cherrypy
 import simplejson
 import os
