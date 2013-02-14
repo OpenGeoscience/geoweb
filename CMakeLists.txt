@@ -58,6 +58,8 @@ set(JS_LINT_FILES
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/vertexAttribute.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/visitor.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/vtkUnpack.js
+    ${CMAKE_SOURCE_DIR}/web/lib/vgl/source.js
+    ${CMAKE_SOURCE_DIR}/web/lib/vgl/planeSource.js
 )
 
 # These files should be uglified and concatenated.
@@ -82,6 +84,8 @@ set(JS_UGLIFY_FILES
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/texture.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/uniform.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/vertexAttribute.js
+  ${CMAKE_SOURCE_DIR}/web/lib/vgl/source.js
+  ${CMAKE_SOURCE_DIR}/web/lib/vgl/planeSource.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/init.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/layer.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/map.js
