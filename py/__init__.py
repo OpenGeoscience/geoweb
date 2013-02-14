@@ -2,6 +2,8 @@ import cherrypy
 import simplejson
 import os
 
+current_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
+
 from mako.template import Template
 from mako.lookup import TemplateLookup
 template_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../html')
@@ -20,10 +22,7 @@ class Root(object):
     @cherrypy.expose
     def update(self):
       # Here's the important message!
-      name = "My name is aashish"
-      return name
-
-cherrypy.tree.mount(Root(), '/', config=CONFIG_FILE)
+      return "This a very important message"
 
 if __name__ == '__main__':
     import os.path
