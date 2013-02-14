@@ -1,0 +1,6 @@
+[hooks]
+	url = http://public.kitware.com/GitSetup.git
+[ssh]
+	host = public.kitware.com
+	key = id_git_public
+	request-url = https://www.kitware.com/Admin/SendPassword.cgi
