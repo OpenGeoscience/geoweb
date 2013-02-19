@@ -69,4 +69,4 @@ geoModule.layer = function(options) {
   return this;
 };
 
-inherit(geoModule.layer, vglObject);
+inherit(geoModule.layer, vglModule.object);

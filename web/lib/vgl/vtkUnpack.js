@@ -62,7 +62,7 @@ vglModule.vtkUnpack.prototype.readReverseBase64 = function () {
       this.base64Count++;
       //console.log("C=" + this.base64Count + " " + this.reverseBase64Chars);
       if (this.reverseBase64Chars[nextCharacter]) {
-    	return this.reverseBase64Chars[nextCharacter];
+        return this.reverseBase64Chars[nextCharacter];
       }
       if (nextCharacter == 'A') return 0;
     }
