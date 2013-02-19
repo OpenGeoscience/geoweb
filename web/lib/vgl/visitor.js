@@ -37,14 +37,14 @@ var VisitorType = {
 };
 
 function visitor() {
-  vglObject.call(this);
+  vglModule.object.call(this);
   this.m_visitorType =  VisitorType.UpdateVisitor;
   this.m_traversalMode = TraversalMode.TraverseAllChildren;
   this.m_modelViewMatrixStack = [];
   this.m_projectionMatrixStack = [];
 }
 
-inherit(visitor, vglObject);
+inherit(visitor, vglModule.object);
 
 ///
 visitor.prototype.pushModelViewMatrix = function(mat) {

@@ -1,0 +1,11 @@
+[global]
+tree.py: cherrypy.Application(ogs.Root())
+
+[/]
+tools.staticdir.root: ogs.current_dir
+tools.staticdir.on = True
+tools.staticdir.dir = "web"
+
+[/data]
+tools.staticdir.on = True
+tools.staticdir.dir = "data"

@@ -126,4 +126,3 @@ vglModule.groupNode.prototype.traverseChildren = function(visitor) {
 vglModule.groupNode.prototype.updateBounds = function(childNode) {
   // TODO: Compute bounds here
 };
-

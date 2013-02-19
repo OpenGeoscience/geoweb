@@ -5,11 +5,11 @@ import cherrypy
 import simplejson
 import os
 
-current_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
+current_dir = os.path.dirname(os.path.abspath(__file__))
 
 from mako.template import Template
 from mako.lookup import TemplateLookup
-template_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../html')
+template_dir = os.path.dirname(os.path.abspath(__file__))
 lookup = TemplateLookup(directories=[template_dir])
 
 JS_DIR = os.path.join(os.path.abspath("."), u"js")
@@ -18,9 +18,8 @@ CONFIG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'app.conf
 class Root(object):
     @cherrypy.expose
     def index(self):
-        index_html = 'index.html'
-        tmpl = lookup.get_template(index_html)
-        return tmpl.render(name="aashish")
+        # Redirect user to the index
+        raise cherrypy.HTTPRedirect("/index.html")
 
     @cherrypy.expose
     def update(self):
