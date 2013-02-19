@@ -89,6 +89,7 @@ set(JS_UGLIFY_FILES
 
 # These files should have documentation generated for them.
 set(JS_DOCUMENT_FILES
+  ${JS_UGLIFY_FILES}
 )
 
 # These files should be copied to the deployment directory.
