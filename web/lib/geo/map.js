@@ -16,7 +16,9 @@
   limitations under the License.
  ========================================================================*/
 
+///////////////////////////////////////////////////////////////////////////////
 /**
+ * A latlng is a point in geographical coordinates: latitude and longitude
  *
  */
 geoModule.latlng = function(lat, lng) {
@@ -38,7 +40,9 @@ geoModule.latlng = function(lat, lng) {
   };
 };
 
+///////////////////////////////////////////////////////////////////////////////
 /**
+ * Map options object specification
  *
  */
 geoModule.mapOptions = function() {
@@ -51,7 +55,9 @@ geoModule.mapOptions = function() {
   this.center = geoModule.latlng(0.0, 0.0);
 };
 
+///////////////////////////////////////////////////////////////////////////////
 /**
+ * Creates a new map inside of the given HTML container (Typically DIV)
  *
  */
 geoModule.map = function(node, options) {
@@ -86,7 +92,9 @@ geoModule.map = function(node, options) {
   var m_renderer = new ogs.vgl.renderer();
   var m_camera = m_renderer.camera();
 
+  /////////////////////////////////////////////////////////////////////////////
   /**
+   * Initialize the scene
    *
    */
   function initScene() {
@@ -104,7 +112,9 @@ geoModule.map = function(node, options) {
     m_initialized = true;
   }
 
+  /////////////////////////////////////////////////////////////////////////////
   /**
+   * Initialize the scene (if not initialized) and then render the map
    *
    * @param event
    */
@@ -115,53 +125,11 @@ geoModule.map = function(node, options) {
     m_renderer.render();
   }
 
+  /////////////////////////////////////////////////////////////////////////////
   /**
-   *
-   * @param context
-   * @returns {ogs.vgl.shader}
-   */
-  function createDefaultFragmentShader(context) {
-    var fragmentShaderSource = [
-      'varying highp vec3 vTextureCoord;',
-      'uniform sampler2D uSampler;',
-      'void main(void) {',
-        'gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));',
-      '}'
-     ].join('\n');
-
-    var shader = new ogs.vgl.shader(gl.FRAGMENT_SHADER);
-    shader.setShaderSource(fragmentShaderSource);
-    return shader;
-  }
-
-  /**
-   *
-   * @param context
-   * @returns {ogs.vgl.shader}
-   */
-  function createDefaultVertexShader(context) {
-    var vertexShaderSource = [
-      'attribute vec3 aVertexPosition;',
-      'attribute vec3 aTextureCoord;',
-      'uniform mat4 modelViewMatrix;',
-      'uniform mat4 projectionMatrix;',
-      'varying highp vec3 vTextureCoord;',
-      'void main(void)',
-      '{',
-      'gl_Position = projectionMatrix * modelViewMatrix * vec4(aVertexPosition, 1.0);',
-      ' vTextureCoord = aTextureCoord;',
-      '}'
-    ].join('\n');
-
-    var shader = new ogs.vgl.shader(gl.VERTEX_SHADER);
-    shader.setShaderSource(vertexShaderSource);
-    return shader;
-  }
-
-  /**
+   * Handle mouse events
    *
    * @param event
-   *
    */
   function relMouseCoords(event) {
     var totalOffsetX = 0;
@@ -181,6 +149,7 @@ geoModule.map = function(node, options) {
     return {x:canvasX, y:canvasY};
   }
 
+  /////////////////////////////////////////////////////////////////////////////
   /**
    *
    */
@@ -246,6 +215,7 @@ geoModule.map = function(node, options) {
     m_mouseLastPos.y = currentMousePos.y;
   }
 
+  /////////////////////////////////////////////////////////////////////////////
   /**
    *
    */
@@ -279,6 +249,7 @@ geoModule.map = function(node, options) {
     return false;
   }
 
+  /////////////////////////////////////////////////////////////////////////////
   /**
    *
    */
@@ -298,83 +269,24 @@ geoModule.map = function(node, options) {
 
   // TODO use zoom and center options
 
-  /**
-   *
-   */
   var m_baseLayer = (function() {
-    // TODO Move it somewhere else
-    var geom = new ogs.vgl.geometryData();
-    var source = new ogs.vgl.sourceDataP3T3f();
-
-    var triIndices = [ 0,1,2,3 ];
-
-    var v1 = new ogs.vgl.vertexDataP3T3f();
-    v1.m_position = new Array(180.0,  90.0,  0.0);
-    v1.m_texCoordinate = new Array(1.0, 1.0, 0.0);
-
-    var v2 = new ogs.vgl.vertexDataP3T3f();
-    v2.m_position = new Array(-180.0, 90.0,  0.0);
-    v2.m_texCoordinate = new Array(0.0, 1.0, 0.0);
-
-    var v3 = new ogs.vgl.vertexDataP3T3f();
-    v3.m_position = new Array(180.0,  -90.0, 0.0);
-    v3.m_texCoordinate = new Array(1.0, 0.0, 0.0);
-
-    var v4 = new ogs.vgl.vertexDataP3T3f();
-    v4.m_position = new Array(-180.0, -90.0, 0.0);
-    v4.m_texCoordinate = new Array(0.0, 0.0, 0.0);
-
-    source.pushBack(v1);
-    source.pushBack(v2);
-    source.pushBack(v3);
-    source.pushBack(v4);
-
-    // Create primitives
-    var triangleStrip = new ogs.vgl.triangleStrip();
-    triangleStrip.setIndices(triIndices);
-
-    geom.setName("WorldMap");
-    geom.addSource(source);
-    geom.addPrimitive(triangleStrip);
-
-    var mapper = new ogs.vgl.mapper();
-    mapper.setGeometryData(geom);
-
-    var mat = new ogs.vgl.material();
-    var prog = new ogs.vgl.shaderProgram();
-    var vertexShader = createDefaultVertexShader(gl);
-    var fragmentShader = createDefaultFragmentShader(gl);
-    var posVertAttr = new ogs.vgl.vertexAttribute("aVertexPosition");
-    var texCoordVertAttr = new ogs.vgl.vertexAttribute("aTextureCoord");
-    var modelViewUniform = new ogs.vgl.modelViewUniform("modelViewMatrix");
-    var projectionUniform = new ogs.vgl.projectionUniform("projectionMatrix");
-    var worldTexture = new ogs.vgl.texture();
-    var samplerUniform = new ogs.vgl.uniform(gl.INT, "uSampler");
-    samplerUniform.set(0);
-
-    prog.addVertexAttribute(posVertAttr,
-      vglModule.vertexAttributeKeys.Position);
-    prog.addVertexAttribute(texCoordVertAttr,
-      vglModule.vertexAttributeKeys.TextureCoordinate);
-    prog.addUniform(modelViewUniform);
-    prog.addUniform(projectionUniform);
-    prog.addUniform(samplerUniform);
-    prog.addShader(fragmentShader);
-    prog.addShader(vertexShader);
-    mat.addAttribute(prog);
+    var mapActor = ogs.vgl.utils.createPlane(
+                      -180.0, -90.0, 0.0,
+                       180.0, -90.0, 0.0,
+                      -180.0, 90.0, 0.0
+                    );
 
     // Setup texture
     worldImage = new Image();
+
+    var worldTexture = new vglModule.texture();
     worldTexture.setImage(worldImage);
 
     // TODO Currently hard-coded
     worldImage.src = "./data/land_shallow_topo_2048.png";
-    mat.addAttribute(worldTexture);
+    mapActor.material().addAttribute(worldTexture);
 
-    var actor = new ogs.vgl.actor();
-    actor.setMapper(mapper);
-    actor.setMaterial(mat);
-    m_renderer.addActor(actor);
+    m_renderer.addActor(mapActor);
 
     document.onmousedown = handleMouseDown;
     document.onmouseup = handleMouseUp;
@@ -384,11 +296,12 @@ geoModule.map = function(node, options) {
 
     draw();
 
-    return actor;
+    return mapActor;
   })();
 
   /// Public member functions
 
+  /////////////////////////////////////////////////////////////////////////////
   /**
    * Add layer to the map
    *
@@ -408,6 +321,7 @@ geoModule.map = function(node, options) {
     return false;
   };
 
+  /////////////////////////////////////////////////////////////////////////////
   /**
    * Remove layer from the map
    *
