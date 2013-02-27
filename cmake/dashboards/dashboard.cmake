@@ -65,7 +65,6 @@ set(CTEST_BUILD_NAME "${BUILD_NAME}-${PROJECT_BUILD_ARCH}-${PROJECT_BRANCH}")
 
 # Set specific properties dependent on build platform (unix/w32/w64)
 if(UNIX)
-
   set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
   set(CTEST_BUILD_COMMAND "/usr/bin/make -j9 -k")
 
@@ -78,11 +77,8 @@ if(UNIX)
   endif()
 
   set(CTEST_USE_LAUNCHERS 1)
-  set(PLATFORM_SPECIFIC_CACHE_DATA)
   set(PROJECT_STATIC_LIB_EXT)
-
 elseif(WIN32)
-
   # Windows machines don't have valgrind or gcov
   set(PERFORM_MEMCHECK FALSE)
   set(PERFORM_COVERAGE FALSE)
@@ -99,10 +95,6 @@ elseif(WIN32)
     set(PROJECT_BUILD_ARCH "x86_64")
   endif()
 
-  set(PLATFORM_SPECIFIC_CACHE_DATA "
-    GITCOMMAND:FILEPATH=${CTEST_GIT_COMMAND}
-    git_command:FILEPATH=${CTEST_GIT_COMMAND}
-  ")
   set(PROJECT_STATIC_LIB_EXT)
 endif()
 
