@@ -11,9 +11,15 @@ set(SERVER_PORT 8080 CACHE STRING "The port the server will run on.")
 set(MINIFY ON CACHE BOOL "Minify the JavaScript files prior to concatenating.")
 set(MANGLE ON CACHE BOOL "When minifying, also mangle non-public symbol names.")
 set(DOCUMENT OFF CACHE BOOL "Generate documentation for JavaScript files.")
+set(SERVER_LOGS ON CACHE BOOL "Write cherrypy server access and error logs in deploy/logs")
 
 # Non-cache variables.
 set(DEPLOY_DIR deploy)
+if(SERVER_LOGS)
+    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/logs)
+    set(LOG_ERROR_FILE "logs/error.log")
+    set(LOG_ACCESS_FILE "logs/access.log")
+endif()
 
 # Find JSLint.
 find_package(JSLint)
@@ -96,6 +102,9 @@ set(JS_DOCUMENT_FILES
 set(SOURCES
     ogsctl
     ogs.py
+    websocket_chat.py
+    websocket_pi.py
+    cpi.py
     web/index.html
     web/lib/app.js
     web/lib/gl-matrix.js
