@@ -53,6 +53,7 @@ set(JS_LINT_FILES
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/init.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/mapper.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/materialAttribute.js
+    ${CMAKE_SOURCE_DIR}/web/lib/vgl/blend.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/material.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/modelViewMatrixStack.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/node.js
@@ -85,6 +86,7 @@ set(JS_UGLIFY_FILES
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/geomData.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/mapper.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/materialAttribute.js
+  ${CMAKE_SOURCE_DIR}/web/lib/vgl/blend.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/material.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/renderer.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/shader.js
