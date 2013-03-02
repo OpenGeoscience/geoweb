@@ -15,14 +15,14 @@
        $( "#slider-vertical" ).slider({
          orientation: "vertical",
          range: "min",
-         min: 0,
-         max: 100,
-         value: 60,
+         min: 0.0,
+         max: 1.0,
+         step: 0.01,
+         value: 0.5,
          slide: function( event, ui ) {
            $( "#amount" ).val( ui.value );
          }
        });
-       $( "#amount" ).val( $( "#slider-vertical" ).slider( "value" ) );
      });
   </script>
 	</head>
