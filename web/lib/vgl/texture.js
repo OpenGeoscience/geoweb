@@ -22,12 +22,14 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-///---------------------------------------------------------------------------
 vglModule.texture = function() {
-  vglModule.materialAttribute.call(this);
 
-  this.m_type = materialAttributeType.Texture;
+  if (!(this instanceof vglModule.texture)) {
+    return new vglModule.texture();
+  }
+  vglModule.materialAttribute.call(this, materialAttributeType.Texture);
 
+  /// Private member variables
   this.m_width = 0;
   this.m_height = 0;
   this.m_depth = 0;
@@ -41,13 +43,11 @@ vglModule.texture = function() {
   this.m_internalFormat = null;
 
   this.m_image = null;
-};
 
-inherit(vglModule.texture, vglModule.materialAttribute);
+  this.modifiedOn();
 
-///---------------------------------------------------------------------------
-vglModule.texture.prototype.setup = function(renderState) {
-  if (this.modified()) {
+  /// Public member methods
+  this.setup = function(renderState) {
     gl.deleteTexture(this.m_textureHandle);
     this.m_textureHandle = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, this.m_textureHandle);
@@ -76,183 +76,173 @@ vglModule.texture.prototype.setup = function(renderState) {
     }
 
     gl.bindTexture(gl.TEXTURE_2D, null);
-    this.setModified(false);
-  }
-};
+    this.modifiedOff();
+  };
 
-///---------------------------------------------------------------------------
-vglModule.texture.prototype.bind = function(renderState) {
-  // TODO Call setup via material setup
-  if (this.modified()) {
-    this.setup(renderState);
-  }
+  this.bind = function(renderState) {
+    // TODO Call setup via material setup
+    if (this.modified()) {
+      this.setup(renderState);
+    }
 
-//  gl.activeTexture(gl.TEXTURE0);
-//  gl.bindTexture(gl.TEXTURE_2D, worldTexture);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, this.m_textureHandle);
+  };
 
-  gl.activeTexture(gl.TEXTURE0);
-  gl.bindTexture(gl.TEXTURE_2D, this.m_textureHandle);
-};
-///---------------------------------------------------------------------------
-vglModule.texture.prototype.undoBind = function(renderState) {
-  gl.bindTexture(gl.TEXTURE_2D, 0);
-};
+  this.undoBind = function(renderState) {
+    gl.bindTexture(gl.TEXTURE_2D, null);
+  };
 
-///---------------------------------------------------------------------------
-vglModule.texture.prototype.handleTextureLoaded = function(image) {
-  this.m_image = image;
-  this.updateDimensions();
-  this.setModified(true);
-};
+  this.handleTextureLoaded = function(image) {
+    this.m_image = image;
+    this.updateDimensions();
+    this.modifiedOn(true);
+  };
 
-///---------------------------------------------------------------------------
-vglModule.texture.prototype.image = function() {
-  return this.m_image;
-};
-///---------------------------------------------------------------------------
-vglModule.texture.prototype.setImage = function(image) {
-  if (image !== null) {
-    image.onload = this.handleTextureLoaded(image);
+  this.image = function() {
+    return this.m_image;
+  };
+
+  this.setImage = function(image) {
+    if (image !== null) {
+      image.onload = this.handleTextureLoaded(image);
+      return true;
+    }
+
+    return false;
+  };
+
+  this.textureUnit = function() {
+    return this.m_textureUnit;
+  };
+
+  this.setTextureUnit = function(unit) {
+    if (this.m_textureUnit === unit) {
+      return false;
+    }
+
+    this.m_textureUnit = unit;
+    this.modifiedOn(true);
     return true;
-  }
+  };
 
-  return false;
-};
+  this.width = function() {
+    return this.m_width;
+  };
 
-///---------------------------------------------------------------------------
-vglModule.texture.prototype.textureUnit = function() {
-  return this.m_textureUnit;
-};
-///---------------------------------------------------------------------------
-vglModule.texture.prototype.setTextureUnit = function(unit) {
-  if (this.m_textureUnit === unit) {
-    return false;
-  }
+  this.setWidth = function(width) {
+    if (this.m_image === null) {
+      return false;
+    }
 
-  this.m_textureUnit = unit;
-  this.setModified(true);
-  return true;
-};
-
-///---------------------------------------------------------------------------
-vglModule.texture.prototype.width = function() {
-  return this.m_width;
-};
-///---------------------------------------------------------------------------
-vglModule.texture.prototype.setWidth = function(width) {
-  if (this.m_image === null) {
-    return false;
-  }
-
-  this.m_width = width;
-  this.setModified(true);
-
-  return true;
-};
-
-///---------------------------------------------------------------------------
-vglModule.texture.prototype.depth = function() {
-  return this.m_depth;
-};
-///---------------------------------------------------------------------------
-vglModule.texture.prototype.setDepth = function(depth) {
-  if (this.m_image === null) {
-    return false;
-  }
-
-  this.m_depth = depth;
-  this.setModified(true);
-
-  return true;
-};
-
-///---------------------------------------------------------------------------
-vglModule.texture.prototype.textureHandle = function() {
-  return this.m_textureHandle;
-};
-
-///---------------------------------------------------------------------------
-vglModule.texture.prototype.internalFormat = function() {
-  return this.m_internalFormat;
-};
-///---------------------------------------------------------------------------
-vglModule.texture.prototype.setInternalFormat = function(internalFormat) {
-  if (this.m_internalFormat !== internalFormat) {
-    this.m_internalFormat = internalFormat;
-    this.setModified(true);
+    this.m_width = width;
+    this.modifiedOn();
 
     return true;
-  }
+  };
 
-  return false;
-};
+  this.depth = function() {
+    return this.m_depth;
+  };
 
-///---------------------------------------------------------------------------
-vglModule.texture.prototype.pixelFormat = function() {
-  return this.m_pixelFormat;
-};
-///---------------------------------------------------------------------------
-vglModule.texture.prototype.setPixelFormat = function(pixelFormat) {
-  if (this.m_image === null) {
+  this.setDepth = function(depth) {
+    if (this.m_image === null) {
+      return false;
+    }
+
+    this.m_depth = depth;
+    this.modifiedOn();
+    return true;
+  };
+
+  this.textureHandle = function() {
+    return this.m_textureHandle;
+  };
+
+  this.internalFormat = function() {
+    return this.m_internalFormat;
+  };
+
+  this.setInternalFormat = function(internalFormat) {
+    if (this.m_internalFormat !== internalFormat) {
+      this.m_internalFormat = internalFormat;
+      this.modifiedOn(true);
+
+      return true;
+    }
+
     return false;
-  }
+  };
 
-  this.m_pixelFormat = pixelFormat;
-  this.setModified(true);
-  return true;
+
+  this.pixelFormat = function() {
+    return this.m_pixelFormat;
+  };
+
+  this.setPixelFormat = function(pixelFormat) {
+    if (this.m_image === null) {
+      return false;
+    }
+
+    this.m_pixelFormat = pixelFormat;
+    this.modifiedOn();
+    return true;
+  };
+
+
+  this.pixelDataType = function() {
+    return this.m_pixelDataType;
+  };
+
+  this.setPixelDataType = function(pixelDataType) {
+    if (this.m_image === null) {
+      return false;
+    }
+
+    this.m_pixelDataTYpe = pixelDataType;
+
+    this.modifiedOn();
+
+    return true;
+  };
+
+  this.computeInternalFormatUsingImage = function() {
+    // Currently image does not define internal format
+    // and hence it's pixel format is the only way to query
+    // information on how color has been stored.
+//    switch (this.m_image.pixelFormat()) {
+//    case gl.RGB:
+//      this.m_internalFormat = gl.RGB;
+//      break;
+//    case gl.RGBA:
+//      this.m_internalFormat = gl.RGBA;
+//      break;
+//    case gl.Luminance:
+//      this.m_internalFormat = gl.Luminance;
+//      break;
+//    case gl.LuminanceAlpha:
+//      this.m_internalFormat = gl.LuminanceAlpha;
+//      break;
+//    // Do nothing when image pixel format is none or undefined.
+//    default:
+//      break;
+//    };
+
+    // TODO Fix this
+    this.m_internalFormat = gl.RGBA;
+    this.m_pixelFormat = gl.RGBA;
+    this.m_pixelDataType = gl.UNSIGNED_BYTE;
+  };
+
+  this.updateDimensions = function() {
+    if (this.m_image !== null) {
+      this.m_width = this.m_image.width;
+      this.m_height = this.m_image.height;
+      this.m_depth = 0; // Only 2D images are supported now
+    }
+  };
+
+  return this;
 };
 
-///---------------------------------------------------------------------------
-vglModule.texture.prototype.pixelDataType = function() {
-  return this.m_pixelDataType;
-};
-///---------------------------------------------------------------------------
-vglModule.texture.prototype.setPixelDataType = function(pixelDataType) {
-  if (this.m_image === null) {
-    return false;
-  }
-
-  this.m_pixelDataTYpe = pixelDataType;
-
-  this.setModified(true);
-
-  return true;
-};
-
-///---------------------------------------------------------------------------
-vglModule.texture.prototype.computeInternalFormatUsingImage = function() {
-  // Currently image does not define internal format
-  // and hence it's pixel format is the only way to query
-  // information on how color has been stored.
-//  switch (this.m_image.pixelFormat()) {
-//  case gl.RGB:
-//    this.m_internalFormat = gl.RGB;
-//    break;
-//  case gl.RGBA:
-//    this.m_internalFormat = gl.RGBA;
-//    break;
-//  case gl.Luminance:
-//    this.m_internalFormat = gl.Luminance;
-//    break;
-//  case gl.LuminanceAlpha:
-//    this.m_internalFormat = gl.LuminanceAlpha;
-//    break;
-//  // Do nothing when image pixel format is none or undefined.
-//  default:
-//    break;
-//  };
-
-  // TODO Fix this
-  this.m_internalFormat = gl.RGBA;
-  this.m_pixelFormat = gl.RGBA;
-  this.m_pixelDataType = gl.UNSIGNED_BYTE;
-};
-
-///---------------------------------------------------------------------------
-vglModule.texture.prototype.updateDimensions = function() {
-  if (this.m_image !== null) {
-    this.m_width = this.m_image.width;
-    this.m_height = this.m_image.height;
-    this.m_depth = 0; // Only 2D images are supported now
-  }
-};
+inherit(vglModule.texture, vglModule.materialAttribute);

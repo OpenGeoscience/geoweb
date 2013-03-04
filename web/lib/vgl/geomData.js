@@ -80,64 +80,99 @@ var vesPrimitiveIndicesValueType = {
 //////////////////////////////////////////////////////////////////////////////
 
 vglModule.primitive = function() {
-  this.m_indexCount = 0;
-  this.m_primitiveType = 0;
-  this.m_indicesValueType = 0;
-  this.m_indices = 0;
-};
 
-/// Data
-vglModule.primitive.prototype.indices = function() {
-  return this.m_indices;
-};
+  if (!(this instanceof vglModule.primitive)) {
+    return new vglModule.primitive();
+  }
 
-///
-vglModule.primitive.prototype.createIndices = function(type) {
-  // TODO Check for the type
-  this.m_indices = new Uint16Array();
-};
+  /// Private member variables
+  var m_indexCount = 0;
+  var m_primitiveType = 0;
+  var m_indicesValueType = 0;
+  var m_indices = 0;
 
-/// Return the number of indices
-vglModule.primitive.prototype.numberOfIndices = function() {
-  return this.m_indices.length;
-};
+  this.indices = function() {
+    return m_indices;
+  };
 
-/// Return size of indices in bytes
-vglModule.primitive.prototype.sizeInBytes = function() {
-  return this.m_indices.length * Uint16Array.BYTES_PER_ELEMENT;
-};
+  this.createIndices = function(type) {
+    // TODO Check for the type
+    m_indices = new Uint16Array();
+  };
 
-/// Return primitive type
-vglModule.primitive.prototype.primitiveType = function() {
-  return this.m_primitiveType;
-};
-/// Set primitive type
-vglModule.primitive.prototype.setPrimitiveType = function(type) {
-  this.m_primitiveType = type;
-};
+  /**
+   * Return the number of indices
+   *
+   */
+  this.numberOfIndices = function() {
+    return m_indices.length;
+  };
 
-///
-vglModule.primitive.prototype.indexCount = function() {
-  return this.m_indexCount;
-};
-/// Set index count (how many indices form a primitive)
-vglModule.primitive.prototype.setIndexCount = function(count) {
-  this.m_indexCount = count;
-};
+  /**
+   * Return size of indices in bytes
+   *
+   */
+  this.sizeInBytes = function() {
+    return m_indices.length * Uint16Array.BYTES_PER_ELEMENT;
+  };
 
-/// Return indices value type
-vglModule.primitive.prototype.indicesValueType = function() {
-  return this.m_indicesValueType;
-};
-/// Set indices value type
-vglModule.primitive.prototype.setIndicesValueType = function(type) {
-  this.m_indicesValueType  = type;
-};
+  /*
+   * Return primitive type
+   *
+   */
+  this.primitiveType = function() {
+    return m_primitiveType;
+  };
 
-/// Set indices from a array
-vglModule.primitive.prototype.setIndices = function(indicesArray) {
-  // TODO Check for the type
-  this.m_indices = new Uint16Array(indicesArray);
+  /**
+   * Set primitive type
+   *
+   */
+  this.setPrimitiveType = function(type) {
+    m_primitiveType = type;
+  };
+
+  /**
+   * Return index count ((how many indices form a primitive) of the primitive
+   *
+   */
+  this.indexCount = function() {
+    return m_indexCount;
+  };
+
+  /**
+   * Set index count (how many indices form a primitive)
+   *
+   */
+  this.setIndexCount = function(count) {
+    m_indexCount = count;
+  };
+
+  /**
+   * Return indices value type
+   *
+   */
+  this.indicesValueType = function() {
+    return m_indicesValueType;
+  };
+  /*
+   * Set indices value type
+   *
+   */
+  this.setIndicesValueType = function(type) {
+    m_indicesValueType  = type;
+  };
+
+  /**
+   * Set indices from a array
+   *
+   */
+  this.setIndices = function(indicesArray) {
+    // TODO Check for the type
+    m_indices = new Uint16Array(indicesArray);
+  };
+
+  return this;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -147,6 +182,11 @@ vglModule.primitive.prototype.setIndices = function(indicesArray) {
 //////////////////////////////////////////////////////////////////////////////
 
 vglModule.triangleStrip = function() {
+
+  if (!(this instanceof vglModule.triangleStrip)) {
+    return new vglModule.triangleStrip();
+  }
+
   vglModule.primitive.call(this);
 
   this.setPrimitiveType(gl.TRIANGLE_STRIP);
@@ -163,6 +203,10 @@ inherit(vglModule.triangleStrip, vglModule.primitive);
 //////////////////////////////////////////////////////////////////////////////
 
 vglModule.triangles = function() {
+
+  if (!(this instanceof vglModule.triangles)) {
+    return new vglModule.triangles();
+  }
   vglModule.primitive.call(this);
 
   this.setPrimitiveType(gl.TRIANGLES);
@@ -179,17 +223,30 @@ inherit(vglModule.triangles, vglModule.primitive);
 //////////////////////////////////////////////////////////////////////////////
 
 vglModule.vertexDataP3f = function() {
-    this.m_position = [];
+  if (!(this instanceof vglModule.vertexDataP3f)) {
+    return new vglModule.vertexDataP3f();
+  }
+
+  this.m_position = [];
 };
 
 vglModule.vertexDataP3N3f = function() {
-    this.m_position = [];
-    this.m_normal = [];
+
+  if (!(this instanceof vglModule.vertexDataP3N3f)) {
+    return new vglModule.vertexDataP3N3f();
+  }
+
+  this.m_position = [];
+  this.m_normal = [];
 };
 
 vglModule.vertexDataP3T3f = function() {
-    this.m_position = [];
-    this.m_texCoordinate = [];
+  if (!(this instanceof vglModule.vertexDataP3T3f)) {
+    return new vglModule.vertexDataP3T3f();
+  }
+
+  this.m_position = [];
+  this.m_texCoordinate = [];
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -200,16 +257,11 @@ vglModule.vertexDataP3T3f = function() {
 
 vglModule.sourceData = function() {
 
-  /**
-   * Check against no use of new()
-   */
   if (!(this instanceof vglModule.sourceData)) {
     return new vglModule.sourceData();
   }
 
-  /**
-   * Private variables
-   */
+  /// Private member variables
   var m_attributesMap = {};
   var m_data = [];
   var m_glData = null;
@@ -236,13 +288,18 @@ vglModule.sourceData = function() {
     this.m_offset = 0;
   };
 
-  /// Return data
+  /**
+   * Return raw data for this source
+   *
+   * @returns {Float32Array}
+   */
   this.data = function() {
     this.m_glData = new Float32Array(m_data);
     return this.m_glData;
   };
 
   /**
+   * Add new attribute data to the source
    *
    */
   this.addAttribute =
@@ -262,14 +319,16 @@ vglModule.sourceData = function() {
   };
 
   /**
-   * Return size of the data
+   * Return size of the source data
+   *
    */
   this.sizeOfArray = function() {
     return Object.size(m_data);
   };
 
   /**
-   * Return size of the data in bytes
+   * Return size of the source data in bytes
+   *
    */
   this.sizeInBytes = function() {
     var sizeInBytes = 0;
@@ -287,6 +346,7 @@ vglModule.sourceData = function() {
 
   /**
    * Check if there is attribute exists of a given key type
+   *
    */
   this.hasKey = function(key) {
     return (key in m_attributesMap);
@@ -294,12 +354,14 @@ vglModule.sourceData = function() {
 
   /**
    * Return keys of all attributes
+   *
    */
   this.keys = function() {
     return Object.keys(m_attributesMap);
   };
 
   /**
+   * Return number of attributes of source data
    *
    */
   this.numberOfAttributes = function() {
@@ -307,6 +369,7 @@ vglModule.sourceData = function() {
   };
 
   /**
+   * Return number of components of the attribute data
    *
    */
   this.attributeNumberOfComponents = function(key) {
@@ -318,6 +381,7 @@ vglModule.sourceData = function() {
   };
 
   /**
+   * Return if the attribute data is normalized
    *
    */
   this.normalized = function(key) {
@@ -329,6 +393,7 @@ vglModule.sourceData = function() {
   };
 
   /**
+   * Return size of the attribute data type
    *
    */
   this.sizeOfAttributeDataType = function(key) {
@@ -340,6 +405,7 @@ vglModule.sourceData = function() {
   };
 
   /**
+   * Return attribute data type
    *
    */
   this.attributeDataType = function(key) {
@@ -351,6 +417,7 @@ vglModule.sourceData = function() {
   };
 
   /**
+   * Return attribute offset
    *
    */
   this.attributeOffset = function(key) {
@@ -362,6 +429,7 @@ vglModule.sourceData = function() {
   };
 
   /**
+   * Return attribute stride
    *
    */
   this.attributeStride = function(key) {
@@ -373,6 +441,7 @@ vglModule.sourceData = function() {
   };
 
   /**
+   * Virtual function to insert new vertex data at the end
    *
    */
   this.pushBack = function(vertexData) {
@@ -380,6 +449,7 @@ vglModule.sourceData = function() {
   };
 
   /**
+   * Insert new data block to the raw data
    *
    */
   this.insert = function(data) {
@@ -396,13 +466,10 @@ vglModule.sourceData = function() {
 //////////////////////////////////////////////////////////////////////////////
 
 vglModule.sourceDataP3T3f = function() {
-  /**
-   * Check against no use of new()
-   */
+
   if (!(this instanceof vglModule.sourceDataP3T3f)) {
     return new vglModule.sourceDataP3T3f();
   }
-
   vglModule.sourceData.call(this);
 
   this.addAttribute(vertexAttributeKeys.Position,
@@ -410,9 +477,6 @@ vglModule.sourceDataP3T3f = function() {
   this.addAttribute(vertexAttributeKeys.TextureCoordinate,
                     gl.FLOAT, 4, 12, 6 * 4, 3, false);
 
-  /**
-   *
-   */
   this.pushBack = function(value) {
     this.insert(value.m_position);
     this.insert(value.m_texCoordinate);
@@ -430,9 +494,7 @@ inherit(vglModule.sourceDataP3T3f, vglModule.sourceData);
 //////////////////////////////////////////////////////////////////////////////
 
 vglModule.sourceDataP3N3f = function() {
-  /**
-   * Check against no use of new()
-   */
+
   if (!(this instanceof sourceDataP3N3f)) {
     return new sourceDataP3N3f();
   }
@@ -445,9 +507,6 @@ vglModule.sourceDataP3N3f = function() {
                     gl.FLOAT, 4, 12, 6 * 4, 3, false);
 
 
-  /**
-   *
-   */
   this.pushBack = function(value) {
     this.insert(value.m_position);
     this.insert(value.m_normal);
@@ -463,10 +522,7 @@ vglModule.sourceDataP3N3f = function() {
 //////////////////////////////////////////////////////////////////////////////
 
 vglModule.sourceDataP3fv = function() {
-  /**
-   * Check
-   *
-   */
+
   if (!(this instanceof vglModule.sourceDataP3fv)) {
     return new vglModule.sourceDataP3fv();
   }
@@ -477,10 +533,6 @@ vglModule.sourceDataP3fv = function() {
                     gl.FLOAT, 4,  0, 3 * 4, 3, false);
 
 
-  /**
-   *
-   *
-   */
   this.pushBack = function(value) {
     this.insert(value);
   };
@@ -497,10 +549,7 @@ inherit(vglModule.sourceDataP3fv, vglModule.sourceData);
 //////////////////////////////////////////////////////////////////////////////
 
 vglModule.sourceDataT2fv = function() {
-  /**
-   * Check
-   *
-   */
+
   if (!(this instanceof vglModule.sourceDataT2fv)) {
     return new vglModule.sourceDataT2fv();
   }
@@ -511,10 +560,6 @@ vglModule.sourceDataT2fv = function() {
                     gl.FLOAT, 4,  0, 2 * 4, 2, false);
 
 
-  /**
-   *
-   *
-   */
   this.pushBack = function(value) {
     this.insert(value);
   };
@@ -526,24 +571,50 @@ inherit(vglModule.sourceDataT2fv, vglModule.sourceData);
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// sourceDataC3fv
+//
+//////////////////////////////////////////////////////////////////////////////
+
+vglModule.sourceDataC3fv = function() {
+
+  if (!(this instanceof vglModule.sourceDataC3fv)) {
+    return new vglModule.sourceDataC3fv();
+  }
+
+  vglModule.sourceData.call(this);
+
+  this.addAttribute(vertexAttributeKeys.Color,
+                    gl.FLOAT, 4,  0, 3 * 4, 3, false);
+
+  this.pushBack = function(value) {
+    this.insert(value);
+  };
+
+  return this;
+};
+
+inherit(vglModule.sourceDataC3fv, vglModule.sourceData);
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // geometryData
 //
 //////////////////////////////////////////////////////////////////////////////
 
 vglModule.geometryData = function() {
-    this.m_name = "";
-    this.m_primitives = [];
-    this.m_sources = [];
-    this.m_bounds = [];
-    this.m_computeBounds = true;
+    var m_name = "";
+    var m_primitives = [];
+    var m_sources = [];
+    var m_bounds = [];
+    var m_computeBounds = true;
 
     /// Return ID of the geometry data
     this.name = function()     {
-      return this.m_name;
+      return m_name;
     };
     /// Set name of the geometry data
     this.setName = function(name) {
-      this.m_name = name;
+      m_name = name;
     };
 
     /// Add new source
@@ -551,8 +622,8 @@ vglModule.geometryData = function() {
       // TODO Check if the incoming source has duplicate keys
 
       // NOTE This might not work on IE8 or lower
-      if (this.m_sources.indexOf(source) == -1) {
-        this.m_sources.push(source);
+      if (m_sources.indexOf(source) == -1) {
+        m_sources.push(source);
         return true;
       }
 
@@ -560,21 +631,21 @@ vglModule.geometryData = function() {
     };
     /// Return source for a given index. Returns 0 if not found.
     this.source = function(index) {
-      if (index < this.m_sources.length) {
-        return this.m_sources[index];
+      if (index < m_sources.length) {
+        return m_sources[index];
       }
 
       return 0;
     };
     /// Return number of sources
     this.numberOfSources = function() {
-      return this.m_sources.length;
+      return m_sources.length;
     };
     /// Return source data given a key
     this.sourceData = function(key) {
-      for (var i = 0; i < this.m_sources.length; ++i) {
-        if (this.m_sources[i].hasKey(key)) {
-          return this.m_sources[i];
+      for (var i = 0; i < m_sources.length; ++i) {
+        if (m_sources[i].hasKey(key)) {
+          return m_sources[i];
         }
       }
 
@@ -583,8 +654,8 @@ vglModule.geometryData = function() {
 
     /// Add new primitive
     this.addPrimitive = function(primitive) {
-      if (this.m_primitives.indexOf(primitive) == -1) {
-        this.m_primitives.push(primitive);
+      if (m_primitives.indexOf(primitive) == -1) {
+        m_primitives.push(primitive);
         return true;
       }
 
@@ -592,28 +663,28 @@ vglModule.geometryData = function() {
     };
     /// Return primitive for a given index. Returns 0 if not found.
     this.primitive = function(index) {
-      if (index < this.m_primitives.length) {
-        return this.m_primitives[index];
+      if (index < m_primitives.length) {
+        return m_primitives[index];
       }
 
       return null;
     };
     /// Return number of primitives
     this.numberOfPrimitives = function() {
-      return this.m_primitives.length;
+      return m_primitives.length;
     };
 
     /// Return bounds [minX, maxX, minY, maxY, minZ, maxZ]
     this.bounds = function() {
-      return this.m_bounds;
+      return m_bounds;
     };
     /// Set bounds
     this.setBounds = function(minX, maxX, minY, maxY, minZ, maxZ) {
-      this.m_bounds[0] = minX;
-      this.m_bounds[1] = maxX;
-      this.m_bounds[2] = minY;
-      this.m_bounds[3] = maxY;
-      this.m_bounds[4] = minZ;
-      this.m_bounds[5] = maxZ;
+      m_bounds[0] = minX;
+      m_bounds[1] = maxX;
+      m_bounds[2] = minY;
+      m_bounds[3] = maxY;
+      m_bounds[4] = minZ;
+      m_bounds[5] = maxZ;
     };
 };

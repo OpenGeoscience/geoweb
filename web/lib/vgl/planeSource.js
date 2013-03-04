@@ -39,7 +39,7 @@ vglModule.planeSource = function() {
     m_origin[0] = x;
     m_origin[1] = y;
     m_origin[2] = z;
-  }
+  };
 
   /**
    * Set point that defines the first axis of the plane
@@ -49,7 +49,7 @@ vglModule.planeSource = function() {
     m_point1[0] = x;
     m_point1[1] = y;
     m_point1[2] = z;
-  }
+  };
 
   /**
    * Set point that defines the first axis of the plane
@@ -59,25 +59,27 @@ vglModule.planeSource = function() {
     m_point2[0] = x;
     m_point2[1] = y;
     m_point2[2] = z;
-  }
+  };
 
   /**
    * Create a plane geometry given input parameters
    *
    */
   this.create = function() {
+    m_geom = new vglModule.geometryData();
 
     var x = [], tc = [], v1 = [], v2 = [];
     x.length = 3, tc.length = 2, v1.length = 3, v2.length = 3;
 
     var  pts = []; pts.length = 3;
-    var i, j, k, ii;
+    var i, j, ii;
     var numPts;
     var numPolys;
-    var posIndex = 0, normIndex = 0, texCoordIndex = 0;
+    var posIndex = 0, normIndex = 0, colorIndex = 0, texCoordIndex = 0;
 
     var positions = [];
     var normals = [];
+    var colors = [];
     var texCoords = [];
     var indices = [];
 
@@ -88,7 +90,6 @@ vglModule.planeSource = function() {
     }
 
     // TODO Compute center and normal
-    m_geom = new vglModule.geometryData();
 
     // Set things up; allocate memory
     numPts = (m_xresolution + 1) * (m_yresolution + 1);
@@ -112,6 +113,10 @@ vglModule.planeSource = function() {
         positions[posIndex++] = x[1];
         positions[posIndex++] = x[2];
 
+        colors[colorIndex++] = 1.0;
+        colors[colorIndex++] = 1.0;
+        colors[colorIndex++] = 1.0;
+
         normals[normIndex++] = m_normal[0];
         normals[normIndex++] = m_normal[1];
         normals[normIndex++] = m_normal[2];
@@ -121,7 +126,7 @@ vglModule.planeSource = function() {
       }
     }
 
-    // Generate polygon connectivity
+    /// Generate polygon connectivity
     for (i = 0; i < m_yresolution; i++) {
       for (j = 0; j < m_xresolution; j++) {
         pts[0] = j + i*(m_xresolution+1);
@@ -141,10 +146,14 @@ vglModule.planeSource = function() {
     var sourcePositions = vglModule.sourceDataP3fv();
     sourcePositions.pushBack(positions);
 
+    var sourceColors = vglModule.sourceDataC3fv();
+    sourceColors.pushBack(colors);
+
     var sourceTexCoords = vglModule.sourceDataT2fv();
     sourceTexCoords.pushBack(texCoords);
 
     m_geom.addSource(sourcePositions);
+    m_geom.addSource(sourceColors);
     m_geom.addSource(sourceTexCoords);
     m_geom.addPrimitive(tristrip);
 

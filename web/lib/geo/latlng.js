@@ -15,23 +15,34 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  ========================================================================*/
-/// Not used now
-function modelViewMatrixStack() {
-  var mvMatrixStack = [];
 
-  this.pushMatrix = function(mat) {
-    var copy = mat4.create();
-    mat4.set(mat, copy);
-    mvMatrixStack.push(copy);
+///////////////////////////////////////////////////////////////////////////////
+//
+// latlng class defines a geodesy coordinate
+//
+///////////////////////////////////////////////////////////////////////////////
+
+/**
+ * A latlng encapsulates geodesy coordinate defined by latitude and longitude
+ *
+ */
+geoModule.latlng = function(lat, lng) {
+  if (!(this instanceof geoModule.latlng)) {
+    return new geoModule.latlng(lat, lng);
+  }
+
+  /// Private member variables
+  var m_lat = lat;
+  var m_lng = lng;
+
+  /// Public member methods
+  this.lat = function() {
+      return m_lat;
   };
 
-  this.popMatrix = function() {
-    if (mvMatrixStack.length === 0)
-    {
-      throw "Invalid popMatrix!";
-    }
-    mat = mvMatrixStack.pop();
-
-    return mat;
+  this.lng = function() {
+    return m_lng;
   };
-}
+
+  return this;
+};
