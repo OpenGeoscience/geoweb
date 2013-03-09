@@ -179,7 +179,7 @@ if (NOT  "${DATA_ROOT}" STREQUAL "")
     "${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/data"
   )
 
-  add_custom_target(rm_data
+  add_custom_target(clean_data
     COMMAND ${CMAKE_COMMAND} -E remove_directory
     "${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/data"
   )
