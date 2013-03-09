@@ -37,8 +37,46 @@ function main() {
     "visible" : 1
   }, ogs.geo.planeFeature(ogs.geo.latlng(-90.0, 0.0), ogs.geo.latlng(90.0,
                                                                      180.0)));
-
   myMap.addLayer(planeLayer);
+
+  // Read city geo-coded data
+  var table = [];
+  var citieslatlon = [];
+  var colors = [];
+  $.ajax({
+    type : "GET",
+    url : "./data/cities.csv",
+    dataType : "text",
+    success : function(data) {
+      table = processCSVData(data);
+      if (table.length > 0) {
+        var i;
+        for (i = 0; i < table.length; ++i) {
+          if (table[i][2] != undefined) {
+            var lat = table[i][2];
+            lat = lat.replace(/(^\s+|\s+$|^\"|\"$)/g, '');
+            lat = parseFloat(lat);
+
+            var lon = table[i][3];
+            lon = lon.replace(/(^\s+|\s+$|^\"|\"$)/g, '');
+            lon = parseFloat(lon);
+            citieslatlon.push(lon, lat, 0.0);
+            colors.push(1.0, 1.0, 153.0 / 255.0);
+          }
+        }
+
+        var pointLayer = ogs.geo
+            .featureLayer({
+              "opacity" : 1,
+              "showAttribution" : 1,
+              "visible" : 1
+            }, ogs.geo.pointSpritesFeature('/data/spark.png', citieslatlon,
+                                           colors));
+
+        myMap.addLayer(pointLayer);
+      }
+    }
+  });
 
   // Listen for slider slidechange event
   $('#slider-vertical').slider().bind('slide', function(event, ui) {
@@ -49,17 +87,12 @@ function main() {
   (function() {
     var canvas = document.getElementById('glcanvas');
 
-    // resize the canvas to fill browser window dynamically
+    // Resize the canvas to fill browser window dynamically
     window.addEventListener('resize', resizeCanvas, false);
 
     function resizeCanvas() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight * 0.85;
-
-      /**
-       * Your drawings need to be inside this function otherwise they will be reset when
-       * you resize the browser window and the canvas goes will be cleared.
-       */
       updateAndDraw(canvas.width, canvas.height);
     }
     resizeCanvas();
@@ -69,4 +102,15 @@ function main() {
       myMap.redraw();
     }
   })();
+}
+
+function processCSVData(csvdata) {
+  var table = [];
+  var lines = csvdata.split(/\r\n|\n/);
+
+  for ( var i = 0; i < lines.length; i++) {
+    var row = lines[i].split(',');
+    table.push(row);
+  }
+  return table;
 }
