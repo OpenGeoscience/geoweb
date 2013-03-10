@@ -66,6 +66,7 @@ geoModule.map = function(node, options) {
   if (!(this instanceof geoModule.map)) {
     return new geoModule.map(node, options);
   }
+  ogs.vgl.object.call(this);
 
   // Member variables
   this.events = {
@@ -290,7 +291,7 @@ geoModule.map = function(node, options) {
                                                     0.0);
     // Setup texture
     var worldImage = new Image();
-    worldImage.src = "./data/land_shallow_topo_2048.png";
+    worldImage.src = "/data/assets/land_shallow_topo_2048.png";
     worldImage.onload = function() {
       var worldTexture = new vglModule.texture();
       worldTexture.updateDimensions();
@@ -326,7 +327,7 @@ geoModule.map = function(node, options) {
       // TODO Set the rendering order correctly
       m_renderer.addActor(layer.actor());
       m_renderer.render();
-
+      this.modified();
       return true;
     }
 
@@ -369,3 +370,5 @@ geoModule.map = function(node, options) {
 
   return this;
 };
+
+inherit(geoModule.map, ogs.vgl.object);

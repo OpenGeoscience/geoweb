@@ -12,9 +12,12 @@ set(MINIFY ON CACHE BOOL "Minify the JavaScript files prior to concatenating.")
 set(MANGLE ON CACHE BOOL "When minifying, also mangle non-public symbol names.")
 set(DOCUMENT OFF CACHE BOOL "Generate documentation for JavaScript files.")
 set(SERVER_LOGS ON CACHE BOOL "Write cherrypy server access and error logs in deploy/logs")
+set(DATA_ROOT "" CACHE PATH "Root directory for the data")
 
 # Non-cache variables.
 set(DEPLOY_DIR deploy)
+set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${DEPLOY_DIR})
+
 if(SERVER_LOGS)
     file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/logs)
     set(LOG_ERROR_FILE "logs/error.log")
@@ -41,6 +44,7 @@ set(JS_LINT_FILES
     ${CMAKE_SOURCE_DIR}/web/lib/init.js
     ${CMAKE_SOURCE_DIR}/web/lib/jsHelper.js
     ${CMAKE_SOURCE_DIR}/web/lib/core/init.js
+    ${CMAKE_SOURCE_DIR}/web/lib/core/timestamp.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/init.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/latlng.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/layer.js
@@ -77,6 +81,7 @@ set(JS_UGLIFY_FILES
   ${CMAKE_SOURCE_DIR}/web/lib/init.js
   ${CMAKE_SOURCE_DIR}/web/lib/jsHelper.js
   ${CMAKE_SOURCE_DIR}/web/lib/core/init.js
+  ${CMAKE_SOURCE_DIR}/web/lib/core/timestamp.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/init.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/object.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/boundingObject.js
@@ -166,6 +171,20 @@ set(MIN_JS_FILE ${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/web/lib/ogs.min.js)
 # Check why xdata does not need to do this
 if(NOT EXISTS "${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/web/lib")
   execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/web/lib")
+endif()
+
+# Copy data to the deploy directory
+if (NOT  "${DATA_ROOT}" STREQUAL "")
+  add_custom_target(copy_data
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    "${DATA_ROOT}"
+    "${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/data"
+  )
+
+  add_custom_target(clean_data
+    COMMAND ${CMAKE_COMMAND} -E remove_directory
+    "${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/data"
+  )
 endif()
 
 add_custom_command(
