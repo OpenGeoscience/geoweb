@@ -41,6 +41,7 @@ set(JS_LINT_FILES
     ${CMAKE_SOURCE_DIR}/web/lib/init.js
     ${CMAKE_SOURCE_DIR}/web/lib/jsHelper.js
     ${CMAKE_SOURCE_DIR}/web/lib/core/init.js
+    ${CMAKE_SOURCE_DIR}/web/lib/core/timestamp.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/init.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/latlng.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/layer.js
@@ -77,6 +78,7 @@ set(JS_UGLIFY_FILES
   ${CMAKE_SOURCE_DIR}/web/lib/init.js
   ${CMAKE_SOURCE_DIR}/web/lib/jsHelper.js
   ${CMAKE_SOURCE_DIR}/web/lib/core/init.js
+  ${CMAKE_SOURCE_DIR}/web/lib/core/timestamp.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/init.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/object.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/boundingObject.js
