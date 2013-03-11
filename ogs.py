@@ -9,6 +9,7 @@ import os
 from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
 from websocket_chat import ChatRoot
 from websocket_pi import PiRoot
+from ogsvtk import VTKRoot
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -34,6 +35,9 @@ class Root(object):
 
     # access at http://localhost:8080/pi
     pi = PiRoot(host='127.0.0.1', port=8080, ssl=False)
+
+    # access at http://localhost:8080/pi
+    vtk = VTKRoot(host='127.0.0.1', port=8080, ssl=False)
 
     @cherrypy.expose
     def update(self):

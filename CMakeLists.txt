@@ -80,11 +80,13 @@ set(JS_LINT_FILES
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/pointSource.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/utils.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/command.js
+    ${CMAKE_SOURCE_DIR}/web/lib/sphere.js
 )
 
 # These files should be uglified and concatenated.
 set(JS_UGLIFY_FILES
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/gl-matrix.js
+  ${CMAKE_SOURCE_DIR}/web/lib/sphere.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/init.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/timestamp.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/object.js
@@ -112,6 +114,7 @@ set(JS_UGLIFY_FILES
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/planeSource.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/pointSource.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/utils.js
+  ${CMAKE_SOURCE_DIR}/web/lib/vgl/vtkUnpack.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/init.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/latlng.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/layer.js
@@ -132,6 +135,7 @@ set(SOURCES
     ogs.py
     websocket_chat.py
     websocket_pi.py
+    ogsvtk.py
     cpi.py
 )
 
