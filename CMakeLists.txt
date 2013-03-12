@@ -50,6 +50,7 @@ set(JS_LINT_FILES
     ${CMAKE_SOURCE_DIR}/web/lib/geo/layer.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/map.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/feature.js
+    ${CMAKE_SOURCE_DIR}/web/lib/geo/mapInteractorStyle.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/boundingObject.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/camera.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/geomData.js
@@ -63,6 +64,9 @@ set(JS_LINT_FILES
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/node.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/object.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/renderer.js
+    ${CMAKE_SOURCE_DIR}/web/lib/vgl/renderWindow.js
+    ${CMAKE_SOURCE_DIR}/web/lib/vgl/interactorStyle.js
+    ${CMAKE_SOURCE_DIR}/web/lib/vgl/viewer.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/shader.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/shaderProgram.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/texture.js
@@ -95,6 +99,9 @@ set(JS_UGLIFY_FILES
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/blend.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/material.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/renderer.js
+  ${CMAKE_SOURCE_DIR}/web/lib/vgl/renderWindow.js
+  ${CMAKE_SOURCE_DIR}/web/lib/vgl/interactorStyle.js
+  ${CMAKE_SOURCE_DIR}/web/lib/vgl/viewer.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/shader.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/shaderProgram.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/texture.js
@@ -109,6 +116,7 @@ set(JS_UGLIFY_FILES
   ${CMAKE_SOURCE_DIR}/web/lib/geo/layer.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/map.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/feature.js
+  ${CMAKE_SOURCE_DIR}/web/lib/geo/mapInteractorStyle.js
 )
 
 # These files should have documentation generated for them.
