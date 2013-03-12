@@ -53,6 +53,7 @@ set(JS_LINT_FILES
     ${CMAKE_SOURCE_DIR}/web/lib/geo/mapInteractorStyle.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/boundingObject.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/camera.js
+    ${CMAKE_SOURCE_DIR}/web/lib/vgl/geoJSONUnpack.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/geomData.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/groupNode.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/init.js
@@ -96,6 +97,7 @@ set(JS_UGLIFY_FILES
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/groupNode.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/actor.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/camera.js
+  ${CMAKE_SOURCE_DIR}/web/lib/vgl/geoJSONUnpack.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/geomData.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/mapper.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/materialAttribute.js
