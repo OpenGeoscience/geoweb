@@ -47,6 +47,7 @@ set(JS_LINT_FILES
     ${CMAKE_SOURCE_DIR}/web/lib/core/timestamp.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/init.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/latlng.js
+    ${CMAKE_SOURCE_DIR}/web/lib/geo/command.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/layer.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/map.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/feature.js
@@ -78,6 +79,7 @@ set(JS_LINT_FILES
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/planeSource.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/pointSource.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/utils.js
+    ${CMAKE_SOURCE_DIR}/web/lib/vgl/command.js
 )
 
 # These files should be uglified and concatenated.
@@ -88,6 +90,7 @@ set(JS_UGLIFY_FILES
   ${CMAKE_SOURCE_DIR}/web/lib/core/timestamp.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/init.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/object.js
+  ${CMAKE_SOURCE_DIR}/web/lib/vgl/command.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/boundingObject.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/node.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/groupNode.js
@@ -114,6 +117,7 @@ set(JS_UGLIFY_FILES
   ${CMAKE_SOURCE_DIR}/web/lib/geo/init.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/latlng.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/layer.js
+  ${CMAKE_SOURCE_DIR}/web/lib/geo/command.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/mapInteractorStyle.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/map.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/feature.js
