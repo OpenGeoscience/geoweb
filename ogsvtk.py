@@ -12,102 +12,11 @@ class VTKRoot(object):
         self.host = host
         self.port = port
         self.scheme = 'wss' if ssl else 'ws'
+        self.pointString = "aQMAAFAyAAAAAAAAAAAAAAAAAAA/AAAAAAAAAAAAAAC/AiZePgAAAADlpeY+HCbIPgAAAAAHnZ8+4JT5PgAAAACH3OM94JT5PgAAAACH3OO9HCbIPgAAAAAHnZ++AiZePgAAAADlpea+KxUdPisVHT7lpeY+0IaNPtCGjT4HnZ8+FnuwPhZ7sD6H3OM9FnuwPhZ7sD6H3OO90IaNPtCGjT4HnZ++KxUdPisVHT7lpea+Pwt1IwImXj7lpeY+58bcIxwmyD4HnZ8+9aYJJOCU+T6H3OM99aYJJOCU+T6H3OO958bcIxwmyD4HnZ++Pwt1IwImXj7lpea+KxUdvisVHT7lpeY+0IaNvtCGjT4HnZ8+FnuwvhZ7sD6H3OM9FnuwvhZ7sD6H3OO90IaNvtCGjT4HnZ++KxUdvisVHT7lpea+AiZevj8L9SPlpeY+HCbIvufGXCQHnZ8+4JT5vvWmiSSH3OM94JT5vvWmiSSH3OO9HCbIvufGXCQHnZ++AiZevj8L9SPlpea+KxUdvisVHb7lpeY+0IaNvtCGjb4HnZ8+FnuwvhZ7sL6H3OM9FnuwvhZ7sL6H3OO90IaNvtCGjb4HnZ++KxUdvisVHb7lpea+b8g3pAImXr7lpeY+LZWlpBwmyL4HnZ8+cHrOpOCU+b6H3OM9cHrOpOCU+b6H3OO9LZWlpBwmyL4HnZ++b8g3pAImXr7lpea+KxUdPisVHb7lpeY+0IaNPtCGjb4HnZ8+FnuwPhZ7sL6H3OM9FnuwPhZ7sL6H3OO90IaNPtCGjb4HnZ++KxUdPisVHb7lpea+7oZp/32g+f/aWUf/1E5B/+VvVv/3qIn/59fO/7PN+//KOzf/tAQm/8MuMf/odlz/9cGp/8TW8//aWUf/1E5B/+VvVv/3qIn/59fO/7PN+//zlHX/97OW/+zTxf/L2O7/pcP+/4ir/f/2wKf/0tvo/5q7//9rjfD/VnTg/1185v/wzrz/tc76/3GT9P9GXs//O0zA/0xm1v/2wKf/0tvo/5q7//9rjfD/VnTg/1185v/zlHX/97OW/+zTxf/L2O7/pcP+/4ir/f8AAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/"
+        self.lineString = "zQwAAEx9AAAAAAAAwAAAAMAAAADAAACAvwAAAMAAAADAAACAvwAAgL8AAADAAAAAwAAAgL8AAADAAAAAwAAAAMAAAIC/AACAvwAAAMAAAIC/AACAvwAAgL8AAIC/AAAAwAAAgL8AAIC/AAAAAAAAAMAAAADAAAAAAAAAgL8AAADAAAAAAAAAAMAAAIC/AAAAAAAAgL8AAIC/AACAPwAAAMAAAADAAACAPwAAgL8AAADAAACAPwAAAMAAAIC/AACAPwAAgL8AAIC/AAAAQAAAAMAAAADAAAAAQAAAgL8AAADAAAAAQAAAAMAAAIC/AAAAQAAAgL8AAIC/AACAvwAAAAAAAADAAAAAwAAAAAAAAADAAACAvwAAAAAAAIC/AAAAwAAAAAAAAIC/AAAAAAAAAAAAAADAAAAAAAAAAAAAAIC/AACAPwAAAAAAAADAAACAPwAAAAAAAIC/AAAAQAAAAAAAAADAAAAAQAAAAAAAAIC/AACAvwAAgD8AAADAAAAAwAAAgD8AAADAAACAvwAAgD8AAIC/AAAAwAAAgD8AAIC/AAAAAAAAgD8AAADAAAAAAAAAgD8AAIC/AACAPwAAgD8AAADAAACAPwAAgD8AAIC/AAAAQAAAgD8AAADAAAAAQAAAgD8AAIC/AACAvwAAAEAAAADAAAAAwAAAAEAAAADAAACAvwAAAEAAAIC/AAAAwAAAAEAAAIC/AAAAAAAAAEAAAADAAAAAAAAAAEAAAIC/AACAPwAAAEAAAADAAACAPwAAAEAAAIC/AAAAQAAAAEAAAADAAAAAQAAAAEAAAIC/AAAAwAAAAMAAAAAAAACAvwAAAMAAAAAAAACAvwAAgL8AAAAAAAAAwAAAgL8AAAAAAAAAAAAAAMAAAAAAAAAAAAAAgL8AAAAAAACAPwAAAMAAAAAAAACAPwAAgL8AAAAAAAAAQAAAAMAAAAAAAAAAQAAAgL8AAAAAAACAvwAAAAAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAQAAAAAAAAAAAAACAvwAAgD8AAAAAAAAAwAAAgD8AAAAAAAAAAAAAgD8AAAAAAACAPwAAgD8AAAAAAAAAQAAAgD8AAAAAAACAvwAAAEAAAAAAAAAAwAAAAEAAAAAAAAAAAAAAAEAAAAAAAACAPwAAAEAAAAAAAAAAQAAAAEAAAAAAAAAAwAAAAMAAAIA/AACAvwAAAMAAAIA/AACAvwAAgL8AAIA/AAAAwAAAgL8AAIA/AAAAAAAAAMAAAIA/AAAAAAAAgL8AAIA/AACAPwAAAMAAAIA/AACAPwAAgL8AAIA/AAAAQAAAAMAAAIA/AAAAQAAAgL8AAIA/AACAvwAAAAAAAIA/AAAAwAAAAAAAAIA/AAAAAAAAAAAAAIA/AACAPwAAAAAAAIA/AAAAQAAAAAAAAIA/AACAvwAAgD8AAIA/AAAAwAAAgD8AAIA/AAAAAAAAgD8AAIA/AACAPwAAgD8AAIA/AAAAQAAAgD8AAIA/AACAvwAAAEAAAIA/AAAAwAAAAEAAAIA/AAAAAAAAAEAAAIA/AACAPwAAAEAAAIA/AAAAQAAAAEAAAIA/AAAAwAAAAMAAAABAAACAvwAAAMAAAABAAACAvwAAgL8AAABAAAAAwAAAgL8AAABAAAAAAAAAAMAAAABAAAAAAAAAgL8AAABAAACAPwAAAMAAAABAAACAPwAAgL8AAABAAAAAQAAAAMAAAABAAAAAQAAAgL8AAABAAACAvwAAAAAAAABAAAAAwAAAAAAAAABAAAAAAAAAAAAAAABAAACAPwAAAAAAAABAAAAAQAAAAAAAAABAAACAvwAAgD8AAABAAAAAwAAAgD8AAABAAAAAAAAAgD8AAABAAACAPwAAgD8AAABAAAAAQAAAgD8AAABAAACAvwAAAEAAAABAAAAAwAAAAEAAAABAAAAAAAAAAEAAAABAAACAPwAAAEAAAABAAAAAQAAAAEAAAABAWXfj/5a3///R2un/haj8/3WY9v/B1PT/97yh/7LM+/+dvf//293e/87a6//2o4X/gqb7/8DU9f+wyvz/8sq1/3WY9v+iwf//krT+/8zZ7f/Q2ur/e5/5//ezlv+xy/z/3N3d//KSdP+/0/b/9cSs/5q7///M2e3/osH//1Vy3//h29j/gaT7/7HL/P/vzr3/kLL+/9Lb6P9xk/T/nr7//3OW9f87TMD/ocD//1Rw3v96nfj/rsn8/2GB6f+NsP7/VHDe/2+S8/+StP7/39zZ/++Ia//T2+f/69PG/91fS//R2un/9Z+A/67J/P/o1sz/6HZc/9Xb5f/MQDn/8Y1v/+rVyf/2vaL/psT+//aggf/xzLj/wdT0/8TW8/9vkvP/09vn/7LM+/+Mr/7/dZj2/8HU9P/3vKH/ssz7/87a6//2o4X/sMr8//LKtf+StP7/zNnt//ezlv+xy/z/8pJ0//XErP/M2e3/4dvY/4Gk+//vzr3/0tvo/56+//+hwP//VHDe/67J/P+NsP7/b5Lz/1l34/+Wt///0drp/4Wo/P+dvf//293e/4Km+//A1PX/dZj2/6LB///Q2ur/e5/5/9zd3f+/0/b/mrv//6LB//9Vct//scv8/5Cy/v9xk/T/c5b1/ztMwP96nfj/YYHp/1Rw3v9YAgAAAAABAAEAAgADAAIAAAADAAQABQAFAAYABwAGAAQABwAAAAQAAQAFAAMABwACAAYAAQAIAAgACQACAAkABQAKAAoACwAGAAsACAAKAAkACwAIAAwADAANAAkADQAKAA4ADgAPAAsADwAMAA4ADQAPAAwAEAAQABEADQARAA4AEgASABMADwATABAAEgARABMAAgAUABUAFAADABUABgAWABcAFgAHABcAFQAXABQAFgAJABgAFAAYAAsAGQAWABkAGAAZAA0AGgAYABoADwAbABkAGwAaABsAEQAcABoAHAATAB0AGwAdABwAHQAUAB4AHwAeABUAHwAWACAAIQAgABcAIQAfACEAHgAgABgAIgAeACIAGQAjACAAIwAiACMAGgAkACIAJAAbACUAIwAlACQAJQAcACYAJAAmAB0AJwAlACcAJgAnAB4AKAApACgAHwApACAAKgArACoAIQArACkAKwAoACoAIgAsACgALAAjAC0AKgAtACwALQAkAC4ALAAuACUALwAtAC8ALgAvACYAMAAuADAAJwAxAC8AMQAwADEAMgAzADMANAA1ADQAMgA1AAQAMgAFADMABwA1AAYANAAzADYANgA3ADQANwAKADYACwA3ADYAOAA4ADkANwA5AA4AOAAPADkAOAA6ADoAOwA5ADsAEgA6ABMAOwA0ADwAPQA8ADUAPQAXAD0AFgA8ADcAPgA8AD4AGQA+ADkAPwA+AD8AGwA/ADsAQAA/AEAAHQBAADwAQQBCAEEAPQBCACEAQgAgAEEAPgBDAEEAQwAjAEMAPwBEAEMARAAlAEQAQABFAEQARQAnAEUAQQBGAEcARgBCAEcAKwBHACoARgBDAEgARgBIAC0ASABEAEkASABJAC8ASQBFAEoASQBKADEASgBLAEwATABNAE4ATQBLAE4AMgBLADMATAA1AE4ANABNAEwATwBPAFAATQBQADYATwA3AFAATwBRAFEAUgBQAFIAOABRADkAUgBRAFMAUwBUAFIAVAA6AFMAOwBUAE0AVQBWAFUATgBWAD0AVgA8AFUAUABXAFUAVwA+AFcAUgBYAFcAWAA/AFgAVABZAFgAWQBAAFkAVQBaAFsAWgBWAFsAQgBbAEEAWgBXAFwAWgBcAEMAXABYAF0AXABdAEQAXQBZAF4AXQBeAEUAXgBaAF8AYABfAFsAYABHAGAARgBfAFwAYQBfAGEASABhAF0AYgBhAGIASQBiAF4AYwBiAGMASgBjAGQAZQBlAGYAZwBmAGQAZwBLAGQATABlAE4AZwBNAGYAZQBoAGgAaQBmAGkATwBoAFAAaQBoAGoAagBrAGkAawBRAGoAUgBrAGoAbABsAG0AawBtAFMAbABUAG0AZgBuAG8AbgBnAG8AVgBvAFUAbgBpAHAAbgBwAFcAcABrAHEAcABxAFgAcQBtAHIAcQByAFkAcgBuAHMAdABzAG8AdABbAHQAWgBzAHAAdQBzAHUAXAB1AHEAdgB1AHYAXQB2AHIAdwB2AHcAXgB3AHMAeAB5AHgAdAB5AGAAeQBfAHgAdQB6AHgAegBhAHoAdgB7AHoAewBiAHsAdwB8AHsAfABjAHwAAACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAAAAACAPw=="
+        self.meshString = "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/8MuMf/odlz/5W9W//eoif/s08X/y9ju/5q7//9rjfD/cZP0/0Zez/+au///a43w/+zTxf/L2O7/IAEAAAIACAAAAAgADgAAAA4AFAAAABQAGgAAABoAIAAAACAAJgAAACYALAAAACwAAgAAAAcAAQANAA0AAQATABMAAQAZABkAAQAfAB8AAQAlACUAAQArACsAAQAxADEAAQAHAAIAAwAJAAIACQAIAAMABAAKAAMACgAJAAQABQALAAQACwAKAAUABgAMAAUADAALAAYABwANAAYADQAMAAgACQAPAAgADwAOAAkANAAQAAkAEAAPADQANQARADQAEQAQADUADAASADUAEgARAAwADQATAAwAEwASAA4ADwAVAA4AFQAUAA8ANgAWAA8AFgAVADYANwAXADYAFwAWADcAEgAYADcAGAAXABIAEwAZABIAGQAYABQAFQAbABQAGwAaABUAOAAcABUAHAAbADgAOQAdADgAHQAcADkAGAAeADkAHgAdABgAGQAfABgAHwAeABoAGwAhABoAIQAgABsAOgAiABsAIgAhADoAOwAjADoAIwAiADsAHgAkADsAJAAjAB4AHwAlAB4AJQAkACAAIQAnACAAJwAmACEAPAAoACEAKAAnADwAPQApADwAKQAoAD0AJAAqAD0AKgApACQAJQArACQAKwAqACYAJwAtACYALQAsACcAPgAuACcALgAtAD4APwAvAD4ALwAuAD8AKgAwAD8AMAAvACoAKwAxACoAMQAwACwALQADACwAAwACAC0AQAAyAC0AMgADAEAAQQAzAEAAMwAyAEEAMAAGAEEABgAzADAAMQAHADAABwAGAAAAgD8AAAAAAAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8="
 
-    def serveVTK(self, filename):
-        '''
-        Run a vtk pipeline that produces a geojson file and
-        deliver that to the client as text.
-        '''
-
-        ss = vtk.vtkSphereSource()
-        gw = vtk.vtkGeoJSONWriter()
-        gw.SetInputConnection(ss.GetOutputPort())
-        fname = "/Source/CPIPES/buildogs/deploy/sphere.gj"
-        gw.SetFileName(fname)
-        gw.DebugOn()
-        gw.Write()
-        f = file(fname)
-        res = str(f.readlines())
-        #lines = (line.rstrip() for line in open(fname));
-        v = """<html><head></head><body>""" + res + """</body><html>"""
-        return v
-
-    def serveGJ(self):
-        '''
-        Deliver a canonical geojson string to client and show as text.
-        '''
-
-        res = """
-        { "type": "FeatureCollection",
-          "features": [
-          { "type": "Feature",
-            "geometry": {"type": "Point", "coordinates": [102.0, 0.5]},
-            "properties": {"prop0": "value0"}
-          },
-          { "type": "Feature",
-            "geometry": {
-            "type": "LineString",
-            "coordinates": [
-              [102.0, 0.0], [103.0, 1.0], [104.0, 0.0], [105.0, 1.0]
-             ]
-            },
-            "properties": {
-              "prop0": "value0",
-              "prop1": 0.0
-              }
-          },
-          { "type": "Feature",
-            "geometry": {
-            "type": "Polygon",
-            "coordinates": [
-              [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0],
-              [100.0, 1.0], [100.0, 0.0] ]
-             ]
-            },
-            "properties": {
-              "prop0": "value0",
-              "prop1": {"this": "that"}
-            }
-          }
-          ]
-        }"""
-        v = """<html><head></head><body>""" + res + """</body><html>"""
-        return v
-
-    def serveCPIPE(self):
-        '''
-        Make the canonical cpipe scene.
-        '''
-
-        res = """
-  <html>
-    <head>
-      <script src="../lib/sylvester.js" type="text/javascript"></script>
-      <script src="../lib/glUtils.js" type="text/javascript"></script>
-      <script src="../lib/gl-matrix.js" type="text/javascript"></script>
-      <script type="text/javascript" src="../lib/ogs.min.js"></script>
-      <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
-      <script type="text/javascript">
-      function main() {
-        var mapOptions = {
-          zoom : 1,
-          center : ogs.geo.latlng(30.0, 70.0)
-        };
-        var myMap = ogs.geo.map(document.getElementById("glcanvas"), mapOptions);
-      }
-      </script>
-      <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />
-      <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
-      <script src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
-    </head>
-    <body onload="main()">
-      <canvas id="glcanvas" width="800" height="600"></canvas>
-    </body>
-  </html>
-"""
-        return res
-
-    def serveVGL1(self):
+    def serveVTKWebGL(self, datasetString):
         '''
         Deliver a bjson encoded serialized vtkpolydata file and render it
         over the canonical cpipe scene.
@@ -124,7 +33,7 @@ class VTKRoot(object):
       <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
       <script type="text/javascript">
       function makesphere() {
-        var geom = new ogs.vgl.vtkUnpack().parseObject(sphereString);
+        var geom = new ogs.vgl.vtkUnpack().parseObject(\"%(datasetString)s\");
 
         var mapper = new ogs.vgl.mapper();
         mapper.setGeometryData(geom);
@@ -137,6 +46,9 @@ class VTKRoot(object):
         var posNormAttr = new ogs.vgl.vertexAttribute("aVertexNormal");
         prog.addVertexAttribute(posNormAttr, ogs.vgl.vertexAttributeKeys.Normal);
 
+        var posColorAttr = new ogs.vgl.vertexAttribute("aVertexColor");
+        prog.addVertexAttribute(posColorAttr, ogs.vgl.vertexAttributeKeys.Color);
+
         var modelViewUniform = new ogs.vgl.modelViewUniform("modelViewMatrix");
         prog.addUniform(modelViewUniform);
 
@@ -145,14 +57,14 @@ class VTKRoot(object):
 
         var vertexShaderSource = [
           'attribute vec3 aVertexPosition;',
-          'attribute vec3 aVertexNormal;',
+          'attribute vec3 aVertexColor;',
           'uniform mat4 modelViewMatrix;',
           'uniform mat4 projectionMatrix;',
-          'varying vec3 vNormal;',
+          'varying vec3 vColor;',
           'void main(void)',
           '{',
-            'gl_Position = projectionMatrix * modelViewMatrix * vec4(aVertexPosition*100.0, 1.0);',
-            'vNormal = aVertexNormal;',
+            'gl_Position = projectionMatrix * modelViewMatrix * vec4(aVertexPosition*1.0, 1.0);',
+            'vColor = aVertexColor;',
           '}'
         ].join('\\n');
         var vertexShader = new ogs.vgl.shader(gl.VERTEX_SHADER);
@@ -161,9 +73,9 @@ class VTKRoot(object):
 
         var fragmentShaderSource = [
          'precision mediump float;',
-         'varying vec3 vNormal;',
+         'varying vec3 vColor;',
          'void main(void) {',
-           'gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0) * vec4(vNormal, 1.0);',
+           'gl_FragColor = vec4(vColor,1.0);',
          '}'
         ].join('\\n');
         var fragmentShader = new ogs.vgl.shader(gl.FRAGMENT_SHADER);
@@ -205,10 +117,10 @@ class VTKRoot(object):
       <canvas id="glcanvas" width="800" height="600"></canvas>
     </body>
   </html>
-"""
+""" % {'datasetString':datasetString}
         return res
 
-    def serveVGL2(self):
+    def serveGeoJSON1(self):
         '''
         Deliver geojson encoded data and render it over the canonical cpipe scene.
         '''
@@ -224,7 +136,7 @@ class VTKRoot(object):
       <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
       <script type="text/javascript">
       function makedata() {
-        var dataString = [
+        var datasetString = [
             '{"type": "Feature",',
             '"geometry": {',
             '"type": "Polygon",',
@@ -239,7 +151,7 @@ class VTKRoot(object):
             '}}'
           ].join('\\n')
 
-        var geom = new ogs.vgl.geoJSONUnpack().parseObject(dataString);
+        var geom = new ogs.vgl.geoJSONUnpack().parseObject(datasetString);
 
         var mapper = new ogs.vgl.mapper();
         mapper.setGeometryData(geom);
@@ -316,7 +228,7 @@ class VTKRoot(object):
 """
         return res
 
-    def serveVGL3(self):
+    def serveGeoJSON2(self):
         '''
         Deliver a geojson encoded serialized vtkpolydata file and render it
         over the canonical cpipe scene.
@@ -342,8 +254,8 @@ class VTKRoot(object):
       <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
       <script type="text/javascript">
       function makedata() {
-        var dataString = %(gjfile)s.join('\\n');
-        var geom = new ogs.vgl.geoJSONUnpack().parseObject(dataString);
+        var datasetString = %(gjfile)s.join('\\n');
+        var geom = new ogs.vgl.geoJSONUnpack().parseObject(datasetString);
 
         var mapper = new ogs.vgl.mapper();
         mapper.setGeometryData(geom);
@@ -422,23 +334,21 @@ class VTKRoot(object):
 
 
     @cherrypy.expose
-    def index(self, which=None):
+    def index(self, which=None, datasetString="lines"):
         '''
-        Entry point for web app. Ex: http://localhost:8080/vtk?which=VGL1
+        Entry point for web app. Ex: http://localhost:8080/vtk?which=VTK&datasetString=lines
         '''
-
         if which == "VTK":
-          v = self.serveVTK("foo")
-        elif which == "GJ":
-          v = self.serveGJ()
-        elif which == "CPIPE":
-          v = self.serveCPIPE()
-        elif which == "VGL1":
-          v = self.serveVGL1()
-        elif which == "VGL2":
-          v = self.serveVGL2()
-        elif which == "VGL3":
-          v = self.serveVGL3()
+          if datasetString == "lines":
+            v = self.serveVTKWebGL(self.lineString)
+          elif datasetString == "points":
+            v = self.serveVTKWebGL(self.pointString)
+          else:
+            v = self.serveVTKWebGL(self.meshString)
+        elif which == "GJ1":
+          v = self.serveGeoJSON1()
+        elif which == "GJ2":
+          v = self.serveGeoJSON2()
         else:
           v = """<html><head></head><body>""" + "HELLO WORLD" + """</body><html>"""
         return v
