@@ -41,10 +41,7 @@ file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/stamps)
 
 # These files should be validated with JSLint.
 set(JS_LINT_FILES
-    ${CMAKE_SOURCE_DIR}/web/lib/init.js
-    ${CMAKE_SOURCE_DIR}/web/lib/jsHelper.js
-    ${CMAKE_SOURCE_DIR}/web/lib/core/init.js
-    ${CMAKE_SOURCE_DIR}/web/lib/core/timestamp.js
+    ${CMAKE_SOURCE_DIR}/web/lib/vgl/gl-matrix.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/init.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/latlng.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/command.js
@@ -57,6 +54,7 @@ set(JS_LINT_FILES
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/geomData.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/groupNode.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/init.js
+    ${CMAKE_SOURCE_DIR}/web/lib/vgl/timestamp.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/mapper.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/materialAttribute.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/blend.js
@@ -84,11 +82,9 @@ set(JS_LINT_FILES
 
 # These files should be uglified and concatenated.
 set(JS_UGLIFY_FILES
-  ${CMAKE_SOURCE_DIR}/web/lib/init.js
-  ${CMAKE_SOURCE_DIR}/web/lib/jsHelper.js
-  ${CMAKE_SOURCE_DIR}/web/lib/core/init.js
-  ${CMAKE_SOURCE_DIR}/web/lib/core/timestamp.js
+  ${CMAKE_SOURCE_DIR}/web/lib/vgl/gl-matrix.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/init.js
+  ${CMAKE_SOURCE_DIR}/web/lib/vgl/timestamp.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/object.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/command.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/boundingObject.js
@@ -137,9 +133,6 @@ set(SOURCES
     cpi.py
     web/index.html
     web/lib/app.js
-    web/lib/gl-matrix.js
-    web/lib/glUtils.js
-    web/lib/sylvester.js
 )
 
 if(DEPLOY_TEST_SERVICES)
