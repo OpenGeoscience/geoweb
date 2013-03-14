@@ -205,7 +205,7 @@ if(${DOCUMENT})
     add_custom_command(
         OUTPUT ${DOCUMENTATION_STAMP}
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${DOCUMENTATION_DIR}
-        COMMAND ${JSDuck_EXECUTABLE} ${JSDuck_ARGS} ${JS_DOCUMENT_FILES} -p -d=${DOCUMENTATION_DIR}
+        COMMAND ${JSDuck_EXECUTABLE} ${JSDuck_ARGS} ${JS_DOCUMENT_FILES} --builtin-classes --output ${DOCUMENTATION_DIR}
         COMMAND ${CMAKE_COMMAND} -E touch ${DOCUMENTATION_STAMP}
         DEPENDS ${JS_DOCUMENT_FILES}
     )
