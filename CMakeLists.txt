@@ -30,8 +30,8 @@ find_package(JSLint)
 # Find UglifyJS.
 find_package(UglifyJS REQUIRED)
 
-# Find JSDoc.
-find_package(JSDoc)
+# Find JSDuck.
+find_package(JSDuck)
 
 # Find a Python2 interpreter.
 find_package(PythonInterp 2.6)
@@ -200,12 +200,12 @@ add_custom_command(
 
 # Generate documentation.
 set(DOCUMENTATION_STAMP ${CMAKE_BINARY_DIR}/stamps/documentation.txt)
-set(DOCUMENTATION_DIR ${CMAKE_BINARY_DIR}/jsdoc)
+set(DOCUMENTATION_DIR ${CMAKE_BINARY_DIR}/doc)
 if(${DOCUMENT})
     add_custom_command(
         OUTPUT ${DOCUMENTATION_STAMP}
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${DOCUMENTATION_DIR}
-        COMMAND ${JSDoc_EXECUTABLE} ${JSDoc_ARGS} ${JS_DOCUMENT_FILES} -p -d=${DOCUMENTATION_DIR}
+        COMMAND ${JSDuck_EXECUTABLE} ${JSDuck_ARGS} ${JS_DOCUMENT_FILES} -p -d=${DOCUMENTATION_DIR}
         COMMAND ${CMAKE_COMMAND} -E touch ${DOCUMENTATION_STAMP}
         DEPENDS ${JS_DOCUMENT_FILES}
     )
