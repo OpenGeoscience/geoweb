@@ -1,29 +1,9 @@
-/*========================================================================
-  VGL --- VTK WebGL Rendering Toolkit
+/**
+ * @module ogs.geo
+ */
 
-  Copyright 2013 Kitware, Inc.
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-      http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
- ========================================================================*/
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// Layer base class
-//
-//////////////////////////////////////////////////////////////////////////////
 /**
  * Layer options object specification
- *
  */
 geoModule.layerOptions = function() {
 
@@ -40,11 +20,9 @@ geoModule.layerOptions = function() {
 };
 
 /**
- * Base class for all layer types
- *
- * ogs.geo.layer represents any object that be rendered on top of the map base.
- * This could include image, points, line, and polygons.
- *
+ * Base class for all layer types ogs.geo.layer represents any object that be
+ * rendered on top of the map base. This could include image, points, line, and
+ * polygons.
  */
 geoModule.layer = function(options) {
 
@@ -59,8 +37,13 @@ geoModule.layer = function(options) {
 
   ogs.vgl.object.call(this);
 
-  // Member variables
+  /** @private */
   var m_that = this;
+
+  /** @private */
+  var m_name = "";
+
+  /** @private */
   var m_opacity = options.opacity || 1.0;
 
   // TODO Write a function for this
@@ -72,21 +55,46 @@ geoModule.layer = function(options) {
     console.log("[WARNING] Opacity cannot be less than 1.0");
   }
 
+  /** @private */
   var m_showAttribution = options.showAttribution || true;
+
+  /** @private */
   var m_visible = options.visible || true;
 
   /**
-   * Return the underlying drawable entity
-   *
-   * This function should be implemented by the derived classes
+   * Return the underlying drawable entity This function should be implemented
+   * by the derived classes
    */
   this.actor = function() {
     return null;
   };
 
   /**
-   * Query opacity of the layer (range[0.0, 1.0])
+   * Get name of the layer
    *
+   * @returns {String}
+   */
+  this.name = function() {
+    return m_name;
+  };
+
+  /**
+   * Set name of the layer
+   *
+   * @param {String} name
+   */
+  this.setName = function(name) {
+    if (m_name !== name) {
+      m_name = name;
+      this.modified();
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * Query opacity of the layer (range[0.0, 1.0])
    */
   this.opacity = function() {
     return m_opacity;
@@ -94,7 +102,6 @@ geoModule.layer = function(options) {
 
   /**
    * Set opacity of the layer in the range of [0.0, 1.0]
-   *
    */
   this.setOpacity = function(val) {
     m_opacity = val;
@@ -111,9 +118,8 @@ geoModule.layer = function(options) {
   };
 
   /**
-   * Virtual slot to handle opacity change
-   *
-   * Concrete class should implement this method.
+   * Virtual slot to handle opacity change Concrete class should implement this
+   * method.
    */
   this.updateLayerOpacity = function(event) {
   };
@@ -123,36 +129,31 @@ geoModule.layer = function(options) {
 
 inherit(geoModule.layer, ogs.vgl.object);
 
-// ////////////////////////////////////////////////////////////////////////////
-//
-// featureLayer class
-//
-// ////////////////////////////////////////////////////////////////////////////
-
 /**
- * Layer to draw points, lines, and polygons on the map
+ * Create a new instance of class featureLayer
  *
- * The polydata layer provide mechanisms to create and draw geometrical shapes
- * such as points, lines, and polygons.
- *
+ * @class
+ * @dec Layer to draw points, lines, and polygons on the map The polydata layer
+ * provide mechanisms to create and draw geometrical shapes such as points,
+ * lines, and polygons.
+ * @returns {geoModule.featureLayer}
  */
 geoModule.featureLayer = function(options, feature) {
 
   if (!(this instanceof geoModule.featureLayer)) {
     return new geoModule.featureLayer(options, feature);
   }
-
-  // Register with base class
   geoModule.layer.call(this, options);
 
-  // Initialize member variables
+  /** @priave */
   var m_that = this;
+
+  /** @priave */
   var m_actor = feature;
 
   /**
-   * Return the underlying drawable entity
-   *
-   * This function should be implemented by the derived classes
+   * Return the underlying drawable entity This function should be implemented
+   * by the derived classes
    */
   this.actor = function() {
     return m_actor;
@@ -160,7 +161,6 @@ geoModule.featureLayer = function(options, feature) {
 
   /**
    * Set feature (points, lines, or polygons)
-   *
    */
   this.setFeature = function(feature) {
     m_actor = feature;
@@ -168,7 +168,6 @@ geoModule.featureLayer = function(options, feature) {
 
   /**
    * Slot to handle opacity change
-   *
    */
   this.updateLayerOpacity = function(event) {
     var mat = m_actor.material();

@@ -1,26 +1,13 @@
-/*========================================================================
-  VGL --- VTK WebGL Rendering Toolkit
+/**
+ * @module ogs.vgl
+ */
 
-  Copyright 2013 Kitware, Inc.
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-      http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
- ========================================================================*/
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// shader class
-//
-//////////////////////////////////////////////////////////////////////////////
+/**
+ * Create a new instance of class shader
+ *
+ * @class
+ * @returns {vglModule.shader}
+ */
 vglModule.shader = function(type) {
 
   if (!(this instanceof vglModule.shader)) {
@@ -29,7 +16,7 @@ vglModule.shader = function(type) {
   vglModule.object.call(this);
 
   var m_shaderHandle = null;
-  var m_compileTimestmap = coreModule.timestamp();
+  var m_compileTimestmap = vglModule.timestamp();
   var m_shaderType = type;
   var m_shaderSource = "";
   var m_fileName = "";

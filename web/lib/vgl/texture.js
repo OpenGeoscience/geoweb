@@ -1,26 +1,13 @@
-/*========================================================================
-  VGL --- VTK WebGL Rendering Toolkit
+/**
+ * @module ogs.vgl
+ */
 
-  Copyright 2013 Kitware, Inc.
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-      http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
- ========================================================================*/
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// texture class
-//
-//////////////////////////////////////////////////////////////////////////////
+/**
+ * Create a new instance of class texture
+ *
+ * @class
+ * @returns {vglModule.texture}
+ */
 vglModule.texture = function() {
 
   if (!(this instanceof vglModule.texture)) {
@@ -28,7 +15,6 @@ vglModule.texture = function() {
   }
   vglModule.materialAttribute.call(this, materialAttributeType.Texture);
 
-  // Private member variables
   this.m_width = 0;
   this.m_height = 0;
   this.m_depth = 0;
@@ -43,9 +29,8 @@ vglModule.texture = function() {
 
   this.m_image = null;
 
-  var m_setupTimestamp = coreModule.timestamp();
+  var m_setupTimestamp = vglModule.timestamp();
 
-  // / Public member methods
   this.setup = function(renderState) {
     gl.deleteTexture(this.m_textureHandle);
     this.m_textureHandle = gl.createTexture();

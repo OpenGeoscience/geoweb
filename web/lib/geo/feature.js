@@ -1,33 +1,18 @@
-/*========================================================================
-  VGL --- VTK WebGL Rendering Toolkit
+/**
+ * @module ogs.geo
+ */
 
-  Copyright 2013 Kitware, Inc.
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-      http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
- ========================================================================*/
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// Feature base class
-//
-//////////////////////////////////////////////////////////////////////////////
+/**
+ * Create a new instance of class feature
+ *
+ * @class
+ * @returns {geoModule.feature}
+ */
 geoModule.feature = function() {
 
   if (!(this instanceof geoModule.feature)) {
     return new geoModule.feature();
   }
-
-  // / Register with base class
   ogs.vgl.actor.call(this);
 
   return this;
@@ -36,11 +21,11 @@ geoModule.feature = function() {
 inherit(geoModule.feature, ogs.vgl.actor);
 
 /**
- * Plane feature class
+ * Create a new instance of planeFeature
  *
- * Create a plane feature given a lower left corner point {ogs.geo.latlng} and
- * and upper right corner point {ogs.geo.latlng}
- *
+ * @class
+ * @desc Create a plane feature given a lower left corner point {ogs.geo.latlng}
+ * and and upper right corner point {ogs.geo.latlng}
  * @param lowerleft
  * @param upperright
  * @returns {geoModule.planeFeature}
@@ -71,8 +56,9 @@ geoModule.planeFeature = function(lowerleft, upperright) {
 inherit(geoModule.planeFeature, geoModule.feature);
 
 /**
- * Point feature class
+ * Create a new instance of pointFeature
  *
+ * @class
  * @param positions
  * @param colors
  * @returns {geoModule.pointFeature}
@@ -96,8 +82,9 @@ geoModule.pointFeature = function(positions, colors) {
 inherit(geoModule.pointFeature, geoModule.feature);
 
 /**
- * Point feature class
+ * Create a new instance of pointSpritesFeature
  *
+ * @class
  * @param positions
  * @param colors
  * @returns {geoModule.pointFeature}

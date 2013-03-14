@@ -41,20 +41,20 @@ file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/stamps)
 
 # These files should be validated with JSLint.
 set(JS_LINT_FILES
-    ${CMAKE_SOURCE_DIR}/web/lib/init.js
-    ${CMAKE_SOURCE_DIR}/web/lib/jsHelper.js
-    ${CMAKE_SOURCE_DIR}/web/lib/core/init.js
-    ${CMAKE_SOURCE_DIR}/web/lib/core/timestamp.js
+    ${CMAKE_SOURCE_DIR}/web/lib/vgl/gl-matrix.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/init.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/latlng.js
+    ${CMAKE_SOURCE_DIR}/web/lib/geo/command.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/layer.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/map.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/feature.js
+    ${CMAKE_SOURCE_DIR}/web/lib/geo/mapInteractorStyle.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/boundingObject.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/camera.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/geomData.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/groupNode.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/init.js
+    ${CMAKE_SOURCE_DIR}/web/lib/vgl/timestamp.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/mapper.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/materialAttribute.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/blend.js
@@ -63,6 +63,9 @@ set(JS_LINT_FILES
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/node.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/object.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/renderer.js
+    ${CMAKE_SOURCE_DIR}/web/lib/vgl/renderWindow.js
+    ${CMAKE_SOURCE_DIR}/web/lib/vgl/interactorStyle.js
+    ${CMAKE_SOURCE_DIR}/web/lib/vgl/viewer.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/shader.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/shaderProgram.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/texture.js
@@ -74,16 +77,16 @@ set(JS_LINT_FILES
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/planeSource.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/pointSource.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/utils.js
+    ${CMAKE_SOURCE_DIR}/web/lib/vgl/command.js
 )
 
 # These files should be uglified and concatenated.
 set(JS_UGLIFY_FILES
-  ${CMAKE_SOURCE_DIR}/web/lib/init.js
-  ${CMAKE_SOURCE_DIR}/web/lib/jsHelper.js
-  ${CMAKE_SOURCE_DIR}/web/lib/core/init.js
-  ${CMAKE_SOURCE_DIR}/web/lib/core/timestamp.js
+  ${CMAKE_SOURCE_DIR}/web/lib/vgl/gl-matrix.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/init.js
+  ${CMAKE_SOURCE_DIR}/web/lib/vgl/timestamp.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/object.js
+  ${CMAKE_SOURCE_DIR}/web/lib/vgl/command.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/boundingObject.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/node.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/groupNode.js
@@ -95,6 +98,9 @@ set(JS_UGLIFY_FILES
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/blend.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/material.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/renderer.js
+  ${CMAKE_SOURCE_DIR}/web/lib/vgl/renderWindow.js
+  ${CMAKE_SOURCE_DIR}/web/lib/vgl/interactorStyle.js
+  ${CMAKE_SOURCE_DIR}/web/lib/vgl/viewer.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/shader.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/shaderProgram.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/texture.js
@@ -107,6 +113,8 @@ set(JS_UGLIFY_FILES
   ${CMAKE_SOURCE_DIR}/web/lib/geo/init.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/latlng.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/layer.js
+  ${CMAKE_SOURCE_DIR}/web/lib/geo/command.js
+  ${CMAKE_SOURCE_DIR}/web/lib/geo/mapInteractorStyle.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/map.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/feature.js
 )
@@ -125,9 +133,6 @@ set(SOURCES
     cpi.py
     web/index.html
     web/lib/app.js
-    web/lib/gl-matrix.js
-    web/lib/glUtils.js
-    web/lib/sylvester.js
 )
 
 if(DEPLOY_TEST_SERVICES)

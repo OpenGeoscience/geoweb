@@ -1,26 +1,13 @@
-/*========================================================================
-  VGL --- VTK WebGL Rendering Toolkit
+/**
+ * @module ogs.vgl
+ */
 
-  Copyright 2013 Kitware, Inc.
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-      http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
- ========================================================================*/
-
-///////////////////////////////////////////////////////////////////////////////
-//
-// Plane source class
-//
-///////////////////////////////////////////////////////////////////////////////
+/**
+ * Create a new instance of class planeSource
+ *
+ * @class
+ * @returns {vglModule.planeSource}
+ */
 vglModule.planeSource = function() {
 
   if (!(this instanceof vglModule.planeSource)) {
@@ -38,7 +25,6 @@ vglModule.planeSource = function() {
 
   /**
    * Set origin of the plane
-   *
    */
   this.setOrigin = function(x, y, z) {
     m_origin[0] = x;
@@ -48,7 +34,6 @@ vglModule.planeSource = function() {
 
   /**
    * Set point that defines the first axis of the plane
-   *
    */
   this.setPoint1 = function(x, y, z) {
     m_point1[0] = x;
@@ -58,7 +43,6 @@ vglModule.planeSource = function() {
 
   /**
    * Set point that defines the first axis of the plane
-   *
    */
   this.setPoint2 = function(x, y, z) {
     m_point2[0] = x;
@@ -68,7 +52,6 @@ vglModule.planeSource = function() {
 
   /**
    * Create a plane geometry given input parameters
-   *
    */
   this.create = function() {
     m_geom = new vglModule.geometryData();
@@ -132,7 +115,7 @@ vglModule.planeSource = function() {
       }
     }
 
-    /// Generate polygon connectivity
+    // / Generate polygon connectivity
     for (i = 0; i < m_yresolution; i++) {
       for (j = 0; j < m_xresolution; j++) {
         pts[0] = j + i * (m_xresolution + 1);

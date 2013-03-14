@@ -1,26 +1,13 @@
-/*========================================================================
-  VGL --- VTK WebGL Rendering Toolkit
+/**
+ * @module ogs.vgl
+ */
 
-  Copyright 2013 Kitware, Inc.
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-      http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
- ========================================================================*/
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// shaderProgram class
-//
-//////////////////////////////////////////////////////////////////////////////
+/**
+ * Create a new instace of class shaderProgram
+ *
+ * @class
+ * @returns {vglModule.shaderProgram}
+ */
 vglModule.shaderProgram = function() {
 
   if (!(this instanceof vglModule.shaderProgram)) {
@@ -28,17 +15,27 @@ vglModule.shaderProgram = function() {
   }
   vglModule.materialAttribute.call(this, materialAttributeType.ShaderProgram);
 
-  // / Private member variables
+  /** @private */
   var m_programHandle = 0;
-  var m_compileTimestamp = coreModule.timestamp();
+
+  /** @private */
+  var m_compileTimestamp = vglModule.timestamp();
+
+  /** @private */
   var m_shaders = [];
+
+  /** @private */
   var m_uniforms = [];
+
+  /** @private */
   var m_vertexAttributes = {};
 
+  /** @private */
   var m_uniformNameToLocation = {};
+
+  /** @private */
   var m_vertexAttributeNameToLocation = {};
 
-  // / Public member methods
   this.queryUniformLocation = function(name) {
     return gl.getUniformLocation(m_programHandle, name);
   };

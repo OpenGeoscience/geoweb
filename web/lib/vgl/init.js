@@ -1,26 +1,43 @@
-/*========================================================================
-  VGL --- VTK WebGL Rendering Toolkit
+/**
+ * @module ogs.vgl
+ */
+var ogs = ogs || {};
 
-  Copyright 2013 Kitware, Inc.
+ogs.namespace = function(ns_string) {
+  var parts = ns_string.split('.'), parent = ogs, i;
 
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
+  // strip redundant leading global
+  if (parts[0] === "ogs") {
+    parts = parts.slice(1);
+  }
+  for (i = 0; i < parts.length; i += 1) {
+    // create a property if it doesn't exist
+    if (typeof parent[parts[i]] === "undefined") {
+      parent[parts[i]] = {};
+    }
+    parent = parent[parts[i]];
+  }
+  return parent;
+};
 
-      http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
- ========================================================================*/
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// Globals
-//
-//////////////////////////////////////////////////////////////////////////////
-
-/// Define ogs.geo namespace
+/** ogs.vgl namespace */
 var vglModule = ogs.namespace("vgl");
+
+function inherit(C, P) {
+  var F = function() {
+  };
+  F.prototype = P.prototype;
+  C.prototype = new F();
+  C.uber = P.prototype;
+  C.prototype.constructor = C;
+}
+
+Object.size = function(obj) {
+  var size = 0, key = null;
+  for (key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      size++;
+    }
+  }
+  return size;
+};

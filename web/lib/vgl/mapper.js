@@ -1,36 +1,13 @@
-/*========================================================================
-  VGL --- VTK WebGL Rendering Toolkit
+/**
+ * @module ogs.vgl
+ */
 
-  Copyright 2013 Kitware, Inc.
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-      http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
- ========================================================================*/
-/// \class mapper
-/// \ingroup vgl
-/// \brief Mapper contains a geometry data and has the responsibility of rendering
-/// the geometry appropriately.
-///
-/// Actor and mapper works in pair where mapper takes the responsibility of
-/// rendering a geometry using OpenGL ES 2.0 API. mapper defines
-/// a light weight polydata rendering entity that works in conjunction with a
-/// actor.
-///
-/// \see boundingObject actor vglGeometryData
-//////////////////////////////////////////////////////////////////////////////
-//
-// mapper class
-//
-//////////////////////////////////////////////////////////////////////////////
+/**
+ * Create a new instance of class mapper
+ *
+ * @class
+ * @returns {vglModule.mapper}
+ */
 vglModule.mapper = function() {
 
   if (!(this instanceof vglModule.mapper)) {
@@ -46,14 +23,12 @@ vglModule.mapper = function() {
 
   /**
    * Compute bounds of the data
-   *
    */
   this.computeBounds = function() {
   };
 
   /**
    * Get solid color of the geometry
-   *
    */
   this.color = function() {
     return m_color;
@@ -74,7 +49,6 @@ vglModule.mapper = function() {
 
   /**
    * Return stored geometry data if any
-   *
    */
   this.geometryData = function() {
     return m_geomData;
@@ -82,7 +56,6 @@ vglModule.mapper = function() {
 
   /**
    * Connect mapper to its geometry data
-   *
    */
   this.setGeometryData = function(geom) {
     if (m_geomData !== geom) {
@@ -95,7 +68,6 @@ vglModule.mapper = function() {
 
   /**
    * Render the mapper
-   *
    */
   this.render = function(renderState) {
     if (m_dirty) {
@@ -131,7 +103,6 @@ vglModule.mapper = function() {
 
   /**
    * Delete cached VBO if any
-   *
    */
   function deleteVertexBufferObjects() {
     for ( var i = 0; i < m_buffers.length; ++i) {
@@ -141,7 +112,6 @@ vglModule.mapper = function() {
 
   /**
    * Create new VBO for all its geometryData sources and primitives
-   *
    */
   function createVertexBufferObjects() {
     if (m_geomData) {
@@ -177,7 +147,6 @@ vglModule.mapper = function() {
 
   /**
    * Clear cache related to buffers
-   *
    */
   function cleanUpDrawObjects() {
     m_bufferVertexAttributeMap = {};
@@ -190,7 +159,6 @@ vglModule.mapper = function() {
 
   /**
    * Setup draw objects; Delete old ones and create new ones
-   *
    */
   function setupDrawObjects(renderState) {
     // Delete buffer objects from past if any.

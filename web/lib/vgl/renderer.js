@@ -1,26 +1,13 @@
-/*========================================================================
-  VGL --- VTK WebGL Rendering Toolkit
+/**
+ * @module ogs.vgl
+ */
 
-  Copyright 2013 Kitware, Inc.
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-      http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
- ========================================================================*/
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// renderState class
-//
-//////////////////////////////////////////////////////////////////////////////
+/**
+ * Create a new instance of class renderState
+ *
+ * @class vglModule.renderState
+ * @returns {vglModule.renderState}
+ */
 vglModule.renderState = function() {
   this.m_modelViewMatrix = mat4.create();
   this.m_projectionMatrix = null;
@@ -28,38 +15,44 @@ vglModule.renderState = function() {
   this.m_mapper = null;
 };
 
-// ////////////////////////////////////////////////////////////////////////////
-//
-// renderer class
-//
-// ////////////////////////////////////////////////////////////////////////////
-
 /**
- * renderer class provides key functionality to render a scene
+ * Create a new instance of class renderer
  *
+ * @class vglModule.renderer
+ * @returns {vglModule.renderer}
  */
 vglModule.renderer = function() {
 
   if (!(this instanceof vglModule.renderer)) {
     return new vglModule.renderer();
   }
-
   vglModule.object.call(this);
 
-  /** Private member variables */
-  var m_width = 1280;
-  var m_height = 1024;
+  /** @private */
+  var m_x = 0;
+
+  /** @private */
+  var m_y = 0;
+
+  /** @private */
+  var m_width = 0;
+
+  /** @private */
+  var m_height = 0;
+
+  /** @private */
   var m_clippingRange = [ 0.1, 1000.0 ];
+
+  /** @private */
   var m_sceneRoot = new vglModule.groupNode();
+
+  /** @private */
   var m_camera = new vglModule.camera();
 
   m_camera.addChild(m_sceneRoot);
 
-  /** Public member methods */
-
   /**
    * Get scene root
-   *
    */
   this.sceneRoot = function() {
     return m_sceneRoot;
@@ -67,7 +60,6 @@ vglModule.renderer = function() {
 
   /**
    * Get main camera of the renderer
-   *
    */
   this.camera = function() {
     return m_camera;
@@ -75,7 +67,6 @@ vglModule.renderer = function() {
 
   /**
    * Get width of renderer
-   *
    */
   this.width = function() {
     return m_width;
@@ -83,7 +74,6 @@ vglModule.renderer = function() {
 
   /**
    * Get height of renderer
-   *
    */
   this.height = function() {
     return m_height;
@@ -91,16 +81,16 @@ vglModule.renderer = function() {
 
   /**
    * Render the scene
-   *
    */
   this.render = function() {
-    gl.clearColor(0.5, 0.5, 0.5, 1.0);
+    gl.clearColor(1.0, 1.0, 1.0, 1.0);
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     perspectiveMatrix = m_camera.computeProjectionMatrix((m_width / m_height),
-                                                         0.1, 10000.0);
+                                                         m_clippingRange[0],
+                                                         m_clippingRange[1]);
 
     var renSt = new vglModule.renderState();
     renSt.m_projectionMatrix = perspectiveMatrix;
@@ -122,29 +112,38 @@ vglModule.renderer = function() {
 
   /**
    * Recalculate camera's clipping range
-   *
    */
   this.resetCameraClippingRange = function() {
     // TODO
   };
 
   /**
-   * Resize viewport based on the new width and height of the window
-   *
+   * Resize viewport given a width and height
    */
   this.resize = function(width, height) {
-    m_width = width;
-    m_height = height;
-    gl.viewport(0, 0, m_width, m_height);
+    this.positionAndResize(m_x, m_y, width, height);
   };
 
   /**
-   * Add new actor to the collection.
-   *
+   * Resize viewport given a position, width and height
+   */
+  this.positionAndResize = function(x, y, width, height) {
+    m_x = x;
+    m_y = y;
+    m_width = width;
+    m_height = height;
+    // TODO move this code to camera
+    gl.viewport(m_x, m_y, m_width, m_height);
+    this.modified();
+  };
+
+  /**
+   * Add new actor to the collection
    */
   this.addActor = function(actor) {
     if (actor instanceof vglModule.actor) {
       m_sceneRoot.addChild(actor);
+      this.modified();
       return true;
     }
 
@@ -153,11 +152,11 @@ vglModule.renderer = function() {
 
   /**
    * Remove the actor from the collection
-   *
    */
   this.removeActor = function(actor) {
     if (actor in m_sceneRoot.children()) {
       m_sceneRoot.removeChild(actor);
+      this.modified();
       return true;
     }
 
@@ -166,10 +165,9 @@ vglModule.renderer = function() {
 
   /**
    * Transform a point in the world space to display space
-   *
    */
-  vglModule.renderer.worldToDisplay = function(worldPt, viewMatrix,
-                                               projectionMatrix, width, height) {
+  this.worldToDisplay = function(worldPt, viewMatrix, projectionMatrix, width,
+                                 height) {
     var viewProjectionMatrix = mat4.create();
     mat4.multiply(projectionMatrix, viewMatrix, viewProjectionMatrix);
 
@@ -196,10 +194,9 @@ vglModule.renderer = function() {
 
   /**
    * Transform a point in display space to world space
-   *
    */
-  vglModule.renderer.displayToWorld = function(displayPt, viewMatrix,
-                                               projectionMatrix, width, height) {
+  this.displayToWorld = function(displayPt, viewMatrix, projectionMatrix,
+                                 width, height) {
     var x = (2.0 * displayPt[0] / width) - 1;
     var y = -(2.0 * displayPt[1] / height) + 1;
     var z = displayPt[2];

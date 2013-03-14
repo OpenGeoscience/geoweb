@@ -1,43 +1,26 @@
-/*========================================================================
-  VGL --- VTK WebGL Rendering Toolkit
-
-  Copyright 2013 Kitware, Inc.
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-      http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
- ========================================================================*/
-
-///////////////////////////////////////////////////////////////////////////////
-//
-// latlng class defines a geodesy coordinate
-//
-///////////////////////////////////////////////////////////////////////////////
+/**
+ * @module ogs.geo
+ */
 
 /**
- * A latlng encapsulates geodesy coordinate defined by latitude and longitude
+ * Create a new instance of latlng
  *
+ * @desc A latlng encapsulates geodesy coordinates defined by latitude and
+ * longitude
+ * @returns {geoModule.latlng}
  */
 geoModule.latlng = function(lat, lng) {
   if (!(this instanceof geoModule.latlng)) {
     return new geoModule.latlng(lat, lng);
   }
 
-  /// Private member variables
+  /** @priave */
   var m_lat = lat;
   var m_lng = lng;
 
-  /// Public member methods
+  // / Public member methods
   this.lat = function() {
-      return m_lat;
+    return m_lat;
   };
 
   this.lng = function() {

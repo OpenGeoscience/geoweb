@@ -1,26 +1,13 @@
-/*========================================================================
-  VGL --- VTK WebGL Rendering Toolkit
+/**
+ * @module ogs.vgl
+ */
 
-  Copyright 2013 Kitware, Inc.
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-      http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
- ========================================================================*/
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// boundingObject class
-//
-//////////////////////////////////////////////////////////////////////////////
+/**
+ * Create a new instance of class boundingObject
+ *
+ * @class
+ * @return {vglModule.boundingObject}
+ */
 vglModule.boundingObject = function() {
 
   if (!(this instanceof vglModule.boundingObject)) {
@@ -33,7 +20,6 @@ vglModule.boundingObject = function() {
 
   /**
    * Return true if bounds are dirty otherwise false
-   *
    */
   this.boundsDirty = function() {
     return m_boundsDirty;
@@ -41,7 +27,6 @@ vglModule.boundingObject = function() {
 
   /**
    * Mark bounds dirty for the object
-   *
    */
   this.setBoundsDirty = function(flag) {
     if (m_boundsDirty !== flag) {
@@ -55,7 +40,6 @@ vglModule.boundingObject = function() {
 
   /**
    * Get current bounds of the object
-   *
    */
   this.bounds = function() {
     return m_bounds;
@@ -63,7 +47,6 @@ vglModule.boundingObject = function() {
 
   /**
    * Set current bounds of the object
-   *
    */
   this.setBounds = function(minX, maxX, minY, maxY, minZ, maxZ) {
     m_bounds[0] = minX;
@@ -78,7 +61,11 @@ vglModule.boundingObject = function() {
     return true;
   };
 
-  // / Request computing bounds. Should be implemented by the concrete class
+  /**
+   * Compute bounds of the object
+   *
+   * @desc Should be implemented by the concrete class
+   */
   this.computeBounds = function() {
   };
 
