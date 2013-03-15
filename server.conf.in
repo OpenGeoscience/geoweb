@@ -10,7 +10,7 @@ tools.staticdir.dir = "web"
 
 [/data]
 tools.staticdir.on = True
-tools.staticdir.dir = "data"
+tools.staticdir.dir = @DATA_ROOT@
 
 [/chat/ws]
 tools.websocket.on: True
