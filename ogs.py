@@ -36,11 +36,6 @@ class Root(object):
     pi = PiRoot(host='127.0.0.1', port=8080, ssl=False)
 
     @cherrypy.expose
-    def index(self):
-        # Redirect user to the index
-        raise cherrypy.HTTPRedirect("/index.html")
-
-    @cherrypy.expose
     def update(self):
       # Here's the important message!
       return "This a very important message"

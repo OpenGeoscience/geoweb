@@ -63,12 +63,12 @@ function main() {
   });
 
   // Listen for slider slidechange event
-  $('#slider-vertical').slider().bind('slide', function(event, ui) {
+  $('#opacity').slider().bind('slide', function(event, ui) {
     planeLayer.setOpacity(ui.value);
     myMap.redraw();
   });
 
-  $('#slider-vertical').on('mousedown', function(e) {
+  $('#opacity').on('mousedown', function(e) {
     e.stopPropagation();
     return false;
   });

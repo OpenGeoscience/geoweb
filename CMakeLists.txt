@@ -133,13 +133,11 @@ set(SOURCES
     websocket_chat.py
     websocket_pi.py
     cpi.py
-    web/index.html
-    web/lib/app.js
 )
 
-if(DEPLOY_TEST_SERVICES)
-    #list(APPEND SOURCES)
-endif()
+set(DIRECTORIES
+  web
+)
 
 configure_file(configure_server.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/configure_server.cmake @ONLY
@@ -168,6 +166,18 @@ foreach(m ${SOURCES})
     )
     list(APPEND ALL_TARGETS ${outfile})
 endforeach()
+
+# Copy directories to the deployment directory
+foreach(m ${DIRECTORIES})
+    set(outdir ${DEPLOY_DIR}/${m})
+    add_custom_command(
+        OUTPUT ${outdir}
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/${m} ${CMAKE_BINARY_DIR}/${outdir}
+        DEPENDS ${m}
+    )
+    list(APPEND ALL_TARGETS ${outdir})
+endforeach()
+
 
 # Uglify and concatenate the library js files.
 if(NOT ${MINIFY})
