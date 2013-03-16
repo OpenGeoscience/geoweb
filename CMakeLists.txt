@@ -12,7 +12,7 @@ set(MINIFY ON CACHE BOOL "Minify the JavaScript files prior to concatenating.")
 set(MANGLE ON CACHE BOOL "When minifying, also mangle non-public symbol names.")
 set(DOCUMENT OFF CACHE BOOL "Generate documentation for JavaScript files.")
 set(SERVER_LOGS ON CACHE BOOL "Write cherrypy server access and error logs in deploy/logs")
-set(DATA_ROOT "" CACHE PATH "Root directory for the data")
+set(DATA_ROOT "data" CACHE PATH "Root directory for the data")
 
 # Non-cache variables.
 set(DEPLOY_DIR deploy)
@@ -30,8 +30,10 @@ find_package(JSLint)
 # Find UglifyJS.
 find_package(UglifyJS REQUIRED)
 
-# Find JSDoc.
-find_package(JSDoc)
+# Find JSDuck.
+if (DOCUMENT)
+  find_package(JSDuck)
+endif()
 
 # Find a Python2 interpreter.
 find_package(PythonInterp 2.6)
@@ -139,16 +141,21 @@ if(DEPLOY_TEST_SERVICES)
     #list(APPEND SOURCES)
 endif()
 
-# Configure the server config file.
-configure_file(
-    server.conf.in
-    ${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/server.conf)
+configure_file(configure_server.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/configure_server.cmake @ONLY
+)
 
-# Configure the Python testing driver.
-#configure_file(
-#    testing/xdwpytest.py.in
-#    ${CMAKE_BINARY_DIR}/xdwpytest.py
-#)
+# Configure the server config file.
+set(SERVER_CONFIG "${DEPLOY_DIR}/server.conf")
+add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/server.conf
+  COMMAND ${CMAKE_COMMAND} -P
+    ${CMAKE_CURRENT_BINARY_DIR}/configure_server.cmake
+  DEPENDS
+    ${CMAKE_CURRENT_BINARY_DIR}/configure_server.cmake
+    ${CMAKE_CURRENT_SOURCE_DIR}/server.conf.in
+  COMMENT "Configuring server configuration script"
+  VERBATIM
+)
 
 # Copy the files to the deployment directory.
 set(ALL_TARGETS)
@@ -178,20 +185,6 @@ if(NOT EXISTS "${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/web/lib")
   execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/web/lib")
 endif()
 
-# Copy data to the deploy directory
-if (NOT  "${DATA_ROOT}" STREQUAL "")
-  add_custom_target(copy_data
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    "${DATA_ROOT}"
-    "${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/data"
-  )
-
-  add_custom_target(clean_data
-    COMMAND ${CMAKE_COMMAND} -E remove_directory
-    "${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/data"
-  )
-endif()
-
 add_custom_command(
     OUTPUT ${MIN_JS_FILE}
     COMMAND ${UglifyJS_EXECUTABLE} -o ${MIN_JS_FILE} ${JS_UGLIFY_FILES} ${MINIFY_FLAG} ${MANGLE_FLAG}
@@ -200,12 +193,12 @@ add_custom_command(
 
 # Generate documentation.
 set(DOCUMENTATION_STAMP ${CMAKE_BINARY_DIR}/stamps/documentation.txt)
-set(DOCUMENTATION_DIR ${CMAKE_BINARY_DIR}/jsdoc)
-if(${DOCUMENT})
+set(DOCUMENTATION_DIR ${CMAKE_BINARY_DIR}/doc)
+if(DOCUMENT)
     add_custom_command(
         OUTPUT ${DOCUMENTATION_STAMP}
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${DOCUMENTATION_DIR}
-        COMMAND ${JSDoc_EXECUTABLE} ${JSDoc_ARGS} ${JS_DOCUMENT_FILES} -p -d=${DOCUMENTATION_DIR}
+        COMMAND ${JSDuck_EXECUTABLE} ${JSDuck_ARGS} ${JS_DOCUMENT_FILES} --builtin-classes --output ${DOCUMENTATION_DIR}
         COMMAND ${CMAKE_COMMAND} -E touch ${DOCUMENTATION_STAMP}
         DEPENDS ${JS_DOCUMENT_FILES}
     )
@@ -228,7 +221,7 @@ endif()
 add_custom_target(
     deploy
     ALL
-    DEPENDS ${ALL_TARGETS} ${MIN_JS_FILE} ${DOCUMENTATION_STAMP}
+    DEPENDS ${ALL_TARGETS} ${MIN_JS_FILE} ${SERVER_CONFIG} ${DOCUMENTATION_STAMP}
 )
 
 # Testing
@@ -239,13 +232,3 @@ enable_testing()
 foreach(f ${JS_LINT_FILES})
     add_test(jslint-${f} ${JSLint_EXECUTABLE} ${f})
 endforeach()
-
-# Python web service tests.
-#set(PYTEST ${PYTHON_EXECUTABLE} ${CMAKE_BINARY_DIR}/xdwpytest.py)
-
-#add_test(xdw-NER ${PYTEST} NER "Toto, I've got a feeling we're not in Kansas anymore." "{\"result\": [[\"GPE\", \"Toto\"], [\"GPE\", \"Kansas\"]], \"error\": null}")
-
-#if(DEPLOY_TEST_SERVICES)
-#    add_test(xdw-echo-blank ${PYTEST} echo "(No arguments passed)")
-#    add_test(xdw-echo ${PYTEST} echo jan feb mar color=red answer=42 "[jan, feb, mar]\ncolor -> red\nanswer -> 42\n")
-#endif()
