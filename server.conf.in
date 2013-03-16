@@ -7,10 +7,11 @@ log.access_file: '@LOG_ACCESS_FILE@'
 tools.staticdir.root: ogs.current_dir
 tools.staticdir.on = True
 tools.staticdir.dir = "web"
+tools.staticdir.index: "index.html"
 
 [/data]
 tools.staticdir.on = True
-tools.staticdir.dir = @DATA_ROOT@
+tools.staticdir.dir = "@DATA_ROOT@"
 
 [/chat/ws]
 tools.websocket.on: True
