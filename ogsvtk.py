@@ -17,7 +17,15 @@ class VTKRoot(object):
         self.meshString = "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/8MuMf/odlz/5W9W//eoif/s08X/y9ju/5q7//9rjfD/cZP0/0Zez/+au///a43w/+zTxf/L2O7/IAEAAAIACAAAAAgADgAAAA4AFAAAABQAGgAAABoAIAAAACAAJgAAACYALAAAACwAAgAAAAcAAQANAA0AAQATABMAAQAZABkAAQAfAB8AAQAlACUAAQArACsAAQAxADEAAQAHAAIAAwAJAAIACQAIAAMABAAKAAMACgAJAAQABQALAAQACwAKAAUABgAMAAUADAALAAYABwANAAYADQAMAAgACQAPAAgADwAOAAkANAAQAAkAEAAPADQANQARADQAEQAQADUADAASADUAEgARAAwADQATAAwAEwASAA4ADwAVAA4AFQAUAA8ANgAWAA8AFgAVADYANwAXADYAFwAWADcAEgAYADcAGAAXABIAEwAZABIAGQAYABQAFQAbABQAGwAaABUAOAAcABUAHAAbADgAOQAdADgAHQAcADkAGAAeADkAHgAdABgAGQAfABgAHwAeABoAGwAhABoAIQAgABsAOgAiABsAIgAhADoAOwAjADoAIwAiADsAHgAkADsAJAAjAB4AHwAlAB4AJQAkACAAIQAnACAAJwAmACEAPAAoACEAKAAnADwAPQApADwAKQAoAD0AJAAqAD0AKgApACQAJQArACQAKwAqACYAJwAtACYALQAsACcAPgAuACcALgAtAD4APwAvAD4ALwAuAD8AKgAwAD8AMAAvACoAKwAxACoAMQAwACwALQADACwAAwACAC0AQAAyAC0AMgADAEAAQQAzAEAAMwAyAEEAMAAGAEEABgAzADAAMQAHADAABwAGAAAAgD8AAAAAAAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8="
         self.geoString1 = '{"type": "Point","coordinates": [0.0, 0.0]}';
         self.geoString2 = '{"type": "MultiPoint","coordinates": [[0.0, 0.0],[1.0, 0.0],[2.0, 0.0],[3.0, 0.0]]}';
-        self.geoString3 = '{"type": "Feature","geometry": {"type": "Polygon","coordinates": [[ [0.0, 0.0], [1.0, 0.0], [1.0, 1.0],  [0.0, 1.0], [0.0, 0.0] ] ]},"properties": {  "prop0": "value0", "prop1": {"this": "that"}}}';
+        self.geoString3 = '{"type": "LineString","coordinates": [[0.0, 0.0],[1.0, 0.0],[2.0, 0.0],[3.0, 0.0]]}';
+        self.geoString4 = '{"type": "MultiLineString","coordinates": [[[0.0, 0.0],[1.0, 0.0],[2.0, 0.0],[3.0, 0.0]],[[0.0, 1.0],[1.0, 1.0],[2.0, 1.0],[3.0, 1.0]]]}';
+        self.geoString5 = '{"type": "Polygon","coordinates": [[[0.0, 0.0],[1.0, 0.0],[0.5, 1.0]]]}';
+        self.geoString6 = '{"type": "Polygon","coordinates": [[[0.0, 0.0],[1.0, 0.0],[0.5, 1.0]],[[0.33, 0.33],[0.66, 0.33],[0.5, 0.66]]]}';
+        self.geoString7 = '{"type": "MultiPolygon","coordinates": [[ [[0.0, 0.0],[1.0, 0.0],[0.5, 1.0]] ],[ [[2.0, 0.0],[3.0, 0.0],[2.5, 0.0]] ]]}';
+        self.geoString8 = '{"type": "GeometryCollection", "geometries": [{"type":"Point","coordinates": [0.0, 0.0]},{"type":"Point","coordinates": [1.0, 1.0]}]}';
+        self.geoString9 = '{"type": "Feature", "geometry": {"type": "Point","coordinates": [0.0, 0.0]}}';
+        self.geoString10 = '{"type": "FeatureCollection", "features":[{"type": "Feature", "geometry": {"type": "Point","coordinates": [0.0, 0.0]}},{"type": "Feature", "geometry": {"type": "Point","coordinates": [1.0, 1.0]}}]}';
+        self.geoString11 = '{"type": "Feature","geometry": {"type": "Polygon","coordinates": [[ [0.0, 0.0], [1.0, 0.0], [1.0, 1.0],  [0.0, 1.0], [0.0, 0.0] ] ]},"properties": {  "prop0": "value0", "prop1": {"this": "that"}}}';
 
     def serveVTKWebGL(self, datasetString):
         '''
@@ -123,7 +131,7 @@ class VTKRoot(object):
 """ % {'datasetString':datasetString}
         return res
 
-    def serveGeoJSON1(self):
+    def serveGeoJSON1(self, datasetString):
         '''
         Deliver geojson encoded data and render it over the canonical cpipe scene.
         '''
@@ -179,7 +187,7 @@ class VTKRoot(object):
         var actors = [];
         for (var i = 0; i < geoms.length; i++)
           {
-          console.log("Adding new mapper for " + geoms[i]);
+          console.log("Adding mapper " + i + " for " + geoms[i]);
           var mapper = new ogs.vgl.mapper();
           mapper.setGeometryData(geoms[i]);
           var actor = new ogs.vgl.actor();
@@ -217,7 +225,7 @@ class VTKRoot(object):
       <canvas id="glcanvas" width="800" height="600"></canvas>
     </body>
   </html>
-""" % {'datasetString':self.geoString2}
+""" % {'datasetString':datasetString}
         return res
 
     def serveGeoJSON2(self):
@@ -338,7 +346,28 @@ class VTKRoot(object):
           else:
             v = self.serveVTKWebGL(self.meshString)
         elif which == "GJ1":
-          v = self.serveGeoJSON1()
+          if datasetString == "1":
+            v = self.serveGeoJSON1(self.geoString1)
+          elif datasetString == "2":
+            v = self.serveGeoJSON1(self.geoString2)
+          elif datasetString == "3":
+            v = self.serveGeoJSON1(self.geoString3)
+          elif datasetString == "4":
+            v = self.serveGeoJSON1(self.geoString4)
+          elif datasetString == "5":
+            v = self.serveGeoJSON1(self.geoString5)
+          elif datasetString == "6":
+            v = self.serveGeoJSON1(self.geoString6)
+          elif datasetString == "7":
+            v = self.serveGeoJSON1(self.geoString7)
+          elif datasetString == "8":
+            v = self.serveGeoJSON1(self.geoString8)
+          elif datasetString == "9":
+            v = self.serveGeoJSON1(self.geoString9)
+          elif datasetString == "10":
+            v = self.serveGeoJSON1(self.geoString10)
+          else:
+            v = self.serveGeoJSON1(self.geoString11)
         elif which == "GJ2":
           v = self.serveGeoJSON2()
         else:
