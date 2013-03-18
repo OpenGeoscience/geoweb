@@ -51,7 +51,7 @@ class VTKRoot(object):
 
       <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
       <script type="text/javascript">
-      function makesphere() {
+      function readVTKWebGL() {
         var geom = new ogs.vgl.vtkUnpack().parseObject(\"%(datasetString)s\");
 
         var mapper = new ogs.vgl.mapper();
@@ -113,7 +113,7 @@ class VTKRoot(object):
       function main() {
         var mapOptions = {
           zoom : 1,
-          center : ogs.geo.latlng(30.0, 70.0)
+          center : ogs.geo.latlng(0.0, 0.0)
         };
         var myMap = ogs.geo.map(document.getElementById("glcanvas"), mapOptions);
 
@@ -122,7 +122,7 @@ class VTKRoot(object):
           "showAttribution" : 1,
           "visible" : 1
          },
-         makesphere()
+         readVTKWebGL()
          );
         myMap.addLayer(planeLayer);
       }
@@ -203,25 +203,30 @@ class VTKRoot(object):
           actor.setMaterial(mat);
           actors.push(actor);
           }
-        return actors[0]; //TODO: change layer.js to take multiple
+        return actors;
       }
       </script>
       <script type="text/javascript">
       function main() {
         var mapOptions = {
           zoom : 1,
-          center : ogs.geo.latlng(30.0, 70.0)
+          center : ogs.geo.latlng(0.0, 0.0)
         };
         var myMap = ogs.geo.map(document.getElementById("glcanvas"), mapOptions);
 
-        var planeLayer = ogs.geo.featureLayer({
-          "opacity" : 1,
-          "showAttribution" : 1,
-          "visible" : 1
-         },
-         makedata()
-         );
-        myMap.addLayer(planeLayer);
+        actors = makedata();
+        //TODO: change layer.js to take multiple actors
+        for (var i = 0; i < actors.length; i++)
+          {
+          var nextLayer = ogs.geo.featureLayer({
+            "opacity" : 1,
+            "showAttribution" : 1,
+            "visible" : 1
+           },
+           actors[i]
+          );
+          myMap.addLayer(nextLayer);
+          }
       }
       </script>
 
@@ -317,7 +322,7 @@ class VTKRoot(object):
       function main() {
         var mapOptions = {
           zoom : 1,
-          center : ogs.geo.latlng(30.0, 70.0)
+          center : ogs.geo.latlng(0.0, 0.0)
         };
         var myMap = ogs.geo.map(document.getElementById("glcanvas"), mapOptions);
 
