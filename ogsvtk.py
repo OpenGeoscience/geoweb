@@ -139,7 +139,7 @@ class VTKRoot(object):
 """ % {'datasetString':datasetString}
         return res
 
-    def serveGeoJSON1(self, datasetString):
+    def serveGeoJSON(self, datasetString):
         '''
         Deliver geojson encoded data and render it over the canonical cpipe scene.
         '''
@@ -241,7 +241,7 @@ class VTKRoot(object):
 """ % {'datasetString':datasetString}
         return res
 
-    def serveGeoJSON2(self):
+    def serveVTKGeoJSON(self, datasetString):
         '''
         Deliver a geojson encoded serialized vtkpolydata file and render it
         over the canonical cpipe scene.
@@ -250,9 +250,34 @@ class VTKRoot(object):
         if vtkOK == False:
             return """<html><head></head><body>VTK python bindings are not loadable, be sure VTK is installed on the server and its PATHS are set appropriately.</body><html>"""
 
-        ss = vtk.vtkSphereSource()
+        ss = vtk.vtkSphereSource() #make mesh test
+        af = vtk.vtkElevationFilter() #add some attributes
+        af.SetInputConnection(ss.GetOutputPort())
+
+        ef = vtk.vtkExtractEdges() #make lines to test
+        ef.SetInputConnection(af.GetOutputPort())
+
+        gf = vtk.vtkGlyph3D() #make verts to test
+        pts = vtk.vtkPoints()
+        pts.InsertNextPoint(0,0,0)
+        verts = vtk.vtkCellArray()
+        avert = vtk.vtkVertex()
+        avert.GetPointIds().SetId(0, 0)
+        verts.InsertNextCell(avert)
+        onevertglyph = vtk.vtkPolyData()
+        onevertglyph.SetPoints(pts)
+        onevertglyph.SetVerts(verts)
+        gf.SetSourceData(onevertglyph)
+        gf.SetInputConnection(af.GetOutputPort())
+
+        if datasetString == "points":
+            toshow=gf
+        elif datasetString == "lines":
+            toshow = ef
+        else:
+            toshow = af
         gw = vtk.vtkGeoJSONWriter()
-        gw.SetInputConnection(ss.GetOutputPort())
+        gw.SetInputConnection(toshow.GetOutputPort())
         gw.SetFileName("/Source/CPIPES/buildogs/deploy/sphere.gj")
         gw.DebugOn()
         gw.Write()
@@ -303,7 +328,7 @@ class VTKRoot(object):
         var fragmentShaderSource = [
          'precision mediump float;',
          'void main(void) {',
-           'gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);',
+           'gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);',
          '}'
         ].join('\\n');
         var fragmentShader = new ogs.vgl.shader(gl.FRAGMENT_SHADER);
@@ -361,35 +386,37 @@ class VTKRoot(object):
             v = self.serveVTKWebGL(self.pointString)
           else:
             v = self.serveVTKWebGL(self.meshString)
-        elif which == "GJ1":
+        elif which == "GJ":
           if datasetString == "1":
-            v = self.serveGeoJSON1(self.geoString1)
-          elif datasetString == "2":
-            v = self.serveGeoJSON1(self.geoString2)
+            v = self.serveGeoJSON(self.geoString1)
+          elif datasetString == "2" or datasetString=="points":
+            v = self.serveGeoJSON(self.geoString2)
           elif datasetString == "3":
-            v = self.serveGeoJSON1(self.geoString3)
-          elif datasetString == "4":
-            v = self.serveGeoJSON1(self.geoString4)
+            v = self.serveGeoJSON(self.geoString3)
+          elif datasetString == "4" or datasetString=="lines":
+            v = self.serveGeoJSON(self.geoString4)
           elif datasetString == "5":
-            v = self.serveGeoJSON1(self.geoString5)
+            v = self.serveGeoJSON(self.geoString5)
           elif datasetString == "6":
-            v = self.serveGeoJSON1(self.geoString6)
+            v = self.serveGeoJSON(self.geoString6)
           elif datasetString == "7":
-            v = self.serveGeoJSON1(self.geoString7)
+            v = self.serveGeoJSON(self.geoString7)
           elif datasetString == "8":
-            v = self.serveGeoJSON1(self.geoString8)
-          elif datasetString == "9":
-            v = self.serveGeoJSON1(self.geoString9)
+            v = self.serveGeoJSON(self.geoString8)
+          elif datasetString == "9" or datasetString=="mesh":
+            v = self.serveGeoJSON(self.geoString9)
           elif datasetString == "10":
-            v = self.serveGeoJSON1(self.geoString10)
+            v = self.serveGeoJSON(self.geoString10)
           elif datasetString == "11":
-            v = self.serveGeoJSON1(self.geoString11)
+            v = self.serveGeoJSON(self.geoString11)
           elif datasetString == "12":
-            v = self.serveGeoJSON1(self.geoString12)
+            v = self.serveGeoJSON(self.geoString12)
+          elif datasetString == "13":
+            v = self.serveGeoJSON(self.geoString13)
           else:
-            v = self.serveGeoJSON1(self.geoString13)
-        elif which == "GJ2":
-          v = self.serveGeoJSON2()
+            v = self.serveGeoJSON(self.geoString4)
+        elif which == "VTKGJ":
+          v = self.serveVTKGeoJSON(datasetString)
         else:
           v = """<html><head></head><body>""" + "HELLO WORLD" + """</body><html>"""
         return v
