@@ -292,11 +292,15 @@ class VTKRoot(object):
             toshow = af
         gw = vtk.vtkGeoJSONWriter()
         gw.SetInputConnection(toshow.GetOutputPort())
-        gw.SetFileName("/Source/CPIPES/buildogs/deploy/sphere.gj")
-        gw.DebugOn()
-        gw.Write()
-        f = file("/Source/CPIPES/buildogs/deploy/sphere.gj")
-        gj = str(f.readlines())
+        if False:
+            gw.SetFileName("/Source/CPIPES/buildogs/deploy/sphere.gj")
+            gw.Write()
+            f = file("/Source/CPIPES/buildogs/deploy/sphere.gj")
+            gj = str(f.readlines())
+        else:
+            gw.WriteToOutputStringOn()
+            gw.Write()
+            gj = "['"+str(gw.RegisterAndGetOutputString()).replace('\n','')+"']"
 
         res = """
   <html>
