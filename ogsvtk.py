@@ -1,7 +1,21 @@
 '''
-Exercises in creating vtk content on server,
-serializing and rendering on client.
-localhost:8080/vtk?which=EXERCISENAME
+Demonstrates creating content on server, serializing it, and rendering over a map in the client.
+ex:
+To demonstrate rendering paraview webgl exporters binary encoded json:
+localhost:8080/vtk?which=VTK&datasetString=points
+localhost:8080/vtk?which=VTK&datasetString=lines
+localhost:8080/vtk?which=VTK&datasetString=mesh
+
+To demonstrate rendering canonical geojson data:
+localhost:8080/vtk?which=GJ&datasetString=points
+localhost:8080/vtk?which=GJ&datasetString=lines
+localhost:8080/vtk?which=GJ&datasetString=mesh
+localhost:8080/vtk?which=GJ&datasetString=N where N=1..13
+
+To demonstrate running a vtk pipeline on the server and rendering its geojson output (requires the Geovis/IO module)
+localhost:8080/vtk?which=VTKGJ&datasetString=points
+localhost:8080/vtk?which=VTKGJ&datasetString=lines
+localhost:8080/vtk?which=VTKGJ&datasetString=mesh
 '''
 import cherrypy
 import sys
@@ -418,5 +432,24 @@ class VTKRoot(object):
         elif which == "VTKGJ":
           v = self.serveVTKGeoJSON(datasetString)
         else:
-          v = """<html><head></head><body>""" + "HELLO WORLD" + """</body><html>"""
+          v = """<html><head></head><body>""" + """
+Demonstrates creating content on server, serializing it, and rendering over a map in the client.</p>
+ex:</p>
+To demonstrate rendering paraview webgl exporters binary encoded json:</p>
+localhost:8080/vtk?which=VTK&datasetString=points</p>
+localhost:8080/vtk?which=VTK&datasetString=lines</p>
+localhost:8080/vtk?which=VTK&datasetString=mesh</p>
+</p>
+To demonstrate rendering canonical geojson data:</p>
+localhost:8080/vtk?which=GJ&datasetString=points</p>
+localhost:8080/vtk?which=GJ&datasetString=lines</p>
+localhost:8080/vtk?which=GJ&datasetString=mesh</p>
+localhost:8080/vtk?which=GJ&datasetString=N where N=1..13</p>
+</p>
+To demonstrate running a vtk pipeline on the server and rendering its geojson output (requires the Geovis/IO module)</p>
+localhost:8080/vtk?which=VTKGJ&datasetString=points</p>
+localhost:8080/vtk?which=VTKGJ&datasetString=lines</p>
+localhost:8080/vtk?which=VTKGJ&datasetString=mesh</p>
+""" + """
+</body><html>"""
         return v
