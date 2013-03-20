@@ -282,12 +282,26 @@ class VTKRoot(object):
         if vtkOK == False:
             return """<html><head></head><body>VTK python bindings are not loadable, be sure VTK is installed on the server and its PATHS are set appropriately.</body><html>"""
 
-        ss = vtk.vtkSphereSource() #make mesh test
-        af = vtk.vtkElevationFilter() #add some attributes
-        af.SetInputConnection(ss.GetOutputPort())
+        #ss = vtk.vtkSphereSource() #make mesh test
+        #af = vtk.vtkElevationFilter() #add some attributes
+        #af.SetInputConnection(ss.GetOutputPort())
+
+        ss = vtk.vtkNetCDFReader() #get test data
+        ss.SetFileName("/Data/clt.nc")
+
+        sf = vtk.vtkDataSetSurfaceFilter() #convert to polydata
+        sf.SetInputConnection(ss.GetOutputPort())
+
+        cf = vtk.vtkContourFilter() #add some attributes
+        cf.SetInputConnection(sf.GetOutputPort())
+        cf.SetInputArrayToProcess(0,0,0,"vtkDataObject::FIELD_ASSOCIATION_POINTS", "clt")
+        cf.SetNumberOfContours(10)
+        for x in range(0,10):
+          cf.SetValue(x,x*.1)
+        cf.ComputeScalarsOn()
 
         ef = vtk.vtkExtractEdges() #make lines to test
-        ef.SetInputConnection(af.GetOutputPort())
+        ef.SetInputConnection(sf.GetOutputPort())
 
         gf = vtk.vtkGlyph3D() #make verts to test
         pts = vtk.vtkPoints()
@@ -300,14 +314,16 @@ class VTKRoot(object):
         onevertglyph.SetPoints(pts)
         onevertglyph.SetVerts(verts)
         gf.SetSourceData(onevertglyph)
-        gf.SetInputConnection(af.GetOutputPort())
+        gf.SetInputConnection(sf.GetOutputPort())
 
         if datasetString == "points":
-            toshow=gf
+            toshow = gf
         elif datasetString == "lines":
             toshow = ef
+        elif datasetString == "contour":
+            toshow = cf
         else:
-            toshow = af
+            toshow = sf
         gw = vtk.vtkGeoJSONWriter()
         gw.SetInputConnection(toshow.GetOutputPort())
         if False:
