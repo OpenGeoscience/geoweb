@@ -1,21 +1,6 @@
 '''
 Demonstrates creating content on server, serializing it, and rendering over a map in the client.
-ex:
-To demonstrate rendering paraview webgl exporters binary encoded json:
-localhost:8080/vtk?which=VTK&datasetString=points
-localhost:8080/vtk?which=VTK&datasetString=lines
-localhost:8080/vtk?which=VTK&datasetString=mesh
-
-To demonstrate rendering canonical geojson data:
-localhost:8080/vtk?which=GJ&datasetString=points
-localhost:8080/vtk?which=GJ&datasetString=lines
-localhost:8080/vtk?which=GJ&datasetString=mesh
-localhost:8080/vtk?which=GJ&datasetString=N where N=1..13
-
-To demonstrate running a vtk pipeline on the server and rendering its geojson output (requires the Geovis/IO module)
-localhost:8080/vtk?which=VTKGJ&datasetString=points
-localhost:8080/vtk?which=VTKGJ&datasetString=lines
-localhost:8080/vtk?which=VTKGJ&datasetString=mesh
+See default response for examples of usage.
 '''
 import cherrypy
 import sys
@@ -469,6 +454,7 @@ localhost:8080/vtk?which=GJ&datasetString=points</p>
 localhost:8080/vtk?which=GJ&datasetString=lines</p>
 localhost:8080/vtk?which=GJ&datasetString=mesh</p>
 localhost:8080/vtk?which=GJ&datasetString=N where N=1..13</p>
+localhost:8080/vtk?which=GJ&datasetString=N.c same as above but with color on points</p>
 </p>
 To demonstrate running a vtk pipeline on the server and rendering its geojson output (requires the Geovis/IO module)</p>
 localhost:8080/vtk?which=VTKGJ&datasetString=points</p>
