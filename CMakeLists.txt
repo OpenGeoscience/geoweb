@@ -81,13 +81,11 @@ set(JS_LINT_FILES
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/pointSource.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/utils.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/command.js
-    ${CMAKE_SOURCE_DIR}/web/lib/sphere.js
 )
 
 # These files should be uglified and concatenated.
 set(JS_UGLIFY_FILES
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/gl-matrix.js
-  ${CMAKE_SOURCE_DIR}/web/lib/sphere.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/init.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/timestamp.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/object.js
