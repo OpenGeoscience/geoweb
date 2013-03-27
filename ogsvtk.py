@@ -265,7 +265,9 @@ class VTKRoot(object):
         #af = vtk.vtkElevationFilter() #add some attributes
         #af.SetInputConnection(ss.GetOutputPort())
 
-        ss = vtk.vtkNetCDFReader() #get test data
+        ss = vtk.vtkNetCDFCFReader() #get test data
+        ss.SphericalCoordinatesOff()
+        ss.SetOutputTypeToImage()
         datadir = cherrypy.request.app.config['/data']['tools.staticdir.dir']
         datadir = os.path.join(datadir, 'assets')
         datafile = os.path.join(datadir, 'clt.nc')
@@ -278,8 +280,10 @@ class VTKRoot(object):
         cf.SetInputConnection(sf.GetOutputPort())
         cf.SetInputArrayToProcess(0,0,0,"vtkDataObject::FIELD_ASSOCIATION_POINTS", "clt")
         cf.SetNumberOfContours(10)
+        sf.Update()
+        drange = sf.GetOutput().GetPointData().GetArray(0).GetRange()
         for x in range(0,10):
-          cf.SetValue(x,x*.1)
+          cf.SetValue(x,x*0.1*(drange[1]-drange[0])+drange[0])
         cf.ComputeScalarsOn()
 
         ef = vtk.vtkExtractEdges() #make lines to test
@@ -454,6 +458,7 @@ To demonstrate running a vtk pipeline on the server and rendering its geojson ou
 localhost:8080/vtk?which=VTKGJ&datasetString=points</p>
 localhost:8080/vtk?which=VTKGJ&datasetString=lines</p>
 localhost:8080/vtk?which=VTKGJ&datasetString=mesh</p>
+localhost:8080/vtk?which=VTKGJ&datasetString=contour</p>
 """ + """
 </body><html>"""
         return v
