@@ -4,6 +4,7 @@ See default response for examples of usage.
 '''
 import cherrypy
 import sys
+import os
 
 vtkOK = False
 try:
@@ -51,11 +52,7 @@ class VTKRoot(object):
         res = """
   <html>
     <head>
-      <script src="../lib/sylvester.js" type="text/javascript"></script>
-      <script src="../lib/glUtils.js" type="text/javascript"></script>
-      <script src="../lib/gl-matrix.js" type="text/javascript"></script>
       <script type="text/javascript" src="../lib/ogs.min.js"></script>
-
       <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
       <script type="text/javascript">
       function readVTKWebGL() {
@@ -154,9 +151,6 @@ class VTKRoot(object):
         res = """
   <html>
     <head>
-      <script src="../lib/sylvester.js" type="text/javascript"></script>
-      <script src="../lib/glUtils.js" type="text/javascript"></script>
-      <script src="../lib/gl-matrix.js" type="text/javascript"></script>
       <script type="text/javascript" src="../lib/ogs.min.js"></script>
 
       <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
@@ -272,7 +266,10 @@ class VTKRoot(object):
         #af.SetInputConnection(ss.GetOutputPort())
 
         ss = vtk.vtkNetCDFReader() #get test data
-        ss.SetFileName("/Data/clt.nc")
+        datadir = cherrypy.request.app.config['/data']['tools.staticdir.dir']
+        datadir = os.path.join(datadir, 'assets')
+        datafile = os.path.join(datadir, 'clt.nc')
+        ss.SetFileName(datafile)
 
         sf = vtk.vtkDataSetSurfaceFilter() #convert to polydata
         sf.SetInputConnection(ss.GetOutputPort())
@@ -324,9 +321,6 @@ class VTKRoot(object):
         res = """
   <html>
     <head>
-      <script src="../lib/sylvester.js" type="text/javascript"></script>
-      <script src="../lib/glUtils.js" type="text/javascript"></script>
-      <script src="../lib/gl-matrix.js" type="text/javascript"></script>
       <script type="text/javascript" src="../lib/ogs.min.js"></script>
 
       <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
