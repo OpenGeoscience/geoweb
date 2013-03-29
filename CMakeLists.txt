@@ -132,11 +132,11 @@ set(JS_DOCUMENT_FILES
 # These files should be copied to the deployment directory.
 set(SOURCES
     ogsctl
-    ogs.py
-    websocket_chat.py
-    websocket_pi.py
-    ogsvtk.py
-    cpi.py
+    modules/ogs.py
+    modules/websocket_chat.py
+    modules/websocket_pi.py
+    modules/ogsvtk.py
+    modules/cpi.py
 )
 
 set(DIRECTORIES
@@ -162,7 +162,7 @@ add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/server.conf
 # Copy the files to the deployment directory.
 set(ALL_TARGETS)
 foreach(m ${SOURCES})
-    set(outfile ${DEPLOY_DIR}/${m})
+    set(outfile ${DEPLOY_DIR}/modules/${m})
     add_custom_command(
         OUTPUT ${outfile}
         COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/${m} ${CMAKE_BINARY_DIR}/${outfile}
@@ -245,4 +245,4 @@ enable_testing()
 # JSLint tests.
 foreach(f ${JS_LINT_FILES})
     add_test(jslint-${f} ${JSLint_EXECUTABLE} ${f})
-endforeach()
+endforeach(

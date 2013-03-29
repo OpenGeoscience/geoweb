@@ -1,3 +1,4 @@
+#!/usr/bin/python
 '''
 Demonstrates creating content on server, serializing it, and rendering over a map in the client.
 See default response for examples of usage.
