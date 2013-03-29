@@ -41,7 +41,7 @@ def restart():
     return start()
 
 def usage():
-    sys.stderr.write("usage: xdwctl [start|stop|restart]\n")
+    sys.stderr.write("usage: geoweb [start|stop|restart]\n")
 
 # Read the action argument.
 if len(sys.argv) < 2:
