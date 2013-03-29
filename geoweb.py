@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 '''
   cherryd -i py -c py/app.conf
 '''

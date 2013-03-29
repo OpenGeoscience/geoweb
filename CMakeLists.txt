@@ -131,12 +131,12 @@ set(JS_DOCUMENT_FILES
 
 # These files should be copied to the deployment directory.
 set(SOURCES
-    ogsctl
-    ogs.py
-    websocket_chat.py
-    websocket_pi.py
-    ogsvtk.py
-    cpi.py
+    geoweb
+    geoweb.py
+    modules/websocket_chat.py
+    modules/websocket_pi.py
+    modules/ogsvtk.py
+    modules/cpi.py
 )
 
 set(DIRECTORIES
