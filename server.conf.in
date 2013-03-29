@@ -2,6 +2,7 @@
 tree.py: cherrypy.Application(ogs.Root())
 log.error_file: '@LOG_ERROR_FILE@'
 log.access_file: '@LOG_ACCESS_FILE@'
+log.screen = True
 
 [/]
 tools.staticdir.root: ogs.current_dir

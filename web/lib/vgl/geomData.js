@@ -157,6 +157,28 @@ vglModule.triangles = function() {
 
 inherit(vglModule.triangles, vglModule.primitive);
 
+//////////////////////////////////////////////////////////////////////////////
+//
+// Lines
+//
+// ////////////////////////////////////////////////////////////////////////////
+
+vglModule.lines = function() {
+
+  if (!(this instanceof vglModule.lines)) {
+    return new vglModule.lines();
+  }
+  vglModule.primitive.call(this);
+
+  this.setPrimitiveType(gl.LINE_STRIP);
+  this.setIndicesValueType(gl.UNSIGNED_SHORT);
+  this.setIndexCount(2);
+
+  return this;
+};
+
+inherit(vglModule.lines, vglModule.primitive);
+
 /**
  * Create a new instance of class points
  *
@@ -455,8 +477,8 @@ inherit(vglModule.sourceDataP3T3f, vglModule.sourceData);
  */
 vglModule.sourceDataP3N3f = function() {
 
-  if (!(this instanceof sourceDataP3N3f)) {
-    return new sourceDataP3N3f();
+  if (!(this instanceof vglModule.sourceDataP3N3f)) {
+    return new vglModule.sourceDataP3N3f();
   }
 
   vglModule.sourceData.call(this);
@@ -473,6 +495,8 @@ vglModule.sourceDataP3N3f = function() {
 
   return this;
 };
+
+inherit(vglModule.sourceDataP3N3f, vglModule.sourceData);
 
 /**
  * Create a new instance of class sourceDataP3fv
