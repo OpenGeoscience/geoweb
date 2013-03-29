@@ -14,7 +14,7 @@ def start():
     os.chdir(path)
     return subprocess.call([cherry,
         "-d",
-        "-i", "ogs",
+        "-i", "geoweb",
         "-c", "server.conf",
         "-p", pidfile,
         "-P", path])
