@@ -57,6 +57,8 @@
         });
      });
   </script>
+  <link href=http://code.jquery.com/ui/1.9.1/themes/base/jquery-ui.css rel=stylesheet type=text/css>
+  <link href="/common/css/bootstrap.css" rel=stylesheet type=text/css>
   <style>
    p {
      color:#FFA500;
@@ -77,9 +79,16 @@
     background-color: gray;
    }
 
+   a {
+    font-family: inherit;
+    font-weight: bold;
+    line-height: 20px;
+    color: inherit;
+    text-rendering: optimizelegibility;
+    font-size: 17.5px;
+   }
+
   </style>
-  <link href=http://code.jquery.com/ui/1.9.1/themes/base/jquery-ui.css rel=stylesheet type=text/css>
-  <link href="/common/css/bootstrap.css" rel=stylesheet type=text/css>
   </head>
   <body onload="archive.main()">
   <div class="navbar navbar-fixed-top" style="margin-bottom:0px">
@@ -105,17 +114,17 @@
         <div class="row">
           <div class="span4">
             <div id="layers-container" class="row">
-              <div class="accordion span6" id="layers">
+              <div class="accordion" id="layers">
               </div>
             </div>
             <div id="documents-container" class="row">
-              <div class="accordion span6" id="documents">
+              <div class="accordion" id="documents">
               </div>
             </div>
           </div>
-          <div class="span4 offset4">
+          <div class="span4">
               <h4>Opacity</h4>
-              <div id="opacity" class="span4 ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all"></div>
+              <div id="opacity" class="ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all"></div>
               <br>
               <br>
           </div>
