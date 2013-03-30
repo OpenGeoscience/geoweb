@@ -6,14 +6,16 @@
 import cherrypy
 import simplejson
 import os
+import sys
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(current_dir, "modules"))
 
 #websocket imports
 from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
 from websocket_chat import ChatRoot
 from websocket_pi import PiRoot
 from ogsvtk import VTKRoot
-
-current_dir = os.path.dirname(os.path.abspath(__file__))
 
 from mako.template import Template
 from mako.lookup import TemplateLookup
@@ -46,8 +48,6 @@ class Root(object):
     @cherrypy.expose
     def mongo(self, *args, **kwargs):
       import mongo
-      import sys
-      sys.path.append(os.path.join(current_dir))
       pargs = list(args)
       return mongo.run(*pargs, **kwargs)
 
