@@ -20,9 +20,6 @@ from mako.lookup import TemplateLookup
 template_dir = os.path.dirname(os.path.abspath(__file__))
 lookup = TemplateLookup(directories=[template_dir])
 
-JS_DIR = os.path.join(os.path.abspath("."), u"js")
-CONFIG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'app.conf')
-
 #make sure WebSocketPlugin runs after daemonizer plugin (priority 65)
 #see cherrypy plugin documentation for default plugin priorities
 WebSocketPlugin.start.__func__.priority = 66
@@ -30,6 +27,11 @@ WebSocketPlugin.start.__func__.priority = 66
 #init websocket plugin
 WebSocketPlugin(cherrypy.engine).subscribe()
 cherrypy.tools.websocket = WebSocketTool()
+
+# Utility functions
+def empty_response():
+  return {'result': None,
+          'error' : None}
 
 class Root(object):
     # access at http://localhost:8080/chat
