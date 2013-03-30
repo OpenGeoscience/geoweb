@@ -51,6 +51,7 @@ set(JS_LINT_FILES
     ${CMAKE_SOURCE_DIR}/web/lib/geo/map.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/feature.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/mapInteractorStyle.js
+    ${CMAKE_SOURCE_DIR}/web/lib/geo/utils.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/boundingObject.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/camera.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/geoJSONUnpack.js
@@ -122,6 +123,7 @@ set(JS_UGLIFY_FILES
   ${CMAKE_SOURCE_DIR}/web/lib/geo/mapInteractorStyle.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/map.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/feature.js
+  ${CMAKE_SOURCE_DIR}/web/lib/geo/utils.js
 )
 
 # These files should have documentation generated for them.
@@ -192,7 +194,7 @@ if(${MINIFY} AND ${MANGLE})
     set(MANGLE_FLAG "-m")
 endif()
 
-set(MIN_JS_FILE ${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/web/lib/ogs.min.js)
+set(MIN_JS_FILE ${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/web/lib/geoweb.min.js)
 
 # Check why xdata does not need to do this
 if(NOT EXISTS "${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/web/lib")

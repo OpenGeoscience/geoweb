@@ -5,7 +5,7 @@
   <script src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
 
   <script type="text/javascript" src="/common/js/bootstrap.js"></script>
-  <script type="text/javascript" src="/lib/ogs.min.js"></script>
+  <script type="text/javascript" src="/lib/geoweb.min.js"></script>
   <script type="text/javascript" src="archive.js"></script>
   <script>
      $(function() {
@@ -81,7 +81,7 @@
   <link href=http://code.jquery.com/ui/1.9.1/themes/base/jquery-ui.css rel=stylesheet type=text/css>
   <link href="/common/css/bootstrap.css" rel=stylesheet type=text/css>
   </head>
-  <body onload="main()">
+  <body onload="archive.main()">
   <div class="navbar navbar-fixed-top" style="margin-bottom:0px">
     <div class="navbar-inner">
       <a class="brand" href="/">ClimatePipes</a>
@@ -103,9 +103,19 @@
         </div>
 
         <div class="row">
-          <div class="span12">
+          <div class="span4">
+            <div id="layers-container" class="row">
+              <div class="accordion span6" id="layers">
+              </div>
+            </div>
+            <div id="documents-container" class="row">
+              <div class="accordion span6" id="documents">
+              </div>
+            </div>
+          </div>
+          <div class="span4 offset4">
               <h4>Opacity</h4>
-              <div id="opacity" class="span3 ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all"></div>
+              <div id="opacity" class="span4 ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all"></div>
               <br>
               <br>
           </div>

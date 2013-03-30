@@ -44,9 +44,12 @@ class Root(object):
     vtk = VTKRoot(host='127.0.0.1', port=8080, ssl=False)
 
     @cherrypy.expose
-    def update(self):
-      # Here's the important message!
-      return "This a very important message"
+    def mongo(self, *args, **kwargs):
+      import mongo
+      import sys
+      sys.path.append(os.path.join(current_dir))
+      pargs = list(args)
+      return mongo.run(*pargs, **kwargs)
 
 if __name__ == '__main__':
     import os.path

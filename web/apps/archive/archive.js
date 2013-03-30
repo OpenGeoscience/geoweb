@@ -1,10 +1,22 @@
 // Disable console log
 // console.log = function() {}
 
+var archive = {};
+
+archive.getMongoConfig = function() {
+  "use strict";
+    return {
+      server:localStorage.getItem('archive:mongodb-server') || 'localhost',
+      database:localStorage.getItem('archive:mongodb-database') || 'documents',
+      collection:localStorage.getItem('archive:mongodb-collection') || 'files'
+    }
+};
+
 /**
  * Main program
+ *
  */
-function main() {
+archive.main = function() {
 
   var mapOptions = {
     zoom : 1,
@@ -73,7 +85,7 @@ function main() {
     return false;
   });
 
-  (function() {
+  $(function() {
     var canvas = document.getElementById('glcanvas');
 
     // Resize the canvas to fill browser window dynamically
@@ -90,10 +102,16 @@ function main() {
       myMap.resize(width, height);
       myMap.redraw();
     }
-  })();
-}
 
-function processCSVData(csvdata) {
+    // Fetch documents from the database
+    ogs.geo.getDocuments();
+
+    // Create a placeholder for the layers
+    ogs.geo.createGisLayerList('layers', 'Layers');
+  });
+};
+
+archive.processCSVData = function(csvdata) {
   var table = [];
   var lines = csvdata.split(/\r\n|\n/);
 
@@ -102,4 +120,26 @@ function processCSVData(csvdata) {
     table.push(row);
   }
   return table;
-}
+};
+
+archive.getDocuments = function() {
+  mongo = archive.getMongoConfig();
+  $.ajax({
+    type: 'POST',
+    url: '/mongo/' + mongo.server + '/' + mongo.database + '/' + mongo.collection,
+    data: {
+      query: JSON.stringify({}),
+      limit:100,
+      fields: JSON.stringify(['name', 'basename'])
+    },
+    dataType: 'json',
+    success: function(response) {
+      if (response.error !== null) {
+          console.log("[error] " + response.error ? response.error : "no results returned from server");
+      } else {
+        var noOfResults = response.result.data.length;
+        createGisDataList('documents', 'Documents', 'layers-table', response.result.data);
+      }
+    }
+  });
+};
