@@ -41,7 +41,7 @@ archive.main = function() {
     url : "/data/assets/cities.csv",
     dataType : "text",
     success : function(data) {
-      table = processCSVData(data);
+      table = archive.processCSVData(data);
       if (table.length > 0) {
         var i;
         for (i = 0; i < table.length; ++i) {
@@ -138,7 +138,7 @@ archive.getDocuments = function() {
           console.log("[error] " + response.error ? response.error : "no results returned from server");
       } else {
         var noOfResults = response.result.data.length;
-        createGisDataList('documents', 'Documents', 'layers-table', response.result.data);
+        ogs.geo.createGisDataList('documents', 'Documents', 'layers-table', response.result.data);
       }
     }
   });

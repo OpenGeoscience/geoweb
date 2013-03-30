@@ -139,6 +139,7 @@ set(SOURCES
     modules/websocket_pi.py
     modules/ogsvtk.py
     modules/cpi.py
+    modules/mongo.py
 )
 
 set(DIRECTORIES
