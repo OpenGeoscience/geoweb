@@ -104,7 +104,7 @@ archive.main = function() {
     }
 
     // Fetch documents from the database
-    ogs.geo.getDocuments();
+    archive.getDocuments();
 
     // Create a placeholder for the layers
     ogs.geo.createGisLayerList('layers', 'Layers');
