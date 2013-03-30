@@ -35,6 +35,9 @@ def empty_response():
   return {'result': None,
           'error' : None}
 
+def empty_result():
+  return {}
+
 class Root(object):
     # access at http://localhost:8080/chat
     chat = ChatRoot(host='127.0.0.1', port=8080, ssl=False)
@@ -50,6 +53,12 @@ class Root(object):
       import mongo
       pargs = list(args)
       return mongo.run(*pargs, **kwargs)
+
+    @cherrypy.expose
+    def data(self, *args, **kwargs):
+      import geodata
+      pargs = list(args)
+      return geodata.run(*pargs, **kwargs);
 
 if __name__ == '__main__':
     import os.path

@@ -140,6 +140,9 @@ set(SOURCES
     modules/ogsvtk.py
     modules/cpi.py
     modules/mongo.py
+    modules/geodata.py
+    modules/reader.py
+    modules/vtk_reader.py
 )
 
 set(DIRECTORIES
