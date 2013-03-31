@@ -149,35 +149,35 @@ archive.addLayer = function(event) {
   console.log(event.target);
   console.log($(event.target).attr('basename'));
 
-  ogs.ui.gis.addLayer('layers-table', event.target);
+  ogs.ui.gis.addLayer('layers-table', event.target, function() {
+    $.ajax({
+      type: 'POST',
+      url: '/data/read',
+      data: {
+        expr: JSON.stringify($(event.target).attr('basename'))
+      },
+      dataType: 'json',
+      success: function(response) {
+        if (response.error !== null) {
+          console.log("[error] " + response.error ? response.error : "no results returned from server");
+        } else {
+//          console.log('success');
+//          console.log(response.result);
+//          console.log(response.result.data[0]);
 
-  $.ajax({
-    type: 'POST',
-    url: '/data/read',
-    data: {
-      expr: JSON.stringify($(event.target).attr('basename'))
-    },
-    dataType: 'json',
-    success: function(response) {
-      if (response.error !== null) {
-        console.log("[error] " + response.error ? response.error : "no results returned from server");
-      } else {
-        console.log('success');
-        console.log(response.result);
-        console.log(response.result.data[0]);
-
-        var reader = ogs.vgl.geojsonReader();
-        var geoms = reader.readGJObject(jQuery.parseJSON(response.result.data[0]));
-        for (var i = 0; i < geoms.length; ++i) {
-          var layer = ogs.geo.featureLayer({
-            "opacity" : 1,
-            "showAttribution" : 1,
-            "visible" : 1
-          }, ogs.geo.geometryFeature(geoms[i]));
-          archive.myMap.addLayer(layer);
+          var reader = ogs.vgl.geojsonReader();
+          var geoms = reader.readGJObject(jQuery.parseJSON(response.result.data[0]));
+          for (var i = 0; i < geoms.length; ++i) {
+            var layer = ogs.geo.featureLayer({
+              "opacity" : 1,
+              "showAttribution" : 1,
+              "visible" : 1
+            }, ogs.geo.geometryFeature(geoms[i]));
+            archive.myMap.addLayer(layer);
+          }
+          archive.myMap.redraw();
         }
-        archive.myMap.redraw();
       }
-    }
+    });
   });
 }
