@@ -162,6 +162,9 @@ archive.addLayer = function(event) {
         console.log('success');
         console.log(response.result);
         console.log(response.result.data);
+
+        var reader = ogs.vgl.geojsonReader();
+        var geom = reader.readGJObject(response.result.data);
       }
     }
   });
