@@ -33,5 +33,5 @@ def read(expr):
   gw.SetInputConnection(sf.GetOutputPort())
   gw.WriteToOutputStringOn()
   gw.Write()
-  gj = "[{'"+str(gw.RegisterAndGetOutputString()).replace('\n','')+"'}]"
+  gj = str(gw.RegisterAndGetOutputString()).replace('\n','')
   return gj

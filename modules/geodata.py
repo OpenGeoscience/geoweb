@@ -48,7 +48,7 @@ def run(method='read', expr=None, limit=1000, sort=None, fill=None):
 
         # Create a list of the results.
         if fill:
-            results = it
+            results = [it]
         else:
             results = []
 

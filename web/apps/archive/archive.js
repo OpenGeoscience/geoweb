@@ -2,6 +2,7 @@
 // console.log = function() {}
 
 var archive = {};
+archive.myMap = null;
 
 archive.getMongoConfig = function() {
   "use strict";
@@ -23,14 +24,14 @@ archive.main = function() {
     center : ogs.geo.latlng(30.0, 70.0)
   };
 
-  var myMap = ogs.geo.map(document.getElementById("glcanvas"), mapOptions);
+  archive.myMap = ogs.geo.map(document.getElementById("glcanvas"), mapOptions);
   var planeLayer = ogs.geo.featureLayer({
     "opacity" : 1,
     "showAttribution" : 1,
     "visible" : 1
   }, ogs.geo.planeFeature(ogs.geo.latlng(-90.0, 0.0), ogs.geo.latlng(90.0,
                                                                      180.0)));
-  myMap.addLayer(planeLayer);
+ archive.myMap.addLayer(planeLayer);
 
   // Read city geo-coded data
   var table = [];
@@ -68,7 +69,7 @@ archive.main = function() {
             "visible" : 1
           }, ogs.geo.pointSpritesFeature(image, citieslatlon, colors));
 
-          myMap.addLayer(pointLayer);
+         archive.myMap.addLayer(pointLayer);
         };
       }
     }
@@ -77,7 +78,7 @@ archive.main = function() {
   // Listen for slider slidechange event
   $('#opacity').slider().bind('slide', function(event, ui) {
     planeLayer.setOpacity(ui.value);
-    myMap.redraw();
+   archive.myMap.redraw();
   });
 
   $('#opacity').on('mousedown', function(e) {
@@ -99,8 +100,8 @@ archive.main = function() {
     resizeCanvas();
 
     function updateAndDraw(width, height) {
-      myMap.resize(width, height);
-      myMap.redraw();
+     archive.myMap.resize(width, height);
+     archive.myMap.redraw();
     }
 
     // Fetch documents from the database
@@ -148,6 +149,8 @@ archive.addLayer = function(event) {
   console.log(event.target);
   console.log($(event.target).attr('basename'));
 
+  ogs.geo.addLayer('layers-table', event.target);
+
   $.ajax({
     type: 'POST',
     url: '/data/read',
@@ -161,10 +164,19 @@ archive.addLayer = function(event) {
       } else {
         console.log('success');
         console.log(response.result);
-        console.log(response.result.data);
+        console.log(response.result.data[0]);
 
         var reader = ogs.vgl.geojsonReader();
-        var geom = reader.readGJObject(response.result.data);
+        var geoms = reader.readGJObject(jQuery.parseJSON(response.result.data[0]));
+        for (var i = 0; i < geoms.length; ++i) {
+          var layer = ogs.geo.featureLayer({
+            "opacity" : 1,
+            "showAttribution" : 1,
+            "visible" : 1
+          }, ogs.geo.geometryFeature(geoms[i]));
+          archive.myMap.addLayer(layer);
+        }
+        archive.myMap.redraw();
       }
     }
   });
