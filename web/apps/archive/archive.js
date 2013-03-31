@@ -139,7 +139,7 @@ archive.getDocuments = function() {
           console.log("[error] " + response.error ? response.error : "no results returned from server");
       } else {
         var noOfResults = response.result.data.length;
-        ogs.geo.createGisDataList('documents', 'Documents', 'layers-table', response.result.data, archive.addLayer);
+        ogs.ui.gis.createGisDataList('documents', 'Documents', 'layers-table', response.result.data, archive.addLayer);
       }
     }
   });
@@ -149,7 +149,7 @@ archive.addLayer = function(event) {
   console.log(event.target);
   console.log($(event.target).attr('basename'));
 
-  ogs.geo.addLayer('layers-table', event.target);
+  ogs.ui.gis.addLayer('layers-table', event.target);
 
   $.ajax({
     type: 'POST',

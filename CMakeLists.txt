@@ -43,6 +43,8 @@ file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/stamps)
 
 # These files should be validated with JSLint.
 set(JS_LINT_FILES
+    ${CMAKE_SOURCE_DIR}/web/lib/ui/init.js
+    ${CMAKE_SOURCE_DIR}/web/lib/ui/gis.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/gl-matrix.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/init.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/latlng.js
@@ -51,7 +53,6 @@ set(JS_LINT_FILES
     ${CMAKE_SOURCE_DIR}/web/lib/geo/map.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/feature.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/mapInteractorStyle.js
-    ${CMAKE_SOURCE_DIR}/web/lib/geo/utils.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/boundingObject.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/camera.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/geojsonReader.js
@@ -123,7 +124,8 @@ set(JS_UGLIFY_FILES
   ${CMAKE_SOURCE_DIR}/web/lib/geo/mapInteractorStyle.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/map.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/feature.js
-  ${CMAKE_SOURCE_DIR}/web/lib/geo/utils.js
+  ${CMAKE_SOURCE_DIR}/web/lib/ui/init.js
+  ${CMAKE_SOURCE_DIR}/web/lib/ui/gis.js
 )
 
 # These files should have documentation generated for them.
