@@ -108,7 +108,7 @@ archive.main = function() {
     archive.getDocuments();
 
     // Create a placeholder for the layers
-    ogs.geo.createGisLayerList('layers', 'Layers');
+    ogs.ui.gis.createGisLayerList('layers', 'Layers');
   });
 };
 
