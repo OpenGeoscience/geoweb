@@ -173,9 +173,14 @@ archive.toggleLayer = function(layerId) {
 archive.removeLayer = function(layerId) {
   var layer = archive.myMap.findLayerById(layerId);
 
-  if (layer != null) {
-    archive.myMap.removeLayer(layer);
+  console.log('removing layer');
 
+  if (layer != null) {
+
+    console.log('found layer');
+
+    archive.myMap.removeLayer(layer);
+    archive.myMap.redraw();
     return true;
   }
 
@@ -184,9 +189,6 @@ archive.removeLayer = function(layerId) {
 
 
 archive.addLayer = function(event) {
-//  console.log(event.target);
-//  console.log($(event.target).attr('basename'));
-//  console.log($(event.target).attr('name'));
   ogs.ui.gis.addLayer(archive, 'layers-table', event.target, 'archive.toggleLayer', 'archive.removeLayer', function() {
     $.ajax({
       type: 'POST',
