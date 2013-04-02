@@ -75,17 +75,6 @@ archive.main = function() {
     }
   });
 
-  // Listen for slider slidechange event
-  $('#opacity').slider().bind('slide', function(event, ui) {
-    planeLayer.setOpacity(ui.value);
-   archive.myMap.redraw();
-  });
-
-  $('#opacity').on('mousedown', function(e) {
-    e.stopPropagation();
-    return false;
-  });
-
   $(function() {
     var canvas = document.getElementById('glcanvas');
 
@@ -109,7 +98,29 @@ archive.main = function() {
 
     // Create a placeholder for the layers
     ogs.ui.gis.createGisLayerList('layers', 'Layers');
+
+    // Create a placeholder for layer controls
+    ogs.ui.gis.createGisLayerList('layer-controls', 'Controls');
+
+    // Add slider to it
+    var tbody = $('#layer-controls-table').find('tbody');
+    $(tbody).append("<tr>");
+    $('#layer-controls-table tr:last').append('<td><h5>Opacity</h5></td>');
+    $('#layer-controls-table tr:last').append('<td width=100%><div id="opacity" class="ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all"></div></td>');
   });
+
+  // Listen for slider slidechange event
+  $('#opacity').slider().bind('slide', function(event, ui) {
+    planeLayer.setOpacity(ui.value);
+   archive.myMap.redraw();
+  });
+
+  $('#opacity').on('mousedown', function(e) {
+    e.stopPropagation();
+    return false;
+  });
+
+  init();
 };
 
 archive.processCSVData = function(csvdata) {

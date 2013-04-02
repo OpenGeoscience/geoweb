@@ -8,54 +8,52 @@
   <script type="text/javascript" src="/lib/geoweb.min.js"></script>
   <script type="text/javascript" src="archive.js"></script>
   <script>
-     $(function() {
+    function init() {
+      // Slider to control opacity
+      $( "#opacity" ).slider({
+        range: "min",
+        min: 0.0,
+        max: 1.0,
+        step: 0.01,
+        value: 0.5,
+        slide: function( event, ui ) {
+          $( "#amount" ).val( ui.value );
+        }
+      });
 
-       // Slider to control opacity
-       $( "#opacity" ).slider({
-         range: "min",
-         min: 0.0,
-         max: 1.0,
-         step: 0.01,
-         value: 0.5,
-         slide: function( event, ui ) {
-           $( "#amount" ).val( ui.value );
-         }
-       });
+      // Animate control panel
+      var collapsed = false;
+      var defaultHeight = 0;
 
-       // Animate control panel
-       var collapsed = false;
-       var defaultHeight = 0;
+      $("#drawer").hover(
+        function () {
+          $(this).addClass("hover");
+        },
+        function () {
+          $(this).removeClass("hover");
+        }
+      );
 
-       $("#drawer").hover(
-         function () {
-           $(this).addClass("hover");
-         },
-         function () {
-           $(this).removeClass("hover");
-         }
-       );
-
-       $('#drawer').click(function() {
-
-         if (collapsed === false) {
-          defaultHeight =  $("#control-panel").height();
-          $('#control-panel').animate({
-            height: 25
+     $('#drawer').click(function() {
+       if (collapsed === false) {
+         defaultHeight =  $("#control-panel").height();
+        $('#control-panel').animate({
+          height: 25
           }, 400, function() {
-            $("#collapse-icon").toggleClass('icon-chevron-down icon-chevron-up');
-            collapsed = true;
+          $("#collapse-icon").toggleClass('icon-chevron-down icon-chevron-up');
+          collapsed = true;
           });
-         }
-         else {
-           $('#control-panel').animate({
-             height: defaultHeight
+        }
+       else {
+         $('#control-panel').animate({
+           height: defaultHeight
            }, 400, function() {
-             $("#collapse-icon").toggleClass('icon-chevron-down icon-chevron-up');
-             collapsed = false;
+           $("#collapse-icon").toggleClass('icon-chevron-down icon-chevron-up');
+           collapsed = false;
            });
          }
-        });
-     });
+      });
+    }
   </script>
   <link href=http://code.jquery.com/ui/1.9.1/themes/base/jquery-ui.css rel=stylesheet type=text/css>
   <link href="/common/css/bootstrap.css" rel=stylesheet type=text/css>
@@ -96,6 +94,10 @@
    .td-btn-layer {
      text-align: right;
    }
+
+   .accordion-group {
+     border: none;
+   }
   </style>
   </head>
   <body onload="archive.main()">
@@ -133,10 +135,14 @@
             </div>
           </div>
           <div class="span4">
-              <h4>Opacity</h4>
-              <div id="opacity" class="ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all"></div>
-              <br>
-              <br>
+            <div id="controls-container" class="row">
+              <div class="accordion" id="layer-controls">
+                <!-- <div class='accordion-group'>
+                  <h4>Opacity</h4>
+                  <div id="opacity" class="ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all"></div>
+                </div>-->
+              </div>
+            </div>
           </div>
         </div>
     </div>
