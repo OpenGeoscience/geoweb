@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import pymongo
 import os
 
@@ -17,9 +19,28 @@ class mongo_import:
 
     # Add files to the database
     for filename in files:
+      variables = []
       basename = os.path.basename(filename)
-      fileprefix = os.path.splitext(basename)[0]
-      insertId = coll.insert({"name":fileprefix, "basename":basename})
+      filenamesplitted = os.path.splitext(basename)
+      fileprefix = filenamesplitted[0]
+      filesuffix = filenamesplitted[1]
+      if filesuffix == ".nc":
+        import vtk
+        reader = vtk.vtkNetCDFReader()
+        reader.SetFileName(os.path.join(directory, filename))
+        reader.Update()
+        data = reader.GetOutput();
+        pds = data.GetPointData()
+        pdscount = pds.GetNumberOfArrays()
+        for i in range(0, pdscount):
+          variable = {}
+          pdarray = pds.GetArray(i)
+          variable["name"] = pdarray.GetName()
+          variable["dim"] = []
+          variable["time"] = []
+          variables.append(variable)
+
+      insertId = coll.insert({"name":fileprefix, "basename":basename, "variables":variables})
 
 if __name__ == "__main__":
   import sys
