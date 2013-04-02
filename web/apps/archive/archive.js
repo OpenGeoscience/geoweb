@@ -145,11 +145,38 @@ archive.getDocuments = function() {
   });
 };
 
+
+archive.toggleLayer = function(layerId) {
+  var layer = archive.myMap.findLayerById(layerId);
+  if (layer != null) {
+    archive.myMap.toggleLayer(layer);
+    // @todo call ui toggle layer now
+
+    return true;
+  }
+
+  return false;
+};
+
+
+archive.removeLayer = function(layerId) {
+  var layer = archive.myMap.findLayerById(layerId);
+
+  if (layer != null) {
+    archive.myMap.removeLayer(layer);
+
+    return true;
+  }
+
+  return false;
+};
+
+
 archive.addLayer = function(event) {
   console.log(event.target);
   console.log($(event.target).attr('basename'));
 
-  ogs.ui.gis.addLayer('layers-table', event.target, function() {
+  ogs.ui.gis.addLayer(archive, 'layers-table', event.target, function() {
     $.ajax({
       type: 'POST',
       url: '/data/read',
@@ -161,10 +188,6 @@ archive.addLayer = function(event) {
         if (response.error !== null) {
           console.log("[error] " + response.error ? response.error : "no results returned from server");
         } else {
-//          console.log('success');
-//          console.log(response.result);
-//          console.log(response.result.data[0]);
-
           var reader = ogs.vgl.geojsonReader();
           var geoms = reader.readGJObject(jQuery.parseJSON(response.result.data[0]));
           for (var i = 0; i < geoms.length; ++i) {
@@ -173,6 +196,7 @@ archive.addLayer = function(event) {
               "showAttribution" : 1,
               "visible" : 1
             }, ogs.geo.geometryFeature(geoms[i]));
+            layer.setName($(event.target).attr('basename'));
             archive.myMap.addLayer(layer);
           }
           archive.myMap.redraw();
@@ -180,4 +204,4 @@ archive.addLayer = function(event) {
       }
     });
   });
-}
+};
