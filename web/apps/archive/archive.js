@@ -201,7 +201,7 @@ archive.addLayer = function(event) {
           }
           archive.myMap.redraw();
 
-          $('.layer-button').each(function(index){
+          $('.btn-layer').each(function(index){
               $(this).removeClass('disabled');
               $(this).removeAttr('disabled');
             }
