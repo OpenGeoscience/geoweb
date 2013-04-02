@@ -150,8 +150,8 @@ archive.toggleLayer = function(layerId) {
   var layer = archive.myMap.findLayerById(layerId);
   if (layer != null) {
     archive.myMap.toggleLayer(layer);
-    // @todo call ui toggle layer now
-
+    archive.myMap.redraw();
+    // @todo call ui toggle layer nows
     return true;
   }
 
@@ -173,10 +173,10 @@ archive.removeLayer = function(layerId) {
 
 
 archive.addLayer = function(event) {
-  console.log(event.target);
-  console.log($(event.target).attr('basename'));
-
-  ogs.ui.gis.addLayer(archive, 'layers-table', event.target, function() {
+//  console.log(event.target);
+//  console.log($(event.target).attr('basename'));
+//  console.log($(event.target).attr('name'));
+  ogs.ui.gis.addLayer(archive, 'layers-table', event.target, 'archive.toggleLayer', 'archive.removeLayer', function() {
     $.ajax({
       type: 'POST',
       url: '/data/read',
@@ -196,7 +196,7 @@ archive.addLayer = function(event) {
               "showAttribution" : 1,
               "visible" : 1
             }, ogs.geo.geometryFeature(geoms[i]));
-            layer.setName($(event.target).attr('basename'));
+            layer.setName($(event.target).attr('name'));
             archive.myMap.addLayer(layer);
           }
           archive.myMap.redraw();
