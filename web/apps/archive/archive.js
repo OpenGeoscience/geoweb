@@ -172,15 +172,10 @@ archive.toggleLayer = function(layerId) {
 
 archive.removeLayer = function(layerId) {
   var layer = archive.myMap.findLayerById(layerId);
-
-  console.log('removing layer');
-
   if (layer != null) {
-
-    console.log('found layer');
-
     archive.myMap.removeLayer(layer);
     archive.myMap.redraw();
+    ogs.ui.gis.removeLayer(layerId);
     return true;
   }
 
