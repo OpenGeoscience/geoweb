@@ -200,6 +200,12 @@ archive.addLayer = function(event) {
             archive.myMap.addLayer(layer);
           }
           archive.myMap.redraw();
+
+          $('.layer-button').each(function(index){
+              $(this).removeClass('disabled');
+              $(this).removeAttr('disabled');
+            }
+          );
         }
       }
     });
