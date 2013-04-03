@@ -142,14 +142,13 @@ archive.getDocuments = function() {
     data: {
       query: JSON.stringify({}),
       limit:100,
-      fields: JSON.stringify(['name', 'basename'])
+      fields: JSON.stringify(['name', 'basename', 'variables'])
     },
     dataType: 'json',
     success: function(response) {
       if (response.error !== null) {
           console.log("[error] " + response.error ? response.error : "no results returned from server");
       } else {
-        var noOfResults = response.result.data.length;
         ogs.ui.gis.createGisDataList('documents', 'Documents', 'layers-table', response.result.data, archive.addLayer);
       }
     }

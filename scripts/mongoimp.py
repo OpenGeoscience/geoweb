@@ -38,6 +38,7 @@ class mongo_import:
           variable["name"] = pdarray.GetName()
           variable["dim"] = []
           variable["time"] = []
+          variable["tags"] = []
           variables.append(variable)
 
       insertId = coll.insert({"name":fileprefix, "basename":basename, "variables":variables})
