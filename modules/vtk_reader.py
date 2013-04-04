@@ -11,7 +11,7 @@ except ImportError:
 def can_read():
   return True
 
-def read(expr):
+def read(expr, vars):
   ''' Read a file or files from a directory given a wild-card expression
   '''
   # @todo Reading a single file of netcdf cf convention now

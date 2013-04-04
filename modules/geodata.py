@@ -10,7 +10,7 @@ def decode(s, argname, resp):
         resp['error'] = e.message + " (argument '%s' was '%s')" % (argname, s)
         raise
 
-def run(method='read', expr=None, limit=1000, sort=None, fill=None):
+def run(method='read', expr=None, vars=None, fields=None, imit=1000, sort=None, fill=None):
     # Create an empty response object.
     response = geoweb.empty_response();
 
@@ -21,6 +21,9 @@ def run(method='read', expr=None, limit=1000, sort=None, fill=None):
 
     # Decode the strings into Python objects.
     try:
+        if expr is not None: expr = decode(expr, 'expr', response)
+        if vars is not None: vars = decode(expr, 'vars', response)
+        if fields is not None: vars = decode(fields, 'f', response)
         if expr is not None: expr = decode(expr, 'expr', response)
         if sort is not None: sort = decode(sort, 'sort', response)
         if fill is not None:
@@ -44,7 +47,7 @@ def run(method='read', expr=None, limit=1000, sort=None, fill=None):
     elif method == 'read':
         # Load reader module
         import reader
-        it = reader.read(expr)
+        it = reader.read(expr, vars)
 
         # Create a list of the results.
         if fill:
