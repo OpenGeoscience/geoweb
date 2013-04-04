@@ -105,7 +105,7 @@ archive.main = function() {
     // Add slider to it
     var tbody = $('#layer-controls-table').find('tbody');
     $(tbody).append("<tr>");
-    $('#layer-controls-table tr:last').append('<td><h5>Opacity</h5></td>');
+    $('#layer-controls-table tr:last').append('<td><h4>Opacity</h4></td>');
     $('#layer-controls-table tr:last').append('<td width=100%><div id="opacity" class="ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all"></div></td>');
   });
 
