@@ -45,7 +45,6 @@ file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/stamps)
 set(JS_LINT_FILES
     ${CMAKE_SOURCE_DIR}/web/lib/ui/init.js
     ${CMAKE_SOURCE_DIR}/web/lib/ui/gis.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/gl-matrix.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/init.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/latlng.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/command.js
@@ -87,7 +86,6 @@ set(JS_LINT_FILES
 
 # These files should be uglified and concatenated.
 set(JS_UGLIFY_FILES
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/gl-matrix.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/init.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/timestamp.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/object.js
