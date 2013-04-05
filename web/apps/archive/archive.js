@@ -21,7 +21,7 @@ archive.main = function() {
 
   var mapOptions = {
     zoom : 1,
-    center : ogs.geo.latlng(30.0, 70.0)
+    center : ogs.geo.latlng(0.0, 0.0)
   };
 
   archive.myMap = ogs.geo.map(document.getElementById("glcanvas"), mapOptions);
