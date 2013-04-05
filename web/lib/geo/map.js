@@ -41,6 +41,9 @@ geoModule.map = function(node, options) {
   /** @private */
   var m_options = options;
 
+  /** @private **/
+  var m_layers = {};
+
   if (!options.center) {
     m_options.center = geoModule.latlng(0.0, 0.0);
   }
@@ -59,6 +62,7 @@ geoModule.map = function(node, options) {
   var m_renderer = m_viewer.renderWindow().activeRenderer();
 
   $(m_interactorStyle).on(ogs.vgl.command.leftButtonPressEvent, draw);
+  $(m_interactorStyle).on(ogs.vgl.command.middleButtonPressEvent, draw);
   $(m_interactorStyle).on(ogs.vgl.command.rightButtonPressEvent, draw);
   $(this).on(geoModule.command.updateEvent, draw);
 
@@ -154,7 +158,8 @@ geoModule.map = function(node, options) {
     if (layer != null) {
       // TODO Check if the layer already exists
       // TODO Set the rendering order correctly
-      m_renderer.addActor(layer.actor());
+      m_renderer.addActor(layer.feature());
+      m_layers[layer.name()] = layer;
       m_viewer.render();
       this.modified();
       return true;
@@ -171,14 +176,45 @@ geoModule.map = function(node, options) {
    * @return {Boolean}
    */
   this.removeLayer = function(layer) {
-    if (!layer) {
-      m_renderer.removeActor(layer);
+    if (layer !== null || layer !== undefined) {
+      m_renderer.removeActor(layer.feature());
       this.modified();
       return true;
     }
 
     return false;
   };
+
+  /**
+   * Toggle visibility of a layer
+   *
+   *  @method toggleLayer
+   *  @param {geo.layer}
+   *  @returns {Boolean}
+   */
+  this.toggleLayer = function(layer) {
+    if (layer !== null || layer !== undefined) {
+      layer.setVisible(!layer.visible());
+      this.modified();
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * Find layer by layer id
+   *
+   * @method toggleLayer
+   * @param {String}
+   * @returns {geo.layer}
+   */
+  this.findLayerById = function(layerId) {
+    if (m_layers.hasOwnProperty(layerId)) {
+      return m_layers[layerId];
+    }
+    return null;
+  }
 
   /**
    * Manually force to render map

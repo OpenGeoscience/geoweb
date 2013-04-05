@@ -29,21 +29,6 @@ vglModule.renderer = function() {
   vglModule.object.call(this);
 
   /** @private */
-  var m_x = 0;
-
-  /** @private */
-  var m_y = 0;
-
-  /** @private */
-  var m_width = 0;
-
-  /** @private */
-  var m_height = 0;
-
-  /** @private */
-  var m_clippingRange = [ 0.1, 1000.0 ];
-
-  /** @private */
   var m_sceneRoot = new vglModule.groupNode();
 
   /** @private */
@@ -66,20 +51,6 @@ vglModule.renderer = function() {
   };
 
   /**
-   * Get width of renderer
-   */
-  this.width = function() {
-    return m_width;
-  };
-
-  /**
-   * Get height of renderer
-   */
-  this.height = function() {
-    return m_height;
-  };
-
-  /**
    * Render the scene
    */
   this.render = function() {
@@ -88,17 +59,20 @@ vglModule.renderer = function() {
     gl.depthFunc(gl.LEQUAL);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    perspectiveMatrix = m_camera.computeProjectionMatrix((m_width / m_height),
-                                                         m_clippingRange[0],
-                                                         m_clippingRange[1]);
+    perspectiveMatrix = m_camera.projectionMatrix();
 
     var renSt = new vglModule.renderState();
     renSt.m_projectionMatrix = perspectiveMatrix;
     var children = m_sceneRoot.children();
     for ( var i = 0; i < children.length; ++i) {
       var actor = children[i];
-      mat4.multiply(m_camera.computeViewMatrix(), actor.matrix(),
-                    renSt.m_modelViewMatrix);
+
+      if (actor.visible() === false) {
+        continue;
+      }
+
+      mat4.multiply(renSt.m_modelViewMatrix, m_camera.viewMatrix(),
+                    actor.matrix());
       renSt.m_material = actor.material();
       renSt.m_mapper = actor.mapper();
 
@@ -128,12 +102,9 @@ vglModule.renderer = function() {
    * Resize viewport given a position, width and height
    */
   this.positionAndResize = function(x, y, width, height) {
-    m_x = x;
-    m_y = y;
-    m_width = width;
-    m_height = height;
     // TODO move this code to camera
-    gl.viewport(m_x, m_y, m_width, m_height);
+    gl.viewport(x, y, width, height);
+    m_camera.setViewAspect(width / height);
     this.modified();
   };
 
@@ -154,7 +125,7 @@ vglModule.renderer = function() {
    * Remove the actor from the collection
    */
   this.removeActor = function(actor) {
-    if (actor in m_sceneRoot.children()) {
+    if (m_sceneRoot.children().indexOf(actor) !== -1) {
       m_sceneRoot.removeChild(actor);
       this.modified();
       return true;
@@ -169,11 +140,11 @@ vglModule.renderer = function() {
   this.worldToDisplay = function(worldPt, viewMatrix, projectionMatrix, width,
                                  height) {
     var viewProjectionMatrix = mat4.create();
-    mat4.multiply(projectionMatrix, viewMatrix, viewProjectionMatrix);
+    mat4.multiply(viewProjectionMatrix, projectionMatrix, viewMatrix);
 
     // Transform world to clipping coordinates
     var clipPt = vec4.create();
-    mat4.multiplyVec4(viewProjectionMatrix, worldPt, clipPt);
+    vec4.transformMat4(clipPt, worldPt, viewProjectionMatrix);
 
     if (clipPt[3] !== 0.0) {
       clipPt[0] = clipPt[0] / clipPt[3];
@@ -189,7 +160,7 @@ vglModule.renderer = function() {
     var winZ = clipPt[2];
     var winW = clipPt[3];
 
-    return vec4.createFrom(winX, winY, winZ, winW);
+    return vec4.fromValues(winX, winY, winZ, winW);
   };
 
   /**
@@ -202,12 +173,12 @@ vglModule.renderer = function() {
     var z = displayPt[2];
 
     var viewProjectionInverse = mat4.create();
-    mat4.multiply(projectionMatrix, viewMatrix, viewProjectionInverse);
-    mat4.inverse(viewProjectionInverse, viewProjectionInverse);
+    mat4.multiply(viewProjectionInverse, projectionMatrix, viewMatrix);
+    mat4.invert(viewProjectionInverse, viewProjectionInverse);
 
-    var worldPt = vec4.createFrom(x, y, z, 1);
-    mat4.multiplyVec4(viewProjectionInverse, worldPt, worldPt);
-
+    var worldPt = vec4.fromValues(x, y, z, 1);
+    var myvec = vec4.create();
+    vec4.transformMat4(worldPt, worldPt, viewProjectionInverse);
     if (worldPt[3] !== 0.0) {
       worldPt[0] = worldPt[0] / worldPt[3];
       worldPt[1] = worldPt[1] / worldPt[3];

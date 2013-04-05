@@ -6,6 +6,10 @@
 import cherrypy
 import simplejson
 import os
+import sys
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(current_dir, "modules"))
 
 #websocket imports
 from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
@@ -13,15 +17,10 @@ from websocket_chat import ChatRoot
 from websocket_pi import PiRoot
 from ogsvtk import VTKRoot
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
-
 from mako.template import Template
 from mako.lookup import TemplateLookup
 template_dir = os.path.dirname(os.path.abspath(__file__))
 lookup = TemplateLookup(directories=[template_dir])
-
-JS_DIR = os.path.join(os.path.abspath("."), u"js")
-CONFIG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'app.conf')
 
 #make sure WebSocketPlugin runs after daemonizer plugin (priority 65)
 #see cherrypy plugin documentation for default plugin priorities
@@ -30,6 +29,14 @@ WebSocketPlugin.start.__func__.priority = 66
 #init websocket plugin
 WebSocketPlugin(cherrypy.engine).subscribe()
 cherrypy.tools.websocket = WebSocketTool()
+
+# Utility functions
+def empty_response():
+  return {'result': None,
+          'error' : None}
+
+def empty_result():
+  return {}
 
 class Root(object):
     # access at http://localhost:8080/chat
@@ -42,9 +49,16 @@ class Root(object):
     vtk = VTKRoot(host='127.0.0.1', port=8080, ssl=False)
 
     @cherrypy.expose
-    def update(self):
-      # Here's the important message!
-      return "This a very important message"
+    def mongo(self, *args, **kwargs):
+      import mongo
+      pargs = list(args)
+      return mongo.run(*pargs, **kwargs)
+
+    @cherrypy.expose
+    def data(self, *args, **kwargs):
+      import geodata
+      pargs = list(args)
+      return geodata.run(*pargs, **kwargs);
 
 if __name__ == '__main__':
     import os.path

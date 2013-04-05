@@ -43,7 +43,8 @@ file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/stamps)
 
 # These files should be validated with JSLint.
 set(JS_LINT_FILES
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/gl-matrix.js
+    ${CMAKE_SOURCE_DIR}/web/lib/ui/init.js
+    ${CMAKE_SOURCE_DIR}/web/lib/ui/gis.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/init.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/latlng.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/command.js
@@ -53,7 +54,7 @@ set(JS_LINT_FILES
     ${CMAKE_SOURCE_DIR}/web/lib/geo/mapInteractorStyle.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/boundingObject.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/camera.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/geoJSONUnpack.js
+    ${CMAKE_SOURCE_DIR}/web/lib/vgl/geojsonReader.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/geomData.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/groupNode.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/init.js
@@ -85,7 +86,6 @@ set(JS_LINT_FILES
 
 # These files should be uglified and concatenated.
 set(JS_UGLIFY_FILES
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/gl-matrix.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/init.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/timestamp.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/object.js
@@ -95,7 +95,7 @@ set(JS_UGLIFY_FILES
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/groupNode.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/actor.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/camera.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/geoJSONUnpack.js
+  ${CMAKE_SOURCE_DIR}/web/lib/vgl/geojsonReader.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/geomData.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/mapper.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/materialAttribute.js
@@ -122,6 +122,8 @@ set(JS_UGLIFY_FILES
   ${CMAKE_SOURCE_DIR}/web/lib/geo/mapInteractorStyle.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/map.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/feature.js
+  ${CMAKE_SOURCE_DIR}/web/lib/ui/init.js
+  ${CMAKE_SOURCE_DIR}/web/lib/ui/gis.js
 )
 
 # These files should have documentation generated for them.
@@ -137,6 +139,10 @@ set(SOURCES
     modules/websocket_pi.py
     modules/ogsvtk.py
     modules/cpi.py
+    modules/mongo.py
+    modules/geodata.py
+    modules/reader.py
+    modules/vtk_reader.py
 )
 
 set(DIRECTORIES
@@ -192,7 +198,7 @@ if(${MINIFY} AND ${MANGLE})
     set(MANGLE_FLAG "-m")
 endif()
 
-set(MIN_JS_FILE ${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/web/lib/ogs.min.js)
+set(MIN_JS_FILE ${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/web/lib/geoweb.min.js)
 
 # Check why xdata does not need to do this
 if(NOT EXISTS "${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/web/lib")
