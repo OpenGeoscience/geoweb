@@ -8,7 +8,7 @@ import sys
 def start():
     print pidfile
     if os.path.exists(pidfile):
-        sys.stderr.write("error: ogs already seems to be running")
+        sys.stderr.write("error: geoweb already seems to be running")
         return 1
 
     os.chdir(path)
@@ -28,7 +28,7 @@ def stop():
         try:
             pid = int(f.read())
         except ValueError:
-            sys.stderr.write("error: ogs.pid does not contain a valid process id")
+            sys.stderr.write("error: geoweb.pid does not contain a valid process id")
             return 1
 
         retval = os.kill(pid, signal.SIGKILL)
@@ -72,7 +72,7 @@ if cherry is None:
 
 # Determine the path to this script.
 path = os.path.dirname(os.path.abspath(sys.argv[0]))
-pidfile = path + "/ogs.pid"
+pidfile = path + "/geoweb.pid"
 
 # Dispatch on action argument.
 action = sys.argv[1]

@@ -111,8 +111,10 @@ archive.main = function() {
 
   // Listen for slider slidechange event
   $('#opacity').slider().bind('slide', function(event, ui) {
-    planeLayer.setOpacity(ui.value);
-   archive.myMap.redraw();
+    if (archive.myMap.activeLayer() !== null) {
+      archive.myMap.activeLayer().setOpacity(ui.value);
+    }
+    archive.myMap.redraw();
   });
 
   $('#opacity').on('mousedown', function(e) {
@@ -156,7 +158,34 @@ archive.getDocuments = function() {
 };
 
 
-archive.toggleLayer = function(layerId) {
+archive.selectLayer = function(target, layerId) {
+  var layer = archive. myMap.findLayerById(layerId);
+
+  // See bootstrap issue: https://github.com/twitter/bootstrap/issues/2380
+  if ($(target).attr('data-toggle') !== 'button') { // don't toggle if data-toggle="button"
+      $(target).toggleClass('active');
+    }
+
+  if (layer != null) {
+    if ($(target).hasClass('active')) {
+      if (archive.myMap.selectLayer(layer)) {
+        ogs.ui.gis.selectLayer(target, layerId);
+        return true;
+      }
+
+      return false;
+    }
+    else {
+      archive.myMap.selectLayer(null);
+      return true;
+    }
+  }
+
+  return false;
+}
+
+
+archive.toggleLayer = function(target, layerId) {
   var layer = archive.myMap.findLayerById(layerId);
   if (layer != null) {
     archive.myMap.toggleLayer(layer);
@@ -169,12 +198,12 @@ archive.toggleLayer = function(layerId) {
 };
 
 
-archive.removeLayer = function(layerId) {
+archive.removeLayer = function(target, layerId) {
   var layer = archive.myMap.findLayerById(layerId);
   if (layer != null) {
     archive.myMap.removeLayer(layer);
     archive.myMap.redraw();
-    ogs.ui.gis.removeLayer(layerId);
+    ogs.ui.gis.removeLayer(target, layerId);
     return true;
   }
 
@@ -183,7 +212,8 @@ archive.removeLayer = function(layerId) {
 
 
 archive.addLayer = function(event) {
-  ogs.ui.gis.addLayer(archive, 'layers-table', event.target, 'archive.toggleLayer', 'archive.removeLayer', function() {
+  ogs.ui.gis.addLayer(archive, 'layers-table', event.target, archive.selectLayer,
+    archive.toggleLayer, archive.removeLayer, function() {
     $.ajax({
       type: 'POST',
       url: '/data/read',
