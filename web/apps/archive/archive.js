@@ -212,8 +212,8 @@ archive.removeLayer = function(target, layerId) {
 
 
 archive.addLayer = function(event) {
-  ogs.ui.gis.addLayer(archive, 'layers-table', event.target, 'archive.selectLayer',
-    'archive.toggleLayer', 'archive.removeLayer', function() {
+  ogs.ui.gis.addLayer(archive, 'layers-table', event.target, archive.selectLayer,
+    archive.toggleLayer, archive.removeLayer, function() {
     $.ajax({
       type: 'POST',
       url: '/data/read',
