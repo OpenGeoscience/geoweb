@@ -183,6 +183,7 @@ archive.selectLayer = function(target, layerId) {
     }
     else {
       archive.myMap.selectLayer(null);
+      ogs.ui.gis.selectLayer(null, null);
       return true;
     }
   }
