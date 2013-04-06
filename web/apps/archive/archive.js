@@ -21,7 +21,8 @@ archive.main = function() {
 
   var mapOptions = {
     zoom : 1,
-    center : ogs.geo.latlng(0.0, 0.0)
+    center : ogs.geo.latlng(0.0, 0.0),
+    source: '/data/assets/land_shallow_topo_2048.png'
   };
 
   archive.myMap = ogs.geo.map(document.getElementById("glcanvas"), mapOptions);
