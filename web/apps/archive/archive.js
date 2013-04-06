@@ -97,16 +97,22 @@ archive.main = function() {
     archive.getDocuments();
 
     // Create a placeholder for the layers
-    ogs.ui.gis.createGisLayerList('layers', 'Layers');
+    ogs.ui.gis.createList('layers', 'Layers');
 
     // Create a placeholder for layer controls
-    ogs.ui.gis.createGisLayerList('layer-controls', 'Controls');
+    ogs.ui.gis.createList('layer-controls', 'Controls');
 
     // Add slider to it
     var tbody = $('#layer-controls-table').find('tbody');
     $(tbody).append("<tr>");
     $('#layer-controls-table tr:last').append('<td><h4>Opacity</h4></td>');
-    $('#layer-controls-table tr:last').append('<td width=100%><div id="opacity" class="ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all"></div></td>');
+    $('#layer-controls-table tr:last').append('<td width=100%><div id="opacity" \
+      class="ui-slider ui-slider-horizontal ui-widget ui-widget-content \
+      ui-corner-all"></div></td>');
+
+    // Create a place holder for view controls
+    // Create a placeholder for layer controls
+    ogs.ui.gis.createList('view-controls', 'View-Options');
   });
 
   // Listen for slider slidechange event
@@ -151,7 +157,7 @@ archive.getDocuments = function() {
       if (response.error !== null) {
           console.log("[error] " + response.error ? response.error : "no results returned from server");
       } else {
-        ogs.ui.gis.createGisDataList('documents', 'Documents', 'layers-table', response.result.data, archive.addLayer);
+        ogs.ui.gis.createDataList('documents', 'Documents', 'layers-table', response.result.data, archive.addLayer);
       }
     }
   });
