@@ -131,6 +131,7 @@ archive.main = function() {
   init();
 };
 
+
 archive.processCSVData = function(csvdata) {
   var table = [];
   var lines = csvdata.split(/\r\n|\n/);
@@ -141,6 +142,7 @@ archive.processCSVData = function(csvdata) {
   }
   return table;
 };
+
 
 archive.getDocuments = function() {
   mongo = archive.getMongoConfig();
@@ -157,7 +159,7 @@ archive.getDocuments = function() {
       if (response.error !== null) {
           console.log("[error] " + response.error ? response.error : "no results returned from server");
       } else {
-        ogs.ui.gis.createDataList('documents', 'Documents', 'layers-table', response.result.data, archive.addLayer);
+        ogs.ui.gis.createDataList('documents', 'Documents', 'table-layers', response.result.data, archive.addLayer);
       }
     }
   });
@@ -219,7 +221,7 @@ archive.removeLayer = function(target, layerId) {
 
 
 archive.addLayer = function(event) {
-  ogs.ui.gis.addLayer(archive, 'layers-table', event.target, archive.selectLayer,
+  ogs.ui.gis.addLayer(archive, 'table-layers', event.target, archive.selectLayer,
     archive.toggleLayer, archive.removeLayer, function() {
     $.ajax({
       type: 'POST',
