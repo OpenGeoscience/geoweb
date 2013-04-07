@@ -104,10 +104,10 @@ archive.main = function() {
     ogs.ui.gis.createList('layer-controls', 'Controls');
 
     // Add slider to it
-    var tbody = $('#layer-controls-table').find('tbody');
+    var tbody = $('#table-layer-controls').find('tbody');
     $(tbody).append("<tr>");
-    $('#layer-controls-table tr:last').append('<td><h4>Opacity</h4></td>');
-    $('#layer-controls-table tr:last').append('<td width=100%><div id="opacity" \
+    $('#table-layer-controls tr:last').append('<td><h4>Opacity</h4></td>');
+    $('#table-layer-controls tr:last').append('<td width=100%><div id="opacity" \
       class="ui-slider ui-slider-horizontal ui-widget ui-widget-content \
       ui-corner-all"></div></td>');
 
