@@ -22,17 +22,20 @@ archive.main = function() {
   var mapOptions = {
     zoom : 1,
     center : ogs.geo.latlng(0.0, 0.0),
-    source: '/data/assets/land_shallow_topo_2048.png'
+    source: '/data/assets/land_shallow_topo_2048.png',
+    country_boundries: true
   };
 
   archive.myMap = ogs.geo.map(document.getElementById("glcanvas"), mapOptions);
-  var planeLayer = ogs.geo.featureLayer({
-    "opacity" : 1,
-    "showAttribution" : 1,
-    "visible" : 1
-  }, ogs.geo.planeFeature(ogs.geo.latlng(-90.0, 0.0), ogs.geo.latlng(90.0,
-                                                                     180.0)));
- archive.myMap.addLayer(planeLayer);
+
+ // @note For testing only
+ //  var planeLayer = ogs.geo.featureLayer({
+ //    "opacity" : 1,
+ //    "showAttribution" : 1,
+ //    "visible" : 1
+ //  }, ogs.geo.planeFeature(ogs.geo.latlng(-90.0, 0.0), ogs.geo.latlng(90.0,
+ //                                                                     180.0)));
+ // archive.myMap.addLayer(planeLayer);
 
   // Read city geo-coded data
   var table = [];
@@ -239,7 +242,7 @@ archive.addLayer = function(event) {
           var geoms = reader.readGJObject(jQuery.parseJSON(response.result.data[0]));
           for (var i = 0; i < geoms.length; ++i) {
             var layer = ogs.geo.featureLayer({
-              "opacity" : 1,
+              "opacity" : 0.5,
               "showAttribution" : 1,
               "visible" : 1
             }, ogs.geo.geometryFeature(geoms[i]));
