@@ -246,10 +246,12 @@ archive.addLayer = function(event) {
               "showAttribution" : 1,
               "visible" : 1
             }, ogs.geo.geometryFeature(geoms[i]));
-            layer.setName($(event.target).attr('name'));
+            var layerId = $(event.target).attr('name');
+            layer.setName(layerId);
             archive.myMap.addLayer(layer);
           }
           archive.myMap.redraw();
+          ogs.ui.gis.layerAdded(event.target);
 
           $('.btn-layer').each(function(index){
               $(this).removeClass('disabled');
