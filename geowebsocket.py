@@ -71,3 +71,6 @@ class WebSocketRouter(WebSocket):
         else:
             cherrypy.log("No handler registered. User %s Message %s" %
                          (str(self), key_msg))
+
+    def closed(self, code, reason="A client left the room without a proper explanation."):
+        cherrypy.engine.publish('websocket-broadcast', TextMessage(reason))

@@ -134,15 +134,13 @@ set(SOURCES
     geoweb
     geoweb.py
     geowebsocket.py
-    modules/__init__.py
-    modules/echo.py
-    modules/websocket_pi.py
-    modules/ogsvtk.py
-    modules/cpi.py
 )
 
 set(DIRECTORIES
   web
+  modules
+  services
+  logs
 )
 
 configure_file(configure_server.cmake.in

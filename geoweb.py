@@ -9,7 +9,7 @@ import os
 
 #websocket imports
 from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
-from modules import ModuleRoot
+from services import ServiceRoot
 
 #from ws4py.messaging import TextMessage
 #from websocket_chat import ChatRoot
@@ -37,7 +37,7 @@ cherrypy.tools.websocket = WebSocketTool()
 class Root(object):
     #vtk = VTKRoot(host='127.0.0.1', port=8080, ssl=False)
 
-    modules = ModuleRoot()
+    services = ServiceRoot()
 
     @cherrypy.expose
     def update(self):
@@ -46,7 +46,7 @@ class Root(object):
 
     @cherrypy.expose
     def ws(self):
-        pass #used for websockets
+        cherrypy.log("Handler created: %s" % repr(cherrypy.request.ws_handler))
 
 if __name__ == '__main__':
     import os.path
