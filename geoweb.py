@@ -9,9 +9,12 @@ import os
 
 #websocket imports
 from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
-from websocket_chat import ChatRoot
-from websocket_pi import PiRoot
-from ogsvtk import VTKRoot
+from modules import ModuleRoot
+
+#from ws4py.messaging import TextMessage
+#from websocket_chat import ChatRoot
+#from websocket_pi import PiRoot
+#from ogsvtk import VTKRoot
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -32,19 +35,18 @@ WebSocketPlugin(cherrypy.engine).subscribe()
 cherrypy.tools.websocket = WebSocketTool()
 
 class Root(object):
-    # access at http://localhost:8080/chat
-    chat = ChatRoot(host='127.0.0.1', port=8080, ssl=False)
+    #vtk = VTKRoot(host='127.0.0.1', port=8080, ssl=False)
 
-    # access at http://localhost:8080/pi
-    pi = PiRoot(host='127.0.0.1', port=8080, ssl=False)
-
-    # access at http://localhost:8080/pi
-    vtk = VTKRoot(host='127.0.0.1', port=8080, ssl=False)
+    modules = ModuleRoot()
 
     @cherrypy.expose
     def update(self):
       # Here's the important message!
       return "This a very important message"
+
+    @cherrypy.expose
+    def ws(self):
+        pass #used for websockets
 
 if __name__ == '__main__':
     import os.path

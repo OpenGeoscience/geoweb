@@ -133,7 +133,9 @@ set(JS_DOCUMENT_FILES
 set(SOURCES
     geoweb
     geoweb.py
-    modules/websocket_chat.py
+    geowebsocket.py
+    modules/__init__.py
+    modules/echo.py
     modules/websocket_pi.py
     modules/ogsvtk.py
     modules/cpi.py
