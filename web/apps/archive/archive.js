@@ -20,7 +20,7 @@ archive.getMongoConfig = function() {
 archive.main = function() {
 
   var mapOptions = {
-    zoom : 1,
+    zoom : 6,
     center : ogs.geo.latlng(0.0, 0.0),
     source: '/data/assets/land_shallow_topo_2048.png',
     country_boundries: true
@@ -117,6 +117,9 @@ archive.main = function() {
     // Create a place holder for view controls
     // Create a placeholder for layer controls
     ogs.ui.gis.createList('view-controls', 'View-Options');
+
+    // Generate options
+    ogs.ui.gis.generateOptions('table-view-controls', archive.myMap);
   });
 
   // Listen for slider slidechange event
