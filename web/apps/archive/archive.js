@@ -101,38 +101,20 @@ archive.main = function() {
     archive.getDocuments();
 
     // Create a placeholder for the layers
-    ogs.ui.gis.createList('layers', 'Layers');
+    var layersTable = ogs.ui.gis.createList('layers', 'Layers');
 
     // Create a placeholder for layer controls
-    ogs.ui.gis.createList('layer-controls', 'Controls');
+    var layersControlTable = ogs.ui.gis.createList('layer-controls', 'Controls');
 
-    // Add slider to it
-    var tbody = $('#table-layer-controls').find('tbody');
-    $(tbody).append("<tr>");
-    $('#table-layer-controls tr:last').append('<td><h4>opacity</h4></td>');
-    $('#table-layer-controls td:last').append('<div id="opacity" \
-      class="ui-slider ui-slider-horizontal ui-widget ui-widget-content \
-      ui-corner-all"></div>');
+    // Populate controls
+    ogs.ui.gis.createControls(layersControlTable, archive.myMap);
 
     // Create a place holder for view controls
     // Create a placeholder for layer controls
-    ogs.ui.gis.createList('view-controls', 'View-Options');
+    var viewControlTable = ogs.ui.gis.createList('view-controls', 'View-Options');
 
     // Generate options
-    ogs.ui.gis.generateOptions('table-view-controls', archive.myMap);
-  });
-
-  // Listen for slider slidechange event
-  $('#opacity').slider().bind('slide', function(event, ui) {
-    if (archive.myMap.activeLayer() !== null) {
-      archive.myMap.activeLayer().setOpacity(ui.value);
-    }
-    archive.myMap.redraw();
-  });
-
-  $('#opacity').on('mousedown', function(e) {
-    e.stopPropagation();
-    return false;
+    ogs.ui.gis.generateOptions(viewControlTable, archive.myMap);
   });
 
   init();

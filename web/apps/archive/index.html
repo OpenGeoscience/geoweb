@@ -11,18 +11,6 @@
   <script type="text/javascript" src="archive.js"></script>
   <script>
     function init() {
-      // Slider to control opacity
-      $( "#opacity" ).slider({
-        range: "min",
-        min: 0.0,
-        max: 1.0,
-        step: 0.01,
-        value: 0.5,
-        slide: function( event, ui ) {
-          $( "#amount" ).val( ui.value );
-        }
-      });
-
       // Animate control panel
       var collapsed = false;
       var defaultHeight = 0;
