@@ -20,18 +20,22 @@ archive.getMongoConfig = function() {
 archive.main = function() {
 
   var mapOptions = {
-    zoom : 1,
-    center : ogs.geo.latlng(0.0, 0.0)
+    zoom : 6,
+    center : ogs.geo.latlng(0.0, 0.0),
+    source: '/data/assets/land_shallow_topo_2048.png',
+    country_boundries: true
   };
 
   archive.myMap = ogs.geo.map(document.getElementById("glcanvas"), mapOptions);
-  var planeLayer = ogs.geo.featureLayer({
-    "opacity" : 1,
-    "showAttribution" : 1,
-    "visible" : 1
-  }, ogs.geo.planeFeature(ogs.geo.latlng(-90.0, 0.0), ogs.geo.latlng(90.0,
-                                                                     180.0)));
- archive.myMap.addLayer(planeLayer);
+
+ // @note For testing only
+ //  var planeLayer = ogs.geo.featureLayer({
+ //    "opacity" : 1,
+ //    "showAttribution" : 1,
+ //    "visible" : 1
+ //  }, ogs.geo.planeFeature(ogs.geo.latlng(-90.0, 0.0), ogs.geo.latlng(90.0,
+ //                                                                     180.0)));
+ // archive.myMap.addLayer(planeLayer);
 
   // Read city geo-coded data
   var table = [];
@@ -97,33 +101,25 @@ archive.main = function() {
     archive.getDocuments();
 
     // Create a placeholder for the layers
-    ogs.ui.gis.createGisLayerList('layers', 'Layers');
+    var layersTable = ogs.ui.gis.createList('layers', 'Layers');
 
     // Create a placeholder for layer controls
-    ogs.ui.gis.createGisLayerList('layer-controls', 'Controls');
+    var layersControlTable = ogs.ui.gis.createList('layer-controls', 'Controls');
 
-    // Add slider to it
-    var tbody = $('#layer-controls-table').find('tbody');
-    $(tbody).append("<tr>");
-    $('#layer-controls-table tr:last').append('<td><h4>Opacity</h4></td>');
-    $('#layer-controls-table tr:last').append('<td width=100%><div id="opacity" class="ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all"></div></td>');
-  });
+    // Populate controls
+    ogs.ui.gis.createControls(layersControlTable, archive.myMap);
 
-  // Listen for slider slidechange event
-  $('#opacity').slider().bind('slide', function(event, ui) {
-    if (archive.myMap.activeLayer() !== null) {
-      archive.myMap.activeLayer().setOpacity(ui.value);
-    }
-    archive.myMap.redraw();
-  });
+    // Create a place holder for view controls
+    // Create a placeholder for layer controls
+    var viewControlTable = ogs.ui.gis.createList('view-controls', 'View-Options');
 
-  $('#opacity').on('mousedown', function(e) {
-    e.stopPropagation();
-    return false;
+    // Generate options
+    ogs.ui.gis.generateOptions(viewControlTable, archive.myMap);
   });
 
   init();
 };
+
 
 archive.processCSVData = function(csvdata) {
   var table = [];
@@ -135,6 +131,7 @@ archive.processCSVData = function(csvdata) {
   }
   return table;
 };
+
 
 archive.getDocuments = function() {
   mongo = archive.getMongoConfig();
@@ -151,7 +148,7 @@ archive.getDocuments = function() {
       if (response.error !== null) {
           console.log("[error] " + response.error ? response.error : "no results returned from server");
       } else {
-        ogs.ui.gis.createGisDataList('documents', 'Documents', 'layers-table', response.result.data, archive.addLayer);
+        ogs.ui.gis.createDataList('documents', 'Documents', 'table-layers', response.result.data, archive.addLayer);
       }
     }
   });
@@ -177,6 +174,7 @@ archive.selectLayer = function(target, layerId) {
     }
     else {
       archive.myMap.selectLayer(null);
+      ogs.ui.gis.selectLayer(null, null);
       return true;
     }
   }
@@ -212,7 +210,7 @@ archive.removeLayer = function(target, layerId) {
 
 
 archive.addLayer = function(event) {
-  ogs.ui.gis.addLayer(archive, 'layers-table', event.target, archive.selectLayer,
+  ogs.ui.gis.addLayer(archive, 'table-layers', event.target, archive.selectLayer,
     archive.toggleLayer, archive.removeLayer, function() {
     $.ajax({
       type: 'POST',
@@ -229,14 +227,16 @@ archive.addLayer = function(event) {
           var geoms = reader.readGJObject(jQuery.parseJSON(response.result.data[0]));
           for (var i = 0; i < geoms.length; ++i) {
             var layer = ogs.geo.featureLayer({
-              "opacity" : 1,
+              "opacity" : 0.5,
               "showAttribution" : 1,
               "visible" : 1
             }, ogs.geo.geometryFeature(geoms[i]));
-            layer.setName($(event.target).attr('name'));
+            var layerId = $(event.target).attr('name');
+            layer.setName(layerId);
             archive.myMap.addLayer(layer);
           }
           archive.myMap.redraw();
+          ogs.ui.gis.layerAdded(event.target);
 
           $('.btn-layer').each(function(index){
               $(this).removeClass('disabled');

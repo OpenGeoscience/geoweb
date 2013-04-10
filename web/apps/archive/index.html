@@ -11,18 +11,6 @@
   <script type="text/javascript" src="archive.js"></script>
   <script>
     function init() {
-      // Slider to control opacity
-      $( "#opacity" ).slider({
-        range: "min",
-        min: 0.0,
-        max: 1.0,
-        step: 0.01,
-        value: 0.5,
-        slide: function( event, ui ) {
-          $( "#amount" ).val( ui.value );
-        }
-      });
-
       // Animate control panel
       var collapsed = false;
       var defaultHeight = 0;
@@ -62,57 +50,73 @@
   <link href="/common/css/select2.css" rel=stylesheet type=text/css></link>
   <link href="/common/css/geoweb.css" rel=stylesheet type=text/css>
   <style>
-   p {
+    p {
      color:#FFA500;
      font-weight:bold;
-   }
+    }
 
-   .pointer {
-     cursor: pointer;
-   }
+    .pointer {
+      cursor: pointer;
+    }
 
-   .centered {
-    margin-left: auto;
-    margin-right: auto;
-    text-align: center;
-   }
+    .centered {
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+    }
 
-   .hover {
-    background-color: gray;
-   }
+    .hover {
+      background-color: gray;
+    }
 
-   a {
-    font-family: inherit;
-    font-weight: bold;
-    line-height: 20px;
-    color: inherit;
-    text-rendering: optimizelegibility;
-    font-size: 17.5px;
-   }
+    a {
+      font-family: inherit;
+      font-weight: bold;
+      line-height: 20px;
+      color: inherit;
+      text-rendering: optimizelegibility;
+      font-size: 17.5px;
+    }
 
-   table {
-    width: 100%;
-   }
+     table {
+      width: 100%;
+     }
 
-   .td-btn-layer {
-     text-align: right;
-   }
+     .td-btn-layer {
+       text-align: right;
+     }
 
-   .accordion-group {
-     border: none;
-   }
+     .accordion-group {
+       border: none;
+     }
 
-   #documents-container {
-    height: 350px;
-    overflow: auto;
-   }
+     #documents-container {
+      height: 350px;
+      overflow: auto;
+     }
 
-   #layers-container {
-    height: 300px;
-    overflow: auto;
-   }
+     #layers-container {
+      height: 300px;
+      overflow: auto;
+     }
 
-   #
+     #controls-container {
+      overflow: auto;
+     }
+
+    #table {
+      table-layout: fixed;
+      word-wrap: break-word;
+    }
+
+    .container-fluid {
+      padding-right: 0px;
+      padding-left: 0px;
+    }
+
+    body {
+      overflow: auto;
+    }
 
   </style>
   </head>
@@ -139,20 +143,26 @@
 
         <div class="row-fluid">
           <div class="span5">
-            <div id="documents-container" class="row">
+            <div id="documents-container" class="row-fluid">
               <div class="accordion" id="documents">
               </div>
             </div>
           </div>
-          <div class="span4">
-            <div id="layers-container" class="row">
+          <div class="span3">
+            <div id="layers-container" class="row-fluid">
               <div class="accordion" id="layers">
               </div>
             </div>
           </div>
-          <div class="span3">
-            <div id="controls-container" class="row">
+          <div class="span2">
+            <div id="controls-container" class="row-fluid">
               <div class="accordion" id="layer-controls">
+              </div>
+            </div>
+          </div>
+          <div class="span2">
+            <div id="controls-container" class="row-fluid">
+              <div class="accordion" id="view-controls">
               </div>
             </div>
           </div>
