@@ -109,10 +109,10 @@ archive.main = function() {
     // Add slider to it
     var tbody = $('#table-layer-controls').find('tbody');
     $(tbody).append("<tr>");
-    $('#table-layer-controls tr:last').append('<td><h4>Opacity</h4></td>');
-    $('#table-layer-controls tr:last').append('<td width=100%><div id="opacity" \
+    $('#table-layer-controls tr:last').append('<td><h4>opacity</h4></td>');
+    $('#table-layer-controls td:last').append('<div id="opacity" \
       class="ui-slider ui-slider-horizontal ui-widget ui-widget-content \
-      ui-corner-all"></div></td>');
+      ui-corner-all"></div>');
 
     // Create a place holder for view controls
     // Create a placeholder for layer controls
