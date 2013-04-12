@@ -19,6 +19,7 @@ from ws4py.client.threadedclient import WebSocketClient
 from geoweb import current_dir as webroot
 from geowebsocket import WebSocketRouter
 
+temp_dir = os.path.join(os.path.abspath(webroot), 'temp')
 userdata = {}
 class functions(object):
 
@@ -31,13 +32,14 @@ class functions(object):
         if userkey not in userdata:
             userdata[userkey] = {}
 
-            data_file = '~/src/uvcdat/data/sample_data/clt.nc' #TODO: user defined
+            data_root = cherrypy.config['data']['tools.staticdir.dir']
+            data_file = os.path.join(data_root, 'clt.nc')  # TODO: user defined
             f = cdms2.open(data_file, 'r')
-            clt = f['clt'] #TODO: user defined
+            clt = f['clt']  # TODO: user defined
 
             userdata[userkey]['latCoords'] = clt.getLatitude().getValue()
             userdata[userkey]['lonCoords'] = clt.getLongitude().getValue()
-            userdata[userkey]['clevs'] = range(-1,100,10) #TODO: user defined
+            userdata[userkey]['clevs'] = range(-1, 100, 10)  # TODO: user defined
 
 
         latCoords = userdata[userkey]['latCoords']
@@ -45,19 +47,19 @@ class functions(object):
         clevs = userdata[userkey]['clevs']
 
         print "get data for only this region"
-        #need to expand bounds by one due to the difference in how
-        #basemap and cdms work with bounds
-        t = len(latCoords)-1
-        n = len(lonCoords)-1
-        a,b,c,d = latBounds[0],latBounds[1],lonBounds[0],lonBounds[1]
-        regiondata = clt[:,(a-1 if a>0 else a):(b+1 if b<t else b),(c-1 if c>0 else c):(d+1 if d<n else d)]
+        # need to expand bounds by one due to the difference in how
+        # basemap and cdms work with bounds
+        t = len(latCoords) - 1
+        n = len(lonCoords) - 1
+        a, b, c, d = latBounds[0], latBounds[1], lonBounds[0], lonBounds[1]
+        regiondata = clt[:, (a - 1 if a > 0 else a):(b + 1 if b < t else b), (c - 1 if c > 0 else c):(d + 1 if d < n else d)]
 
         print "perform time average on data"
         cdutil.setTimeBoundsMonthly(regiondata)
-        avg = cdutil.averager(regiondata,axis='t')
+        avg = cdutil.averager(regiondata, axis='t')
 
-        #setup figure to have no borders
-        fig = plt.figure(figsize=((d-c)*0.15,(b-a)*0.1),frameon=False)
+        # setup figure to have no borders
+        fig = plt.figure(figsize=((d - c) * 0.15, (b - a) * 0.1), frameon=False)
         ax = plt.Axes(fig, [0., 0., 1., 1.])
         ax.set_axis_off()
         fig.add_axes(ax)
@@ -68,7 +70,7 @@ class functions(object):
                     llcrnrlon=lonCoords[lonBounds[0]],
                     llcrnrlat=latCoords[latBounds[0]],
                     urcrnrlon=lonCoords[lonBounds[1]],
-                    urcrnrlat=latCoords[latBounds[1]],fix_aspect=False)
+                    urcrnrlat=latCoords[latBounds[1]], fix_aspect=False)
         x, y = m(*np.meshgrid(lons, lats))
 
         try:
@@ -77,13 +79,13 @@ class functions(object):
             import traceback
             tb = traceback.format_exc()
             print tb
-            print "Region lat(%d,%d) lon(%d,%d) faled" % (latBounds[0],latBounds[1],lonBounds[0],lonBounds[1])
+            print "Region lat(%d,%d) lon(%d,%d) faled" % (latBounds[0], latBounds[1], lonBounds[0], lonBounds[1])
 
         m.drawcoastlines()
 
         print "save to temp file"
-        temp_image_file = os.path.join(os.path.abspath(os.path.dirname(data_file)),'%s.png'%str(uuid4()))
-        fig.savefig(temp_image_file,dpi=100)
+        temp_image_file = os.path.join(temp_dir, '%s.png' % str(uuid4()))
+        fig.savefig(temp_image_file, dpi=100)
 
         print "convert image data to base64"
         with open(temp_image_file, "rb") as temp_image:
@@ -91,7 +93,7 @@ class functions(object):
 
         funcData = {'func':'region', 'args':[base64png, i, userkey], 'kwargs':{}}
 
-        #cleanup
+        # cleanup
         plt.clf()
         os.remove(temp_image_file)
 
@@ -108,9 +110,9 @@ class StreamingWorkerClient(WebSocketClient):
 
     def received_message(self, m):
         print "#message from user/client %s" % str(m)
-        user_msg = str(m).split(',',1)
+        user_msg = str(m).split(',', 1)
 
-        func_args =json.loads(user_msg[1])
+        func_args = json.loads(user_msg[1])
         func = getattr(functions, func_args['func'])
         result = func(*func_args['args'], **func_args['kwargs'])
         self.send("%s,%s" % (user_msg[0], json.dumps(result)))
