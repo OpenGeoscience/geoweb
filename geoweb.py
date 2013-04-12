@@ -10,6 +10,7 @@ import os
 #websocket imports
 from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
 from services import ServiceRoot
+import geowebsocket
 
 #from ws4py.messaging import TextMessage
 #from websocket_chat import ChatRoot

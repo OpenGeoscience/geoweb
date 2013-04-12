@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import argparse
 import inspect
+import json
 import os
 import random
 import sys
@@ -9,13 +10,15 @@ from array import array
 
 import cdms2
 import numpy
-from mpi4py import MPI
+#from mpi4py import MPI
 from ws4py.client.threadedclient import WebSocketClient
 
+from geoweb import current_dir as webroot
 from geowebsocket import WebSocketRouter
 
 class functions(object):
 
+    @staticmethod
     def start(websocket, userkey):
 
         if hasattr(websocket, 'processing') and websocket.processing:
@@ -63,6 +66,7 @@ class functions(object):
         funcData['args'] = [latIndexs[1],lonIndexs[1],1]
         websocket.send('%s,%s' % ('streamworker', json.dumps(funcData)))
 
+    @staticmethod
     def region(websocket, clientkey, data, i, userkey):
 
         print "start next region processing"
@@ -92,6 +96,7 @@ class functions(object):
         response = {'x':x*w, 'y':(xcount-y)*h, 'img':data}
         websocket.send('%s,%s' % (userkey, json.dumps(response)))
 
+    @staticmethod
     def stop(websocket, userkey):
         websocket.send('%s,%s' % ('streamworker',
                                   json.dumps({'func':'stop','args':[],

@@ -43,10 +43,11 @@ def run(*pargs, **kwargs):
             return error
         return "Already stopped"
 
-    if pargs[0] == 'start':
-        return "%s\n%s" % (startClient('master'),startClient('worker'))
+    if len(pargs) > 0:
+        if pargs[0] == 'start':
+            return "%s\n%s" % (startClient('master'),startClient('worker'))
 
-    elif pargs[0] == 'stop':
-        return "%s\n%s" % (stopClient('master'),stopClient('worker'))
-    else:
-        return "Unknown command"
+        elif pargs[0] == 'stop':
+            return "%s\n%s" % (stopClient('master'),stopClient('worker'))
+
+    return "Unknown command"

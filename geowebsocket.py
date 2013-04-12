@@ -1,4 +1,11 @@
+from uuid import uuid4
+
+import cherrypy
 from ws4py.websocket import WebSocket
+from ws4py.messaging import TextMessage
+
+def myDebug(_str): cherrypy.log(_str)
+# def myDebug(_str): pass
 
 class TwoWayDict(dict):
     def __len__(self):
@@ -15,8 +22,9 @@ class WebSocketRouter(WebSocket):
     funcmap = dict()
     serverkey = 'B8u0NOwhDE3M8sczQFyw'
 
+    @staticmethod
     def register(func, key):
-        self.modulemap[key] = func
+        WebSocketRouter.funcmap[key] = func
 
     def received_message(self, m):
         """m is a TextMessage of comma separated key and msg
@@ -27,59 +35,75 @@ class WebSocketRouter(WebSocket):
         For user messages, key is the handler registered name
         """
 
-        # separate key and message
-        key_msg = str(m).split(',',1)
+        try:
 
-        if len(key_msg) != 2:
-            self.send("Invalid message")
-            cherrypy.log("Recieved invalid message from %s: %s" %
-                         (str(self), str(m)))
-            return
+            cherrypy.log(" separate key and message")
+            key_msg = str(m).split(',', 1)
 
-        key = key_msg[0]
-        msg = key_msg[1]
+            if len(key_msg) != 2:
+                self.send("Invalid message")
+                cherrypy.log("Recieved invalid message from %s: %s" %
+                             (str(self), str(m)))
+                return
 
-        if key == WebSocketHandler.serverkey:
+            key = key_msg[0]
+            msg = key_msg[1]
 
-            #handler is registering, add them to the handler map
-            WebSocketHandler.handlermap[msg] = self
+            if key == WebSocketRouter.serverkey:
 
-        elif self in WebSocketHandler.handlermap:
+                myDebug("%s - %s - %s" % ('registering', str(id(self)), msg))
 
-            if key in WebSocketHandler.handlermap:
+                cherrypy.log("handler is registering, add them to the handler map")
+                WebSocketRouter.handlermap[msg] = self
 
-                #handler sending result back to another handler
-                WebSocketHandler.handlermap[key].send("%s,%s" %
-                    (WebSocketHandler.handlermap[self], msg))
+            elif self in WebSocketRouter.handlermap:
 
-            elif key in WebSocketHandler.usermap:
+                myDebug("handler: %s - %s - %s" % (WebSocketRouter.handlermap[self], key, msg))
 
-                #handler is sending result back to user
-                WebSocketHandler.usermap[key].send("%s,%s" %
-                    (WebSocketHandler.handlermap[self], msg))
+                if key in WebSocketRouter.handlermap:
 
-        elif key in WebSocketHandler.funcmap:
+                    cherrypy.log("handler sending result back to another handler")
+                    WebSocketRouter.handlermap[key].send("%s,%s" %
+                        (WebSocketRouter.handlermap[self], msg))
 
-            # add to user map if not already there
-            if self not in WebSocketHandler.usermap:
-                WebSocketHandler.usermap[self] = uuid()
+                elif key in WebSocketRouter.usermap:
 
-            #send to registered func, including user websocket object
-            WebSocketHandler.funcmap[key].recieved_message(self, msg)
+                    cherrypy.log("handler is sending result back to user")
+                    WebSocketRouter.usermap[key].send("%s,%s" %
+                        (WebSocketRouter.handlermap[self], msg))
 
-        elif key in WebSocketHandler.handlermap:
+                else:
+                    cherrypy.log("No target '%s' for handler %s response: %s" %
+                                 (key, str(WebSocketRouter.handlermap[self]) , msg))
 
-            # add to user map if not already there
-            if self not in WebSocketHandler.usermap:
-                WebSocketHandler.usermap[self] = uuid()
+            elif key in WebSocketRouter.funcmap:
 
-            #send user's message to handler, including user's key
-            WebSocketHandler.handlermap[key].send("%s,%s" %
-                    (WebSocketHandler.usermap[self], msg))
+                myDebug("func: %s - %s - %s" % (WebSocketRouter.funcmap[key], key, msg))
 
-        else:
-            cherrypy.log("No handler registered. User %s Message %s" %
-                         (str(self), key_msg))
+                cherrypy.log(" add to user map if not already there")
+                if self not in WebSocketRouter.usermap:
+                    WebSocketRouter.usermap[self] = str(uuid4())
+
+                cherrypy.log("send to registered func, including user websocket object")
+                WebSocketRouter.funcmap[key].recieved_message(self, msg)
+
+            elif key in WebSocketRouter.handlermap:
+
+                myDebug("user: %s - %s - %s" % (WebSocketRouter.handlermap[key], key, msg))
+
+                cherrypy.log(" add to user map if not already there")
+                if self not in WebSocketRouter.usermap:
+                    WebSocketRouter.usermap[self] = str(uuid4())
+
+                cherrypy.log("send user's message to handler, including user's key")
+                WebSocketRouter.handlermap[key].send("%s,%s" %
+                        (WebSocketRouter.usermap[self], msg))
+
+            else:
+                cherrypy.log("No handler registered. User %s Message %s" %
+                             (str(self), key_msg))
+        except Exception, e:
+            cherrypy.log(str(e))
 
     def closed(self, code, reason="A client left the room without a proper explanation."):
         cherrypy.engine.publish('websocket-broadcast', TextMessage(reason))

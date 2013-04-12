@@ -9,9 +9,6 @@ class functions(object):
         return (args, kwargs)
 
     def region(latIndexs, lonIndexs, i, userkey):
-
-
-
         return funcData
 
 class StreamingWorkerClient(WebSocketClient):

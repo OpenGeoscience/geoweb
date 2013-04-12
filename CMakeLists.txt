@@ -141,6 +141,7 @@ set(DIRECTORIES
   modules
   services
   logs
+  temp
 )
 
 configure_file(configure_server.cmake.in

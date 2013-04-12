@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 import base64
 import cdutil
+import json
 import os
 from array import array
 from uuid import uuid4
 
 import cdms2
+import cherrypy
 import numpy as np
 import matplotlib as mpl
 mpl.rcParams['mathtext.default'] = 'regular'
@@ -14,14 +16,17 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
 from ws4py.client.threadedclient import WebSocketClient
 
+from geoweb import current_dir as webroot
 from geowebsocket import WebSocketRouter
 
 userdata = {}
 class functions(object):
 
+    @staticmethod
     def echo(*args, **kwargs):
         return (args, kwargs)
 
+    @staticmethod
     def region(latBounds, lonBounds, i, userkey):
         if userkey not in userdata:
             userdata[userkey] = {}
@@ -77,7 +82,7 @@ class functions(object):
         m.drawcoastlines()
 
         print "save to temp file"
-        temp_image_file = os.path.join(os.path.dirname(data_file),'%s.png'%str(uuid4()))
+        temp_image_file = os.path.join(os.path.abspath(os.path.dirname(data_file)),'%s.png'%str(uuid4()))
         fig.savefig(temp_image_file,dpi=100)
 
         print "convert image data to base64"
@@ -96,7 +101,7 @@ class StreamingWorkerClient(WebSocketClient):
 
     def opened(self):
         print "Worker started"
-        self.send(WebSocketRouter.serverkey + ',worker')
+        self.send(WebSocketRouter.serverkey + ',streamworker')
 
     def closed(self, code, reason):
         print(("Closed down", code, reason))

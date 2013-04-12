@@ -5,3 +5,6 @@
 
 #emacs temp files
 *~
+
+#python compiled binary files
+*.pyc
