@@ -8,11 +8,17 @@ class functions(object):
     def echo(*args, **kwargs):
         return (args, kwargs)
 
+    def region(latIndexs, lonIndexs, i, userkey):
+
+
+
+        return funcData
+
 class StreamingWorkerClient(WebSocketClient):
 
     def opened(self):
         print "Worker started"
-
+        self.userdata = {}
         self.send(WebSocketRouter.serverkey + ',worker')
 
     def closed(self, code, reason):

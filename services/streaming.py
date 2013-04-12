@@ -5,14 +5,13 @@ from subprocess import Popen
 
 streaming_service_dir = os.path.dirname(os.path.abspath(__file__))
 
-pidfile = os.path.join(streaming_service_dir, 'streaming/client.pid')
-workerfile = os.path.join(streaming_service_dir, 'streaming/worker.py')
-masterfile = os.path.join(streaming_service_dir, 'streaming/master.py')
-
 def run(*pargs, **kwargs):
-    if pargs[0] == 'start':
+    def startClient(name):
+        cmdfile = os.path.join(streaming_service_dir, 'streaming/%s.py' % name)
+        pidfile = os.path.join(streaming_service_dir, 'streaming/%s.pid' % name)
+
         if os.path.exists(pidfile):
-            return "Already running"
+            return "%s running" % name
 
         pid = Popen(["python", cmdfile]).pid
 
@@ -21,26 +20,33 @@ def run(*pargs, **kwargs):
         file.flush()
         file.close()
 
-        return "started"
+        return "started %s" % name
 
-    elif pargs[0] == 'stop':
+    def stopClient(name):
+        pidfile = os.path.join(streaming_service_dir, 'streaming/%s.pid' % name)
         if os.path.exists(pidfile):
             error = ''
             file = open(pidfile)
 
             try:
                 pid = int(file.read())
-            except ValueError:
-                error += "client.pid does not contain a valid process id"
+            except:
+                error += "%s.pid does not contain a valid process id" % name
 
             try:
                 error = "Exit code: %s" % str(os.kill(pid, signal.SIGKILL))
             except:
-                error += "unable to kill process"
+                error += "unable to kill %s process" % name
             finally:
                 os.remove(pidfile)
 
             return error
         return "Already stopped"
+
+    if pargs[0] == 'start':
+        return "%s\n%s" % (startClient('master'),startClient('worker'))
+
+    elif pargs[0] == 'stop':
+        return "%s\n%s" % (stopClient('master'),stopClient('worker'))
     else:
         return "Unknown command"

@@ -46,8 +46,17 @@ class WebSocketRouter(WebSocket):
 
         elif self in WebSocketHandler.handlermap:
 
-            #handler is sending result back to user
-            WebSocketHandler.usermap[key].send(msg)
+            if key in WebSocketHandler.handlermap:
+
+                #handler sending result back to another handler
+                WebSocketHandler.handlermap[key].send("%s,%s" %
+                    (WebSocketHandler.handlermap[self], msg))
+
+            elif key in WebSocketHandler.usermap:
+
+                #handler is sending result back to user
+                WebSocketHandler.usermap[key].send("%s,%s" %
+                    (WebSocketHandler.handlermap[self], msg))
 
         elif key in WebSocketHandler.funcmap:
 
