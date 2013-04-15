@@ -2,7 +2,6 @@ from uuid import uuid4
 
 import cherrypy
 from ws4py.websocket import WebSocket
-from ws4py.messaging import TextMessage
 
 def myDebug(_str): cherrypy.log(_str)
 # def myDebug(_str): pass
@@ -15,12 +14,16 @@ class TwoWayDict(dict):
         dict.__setitem__(self, key, value)
         dict.__setitem__(self, value, key)
 
+    def __del__(self, key):
+        value = self[key]
+        dict.__del__(self, key)
+        dict.__del__(self, value)
+
 class WebSocketRouter(WebSocket):
 
     usermap = TwoWayDict()
     handlermap = TwoWayDict()
     funcmap = dict()
-    serverkey = 'B8u0NOwhDE3M8sczQFyw'
 
     @staticmethod
     def register(func, key):
@@ -37,7 +40,7 @@ class WebSocketRouter(WebSocket):
 
         try:
 
-            cherrypy.log(" separate key and message")
+            cherrypy.log(" separate key and message %s" % m)
             key_msg = str(m).split(',', 1)
 
             if len(key_msg) != 2:
@@ -49,12 +52,13 @@ class WebSocketRouter(WebSocket):
             key = key_msg[0]
             msg = key_msg[1]
 
-            if key == WebSocketRouter.serverkey:
+            if key == 'register':
 
                 myDebug("%s - %s - %s" % ('registering', str(id(self)), msg))
 
                 cherrypy.log("handler is registering, add them to the handler map")
                 WebSocketRouter.handlermap[msg] = self
+                cherrypy.engine.publish('websocket-broadcast', m)
 
             elif self in WebSocketRouter.handlermap:
 
@@ -106,4 +110,11 @@ class WebSocketRouter(WebSocket):
             cherrypy.log(str(e))
 
     def closed(self, code, reason="A client left the room without a proper explanation."):
-        cherrypy.engine.publish('websocket-broadcast', TextMessage(reason))
+        if self in WebSocketRouter.usermap:
+            del WebSocketRouter.usermap[self]
+        elif self in WebSocketRouter.handlermap:
+            del WebSocketRouter.handlermap[self]
+        else:
+            cherrypy.log("Untracked client disconnected?!?: %s" % reason)
+
+        # cherrypy.engine.publish('websocket-broadcast', TextMessage(reason))

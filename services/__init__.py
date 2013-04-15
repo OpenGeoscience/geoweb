@@ -19,15 +19,20 @@ class ServiceRoot(object):
         # Convert the args into a list (from a tuple).
         path = list(args)
 
-        #grab the first path arg
+        # grab the first path arg
         service = path[0]
+
+        # cherrypy.log("path: %s" % str(path))
+        # cherrypy.log("kwargs: %s" % str(kwargs))
+        # cherrypy.log("Service: %s" % service)
+        # cherrypy.log("Services: %s" % str(ServiceRoot.services))
 
         response = {'result' : None, 'error' : None}
 
         if service not in ServiceRoot.services:
             try:
-                fn = os.path.join(service_dir, service+'.py')
-                ServiceRoot.services[service] = imp.load_source("service", fn)
+                fn = os.path.join(service_dir, service + '.py')
+                ServiceRoot.services[service] = imp.load_source("__imp_%s__" % service, fn)
             except IOError as e:
                 error = "IOError: %s" % (e)
                 cherrypy.log(error)

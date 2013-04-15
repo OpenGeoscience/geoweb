@@ -1,4 +1,22 @@
-# -*- coding: utf-8 -*-
+    # -*- coding: utf-8 -*-
+import os
+
+this_dir = os.path.dirname(os.path.abspath(__file__))
+temp_dir = os.path.abspath(os.path.join(this_dir, '../../temp'))
+
+logfile = None
+def mylog(m):
+    global logfile
+    if logfile is None:
+        logfile = open(os.path.join(temp_dir, "workerout.txt"), "a")
+    logfile.write("%s\n" % m)
+    logfile.flush()
+# def mylog(m): pass
+
+mylog("starting")
+
+import sys
+
 import base64
 import cdutil
 import json
@@ -6,8 +24,9 @@ import os
 from array import array
 from uuid import uuid4
 
+mylog("imported built in modules")
+
 import cdms2
-import cherrypy
 import numpy as np
 import matplotlib as mpl
 mpl.rcParams['mathtext.default'] = 'regular'
@@ -16,11 +35,12 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
 from ws4py.client.threadedclient import WebSocketClient
 
-from geoweb import current_dir as webroot
-from geowebsocket import WebSocketRouter
+mylog("imported 3rd party modules")
 
-temp_dir = os.path.join(os.path.abspath(webroot), 'temp')
+this_dir = os.path.dirname(os.path.abspath(__file__))
+temp_dir = os.path.abspath(os.path.join(this_dir, '../../temp'))
 userdata = {}
+
 class functions(object):
 
     @staticmethod
@@ -28,33 +48,33 @@ class functions(object):
         return (args, kwargs)
 
     @staticmethod
-    def region(latBounds, lonBounds, i, userkey):
+    def loadData(filename, var, userkey):
         if userkey not in userdata:
             userdata[userkey] = {}
+        f = cdms2.open(filename, 'r')
+        userdata[userkey]['var'] = cdmsVar = f[var]
+        userdata[userkey]['latCoords'] = cdmsVar.getLatitude().getValue()
+        userdata[userkey]['lonCoords'] = cdmsVar.getLongitude().getValue()
+        userdata[userkey]['clevs'] = range(-1, 100, 10)  # TODO: user defined
+        return None
 
-            data_root = cherrypy.config['data']['tools.staticdir.dir']
-            data_file = os.path.join(data_root, 'clt.nc')  # TODO: user defined
-            f = cdms2.open(data_file, 'r')
-            clt = f['clt']  # TODO: user defined
+    @staticmethod
+    def region(latBounds, lonBounds, i, userkey):
 
-            userdata[userkey]['latCoords'] = clt.getLatitude().getValue()
-            userdata[userkey]['lonCoords'] = clt.getLongitude().getValue()
-            userdata[userkey]['clevs'] = range(-1, 100, 10)  # TODO: user defined
-
-
+        cdmsVar = userdata[userkey]['var']
         latCoords = userdata[userkey]['latCoords']
         lonCoords = userdata[userkey]['lonCoords']
         clevs = userdata[userkey]['clevs']
 
-        print "get data for only this region"
+        mylog("get data for only this region")
         # need to expand bounds by one due to the difference in how
         # basemap and cdms work with bounds
         t = len(latCoords) - 1
         n = len(lonCoords) - 1
         a, b, c, d = latBounds[0], latBounds[1], lonBounds[0], lonBounds[1]
-        regiondata = clt[:, (a - 1 if a > 0 else a):(b + 1 if b < t else b), (c - 1 if c > 0 else c):(d + 1 if d < n else d)]
+        regiondata = cdmsVar[:, (a - 1 if a > 0 else a):(b + 1 if b < t else b), (c - 1 if c > 0 else c):(d + 1 if d < n else d)]
 
-        print "perform time average on data"
+        mylog("perform time average on data")
         cdutil.setTimeBoundsMonthly(regiondata)
         avg = cdutil.averager(regiondata, axis='t')
 
@@ -64,7 +84,7 @@ class functions(object):
         ax.set_axis_off()
         fig.add_axes(ax)
 
-        print "plot using basemap"
+        mylog("plot using basemap")
         lons, lats = avg.getLongitude()[:], avg.getLatitude()[:]
         m = Basemap(projection='cyl', resolution='c',
                     llcrnrlon=lonCoords[lonBounds[0]],
@@ -78,16 +98,16 @@ class functions(object):
         except Exception, err:
             import traceback
             tb = traceback.format_exc()
-            print tb
-            print "Region lat(%d,%d) lon(%d,%d) faled" % (latBounds[0], latBounds[1], lonBounds[0], lonBounds[1])
+            mylog(tb)
+            mylog("Region lat(%d,%d) lon(%d,%d) faled" % (latBounds[0], latBounds[1], lonBounds[0], lonBounds[1]))
 
         m.drawcoastlines()
 
-        print "save to temp file"
+        mylog("save to temp file")
         temp_image_file = os.path.join(temp_dir, '%s.png' % str(uuid4()))
         fig.savefig(temp_image_file, dpi=100)
 
-        print "convert image data to base64"
+        mylog("convert image data to base64")
         with open(temp_image_file, "rb") as temp_image:
             base64png = base64.b64encode(temp_image.read())
 
@@ -102,20 +122,24 @@ class functions(object):
 class StreamingWorkerClient(WebSocketClient):
 
     def opened(self):
-        print "Worker started"
-        self.send(WebSocketRouter.serverkey + ',streamworker')
+        mylog("Worker started")
+        self.send('register,streamworker')
 
     def closed(self, code, reason):
-        print(("Closed down", code, reason))
+        mylog(("Closed down", code, reason))
 
     def received_message(self, m):
-        print "#message from user/client %s" % str(m)
-        user_msg = str(m).split(',', 1)
+        mylog("#message from user/client %s" % str(m))
+        key_msg = str(m).split(',', 1)
 
-        func_args = json.loads(user_msg[1])
+        if key_msg[0] == 'register':
+            return
+
+        func_args = json.loads(key_msg[1])
         func = getattr(functions, func_args['func'])
         result = func(*func_args['args'], **func_args['kwargs'])
-        self.send("%s,%s" % (user_msg[0], json.dumps(result)))
+        if result is not None:
+            self.send("%s,%s" % (key_msg[0], json.dumps(result)))
 
 if __name__ == '__main__':
     try:

@@ -25,6 +25,9 @@ class ChatRoot(object):
         self.port = port
         self.scheme = 'wss' if ssl else 'ws'
 
+        root_dir = cherrypy.tree.apps[''].config['/']['tools.staticdir.root']
+        data_dir = cherrypy.tree.apps[''].config['/data']['tools.staticdir.dir']
+
     @cherrypy.expose
     def index(self):
         return """<html>

@@ -3,6 +3,7 @@ import os
 import signal
 from subprocess import Popen
 
+
 streaming_service_dir = os.path.dirname(os.path.abspath(__file__))
 
 def run(*pargs, **kwargs):
@@ -45,9 +46,9 @@ def run(*pargs, **kwargs):
 
     if len(pargs) > 0:
         if pargs[0] == 'start':
-            return "%s\n%s" % (startClient('master'),startClient('worker'))
+            return "%s\n%s" % (startClient('master'), startClient('worker'))
 
         elif pargs[0] == 'stop':
-            return "%s\n%s" % (stopClient('master'),stopClient('worker'))
+            return "%s\n%s" % (stopClient('master'), stopClient('worker'))
 
     return "Unknown command"
