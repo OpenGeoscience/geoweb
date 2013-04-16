@@ -12,6 +12,7 @@ set(MINIFY ON CACHE BOOL "Minify the JavaScript files prior to concatenating.")
 set(MANGLE ON CACHE BOOL "When minifying, also mangle non-public symbol names.")
 set(DOCUMENT OFF CACHE BOOL "Generate documentation for JavaScript files.")
 set(SERVER_LOGS ON CACHE BOOL "Write cherrypy server access and error logs in deploy/logs")
+set(SERVER_DEBUG ON CACHE BOOL "Write debug statements to error logs")
 set(DATA_ROOT "data" CACHE PATH "Root directory for the data")
 
 # Non-cache variables.

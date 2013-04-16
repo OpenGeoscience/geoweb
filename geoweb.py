@@ -7,15 +7,10 @@ import cherrypy
 import simplejson
 import os
 
-#websocket imports
 from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
-from services import ServiceRoot
-import geowebsocket
 
-#from ws4py.messaging import TextMessage
-#from websocket_chat import ChatRoot
-#from websocket_pi import PiRoot
-#from ogsvtk import VTKRoot
+import modules.geowebsocket #used by config
+from services import ServiceRoot
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 

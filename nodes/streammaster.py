@@ -1,8 +1,20 @@
 # -*- coding: utf-8 -*-
+import argparse
+import inspect
+import json
 import os
+import random
+import sys
+import time
+from array import array
+
+import cdms2
+import numpy
+
+from __init__ import WebSocketNode
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
-temp_dir = os.path.abspath(os.path.join(this_dir, '../../temp'))
+temp_dir = os.path.abspath(os.path.join(this_dir, '../temp'))
 
 logfile = None
 def mylog(m):
@@ -12,30 +24,6 @@ def mylog(m):
     logfile.write("%s\n" % m)
     logfile.flush()
 # def mylog(m): pass
-
-mylog("starting")
-
-import argparse
-import inspect
-import json
-# import os
-import random
-import sys
-import time
-from array import array
-
-mylog("imported built in modules")
-
-import cdms2
-import numpy
-# from mpi4py import MPI
-from ws4py.client.threadedclient import WebSocketClient
-mylog("imported 3rd party modules")
-
-# append sys path
-# this_dir = os.path.dirname(os.path.abspath(__file__))
-# app_root = os.path.abspath(os.path.join(this_dir, '/../../'))
-# sys.path.append(app_root)
 
 def get2DBins(x, y, binSizeX, binSizeY):
     """Splits 2D region into bins
@@ -72,7 +60,7 @@ def get2DBins(x, y, binSizeX, binSizeY):
 
 # #
 # From http://stackoverflow.com/a/1006301/1114724
-import os, re, subprocess
+import re, subprocess
 def  determineNumberOfCPUs():
     """ Number of virtual or physical CPUs on this system, i.e.
     user/real as output by time(1) when called with an optimally scaling

@@ -16,10 +16,10 @@ def run(*pargs, **kwargs):
 
         pid = Popen(["python", cmdfile]).pid
 
-        file = open(pidfile, 'w')
-        file.write(str(pid))
-        file.flush()
-        file.close()
+        _file = open(pidfile, 'w')
+        _file.write(str(pid))
+        _file.flush()
+        _file.close()
 
         return "started %s" % name
 

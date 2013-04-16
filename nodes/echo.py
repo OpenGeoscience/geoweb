@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 from ws4py.client.threadedclient import WebSocketClient
-
-from geowebsocket import WebSocketRouter
+from modules.geowebsocket import WebSocketRouter
 
 class functions(object):
 
+    @staticmethod
     def echo(*args, **kwargs):
         return (args, kwargs)
 
+    @staticmethod
     def region(latIndexs, lonIndexs, i, userkey):
         return funcData
 

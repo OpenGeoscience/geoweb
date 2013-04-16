@@ -3,6 +3,7 @@ tree.py: cherrypy.Application(geoweb.Root())
 log.error_file: '@LOG_ERROR_FILE@'
 log.access_file: '@LOG_ACCESS_FILE@'
 log.screen = True
+log.debug: '@LOG_DEBUG@'
 
 [/]
 tools.staticdir.root: geoweb.current_dir
@@ -16,4 +17,4 @@ tools.staticdir.dir = "@DATA_ROOT@"
 
 [/ws]
 tools.websocket.on: True
-tools.websocket.handler_cls: geowebsocket.WebSocketRouter
+tools.websocket.handler_cls: modules.geowebsocket.WebSocketRouter
