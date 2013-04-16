@@ -52,6 +52,7 @@ set(JS_LINT_FILES
     ${CMAKE_SOURCE_DIR}/web/lib/geo/map.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/feature.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/mapInteractorStyle.js
+    ${CMAKE_SOURCE_DIR}/web/lib/geo/data.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/boundingObject.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/camera.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/geojsonReader.js
@@ -60,6 +61,7 @@ set(JS_LINT_FILES
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/init.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/timestamp.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/mapper.js
+    ${CMAKE_SOURCE_DIR}/web/lib/vgl/groupMapper.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/materialAttribute.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/blend.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/material.js
@@ -98,6 +100,7 @@ set(JS_UGLIFY_FILES
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/geojsonReader.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/geomData.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/mapper.js
+  ${CMAKE_SOURCE_DIR}/web/lib/vgl/groupMapper.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/materialAttribute.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/blend.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/material.js
@@ -122,6 +125,7 @@ set(JS_UGLIFY_FILES
   ${CMAKE_SOURCE_DIR}/web/lib/geo/mapInteractorStyle.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/map.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/feature.js
+  ${CMAKE_SOURCE_DIR}/web/lib/geo/data.js
   ${CMAKE_SOURCE_DIR}/web/lib/ui/init.js
   ${CMAKE_SOURCE_DIR}/web/lib/ui/gis.js
 )

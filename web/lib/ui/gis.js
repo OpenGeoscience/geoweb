@@ -13,7 +13,7 @@ uiModule.gis = function() {
  * @param rootId
  * @param heading
  */
-uiModule.gis.createGisLayerList = function(rootId, heading) {
+uiModule.gis.createList = function(rootId, heading) {
   var listRoot = document.getElementById(rootId);
   var itemRoot = document.createElement("div");
   itemRoot.setAttribute("class", "accordion-group");
@@ -40,11 +40,13 @@ uiModule.gis.createGisLayerList = function(rootId, heading) {
   subItemsRoot.appendChild(subItemsList);
 
   var tableRoot = document.createElement("table");
-  tableRoot.setAttribute("id", rootId + '-table');
+  tableRoot.setAttribute("id", 'table-' + rootId);
   subItemsList.appendChild(tableRoot);
 
   var tbody = document.createElement("tbody");
   tableRoot.appendChild(tbody);
+
+  return tableRoot;
 };
 
 /**
@@ -55,7 +57,7 @@ uiModule.gis.createGisLayerList = function(rootId, heading) {
  * @param layersRootId
  * @param data
  */
-uiModule.gis.createGisDataList = function(rootId, heading, layersRootId, data, callback) {
+uiModule.gis.createDataList = function(rootId, heading, layersRootId, data, callback) {
   var listRoot = $(document.getElementById(rootId));
 
   var itemRoot = $(document.createElement('div'));
@@ -122,7 +124,8 @@ uiModule.gis.createGisDataList = function(rootId, heading, layersRootId, data, c
     button.attr('name', item.name);
     button.attr('basename', item.basename);
     button.attr('data-toggle', 'button');
-    button.append($(document.createTextNode('Add')));
+    button.attr('data-loading-text', 'Loading...');
+    button.html('Add');
     col.append(button);
     row.append(col);
 
@@ -153,9 +156,8 @@ uiModule.gis.addLayer = function(object, layersRootId, elem, selectfunc, togglef
   if (_id !== null) {
     var tbody = $(rootId).find('tbody');
     var basename = $(elem).attr("name");
-    $(elem).removeClass("btn-primary");
-    $(elem).addClass("btn-success");
-    $(elem).addClass("disabled");
+    $(elem).button('loading');
+
     var layerId = basename;
 
     var tr = $(document.createElement('tr'));
@@ -211,6 +213,18 @@ uiModule.gis.addLayer = function(object, layersRootId, elem, selectfunc, togglef
 };
 
 /**
+ *
+ */
+uiModule.gis.layerAdded = function(elem) {
+  $(elem).removeClass("btn-primary");
+  $(elem).addClass("btn-success");
+  $(elem).addClass("disabled");
+  $(elem).attr('data-loading-text', 'Added');
+  $(elem).attr('disabled', 'disabled');
+  $(elem).html('Added');
+}
+
+/**
  * Remove a layer from the list
  *
  * @param elem
@@ -222,8 +236,10 @@ uiModule.gis.removeLayer = function(elem, layerId) {
 
   if (button !== null || button !== undefined) {
     button.removeClass('disabled');
+    button.removeAttr('disabled');
     button.removeClass('btn-success');
     button.removeClass('active');
+    button.button('reset');
     button.addClass('btn-primary');
 
     $('#' + layerId).fadeOut(function() {
@@ -241,10 +257,162 @@ uiModule.gis.toggleLayer = function(elem, layerId) {
 };
 
 /**
- * Update UI to when a select is selected
+ * Update UI to when a layer is selected
  */
 uiModule.gis.selectLayer = function(target, layerId) {
-  $('btn-select-layer').siblings().removeClass('active');
-  $(target).addClass('active');
+  $(target).siblings().removeClass('active');
+
+  if (target !== null || target !== undefined) {
+    $(target).addClass('active');
+  }
+
   return true;
+};
+
+
+uiModule.gis.generateOptions = function(table, map) {
+  var options = map.options();
+
+  var parent = $(table);
+
+  for (var key in options) {
+    if (key === "source" || key === "center") {
+      continue;
+    }
+
+    if (options.hasOwnProperty(key)) {
+
+      var row = $(document.createElement('tr'));
+      row.attr('class', 'row-fluid');
+      parent.append(row);
+      var col = $(document.createElement('td'));
+      row.append(col);
+
+      var heading = $(document.createElement('h4'));
+      heading.html(key);
+      col.append(heading);
+
+      switch(key) {
+        case "zoom":
+          // Create a slider here
+          var sliderDiv = $(document.createElement('div'));
+          sliderDiv.slider({
+            range: "min",
+            min: 0.0,
+            max: 17.0,
+            step: 1,
+            value: options[key],
+            slide: function( event, ui ) {
+              map.setZoom( ui.value );
+              map.redraw();
+            }
+          });
+          $(sliderDiv).on('mousedown', function(e) {
+            e.stopPropagation();
+            return false;
+          });
+          col.attr('class', 'span10');
+          $(col).append(sliderDiv);
+          break;
+        case "center":
+          // @todo We need to update center dynamically which
+          // will require quite a bit of work.
+          // Text box
+          // var latInput = $(document.createElement('input'));
+          // latInput.attr('type', 'number');
+          // latInput.attr('min', -180.0);
+          // latInput.attr('max', +180.0);
+          // latInput.val(map.options().center.lat());
+          // latInput.click(function() {
+          //   map.redraw();
+          // });
+          // $(latInput).on('mousedown', function(e) {
+          //   e.stopPropagation();
+          //   return false;
+          // });
+          // col.append(latInput);
+
+          // var lngInput = $(document.createElement('input'));
+          // lngInput.attr('type', 'number');
+          // lngInput.attr('min', -90.0);
+          // lngInput.attr('max', +90.0);
+          // lngInput.val(map.options().center.lng());
+          // lngInput.click(function() {
+          //   map.redraw();
+          // });
+          // $(lngInput).on('mousedown', function(e) {
+          //   e.stopPropagation();
+          //   return false;
+          // });
+          // col.append(lngInput);
+          break;
+        case "country_boundries":
+          // Boolean
+          var input = $(document.createElement('input'));
+          input.attr('type', 'checkbox');
+          input.attr('checked', map.options().country_boundries);
+          input.click(function() {
+            map.toggleCountryBoundries();
+            map.redraw();
+          });
+          col.append(input);
+
+          break;
+        case "us_states":
+          // Boolean
+          break;
+        case "source":
+          // Dropdown
+          break;
+      }
+    }
+  }
+};
+
+
+uiModule.gis.createControls = function(table, map) {
+  var tbody = $($(table).find('tbody'));
+  var row = $(document.createElement('tr'));
+  tbody.append(row);
+
+  var col = $(document.createElement('td'));
+  row.append(col);
+  col.append('<h4>opacity</h4>');
+
+  // Create slider to control opacity of a layer
+  var opacityDiv = $(document.createElement('div'));
+  opacityDiv.addClass('ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all');
+  col.append(opacityDiv);
+
+  opacityDiv.slider({
+    range: "min",
+    min: 0.0,
+    max: 1.0,
+    step: 0.01,
+    value: 0.5,
+  });
+
+  $(map).on(ogs.geo.command.selectLayerEvent, function(event) {
+    opacityDiv.slider({disabled: false});
+  });
+
+  $(map).on(ogs.geo.command.unselectLayerEvent, function(event) {
+    console.log(event);
+    opacityDiv.slider({disabled: true});
+  });
+
+  // Listen for slider slidechange event
+  opacityDiv.slider().bind('slide', function(event, ui) {
+    if (map.activeLayer() !== null) {
+      map.activeLayer().setOpacity(ui.value);
+    }
+    map.redraw();
+  });
+
+  opacityDiv.on('mousedown', function(e) {
+    e.stopPropagation();
+    return false;
+  });
+
+  opacityDiv.slider({disabled: true});
 };
