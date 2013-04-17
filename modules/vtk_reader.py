@@ -19,7 +19,6 @@ def read(expr, vars):
   ss.SphericalCoordinatesOff()
   ss.SetOutputTypeToImage()
   datadir = cherrypy.request.app.config['/data']['tools.staticdir.dir']
-  datadir = os.path.join(datadir, 'assets')
   filename = os.path.join(datadir, expr)
   ss.SetFileName(filename)
 
