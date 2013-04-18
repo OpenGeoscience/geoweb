@@ -53,7 +53,8 @@ class VTKRoot(object):
         res = """
   <html>
     <head>
-      <script type="text/javascript" src="../lib/ogs.min.js"></script>
+      <script type="text/javascript" src="/common/js/gl-matrix.js"></script>
+      <script type="text/javascript" src="/lib/geoweb.min.js"></script>
       <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
       <script type="text/javascript">
       function readVTKWebGL() {
@@ -118,7 +119,8 @@ class VTKRoot(object):
       function main() {
         var mapOptions = {
           zoom : 1,
-          center : ogs.geo.latlng(0.0, 0.0)
+          center : ogs.geo.latlng(0.0, 0.0),
+          source : '/data/assets/land_shallow_topo_2048.png'
         };
         var myMap = ogs.geo.map(document.getElementById("glcanvas"), mapOptions);
 
@@ -152,8 +154,8 @@ class VTKRoot(object):
         res = """
   <html>
     <head>
-      <script type="text/javascript" src="../lib/ogs.min.js"></script>
-
+      <script type="text/javascript" src="/common/js/gl-matrix.js"></script>
+      <script type="text/javascript" src="/lib/geoweb.min.js"></script>
       <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
       <script type="text/javascript">
       function makedata() {
@@ -203,7 +205,7 @@ class VTKRoot(object):
         prog.addShader(fragmentShader);
         mat.addAttribute(prog);
 
-        var geoms = new ogs.vgl.geoJSONUnpack().getPrimitives(\'%(datasetString)s\');
+        var geoms = new ogs.vgl.geojsonReader().getPrimitives(\'%(datasetString)s\');
         var actors = [];
         for (var i = 0; i < geoms.length; i++)
           {
@@ -222,11 +224,12 @@ class VTKRoot(object):
       function main() {
         var mapOptions = {
           zoom : 1,
-          center : ogs.geo.latlng(0.0, 0.0)
+          center : ogs.geo.latlng(0.0, 0.0),
+          source : '/data/assets/land_shallow_topo_2048.png'
         };
         var myMap = ogs.geo.map(document.getElementById("glcanvas"), mapOptions);
-
         actors = makedata();
+
         //TODO: change layer.js to take multiple actors
         for (var i = 0; i < actors.length; i++)
           {
@@ -326,13 +329,13 @@ class VTKRoot(object):
         res = """
   <html>
     <head>
-      <script type="text/javascript" src="../lib/ogs.min.js"></script>
-
+      <script type="text/javascript" src="/common/js/gl-matrix.js"></script>
+      <script type="text/javascript" src="/lib/geoweb.min.js"></script>
       <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
       <script type="text/javascript">
       function makedata() {
         var datasetString = %(gjfile)s.join('\\n');
-        var geoms = new ogs.vgl.geoJSONUnpack().getPrimitives(datasetString);
+        var geoms = new ogs.vgl.geojsonReader().getPrimitives(datasetString);
 
         var mapper = new ogs.vgl.mapper();
         mapper.setGeometryData(geoms[0]);
@@ -390,7 +393,8 @@ class VTKRoot(object):
       function main() {
         var mapOptions = {
           zoom : 1,
-          center : ogs.geo.latlng(0.0, 0.0)
+          center : ogs.geo.latlng(0.0, 0.0),
+          source : '/data/assets/land_shallow_topo_2048.png'
         };
         var myMap = ogs.geo.map(document.getElementById("glcanvas"), mapOptions);
 
