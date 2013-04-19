@@ -1,20 +1,5 @@
     # -*- coding: utf-8 -*-
 import os
-
-this_dir = os.path.dirname(os.path.abspath(__file__))
-temp_dir = os.path.abspath(os.path.join(this_dir, '../../temp'))
-
-logfile = None
-def mylog(m):
-    global logfile
-    if logfile is None:
-        logfile = open(os.path.join(temp_dir, "workerout.txt"), "a")
-    logfile.write("%s\n" % m)
-    logfile.flush()
-# def mylog(m): pass
-
-mylog("starting")
-
 import sys
 
 import base64
@@ -24,8 +9,6 @@ import os
 from array import array
 from uuid import uuid4
 
-mylog("imported built in modules")
-
 import cdms2
 import numpy as np
 import matplotlib as mpl
@@ -33,21 +16,15 @@ mpl.rcParams['mathtext.default'] = 'regular'
 mpl.use('qt4agg')
 import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
-from ws4py.client.threadedclient import WebSocketClient
 
-mylog("imported 3rd party modules")
+from nodes import WebSocketNode, NodeSlot, startNode
 
-this_dir = os.path.dirname(os.path.abspath(__file__))
-temp_dir = os.path.abspath(os.path.join(this_dir, '../../temp'))
 userdata = {}
 
-class functions(object):
 
-    @staticmethod
-    def echo(*args, **kwargs):
-        return (args, kwargs)
+class StreamWorker(WebSocketNode):
 
-    @staticmethod
+    @NodeSlot
     def loadData(filename, var, userkey):
         if userkey not in userdata:
             userdata[userkey] = {}
@@ -58,7 +35,7 @@ class functions(object):
         userdata[userkey]['clevs'] = range(-1, 100, 10)  # TODO: user defined
         return None
 
-    @staticmethod
+    @NodeSlot
     def region(latBounds, lonBounds, i, userkey):
 
         cdmsVar = userdata[userkey]['var']
@@ -111,40 +88,13 @@ class functions(object):
         with open(temp_image_file, "rb") as temp_image:
             base64png = base64.b64encode(temp_image.read())
 
-        funcData = {'func':'region', 'args':[base64png, i, userkey], 'kwargs':{}}
+        self.signal('StreamMaster', 'region', base64png, i, userkey)
 
         # cleanup
         plt.clf()
         os.remove(temp_image_file)
 
-        return funcData
-
-class StreamingWorkerClient(WebSocketClient):
-
-    def opened(self):
-        mylog("Worker started")
-        self.send('register,streamworker')
-
-    def closed(self, code, reason):
-        mylog(("Closed down", code, reason))
-
-    def received_message(self, m):
-        mylog("#message from user/client %s" % str(m))
-        key_msg = str(m).split(',', 1)
-
-        if key_msg[0] == 'register':
-            return
-
-        func_args = json.loads(key_msg[1])
-        func = getattr(functions, func_args['func'])
-        result = func(*func_args['args'], **func_args['kwargs'])
-        if result is not None:
-            self.send("%s,%s" % (key_msg[0], json.dumps(result)))
+        return None
 
 if __name__ == '__main__':
-    try:
-        ws = StreamingWorkerClient('ws://localhost:8080/ws')
-        ws.daemon = False
-        ws.connect()
-    except:
-        ws.close()
+    startNode(StreamWorker)

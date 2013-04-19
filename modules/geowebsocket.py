@@ -8,6 +8,7 @@ from ws4py.websocket import WebSocket
 from ws4py.messaging import TextMessage
 
 from logging import *
+from nodes import NodeManager
 
 SERVER_KEY = os.getenv('GEOWEBSOCKETKEY', 'aV64EBFjhYbhkeW0ETPGv43KGvBCYdO2Pq')
 
@@ -30,8 +31,16 @@ class WebSocketRouter(WebSocket):
     nodemap = TwoWayDict()
     funcmap = dict()
 
+    def opened(self):
+        self.nodemanager = NodeManager
+
     @staticmethod
     def register(func, name):
+        """Registers a handler function for a given name
+
+        @param func: static function that takes a websocket and message,
+            message is json decoded before passed to this function
+        """
         WebSocketRouter.funcmap[name] = func
 
     def getSender(self):
@@ -92,17 +101,20 @@ class WebSocketRouter(WebSocket):
 
         elif target in WebSocketRouter.nodemap:
             debug("Sending to node")
-            WebSocketRouter.nodemap[target].send("%s,%s" %
-                (self.getSender(), message))
+            data['target'] = self.getSender()
+            WebSocketRouter.nodemap[target].send(JSON.dumps(data))
 
         elif target in WebSocketRouter.usermap:
             debug("Sending to user")
-            WebSocketRouter.usermap[target].send("%s,%s" %
-                (self.getSender(), message))
+            data['target'] = self.getSender()
+            WebSocketRouter.usermap[target].send(JSON.dumps(data))
 
         elif target in WebSocketRouter.funcmap:
             try:
-                WebSocketRouter.funcmap[target](self, message)
+                result = WebSocketRouter.funcmap[target](self, message)
+                if result is not None:
+                    self.send({'target':target, 'message': result})
+
             except Exception:
                 error(" Function: %s\nSender: %s\nMessage: %s\nError: %s" % (
                         target, self.getSender(), message,

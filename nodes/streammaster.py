@@ -11,19 +11,11 @@ from array import array
 import cdms2
 import numpy
 
-from __init__ import WebSocketNode
+from nodes import WebSocketNode, NodeSlot, startNode
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 temp_dir = os.path.abspath(os.path.join(this_dir, '../temp'))
 
-logfile = None
-def mylog(m):
-    global logfile
-    if logfile is None:
-        logfile = open(os.path.join(temp_dir, "masterout.txt"), "a")
-    logfile.write("%s\n" % m)
-    logfile.flush()
-# def mylog(m): pass
 
 def get2DBins(x, y, binSizeX, binSizeY):
     """Splits 2D region into bins
@@ -163,133 +155,105 @@ def  determineNumberOfCPUs():
 
     raise Exception('Can not determine number of CPUs on this system')
 
-class functions(object):
 
-    @staticmethod
-    def start(websocket, userkey, filename, varName, idx=0):
+class StreamMaster(WebSocketRPC):
+
+    @NodeSlot
+    def start(self, filename, varName, idx=0):
 
         try:
-
-            if hasattr(websocket, 'processing') and websocket.processing:
+            if hasattr(self, 'processing') and self.processing:
                 return
 
-            websocket.processing = True
+            self.processing = True
 
-            mylog('read data file')
+            self.debug('read data file')
             cdmsFile = cdms2.open(filename)
             cdmsVar = cdmsFile[varName]
 
-            mylog('split data into regions')
+            self.debug('split data into regions')
             # need some hueristics to determine size of bins
             # just split into 10x10 regions for test
             latCoords = cdmsVar.getLatitude().getValue()
-            mylog('split data into regions')
+            self.debug('split data into regions')
             lonCoords = cdmsVar.getLongitude().getValue()
-            mylog('split data into regions')
+            self.debug('split data into regions')
             regionIndexes, xcount, ycount = get2DBins(latCoords, lonCoords, 10, 10)
-            mylog('split data into regions')
+            self.debug('split data into regions')
             latBounds = [(latCoords[i1], latCoords[i2]) for (i1, i2, j1, j2) in regionIndexes]
-            mylog('split data into regions')
+            self.debug('split data into regions')
             lonBounds = [(lonCoords[j1], lonCoords[j2]) for (i1, i2, j1, j2) in regionIndexes]
-            mylog('split data into regions')
+            self.debug('split data into regions')
             latIndexs = [(i1, i2) for (i1, i2, j1, j2) in regionIndexes]
-            mylog('split data into regions')
+            self.debug('split data into regions')
             lonIndexs = [(j1, j2) for (i1, i2, j1, j2) in regionIndexes]
 
 
-            mylog('get cpus')
+            self.debug('get cpus')
             try:
                 numcpus = determineNumberOfCPUs()
             except:
                 numcpus = 8
 
-            websocket.userdata[userkey] = {'nextIdx': idx + 2,
+            self.userdata[self.sender] = {'nextIdx': idx + 2,
                                            'xcount': xcount,
                                            'ycount': ycount,
                                            'latIndexs': latIndexs,
                                            'lonIndexs': lonIndexs}
 
-            mylog("send loadData RPC call")
-            funcData = {'func': 'loadData',
-                        'args': [filename, varName, userkey],
-                        'kwargs': {}}
-            websocket.send('%s,%s' % ('streamworker', json.dumps(funcData)))
+            self.debug("send loadData signal")
+            self.signal('StreamWorker', 'loadData', filename, varname,
+                         self.sender)
 
-            mylog("send first RPC call")
-            funcData = {'func': 'region',
-                        'args': [latIndexs[idx], lonIndexs[idx], idx],
-                        'kwargs': {'userkey':userkey}}
-            websocket.send('%s,%s' % ('streamworker', json.dumps(funcData)))
+            self.debug("send first region signal")
+            self.signal('StreamWorker', 'region', latIndexs[idx],
+                         lonIndexs[idx], idx, userkey=self.sender)
 
-            mylog("send second, so one is always on queue")
-            funcData['args'] = [latIndexs[idx + 1], lonIndexs[idx + 1], idx + 1]
-            websocket.send('%s,%s' % ('streamworker', json.dumps(funcData)))
+            self.debug("send second, so one is always on queue")
+            self.signal('StreamWorker', 'region', latIndexs[idx + 1],
+                         lonIndexs[idx + 1], idx + 1, userkey=self.sender)
+
         except Exception, e:
             import traceback
-            mylog(traceback.format_exc(None))
+            self.debug(traceback.format_exc(None))
             try:
                 cdmsFile.close()
             except:
                 pass
 
-    @staticmethod
-    def region(websocket, clientkey, data, i, userkey):
+        return None
 
-        mylog("send next RPC call")
-        if websocket.processing:
-            latIndexs = websocket.userdata[userkey]['latIndexs']
-            lonIndexs = websocket.userdata[userkey]['lonIndexs']
-            idx = websocket.userdata[userkey]['nextIdx']
+    @NodeSlot
+    def region(self, data, i, userkey):
+
+        self.debug("send next region signal")
+        if self.processing:
+            latIndexs = self.userdata[userkey]['latIndexs']
+            lonIndexs = self.userdata[userkey]['lonIndexs']
+            idx = self.userdata[userkey]['nextIdx']
             if idx < len(latIndexs):
-                fData = {'func': 'region',
-                         'args': [latIndexs[idx], lonIndexs[idx], idx],
-                         'kwargs': {'userkey':userkey}}
-                websocket.userdata[userkey]['nextIdx'] = idx + 1
-                websocket.send('%s,%s' % ('streamworker', json.dumps(fData)))
+                self.signal('StreamWorker', 'region', latIndexs[idx],
+                            lonIndexs[idx], idx, userkey=userkey)
+                self.userdata[userkey]['nextIdx'] = idx + 1
             else:
-                websocket.processing = False
-                websocket.send('%s,%s' % (userkey, 'done'))
+                self.processing = False
+                self.send({'target':userkey, 'message':'done'})
 
-        mylog("send image data to user")
-        xcount = websocket.userdata[userkey]['xcount']
-        ycount = websocket.userdata[userkey]['ycount']
+        self.debug("send image data to user")
+        xcount = self.userdata[userkey]['xcount']
+        ycount = self.userdata[userkey]['ycount']
         w = 150 - 1;  # size of image
         h = 100 - 1;  # gets rid of 1px border
         y = int(i / ycount)
         x = i % ycount
         response = {'x':x * w, 'y':(xcount - y) * h, 'img':data}
-        websocket.send('%s,%s' % (userkey, json.dumps(response)))
+        self.send({'target':userkey, 'message':response})
+        return None
 
-    @staticmethod
-    def stop(websocket, userkey):
-        websocket.processing = False
-        websocket.send('%s,%s' % (userkey, 'done'))
-
-class StreamingMasterClient(WebSocketClient):
-
-    def opened(self):
-        mylog("Master started")
-        self.userdata = {}
-        self.send('register,streammaster')
-
-    def closed(self, code, reason):
-        mylog(("Closed down", code, reason))
-
-    def received_message(self, m):
-        mylog("#message from user/client %s" % str(m))
-        key_msg = str(m).split(',', 1)
-
-        if key_msg[0] == 'register':
-            return
-
-        func_args = json.loads(key_msg[1])
-        func = getattr(functions, func_args['func'])
-        func(self, key_msg[0], *func_args['args'], **func_args['kwargs'])
+    @NodeSlot
+    def stop(self):
+        self.processing = False
+        return 'done'
 
 if __name__ == '__main__':
-    try:
-        ws = StreamingMasterClient('ws://localhost:8080/ws')
-        ws.daemon = False
-        ws.connect()
-    except:
-        ws.close()
+    startNode(StreamMaster)
