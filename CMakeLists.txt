@@ -130,7 +130,7 @@ set(JS_DOCUMENT_FILES
 )
 
 # These files should be copied to the deployment directory.
-set(SOURCES
+set(sources
     geoweb
     geoweb.py
     modules/websocket_chat.py
@@ -143,13 +143,22 @@ set(SOURCES
     modules/vtk_reader.py
 )
 
-set(DIRECTORIES
-  web
+set(paths
+  web/apps
+  web/common
+  web/index.html
 )
 
 configure_file(configure_server.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/configure_server.cmake @ONLY
 )
+
+set(lib_dir "${CMAKE_BINARY_DIR}/${deploy_dir}/web/lib")
+if(NOT EXISTS ${lib_dir})
+  add_custom_command(OUTPUT ${lib_dir}
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${lib_dir}
+  )
+endif()
 
 # Configure the server config file.
 set(server_config "${deploy_dir}/server.conf")
@@ -163,29 +172,16 @@ add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${deploy_dir}/server.conf
   VERBATIM
 )
 
-# Copy the files to the deployment directory.
-set(all_targets)
-foreach(m ${SOURCES})
-    set(outfile ${deploy_dir}/${m})
-    add_custom_command(
-        OUTPUT ${outfile}
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/${m} ${CMAKE_BINARY_DIR}/${outfile}
-        DEPENDS ${m}
-    )
-    list(APPEND all_targets ${outfile})
-endforeach()
-
-# Copy directories to the deployment directory
-foreach(m ${DIRECTORIES})
+# Copy directories / files to the deployment directory
+foreach(m ${paths})
     set(outdir ${deploy_dir}/${m})
     add_custom_command(
         OUTPUT ${outdir}
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/${m} ${CMAKE_BINARY_DIR}/${outdir}
-        DEPENDS ${m}
+        DEPENDS ${m} ${lib_dir}
     )
     list(APPEND all_targets ${outdir})
 endforeach()
-
 
 # Uglify and concatenate the library js files.
 if(NOT ${MINIFY})
@@ -200,7 +196,7 @@ set(min_js_file ${CMAKE_BINARY_DIR}/${deploy_dir}/web/lib/geoweb.min.js)
 add_custom_command(
     OUTPUT ${min_js_file}
     COMMAND ${UglifyJS_EXECUTABLE} -o ${min_js_file} ${JS_UGLIFY_FILES} ${MINIFY_FLAG} ${MANGLE_FLAG}
-    DEPENDS ${JS_UGLIFY_FILES}
+    DEPENDS ${lib_dir} ${JS_UGLIFY_FILES}
 )
 
 set(logs_dir ${CMAKE_BINARY_DIR}/${deploy_dir}/logs)
@@ -244,7 +240,7 @@ endif()
 add_custom_target(
   deploy
   ALL
-  DEPENDS ${all_targets} ${min_js_file} ${server_config} ${logs_dir}
+  DEPENDS ${lib_dir} ${all_targets} ${min_js_file} ${server_config} ${logs_dir}
   ${documentation_stamp}
 )
 
@@ -258,3 +254,6 @@ endif()
 foreach(f ${JS_LINT_FILES})
     add_test(jslint-${f} ${JSLint_EXECUTABLE} ${f})
 endforeach()
+
+# Now include sub-directories
+add_subdirectory(web)
