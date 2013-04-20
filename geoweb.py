@@ -13,9 +13,13 @@ sys.path.append(os.path.join(current_dir, "modules"))
 
 #websocket imports
 from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
-from websocket_chat import ChatRoot
-from websocket_pi import PiRoot
-from ogsvtk import VTKRoot
+from services import ServiceRoot
+import geowebsocket
+
+#from ws4py.messaging import TextMessage
+#from websocket_chat import ChatRoot
+#from websocket_pi import PiRoot
+#from ogsvtk import VTKRoot
 
 from mako.template import Template
 from mako.lookup import TemplateLookup
@@ -39,14 +43,9 @@ def empty_result():
   return {}
 
 class Root(object):
-    # access at http://localhost:8080/chat
-    chat = ChatRoot(host='127.0.0.1', port=8080, ssl=False)
+    #vtk = VTKRoot(host='127.0.0.1', port=8080, ssl=False)
 
-    # access at http://localhost:8080/pi
-    pi = PiRoot(host='127.0.0.1', port=8080, ssl=False)
-
-    # access at http://localhost:8080/pi
-    vtk = VTKRoot(host='127.0.0.1', port=8080, ssl=False)
+    services = ServiceRoot()
 
     @cherrypy.expose
     def mongo(self, *args, **kwargs):
@@ -59,6 +58,10 @@ class Root(object):
       import geodata
       pargs = list(args)
       return geodata.run(*pargs, **kwargs);
+
+    @cherrypy.expose
+    def ws(self):
+        cherrypy.log("Handler created: %s" % repr(cherrypy.request.ws_handler))
 
 if __name__ == '__main__':
     import os.path

@@ -1,0 +1,10 @@
+#pydev project files
+.project
+.pydevproject
+.settings
+
+#emacs temp files
+*~
+
+#python compiled binary files
+*.pyc

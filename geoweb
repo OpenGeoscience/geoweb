@@ -87,4 +87,5 @@ else:
     usage()
     code = 1
 
+print code
 sys.exit(code)

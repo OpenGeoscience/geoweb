@@ -133,20 +133,15 @@ set(JS_DOCUMENT_FILES
 set(sources
     geoweb
     geoweb.py
-    modules/websocket_chat.py
-    modules/websocket_pi.py
-    modules/ogsvtk.py
-    modules/cpi.py
-    modules/mongo.py
-    modules/geodata.py
-    modules/reader.py
-    modules/vtk_reader.py
+    geowebsocket.py
 )
 
 set(paths
   web/apps
   web/common
   web/index.html
+  modules
+  services
 )
 
 configure_file(configure_server.cmake.in
