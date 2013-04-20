@@ -142,6 +142,7 @@ set(paths
   web/index.html
   modules
   services
+  temp
 )
 
 configure_file(configure_server.cmake.in
