@@ -18,12 +18,6 @@ set(DATA_ROOT "data" CACHE PATH "Root directory for the data")
 set(DEPLOY_DIR deploy)
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${DEPLOY_DIR})
 
-if(SERVER_LOGS)
-    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/logs)
-    set(LOG_ERROR_FILE "logs/error.log")
-    set(LOG_ACCESS_FILE "logs/access.log")
-endif()
-
 # Find JSLint.
 find_package(JSLint)
 
@@ -204,16 +198,21 @@ endif()
 
 set(MIN_JS_FILE ${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/web/lib/geoweb.min.js)
 
-# Check why xdata does not need to do this
-if(NOT EXISTS "${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/web/lib")
-  execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/web/lib")
-endif()
-
 add_custom_command(
     OUTPUT ${MIN_JS_FILE}
     COMMAND ${UglifyJS_EXECUTABLE} -o ${MIN_JS_FILE} ${JS_UGLIFY_FILES} ${MINIFY_FLAG} ${MANGLE_FLAG}
     DEPENDS ${JS_UGLIFY_FILES}
 )
+
+add_custom_command(
+  OUTPUT ${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/logs
+  COMMAND ${CMAKE_COMMAND} -E make_directory
+  ${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/logs
+)
+if(SERVER_LOGS)
+    set(LOG_ERROR_FILE "logs/error.log")
+    set(LOG_ACCESS_FILE "logs/access.log")
+endif()
 
 # Generate documentation.
 set(DOCUMENTATION_STAMP ${CMAKE_BINARY_DIR}/stamps/documentation.txt)
@@ -245,7 +244,7 @@ endif()
 add_custom_target(
     deploy
     ALL
-    DEPENDS ${ALL_TARGETS} ${MIN_JS_FILE} ${SERVER_CONFIG} ${DOCUMENTATION_STAMP}
+    DEPENDS ${ALL_TARGETS} ${MIN_JS_FILE} ${SERVER_CONFIG} ${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/logs ${DOCUMENTATION_STAMP}
 )
 
 # Testing
