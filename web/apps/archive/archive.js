@@ -22,7 +22,7 @@ archive.main = function() {
   var mapOptions = {
     zoom : 6,
     center : ogs.geo.latlng(0.0, 0.0),
-    source: '/data/assets/land_shallow_topo_2048.png',
+    source: '/data/land_shallow_topo_2048.png',
     country_boundries: true
   };
 
@@ -43,7 +43,7 @@ archive.main = function() {
   var colors = [];
   $.ajax({
     type : "GET",
-    url : "/data/assets/cities.csv",
+    url : "/data/cities.csv",
     dataType : "text",
     success : function(data) {
       table = archive.processCSVData(data);
@@ -65,7 +65,7 @@ archive.main = function() {
 
         // Load image to be used for drawing dots
         var image = new Image();
-        image.src = '/data/assets/spark.png';
+        image.src = '/data/spark.png';
         image.onload = function() {
           var pointLayer = ogs.geo.featureLayer({
             "opacity" : 1,
