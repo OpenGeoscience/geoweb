@@ -58,6 +58,13 @@ vglModule.camera = function() {
   var m_computeProjectMatrixTime = ogs.vgl.timestamp();
 
   /**
+   * Get view angle of the camera
+   */
+  this.viewAngle = function() {
+    return m_viewAngle;
+  };
+
+  /**
    * Get position of the camera
    */
   this.position = function() {
@@ -92,7 +99,7 @@ vglModule.camera = function() {
    */
   this.viewUpDirection = function() {
     return m_viewUp;
-  }
+  };
 
   /**
    * Set view-up direction of the camera
@@ -149,13 +156,44 @@ vglModule.camera = function() {
   };
 
   /**
+   * Return direction of projection
+   */
+  this.directionOfProjection = function() {
+    this.computeDirectionOfProjection();
+
+    return m_directionOfProjection;
+  };
+
+  /**
+   * Return view-matrix for the camera This method does not compute the
+   * view-matrix for the camera. It is assumed that a call to computeViewMatrix
+   * has been made earlier.
    *
+   * @returns {mat4}
+   */
+  this.viewMatrix = function() {
+    return this.computeViewMatrix();
+  };
+
+  /**
+   * Return camera projection matrix This method does not compute the
+   * projection-matrix for the camera. It is assumed that a call to
+   * computeProjectionMatrix has been made earlier.
+   *
+   * @returns {mat4}
+   */
+  this.projectionMatrix = function() {
+    return this.computeProjectionMatrix();
+  };
+
+  /**
+   * Compute direction of projection
    */
   this.computeDirectionOfProjection = function() {
     vec3.subtract(m_directionOfProjection, m_focalPoint, m_position);
     vec3.normalize(m_directionOfProjection, m_directionOfProjection);
     this.modified();
-  }
+  };
 
   /**
    * Move camera closer or further away from the scene
@@ -249,18 +287,8 @@ vglModule.camera = function() {
       mat4.lookAt(m_viewMatrix, m_position, m_focalPoint, m_viewUp);
       m_computeModelViewMatrixTime.modified();
     }
-    return m_viewMatrix;
-  };
 
-  /**
-   * Return view-matrix for the camera This method does not compute the
-   * view-matrix for the camera. It is assumed that a call to computeViewMatrix
-   * has been made earlier.
-   *
-   * @returns {mat4}
-   */
-  this.viewMatrix = function() {
-    return this.computeViewMatrix();
+    return m_viewMatrix;
   };
 
   /**
@@ -268,23 +296,11 @@ vglModule.camera = function() {
    */
   this.computeProjectionMatrix = function() {
     if (m_computeProjectMatrixTime.getMTime() < this.getMTime()) {
-      mat4.identity(m_projectionMatrix, m_projectionMatrix);
       mat4.perspective(m_projectionMatrix, m_viewAngle, m_viewAspect, m_near, m_far);
       m_computeProjectMatrixTime.modified();
     }
 
     return m_projectionMatrix;
-  };
-
-  /**
-   * Return camera projection matrix This method does not compute the
-   * projection-matrix for the camera. It is assumed that a call to
-   * computeProjectionMatrix has been made earlier.
-   *
-   * @returns {mat4}
-   */
-  this.projectionMatrix = function() {
-    return this.computeProjectionMatrix();
   };
 
   this.computeDirectionOfProjection();

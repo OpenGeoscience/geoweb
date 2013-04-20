@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(ClimatePipes)
+project(geoweb)
 
 # Extend cmake module path.
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
@@ -15,14 +15,8 @@ set(SERVER_LOGS ON CACHE BOOL "Write cherrypy server access and error logs in de
 set(DATA_ROOT "data" CACHE PATH "Root directory for the data")
 
 # Non-cache variables.
-set(DEPLOY_DIR deploy)
-set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${DEPLOY_DIR})
-
-if(SERVER_LOGS)
-    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/logs)
-    set(LOG_ERROR_FILE "logs/error.log")
-    set(LOG_ACCESS_FILE "logs/access.log")
-endif()
+set(deploy_dir deploy)
+set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${deploy_dir})
 
 # Find JSLint.
 find_package(JSLint)
@@ -136,30 +130,35 @@ set(JS_DOCUMENT_FILES
 )
 
 # These files should be copied to the deployment directory.
-set(SOURCES
+set(sources
     geoweb
     geoweb.py
-    modules/websocket_chat.py
-    modules/websocket_pi.py
-    modules/ogsvtk.py
-    modules/cpi.py
-    modules/mongo.py
-    modules/geodata.py
-    modules/reader.py
-    modules/vtk_reader.py
+    geowebsocket.py
 )
 
-set(DIRECTORIES
-  web
+set(paths
+  web/apps
+  web/common
+  web/index.html
+  modules
+  services
+  temp
 )
 
 configure_file(configure_server.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/configure_server.cmake @ONLY
 )
 
+set(lib_dir "${CMAKE_BINARY_DIR}/${deploy_dir}/web/lib")
+if(NOT EXISTS ${lib_dir})
+  add_custom_command(OUTPUT ${lib_dir}
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${lib_dir}
+  )
+endif()
+
 # Configure the server config file.
-set(SERVER_CONFIG "${DEPLOY_DIR}/server.conf")
-add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/server.conf
+set(server_config "${deploy_dir}/server.conf")
+add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${deploy_dir}/server.conf
   COMMAND ${CMAKE_COMMAND} -P
     ${CMAKE_CURRENT_BINARY_DIR}/configure_server.cmake
   DEPENDS
@@ -170,28 +169,31 @@ add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/server.conf
 )
 
 # Copy the files to the deployment directory.
-set(ALL_TARGETS)
-foreach(m ${SOURCES})
-    set(outfile ${DEPLOY_DIR}/${m})
-    add_custom_command(
-        OUTPUT ${outfile}
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/${m} ${CMAKE_BINARY_DIR}/${outfile}
-        DEPENDS ${m}
-    )
-    list(APPEND ALL_TARGETS ${outfile})
+set(all_targets)
+foreach(m ${sources})
+  set(outfile ${deploy_dir}/${m})
+  add_custom_command(
+    OUTPUT ${outfile}
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/${m} ${CMAKE_BINARY_DIR}/${outfile}
+    DEPENDS ${m}
+  )
+  list(APPEND all_targets ${outfile})
 endforeach()
 
-# Copy directories to the deployment directory
-foreach(m ${DIRECTORIES})
-    set(outdir ${DEPLOY_DIR}/${m})
+# Copy directories / files to the deployment directory
+foreach(m ${paths})
+    set(copy_command "copy")
+    if (IS_DIRECTORY "${CMAKE_SOURCE_DIR}/${m}")
+      set(copy_command "copy_directory")
+    endif()
+    set(outpath ${deploy_dir}/${m})
     add_custom_command(
-        OUTPUT ${outdir}
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/${m} ${CMAKE_BINARY_DIR}/${outdir}
-        DEPENDS ${m}
+        OUTPUT ${outpath}
+        COMMAND ${CMAKE_COMMAND} -E ${copy_command} ${CMAKE_SOURCE_DIR}/${m} ${CMAKE_BINARY_DIR}/${outpath}
+        DEPENDS ${m} ${lib_dir}
     )
-    list(APPEND ALL_TARGETS ${outdir})
+    list(APPEND all_targets ${outpath})
 endforeach()
-
 
 # Uglify and concatenate the library js files.
 if(NOT ${MINIFY})
@@ -202,57 +204,68 @@ if(${MINIFY} AND ${MANGLE})
     set(MANGLE_FLAG "-m")
 endif()
 
-set(MIN_JS_FILE ${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/web/lib/geoweb.min.js)
-
-# Check why xdata does not need to do this
-if(NOT EXISTS "${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/web/lib")
-  execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/web/lib")
-endif()
-
+set(min_js_file ${CMAKE_BINARY_DIR}/${deploy_dir}/web/lib/geoweb.min.js)
 add_custom_command(
-    OUTPUT ${MIN_JS_FILE}
-    COMMAND ${UglifyJS_EXECUTABLE} -o ${MIN_JS_FILE} ${JS_UGLIFY_FILES} ${MINIFY_FLAG} ${MANGLE_FLAG}
-    DEPENDS ${JS_UGLIFY_FILES}
+    OUTPUT ${min_js_file}
+    COMMAND ${UglifyJS_EXECUTABLE} -o ${min_js_file} ${JS_UGLIFY_FILES} ${MINIFY_FLAG} ${MANGLE_FLAG}
+    DEPENDS ${lib_dir} ${JS_UGLIFY_FILES}
 )
 
+set(logs_dir ${CMAKE_BINARY_DIR}/${deploy_dir}/logs)
+add_custom_command(
+  OUTPUT ${logs_dir}
+  COMMAND ${CMAKE_COMMAND} -E make_directory
+  ${CMAKE_BINARY_DIR}/${deploy_dir}/logs
+)
+if(SERVER_LOGS)
+    set(LOG_ERROR_FILE "logs/error.log")
+    set(LOG_ACCESS_FILE "logs/access.log")
+endif()
+
 # Generate documentation.
-set(DOCUMENTATION_STAMP ${CMAKE_BINARY_DIR}/stamps/documentation.txt)
-set(DOCUMENTATION_DIR ${CMAKE_BINARY_DIR}/doc)
+set(documentation_stamp ${CMAKE_BINARY_DIR}/stamps/documentation.txt)
+set(documenation_dir ${CMAKE_BINARY_DIR}/doc)
 if(DOCUMENT)
     add_custom_command(
-        OUTPUT ${DOCUMENTATION_STAMP}
-        COMMAND ${CMAKE_COMMAND} -E remove_directory ${DOCUMENTATION_DIR}
-        COMMAND ${JSDuck_EXECUTABLE} ${JSDuck_ARGS} ${JS_DOCUMENT_FILES} --builtin-classes --output ${DOCUMENTATION_DIR}
-        COMMAND ${CMAKE_COMMAND} -E touch ${DOCUMENTATION_STAMP}
+        OUTPUT ${documentation_stamp}
+        COMMAND ${CMAKE_COMMAND} -E remove_directory ${documenation_dir}
+        COMMAND ${JSDuck_EXECUTABLE} ${JSDuck_ARGS} ${JS_DOCUMENT_FILES} --builtin-classes --output ${documenation_dir}
+        COMMAND ${CMAKE_COMMAND} -E touch ${documentation_stamp}
         DEPENDS ${JS_DOCUMENT_FILES}
     )
 
     # Remove the stamp file, which may have been trivially generated in a
     # previous configure step by the else portion of this if-block.
-    file(REMOVE ${DOCUMENTATION_STAMP})
+    file(REMOVE ${documentation_stamp})
 else()
     # Use a dummy custom command rather than a call to file() in case someone
     # deletes the stamp file for some reason.  In that case, the custom command
     # will regenerate the file without complaints, whereas the call to file()
     # wouldn't, instead resulting in an error.
     add_custom_command(
-        OUTPUT ${DOCUMENTATION_STAMP}
-        COMMAND ${CMAKE_COMMAND} -E touch ${DOCUMENTATION_STAMP}
+        OUTPUT ${documentation_stamp}
+        COMMAND ${CMAKE_COMMAND} -E touch ${documentation_stamp}
     )
 endif()
 
 # The top-level target.
 add_custom_target(
-    deploy
-    ALL
-    DEPENDS ${ALL_TARGETS} ${MIN_JS_FILE} ${SERVER_CONFIG} ${DOCUMENTATION_STAMP}
+  deploy
+  ALL
+  DEPENDS ${lib_dir} ${all_targets} ${min_js_file} ${server_config} ${logs_dir}
+  ${documentation_stamp}
 )
 
 # Testing
-include(CTest)
-enable_testing()
+if (BUILD_TESTING)
+  include(CTest)
+  enable_testing()
+endif()
 
 # JSLint tests.
 foreach(f ${JS_LINT_FILES})
     add_test(jslint-${f} ${JSLint_EXECUTABLE} ${f})
 endforeach()
+
+# Now include sub-directories
+add_subdirectory(web)

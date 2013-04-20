@@ -29,12 +29,33 @@ vglModule.renderer = function() {
   vglModule.object.call(this);
 
   /** @private */
+  var m_backgroundColor = [1.0, 1.0, 1.0, 1.0];
+
+  /** @private */
   var m_sceneRoot = new vglModule.groupNode();
 
   /** @private */
   var m_camera = new vglModule.camera();
-
   m_camera.addChild(m_sceneRoot);
+
+  /**
+   * Get background color
+   */
+  this.backgroundColor = function() {
+    return m_backgroundColor;
+  };
+
+  /**
+   * Set background color
+   */
+  this.setBackgroundColor = function(r, g, b, a) {
+    m_backgroundColor[0] = r;
+    m_backgroundColor[1] = g;
+    m_backgroundColor[2] = b;
+    m_backgroundColor[3] = a;
+
+    this.modified();
+  }
 
   /**
    * Get scene root
@@ -54,7 +75,8 @@ vglModule.renderer = function() {
    * Render the scene
    */
   this.render = function() {
-    gl.clearColor(1.0, 1.0, 1.0, 1.0);
+    gl.clearColor(m_backgroundColor[0], m_backgroundColor[1],
+      m_backgroundColor[2], m_backgroundColor[3]);
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -66,7 +88,7 @@ vglModule.renderer = function() {
     var children = m_sceneRoot.children();
     for ( var i = 0; i < children.length; ++i) {
       var actor = children[i];
-
+      actor.computeBounds();
       if (actor.visible() === false) {
         continue;
       }
@@ -82,6 +104,68 @@ vglModule.renderer = function() {
       renSt.m_mapper.render(renSt);
       renSt.m_material.remove(renSt);
     }
+  };
+
+  /**
+   * Automatically set up the camera based on visible actors
+   */
+  this.resetCamera = function() {
+    m_camera.computeBounds();
+
+    var vn = m_camera.directionOfProjection();
+    var visibleBounds = m_camera.bounds();
+
+    // console.log('visibleBounds ', visibleBounds);
+
+    var center = [
+      (visibleBounds[0] + visibleBounds[1]) / 2.0,
+      (visibleBounds[2] + visibleBounds[3]) / 2.0,
+      (visibleBounds[4] + visibleBounds[5]) / 2.0];
+
+    // console.log('center ', center);
+
+    var diagonals = [
+      visibleBounds[1] - visibleBounds[0],
+      visibleBounds[3] - visibleBounds[2],
+      visibleBounds[5] - visibleBounds[4],
+    ];
+
+    var radius = 0.0;
+    if (diagonals[0] > diagonals[1]) {
+      if (diagonals[0] > diagonals[2]) {
+        radius = diagonals[0] / 2.0;
+      } else {
+        radius = diagonals[2] / 2.0;
+      }
+    } else {
+      if (diagonals[1] > diagonals[2]) {
+        radius = diagonals[1] / 2.0;
+      } else {
+        radius = diagonals[2] / 2.0;
+      }
+    }
+
+    var aspect = m_camera.viewAspect();
+    var angle = m_camera.viewAngle();
+
+    // @todo Need to figure out what's happening here
+    if (aspect >= 1.0) {
+      angle = 2.0 * Math.atan(Math.tan(angle * 0.5) / aspect);
+    } else {
+      angle = 2.0 * Math.atan(Math.tan(angle * 0.5) * aspect);
+    }
+
+    var distance =  radius / Math.sin(angle * 0.5);
+
+    var vup = m_camera.viewUpDirection();
+
+    if (Math.abs(vec3.dot(vup, vn)) > 0.999) {
+      m_camera.setViewDirection(-vup[2], vup[0], vup[1]);
+    }
+
+    m_camera.setFocalPoint(center[0], center[1], center[2]);
+    m_camera.setPosition(center[0] + distance * -vn[0],
+      center[1] + distance * -vn[1], center[2] + distance * -vn[2]);
   };
 
   /**

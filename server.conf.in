@@ -14,10 +14,6 @@ tools.staticdir.index: "index.html"
 tools.staticdir.on = True
 tools.staticdir.dir = "@DATA_ROOT@"
 
-[/chat/ws]
+[/ws]
 tools.websocket.on: True
-tools.websocket.handler_cls: websocket_chat.ChatWebSocketHandler
-
-[/pi/ws]
-tools.websocket.on: True
-tools.websocket.handler_cls: websocket_pi.PiWebSocketHandler
+tools.websocket.handler_cls: geowebsocket.WebSocketRouter

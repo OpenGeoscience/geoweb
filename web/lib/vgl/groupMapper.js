@@ -67,6 +67,49 @@ vglModule.groupMapper = function() {
   };
 
   /**
+   * Compute bounds of the data
+   */
+  this.computeBounds = function() {
+    if (m_geomDataArray === null || m_geomDataArray === undefined) {
+      this.resetBounds();
+      return;
+    }
+
+    var computeBoundsTimestamp = this.computeBoundsTimestamp(),
+        boundsDirtyTimestamp = this.boundsDirtyTimestamp(),
+        geomBounds = null;
+
+    if (boundsDirtyTimestamp.getMTime() > computeBoundsTimestamp.getMTime()) {
+
+      for (var i = 0; i < m_geomDataArray.length; ++i) {
+        geomBounds = m_geomData.bounds();
+
+        if (m_bounds[0] > geomBounds[0]) {
+          m_bounds[0] = geomBounds[0];
+        }
+        if (m_bounds[1] < geomBounds[1]) {
+          m_bounds[1] = geomBounds[1];
+        }
+        if (m_bounds[2] > geomBounds[2]) {
+          m_bounds[2] = geomBounds[2];
+        }
+        if (m_bounds[3] < geomBounds[3]) {
+          m_bounds[3] = geomBounds[3];
+        }
+        if (m_bounds[4] > geomBounds[4]) {
+          m_bounds[4] = geomBounds[4];
+        }
+        if (m_bounds[5] < geomBounds[5]) {
+          m_bounds[5] = geomBounds[5];
+        }
+      }
+
+      this.modified();
+      computeBoundsTimestamp.modified();
+    }
+  };
+
+  /**
    * Render the mapper
    */
   this.render = function(renderState) {
