@@ -172,15 +172,31 @@ add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${deploy_dir}/server.conf
   VERBATIM
 )
 
+# Copy the files to the deployment directory.
+set(all_targets)
+foreach(m ${sources})
+  set(outfile ${deploy_dir}/${m})
+  add_custom_command(
+    OUTPUT ${outfile}
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/${m} ${CMAKE_BINARY_DIR}/${outfile}
+    DEPENDS ${m}
+  )
+  list(APPEND all_targets ${outfile})
+endforeach()
+
 # Copy directories / files to the deployment directory
 foreach(m ${paths})
-    set(outdir ${deploy_dir}/${m})
+    set(copy_command "copy")
+    if (IS_DIRECTORY "${CMAKE_SOURCE_DIR}/${m}")
+      set(copy_command "copy_directory")
+    endif()
+    set(outpath ${deploy_dir}/${m})
     add_custom_command(
-        OUTPUT ${outdir}
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/${m} ${CMAKE_BINARY_DIR}/${outdir}
+        OUTPUT ${outpath}
+        COMMAND ${CMAKE_COMMAND} -E ${copy_command} ${CMAKE_SOURCE_DIR}/${m} ${CMAKE_BINARY_DIR}/${outpath}
         DEPENDS ${m} ${lib_dir}
     )
-    list(APPEND all_targets ${outdir})
+    list(APPEND all_targets ${outpath})
 endforeach()
 
 # Uglify and concatenate the library js files.
