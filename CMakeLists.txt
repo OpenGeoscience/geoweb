@@ -125,6 +125,8 @@ set(JS_UGLIFY_FILES
   ${CMAKE_SOURCE_DIR}/web/lib/geo/mapInteractorStyle.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/map.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/feature.js
+  ${CMAKE_SOURCE_DIR}/web/lib/srv/init.js
+  ${CMAKE_SOURCE_DIR}/web/lib/srv/webSocket.js
 )
 
 # These files should have documentation generated for them.
