@@ -9,9 +9,8 @@
 function main() {
   "use strict";
 
-  var ws = ogs.srv.webSocket({}),
+  var ws = ogs.srv.webSocket({nodes: ['streammaster','streamworker']}),
   baseurl = 'http://' + window.location.host,
-  registeredHandlers = {},
   recieveCount = 0,
 
   startText = '<h1>Start Streaming<h1>',
@@ -22,14 +21,8 @@ function main() {
 
   ws.bind('StreamMaster', function(message) {
     if(message == 'done') {
-      output("Stopping streaming threads");
-      $.get(streamstopurl, function(response) {
-	output(response);
-	$('#button').html(startText);
-	$('#button').fadeIn();
-	streaming = false;
-	registeredHandlers = {};
-      });
+      streaming = false;
+      $('#button').html(startText);
     } else {
       var img = new Image();
       img.onload = function() {
@@ -40,36 +33,35 @@ function main() {
     }
   });
 
-  ws.bind('nodemanager', function(message) {
-    registeredHandlers[message.node] = message.running;
+  // ws.bind('nodemanager', function(message) {
+  //   registeredHandlers[message.node] = message.running;
 
-    if(registeredHandlers.hasOwnProperty('streammaster')) {
-      if(registeredHandlers.hasOwnProperty('streamworker')) {
-	//start streaming process
-	ws.signal('StreamMaster', 'start',
-		  [$("#file").val(), $("#var").val(), recieveCount]);
-	$('#button').fadeIn();
-	$('#button').html(stopText);
-	streaming = true;
-      }
-    }
-  });
+  //   if(registeredHandlers.hasOwnProperty('streammaster')) {
+  //     if(registeredHandlers.hasOwnProperty('streamworker')) {
+  // 	//start streaming process
+  // 	ws.signal('StreamMaster', 'start',
+  // 		  [$("#file").val(), $("#var").val(), recieveCount]);
+  // 	$('#button').fadeIn();
+  // 	$('#button').html(stopText);
+  // 	streaming = true;
+  //     }
+  //   }
+  // });
 
   $('#button').click(function () {
     if(!streaming) {
       output("Starting streaming threads");
-      ws.message('nodemanager',['start','streammaster']);
-      ws.message('nodemanager',['start','streamworker']);
-      $(this).hide();
+      ws.signal('StreamMaster','start');
+      streaming = true;
     } else {
       ws.signal('StreamMaster','stop');
-      $(this).hide();
+      streaming = false;
     }
   }).hover(function() {
     $(this).css({background:'yellow'});
   },function() {
     $(this).css({background:'blue'});
-  }).css({background:'blue',cursor:'pointer',width:'200px'});
+  }).css({background:'blue',cursor:'pointer',width:'200px'}).hide();
 
   //initialize the files
   $.ajax({
@@ -92,6 +84,21 @@ function main() {
   });
 
   $('#file').change(fileChanged);
+
+  $(ws).on('ready', function() {
+    output('Nodes ready');
+    $('#button').fadeIn();
+  });
+
+  $(ws).on('opened', function() {
+    output('WebSocket connection established, starting nodes');
+    $('#button').fadeIn();
+  });
+
+  $(ws).on('closed', function() {
+    output('WebSocket connection closed');
+    $('#button').hide();
+  });
 
 } //end main function
 

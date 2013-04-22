@@ -7,8 +7,6 @@ from subprocess import Popen
 
 from ws4py.client.threadedclient import WebSocketClient
 
-from modules.geowebsocket import WebSocketRouter
-
 SERVER_KEY = os.getenv('GEOWEBSOCKETKEY', 'aV64EBFjhYbhkeW0ETPGv43KGvBCYdO2Pq')
 NODE_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMP_DIR = os.path.abspath(os.path.join(NODE_DIR, '../temp'))
@@ -107,53 +105,6 @@ def startNode(klass):
         ws.connect()
     except:
         ws.close()
-
-class NodeManager():
-
-    def __init__(self):
-        WebSocketRouter.register('nodemanager', NodeManager.message)
-
-    @staticmethod
-    def handler(websocket, message):
-        # message should be list of action and param
-        name = message[1]
-        if(message[0] == 'start'):
-            cmdfile = os.path.join(NODE_DIR, '%s.py' % name)
-            pidfile = os.path.join(NODE_DIR, '%s.pid' % name)
-
-            if os.path.exists(pidfile):
-                return {'node':name, 'running':True}
-
-            pid = Popen(["python", cmdfile]).pid
-
-            _file = open(pidfile, 'w')
-            _file.write(str(pid))
-            _file.flush()
-            _file.close()
-
-            return None
-
-        elif(message[0] == 'stop'):
-            pidfile = os.path.join(NODE_DIR, '%s.pid' % name)
-            if os.path.exists(pidfile):
-                error = ''
-                file = open(pidfile)
-
-                try:
-                    pid = int(file.read())
-                except:
-                    error += "%s.pid does not contain a valid process id" % name
-
-                try:
-                    error = "Exit code: %s" % str(os.kill(pid, signal.SIGKILL))
-                except:
-                    error += "unable to kill %s process" % name
-                finally:
-                    os.remove(pidfile)
-
-                print error
-            return {'node':name, 'running':False}
-
 
 ##=================== TESTS ======================
 

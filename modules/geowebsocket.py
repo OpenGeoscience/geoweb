@@ -8,9 +8,10 @@ from ws4py.websocket import WebSocket
 from ws4py.messaging import TextMessage
 
 from logging import *
-from nodes import NodeManager
 
 SERVER_KEY = os.getenv('GEOWEBSOCKETKEY', 'aV64EBFjhYbhkeW0ETPGv43KGvBCYdO2Pq')
+MODU_DIR = os.path.dirname(os.path.abspath(__file__))
+NODE_DIR = os.path.abspath(os.path.join(MODU_DIR, '../nodes'))
 
 class TwoWayDict(dict):
     def __len__(self):
@@ -30,9 +31,11 @@ class WebSocketRouter(WebSocket):
     usermap = TwoWayDict()
     nodemap = TwoWayDict()
     funcmap = dict()
+    nodemanager = None
 
     def opened(self):
-        self.nodemanager = NodeManager
+        if WebSocketRouter.nodemanager is None:
+            WebSocketRouter.nodemanager = NodeManager();
 
     @staticmethod
     def register(func, name):
@@ -93,11 +96,12 @@ class WebSocketRouter(WebSocket):
 
             WebSocketRouter.nodemap[message] = self
 
-            # send register message to all subscribers
-#            registerData = {'target':message, 'message': 'registered' }
-#            registerJSON = json.dumps(registerData)
-#            cherrypy.engine.publish('websocket-broadcast',
-#                                    TextMessage(registerJSON))
+            # send register message to all users
+            registerData = {'target':'nodemanager', 'message': message }
+            registerJSON = json.dumps(registerData)
+            for ws in WebSocketRouter.usermap:
+                if type(ws) is WebSocketRouter:
+                    ws.send(registerJSON)
 
         elif target in WebSocketRouter.nodemap:
             debug("Sending to node")
@@ -132,5 +136,57 @@ class WebSocketRouter(WebSocket):
             del WebSocketRouter.nodemap[self]
         else:
             error(" Untracked client disconnected: %s" % reason)
+
+        # stop all nodes if there are no users
+        if len(WebSocketRouter.usermap) == 0:
+            for nodename in WebSocketRouter.nodemap:
+                if type(nodename) is str:
+                    WebSocketRouter.nodemanager.stop(nodename)
+
+class NodeManager():
+
+    def __init__(self):
+        WebSocketRouter.register('nodemanager', NodeManager.handler)
+
+    @staticmethod
+    def handler(websocket, message):
+        # message is name of node to start
+
+        cmdfile = os.path.join(NODE_DIR, '%s.py' % message)
+        pidfile = os.path.join(NODE_DIR, '%s.pid' % message)
+
+        if os.path.exists(pidfile):
+            return message
+
+        pid = Popen(["python", cmdfile]).pid
+
+        _file = open(pidfile, 'w')
+        _file.write(str(pid))
+        _file.flush()
+        _file.close()
+
+        return None
+
+    def stop(self, nodename):
+
+        pidfile = os.path.join(NODE_DIR, '%s.pid' % nodename)
+        if os.path.exists(pidfile):
+            error = ''
+            file = open(pidfile)
+
+            try:
+                pid = int(file.read())
+            except:
+                error += "%s.pid does not contain a valid process id" % nodename
+
+            try:
+                error = "Exit code: %s" % str(os.kill(pid, signal.SIGKILL))
+            except:
+                error += "unable to kill %s process" % nodename
+            finally:
+                os.remove(pidfile)
+
+            print error
+        return nodename
 
         # cherrypy.engine.publish('websocket-broadcast', TextMessage(reason))

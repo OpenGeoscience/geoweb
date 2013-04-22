@@ -82,6 +82,8 @@ set(JS_LINT_FILES
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/pointSource.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/utils.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/command.js
+    ${CMAKE_SOURCE_DIR}/web/lib/srv/init.js
+    ${CMAKE_SOURCE_DIR}/web/lib/srv/webSocket.js
 )
 
 # These files should be uglified and concatenated.
@@ -134,12 +136,12 @@ set(JS_DOCUMENT_FILES
 set(SOURCES
     geoweb
     geoweb.py
-    geowebsocket.py
 )
 
 set(DIRECTORIES
   web
   modules
+  nodes
   services
   logs
   temp
