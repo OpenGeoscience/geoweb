@@ -9,7 +9,7 @@
 function main() {
   "use strict";
 
-  var ws = ogs.srv.webSocket({nodes: ['streammaster','streamworker']}),
+  var ws = srvModule.webSocket({nodes: ['streammaster','streamworker']}),
   baseurl = 'http://' + window.location.host,
   recieveCount = 0,
 
@@ -51,7 +51,7 @@ function main() {
   $('#button').click(function () {
     if(!streaming) {
       output("Starting streaming threads");
-      ws.signal('StreamMaster','start');
+      ws.signal('StreamMaster', 'start', [$('#file').val(), $('#var').val()]);
       streaming = true;
     } else {
       ws.signal('StreamMaster','stop');

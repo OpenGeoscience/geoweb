@@ -3,7 +3,7 @@ tree.py: cherrypy.Application(geoweb.Root())
 log.error_file: '@LOG_ERROR_FILE@'
 log.access_file: '@LOG_ACCESS_FILE@'
 log.screen = True
-log.debug: '@LOG_DEBUG@'
+log.debug: True #@LOG_DEBUG@
 
 [/]
 tools.staticdir.root: geoweb.current_dir

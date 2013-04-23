@@ -11,11 +11,9 @@ from array import array
 import cdms2
 import numpy
 
-from nodes import WebSocketNode, NodeSlot, startNode
+from __init__ import WebSocketNode, NodeSlot, startNode
 
-this_dir = os.path.dirname(os.path.abspath(__file__))
-temp_dir = os.path.abspath(os.path.join(this_dir, '../temp'))
-
+userdata = dict()
 
 def get2DBins(x, y, binSizeX, binSizeY):
     """Splits 2D region into bins
@@ -49,6 +47,100 @@ def get2DBins(x, y, binSizeX, binSizeY):
             result.append((i1, i2, j1, j2))
             ycount += 1
     return result, xcount, ycount
+
+
+class StreamMaster(WebSocketNode):
+
+    @NodeSlot
+    def start(self, filename, varName, idx=0):
+
+        try:
+            if hasattr(self, 'processing') and self.processing:
+                return
+
+            self.processing = True
+
+            self.debug('read data file')
+            cdmsFile = cdms2.open(filename)
+            cdmsVar = cdmsFile[varName]
+
+            self.debug('split data into regions')
+            # need some hueristics to determine size of bins
+            # just split into 10x10 regions for test
+            latCoords = cdmsVar.getLatitude().getValue()
+            lonCoords = cdmsVar.getLongitude().getValue()
+            regionIndexes, xcount, ycount = get2DBins(latCoords, lonCoords, 10, 10)
+            latBounds = [(latCoords[i1], latCoords[i2]) for (i1, i2, j1, j2) in regionIndexes]
+            lonBounds = [(lonCoords[j1], lonCoords[j2]) for (i1, i2, j1, j2) in regionIndexes]
+            latIndexs = [(i1, i2) for (i1, i2, j1, j2) in regionIndexes]
+            lonIndexs = [(j1, j2) for (i1, i2, j1, j2) in regionIndexes]
+
+
+            self.debug('get cpus')
+            try:
+                numcpus = determineNumberOfCPUs()
+            except:
+                numcpus = 8
+
+            userdata[self.sender] = {'nextIdx': idx + 2,
+                                           'xcount': xcount,
+                                           'ycount': ycount,
+                                           'latIndexs': latIndexs,
+                                           'lonIndexs': lonIndexs}
+
+            self.debug("send loadData signal")
+            self.signal('StreamWorker', 'loadData', filename, varName,
+                         self.sender)
+
+            self.debug("send first region signal")
+            self.signal('StreamWorker', 'region', latIndexs[idx],
+                         lonIndexs[idx], idx, userkey=self.sender)
+
+            self.debug("send second, so one is always on queue")
+            self.signal('StreamWorker', 'region', latIndexs[idx + 1],
+                         lonIndexs[idx + 1], idx + 1, userkey=self.sender)
+
+        except Exception, e:
+            import traceback
+            self.debug(traceback.format_exc(None))
+            try:
+                cdmsFile.close()
+            except:
+                pass
+
+        return None
+
+    @NodeSlot
+    def region(self, data, i, userkey):
+
+        self.debug("send next region signal")
+        if self.processing:
+            latIndexs = userdata[userkey]['latIndexs']
+            lonIndexs = userdata[userkey]['lonIndexs']
+            idx = userdata[userkey]['nextIdx']
+            if idx < len(latIndexs):
+                self.signal('StreamWorker', 'region', latIndexs[idx],
+                            lonIndexs[idx], idx, userkey=userkey)
+                userdata[userkey]['nextIdx'] = idx + 1
+            else:
+                self.processing = False
+                self.send(json.dumps({'target':userkey, 'message':'done'}))
+
+        self.debug("send image data to user")
+        xcount = userdata[userkey]['xcount']
+        ycount = userdata[userkey]['ycount']
+        w = 150 - 1;  # size of image
+        h = 100 - 1;  # gets rid of 1px border
+        y = int(i / ycount)
+        x = i % ycount
+        response = {'x':x * w, 'y':(xcount - y) * h, 'img':data}
+        self.send(json.dumps({'target':userkey, 'message':response}))
+        return None
+
+    @NodeSlot
+    def stop(self):
+        self.processing = False
+        return 'done'
 
 # #
 # From http://stackoverflow.com/a/1006301/1114724
@@ -155,105 +247,6 @@ def  determineNumberOfCPUs():
 
     raise Exception('Can not determine number of CPUs on this system')
 
-
-class StreamMaster(WebSocketRPC):
-
-    @NodeSlot
-    def start(self, filename, varName, idx=0):
-
-        try:
-            if hasattr(self, 'processing') and self.processing:
-                return
-
-            self.processing = True
-
-            self.debug('read data file')
-            cdmsFile = cdms2.open(filename)
-            cdmsVar = cdmsFile[varName]
-
-            self.debug('split data into regions')
-            # need some hueristics to determine size of bins
-            # just split into 10x10 regions for test
-            latCoords = cdmsVar.getLatitude().getValue()
-            self.debug('split data into regions')
-            lonCoords = cdmsVar.getLongitude().getValue()
-            self.debug('split data into regions')
-            regionIndexes, xcount, ycount = get2DBins(latCoords, lonCoords, 10, 10)
-            self.debug('split data into regions')
-            latBounds = [(latCoords[i1], latCoords[i2]) for (i1, i2, j1, j2) in regionIndexes]
-            self.debug('split data into regions')
-            lonBounds = [(lonCoords[j1], lonCoords[j2]) for (i1, i2, j1, j2) in regionIndexes]
-            self.debug('split data into regions')
-            latIndexs = [(i1, i2) for (i1, i2, j1, j2) in regionIndexes]
-            self.debug('split data into regions')
-            lonIndexs = [(j1, j2) for (i1, i2, j1, j2) in regionIndexes]
-
-
-            self.debug('get cpus')
-            try:
-                numcpus = determineNumberOfCPUs()
-            except:
-                numcpus = 8
-
-            self.userdata[self.sender] = {'nextIdx': idx + 2,
-                                           'xcount': xcount,
-                                           'ycount': ycount,
-                                           'latIndexs': latIndexs,
-                                           'lonIndexs': lonIndexs}
-
-            self.debug("send loadData signal")
-            self.signal('StreamWorker', 'loadData', filename, varname,
-                         self.sender)
-
-            self.debug("send first region signal")
-            self.signal('StreamWorker', 'region', latIndexs[idx],
-                         lonIndexs[idx], idx, userkey=self.sender)
-
-            self.debug("send second, so one is always on queue")
-            self.signal('StreamWorker', 'region', latIndexs[idx + 1],
-                         lonIndexs[idx + 1], idx + 1, userkey=self.sender)
-
-        except Exception, e:
-            import traceback
-            self.debug(traceback.format_exc(None))
-            try:
-                cdmsFile.close()
-            except:
-                pass
-
-        return None
-
-    @NodeSlot
-    def region(self, data, i, userkey):
-
-        self.debug("send next region signal")
-        if self.processing:
-            latIndexs = self.userdata[userkey]['latIndexs']
-            lonIndexs = self.userdata[userkey]['lonIndexs']
-            idx = self.userdata[userkey]['nextIdx']
-            if idx < len(latIndexs):
-                self.signal('StreamWorker', 'region', latIndexs[idx],
-                            lonIndexs[idx], idx, userkey=userkey)
-                self.userdata[userkey]['nextIdx'] = idx + 1
-            else:
-                self.processing = False
-                self.send({'target':userkey, 'message':'done'})
-
-        self.debug("send image data to user")
-        xcount = self.userdata[userkey]['xcount']
-        ycount = self.userdata[userkey]['ycount']
-        w = 150 - 1;  # size of image
-        h = 100 - 1;  # gets rid of 1px border
-        y = int(i / ycount)
-        x = i % ycount
-        response = {'x':x * w, 'y':(xcount - y) * h, 'img':data}
-        self.send({'target':userkey, 'message':response})
-        return None
-
-    @NodeSlot
-    def stop(self):
-        self.processing = False
-        return 'done'
 
 if __name__ == '__main__':
     startNode(StreamMaster)

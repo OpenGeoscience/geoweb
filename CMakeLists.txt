@@ -150,10 +150,6 @@ set(paths
   temp
 )
 
-configure_file(configure_server.cmake.in
-  ${CMAKE_CURRENT_BINARY_DIR}/configure_server.cmake @ONLY
-)
-
 set(lib_dir "${CMAKE_BINARY_DIR}/${deploy_dir}/web/lib")
 if(NOT EXISTS ${lib_dir})
   add_custom_command(OUTPUT ${lib_dir}
@@ -222,10 +218,24 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -E make_directory
   ${CMAKE_BINARY_DIR}/${deploy_dir}/logs
 )
+
 if(SERVER_LOGS)
     set(LOG_ERROR_FILE "logs/error.log")
     set(LOG_ACCESS_FILE "logs/access.log")
 endif()
+
+if(SERVER_DEBUG)
+	set(LOG_DEBUG "True")
+else()
+	set(LOG_DEBUG "False")
+endif()
+
+message(${LOG_DEBUG})
+
+#setup config file
+configure_file(configure_server.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/configure_server.cmake @ONLY
+)
 
 # Generate documentation.
 set(documentation_stamp ${CMAKE_BINARY_DIR}/stamps/documentation.txt)

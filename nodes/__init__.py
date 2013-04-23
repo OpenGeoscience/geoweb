@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 import json
 import os
-import signal
 import unittest
-from subprocess import Popen
+import traceback
 
 from ws4py.client.threadedclient import WebSocketClient
 
@@ -28,36 +27,54 @@ class WebSocketNodeBase(WebSocketClient):
         return self.__class__.__name__
 
     def opened(self):
+        self.debug("Opened")
         registerData = {'target':SERVER_KEY, 'message':self.webSocketName()}
         self.send(json.dumps(registerData))
 
     def closed(self, code, reason):
-        pass
+        self.debug("Closed")
 
     def received_message(self, textMessage):
+        self.debug("Recieved message %s" % str(textMessage))
         try:
             data = json.loads(str(textMessage))
+            self.debug("Decoded message")
         except:
+            self.error("Failed to decode %s" % str(textMessage))
             return
 
         if 'target' not in data:
+            self.error("Recieved Invalid Message %s" % str(textMessage))
             return
+        else:
+            self.debug("Data has 'target' attr")
 
         self.sender = data['target']
-        result = self.onMessage(data.get('message', ''))
+        try:
+            self.debug("Trying onMessage")
+            result = self.onMessage(data.get('message', ''))
+        except Exception, e:
+            self.error(" Function: %s\nSender: %s\nMessage: %s\nError: %s" % (
+                    self.webSocketName(), data['target'], data.get('message', ''),
+                    traceback.format_exc()))
+            return
+
+        self.debug("called onMessage -> %s" % str(result))
         if result is not None:
             data['message'] = result
             self.send(json.dumps(data))
+            self.debug("sent result")
 
     def signal(self, nodeName, nodeSlot, *args, **kwargs):
         slotData = {'slot': nodeSlot,
                     'args': args,
                     'kwargs': kwargs}
-        self.send({'target':nodeName, 'message':slotData})
+        self.send(json.dumps({'target':nodeName, 'message':slotData}))
 
     def log(self, msg, prefix="LOG: "):
         global LOGGING_ENABLE
         global NODE_LOG
+        print "%s %s %s\n" % (self.webSocketName(), prefix, msg)
         if LOGGING_ENABLED:
             NODE_LOG.write("%s %s %s\n" % (self.webSocketName(), prefix, msg))
             NODE_LOG.flush()
@@ -70,25 +87,21 @@ class WebSocketNodeBase(WebSocketClient):
         self.log(msg, "DEBUG: ")
 
 # decorator
-class NodeSlot(object):
-
-    def __init__(self, f):
-        self.f = f
-        f.isSlot = True
-
-    def __call__(self, *args, **kwargs):
-        return f(self, *args, **kwargs)
-
+def NodeSlot(func):
+    def wrapped(*args, **kwargs):
+        return func(*args, **kwargs)
+    wrapped.isNodeSlot = True
+    return wrapped
 
 class WebSocketNode(WebSocketNodeBase):
     def onMessage(self, message):
         if 'slot' in message:
             if hasattr(self, message['slot']):
                 func = getattr(self, message['slot'])
-                if func.isSlot:
+                if hasattr(func, 'isNodeSlot'):
                     args = message.get('args', [])
                     kwargs = message.get('kwargs', {})
-                    return func(self, *args, **kwargs)
+                    return func(*args, **kwargs)
         return None
 
 
@@ -110,7 +123,7 @@ def startNode(klass):
 
 class TestNode(WebSocketNode):
 
-    @Node
+    @NodeSlot
     def testNode(self, arg1, arg2, arg3=None, arg4=None):
         return (arg1, arg2, arg3, arg4)
 

@@ -17,15 +17,14 @@ mpl.use('qt4agg')
 import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
 
-from nodes import WebSocketNode, NodeSlot, startNode
+from __init__ import WebSocketNode, NodeSlot, startNode, TEMP_DIR
 
 userdata = {}
-
 
 class StreamWorker(WebSocketNode):
 
     @NodeSlot
-    def loadData(filename, var, userkey):
+    def loadData(self, filename, var, userkey):
         if userkey not in userdata:
             userdata[userkey] = {}
         f = cdms2.open(filename, 'r')
@@ -36,14 +35,14 @@ class StreamWorker(WebSocketNode):
         return None
 
     @NodeSlot
-    def region(latBounds, lonBounds, i, userkey):
+    def region(self, latBounds, lonBounds, i, userkey):
 
         cdmsVar = userdata[userkey]['var']
         latCoords = userdata[userkey]['latCoords']
         lonCoords = userdata[userkey]['lonCoords']
         clevs = userdata[userkey]['clevs']
 
-        mylog("get data for only this region")
+        self.debug("get data for only this region")
         # need to expand bounds by one due to the difference in how
         # basemap and cdms work with bounds
         t = len(latCoords) - 1
@@ -51,7 +50,7 @@ class StreamWorker(WebSocketNode):
         a, b, c, d = latBounds[0], latBounds[1], lonBounds[0], lonBounds[1]
         regiondata = cdmsVar[:, (a - 1 if a > 0 else a):(b + 1 if b < t else b), (c - 1 if c > 0 else c):(d + 1 if d < n else d)]
 
-        mylog("perform time average on data")
+        self.debug("perform time average on data")
         cdutil.setTimeBoundsMonthly(regiondata)
         avg = cdutil.averager(regiondata, axis='t')
 
@@ -61,7 +60,7 @@ class StreamWorker(WebSocketNode):
         ax.set_axis_off()
         fig.add_axes(ax)
 
-        mylog("plot using basemap")
+        self.debug("plot using basemap")
         lons, lats = avg.getLongitude()[:], avg.getLatitude()[:]
         m = Basemap(projection='cyl', resolution='c',
                     llcrnrlon=lonCoords[lonBounds[0]],
@@ -75,16 +74,16 @@ class StreamWorker(WebSocketNode):
         except Exception, err:
             import traceback
             tb = traceback.format_exc()
-            mylog(tb)
-            mylog("Region lat(%d,%d) lon(%d,%d) faled" % (latBounds[0], latBounds[1], lonBounds[0], lonBounds[1]))
+            self.debug(tb)
+            self.debug("Region lat(%d,%d) lon(%d,%d) faled" % (latBounds[0], latBounds[1], lonBounds[0], lonBounds[1]))
 
         m.drawcoastlines()
 
-        mylog("save to temp file")
-        temp_image_file = os.path.join(temp_dir, '%s.png' % str(uuid4()))
+        self.debug("save to temp file")
+        temp_image_file = os.path.join(TEMP_DIR, '%s.png' % str(uuid4()))
         fig.savefig(temp_image_file, dpi=100)
 
-        mylog("convert image data to base64")
+        self.debug("convert image data to base64")
         with open(temp_image_file, "rb") as temp_image:
             base64png = base64.b64encode(temp_image.read())
 

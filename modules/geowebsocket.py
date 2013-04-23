@@ -1,6 +1,8 @@
 import json
 import os
+import signal
 import traceback
+from subprocess import Popen
 from uuid import uuid4
 
 import cherrypy
@@ -21,10 +23,10 @@ class TwoWayDict(dict):
         dict.__setitem__(self, key, value)
         dict.__setitem__(self, value, key)
 
-    def __del__(self, key):
+    def __delitem__(self, key):
         value = self[key]
-        dict.__del__(self, key)
-        dict.__del__(self, value)
+        dict.__delitem__(self, key)
+        dict.__delitem__(self, value)
 
 class WebSocketRouter(WebSocket):
 
@@ -38,7 +40,7 @@ class WebSocketRouter(WebSocket):
             WebSocketRouter.nodemanager = NodeManager();
 
     @staticmethod
-    def register(func, name):
+    def register(name, func):
         """Registers a handler function for a given name
 
         @param func: static function that takes a websocket and message,
@@ -57,6 +59,8 @@ class WebSocketRouter(WebSocket):
             return WebSocketRouter.nodemap[self]
         elif self not in WebSocketRouter.usermap:
             WebSocketRouter.usermap[self] = str(uuid4())
+            debug("Added user py id: %s uuid: %s" % \
+                  (str(id(self)), WebSocketRouter.usermap[self]))
         return WebSocketRouter.usermap[self]
 
     def received_message(self, textMessage):
@@ -101,23 +105,37 @@ class WebSocketRouter(WebSocket):
             registerJSON = json.dumps(registerData)
             for ws in WebSocketRouter.usermap:
                 if type(ws) is WebSocketRouter:
+                    debug("Found one")
                     ws.send(registerJSON)
 
         elif target in WebSocketRouter.nodemap:
-            debug("Sending to node")
+            debug("Sending to node id:%s" % \
+                  str(id(WebSocketRouter.nodemap[target])))
             data['target'] = self.getSender()
-            WebSocketRouter.nodemap[target].send(JSON.dumps(data))
+            debug(str(WebSocketRouter.nodemap[target]))
+            try:
+                WebSocketRouter.nodemap[target].send(json.dumps(data))
+            except Exception, e:
+                error(" Function: %s\nSender: %s\nMessage: %s\nError: %s" % (
+                        target, self.getSender(), message,
+                        traceback.format_exc()))
+                return
+
+            debug("Sent")
 
         elif target in WebSocketRouter.usermap:
             debug("Sending to user")
             data['target'] = self.getSender()
-            WebSocketRouter.usermap[target].send(JSON.dumps(data))
+            WebSocketRouter.usermap[target].send(json.dumps(data))
 
         elif target in WebSocketRouter.funcmap:
+            self.getSender()  # places user in usermap if not already
             try:
                 result = WebSocketRouter.funcmap[target](self, message)
+                debug('performed func with result %s' % str(result))
                 if result is not None:
-                    self.send({'target':target, 'message': result})
+                    JSON = json.dumps({'target':target, 'message': result})
+                    self.send(JSON)
 
             except Exception:
                 error(" Function: %s\nSender: %s\nMessage: %s\nError: %s" % (
@@ -155,10 +173,16 @@ class NodeManager():
         cmdfile = os.path.join(NODE_DIR, '%s.py' % message)
         pidfile = os.path.join(NODE_DIR, '%s.pid' % message)
 
+        debug(cmdfile)
+        debug(pidfile)
+
         if os.path.exists(pidfile):
+            debug("pid file exists")
             return message
 
         pid = Popen(["python", cmdfile]).pid
+
+        debug("PID: %s" % str(pid))
 
         _file = open(pidfile, 'w')
         _file.write(str(pid))
