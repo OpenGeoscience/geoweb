@@ -19,7 +19,7 @@ function main() {
 
   ctx = $('#cvs')[0].getContext('2d');
 
-  ws.bind('StreamMaster', function(message) {
+  ws.bind('streammaster', function(message) {
     if(message == 'done') {
       streaming = false;
       $('#button').html(startText);
@@ -39,7 +39,7 @@ function main() {
   //   if(registeredHandlers.hasOwnProperty('streammaster')) {
   //     if(registeredHandlers.hasOwnProperty('streamworker')) {
   // 	//start streaming process
-  // 	ws.signal('StreamMaster', 'start',
+  // 	ws.signal('streammaster', 'start',
   // 		  [$("#file").val(), $("#var").val(), recieveCount]);
   // 	$('#button').fadeIn();
   // 	$('#button').html(stopText);
@@ -51,10 +51,10 @@ function main() {
   $('#button').click(function () {
     if(!streaming) {
       output("Starting streaming threads");
-      ws.signal('StreamMaster', 'start', [$('#file').val(), $('#var').val()]);
+      ws.signal('streammaster', 'start', [$('#file').val(), $('#var').val()]);
       streaming = true;
     } else {
-      ws.signal('StreamMaster','stop');
+      ws.signal('streammaster','stop');
       streaming = false;
     }
   }).hover(function() {

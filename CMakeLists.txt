@@ -230,8 +230,6 @@ else()
 	set(LOG_DEBUG "False")
 endif()
 
-message(${LOG_DEBUG})
-
 #setup config file
 configure_file(configure_server.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/configure_server.cmake @ONLY

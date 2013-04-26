@@ -23,6 +23,9 @@ userdata = {}
 
 class StreamWorker(WebSocketNode):
 
+    def nodeFileName(self):
+        return 'streamworker'
+
     @NodeSlot
     def loadData(self, filename, var, userkey):
         if userkey not in userdata:
@@ -87,7 +90,7 @@ class StreamWorker(WebSocketNode):
         with open(temp_image_file, "rb") as temp_image:
             base64png = base64.b64encode(temp_image.read())
 
-        self.signal('StreamMaster', 'region', base64png, i, userkey)
+        self.signal('streammaster', 'region', base64png, i, userkey)
 
         # cleanup
         plt.clf()

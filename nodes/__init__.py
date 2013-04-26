@@ -23,12 +23,14 @@ class WebSocketNodeBase(WebSocketClient):
         """
         raise NotImplementedError
 
-    def webSocketName(self):
-        return self.__class__.__name__
+    def nodeFileName(self):
+        """Subclasses need to override this with name of file minus .py
+        """
+        raise NotImplementedError
 
     def opened(self):
         self.debug("Opened")
-        registerData = {'target':SERVER_KEY, 'message':self.webSocketName()}
+        registerData = {'target':SERVER_KEY, 'message':self.nodeFileName()}
         self.send(json.dumps(registerData))
 
     def closed(self, code, reason):
@@ -55,7 +57,7 @@ class WebSocketNodeBase(WebSocketClient):
             result = self.onMessage(data.get('message', ''))
         except Exception, e:
             self.error(" Function: %s\nSender: %s\nMessage: %s\nError: %s" % (
-                    self.webSocketName(), data['target'], data.get('message', ''),
+                    self.nodeFileName(), data['target'], data.get('message', ''),
                     traceback.format_exc()))
             return
 
@@ -65,18 +67,18 @@ class WebSocketNodeBase(WebSocketClient):
             self.send(json.dumps(data))
             self.debug("sent result")
 
-    def signal(self, nodeName, nodeSlot, *args, **kwargs):
+    def signal(self, nodeFileName, nodeSlot, *args, **kwargs):
         slotData = {'slot': nodeSlot,
                     'args': args,
                     'kwargs': kwargs}
-        self.send(json.dumps({'target':nodeName, 'message':slotData}))
+        self.send(json.dumps({'target':nodeFileName, 'message':slotData}))
 
     def log(self, msg, prefix="LOG: "):
         global LOGGING_ENABLE
         global NODE_LOG
-        print "%s %s %s\n" % (self.webSocketName(), prefix, msg)
+        print "%s %s %s\n" % (self.nodeFileName(), prefix, msg)
         if LOGGING_ENABLED:
-            NODE_LOG.write("%s %s %s\n" % (self.webSocketName(), prefix, msg))
+            NODE_LOG.write("%s %s %s\n" % (self.nodeFileName(), prefix, msg))
             NODE_LOG.flush()
 
     def error(self, msg):

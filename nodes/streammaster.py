@@ -48,8 +48,10 @@ def get2DBins(x, y, binSizeX, binSizeY):
             ycount += 1
     return result, xcount, ycount
 
-
 class StreamMaster(WebSocketNode):
+
+    def nodeFileName(self):
+        return 'streammaster'
 
     @NodeSlot
     def start(self, filename, varName, idx=0):
@@ -89,15 +91,15 @@ class StreamMaster(WebSocketNode):
                                            'lonIndexs': lonIndexs}
 
             self.debug("send loadData signal")
-            self.signal('StreamWorker', 'loadData', filename, varName,
+            self.signal('streamworker', 'loadData', filename, varName,
                          self.sender)
 
             self.debug("send first region signal")
-            self.signal('StreamWorker', 'region', latIndexs[idx],
+            self.signal('streamworker', 'region', latIndexs[idx],
                          lonIndexs[idx], idx, userkey=self.sender)
 
             self.debug("send second, so one is always on queue")
-            self.signal('StreamWorker', 'region', latIndexs[idx + 1],
+            self.signal('streamworker', 'region', latIndexs[idx + 1],
                          lonIndexs[idx + 1], idx + 1, userkey=self.sender)
 
         except Exception, e:
@@ -119,7 +121,7 @@ class StreamMaster(WebSocketNode):
             lonIndexs = userdata[userkey]['lonIndexs']
             idx = userdata[userkey]['nextIdx']
             if idx < len(latIndexs):
-                self.signal('StreamWorker', 'region', latIndexs[idx],
+                self.signal('streamworker', 'region', latIndexs[idx],
                             lonIndexs[idx], idx, userkey=userkey)
                 userdata[userkey]['nextIdx'] = idx + 1
             else:
