@@ -78,7 +78,7 @@ class StreamMaster(WebSocketNode):
             lonIndexs = [(j1, j2) for (i1, i2, j1, j2) in regionIndexes]
 
 
-            self.debug('get cpus')
+            #self.debug('get cpus')
             try:
                 numcpus = determineNumberOfCPUs()
             except:
@@ -115,7 +115,6 @@ class StreamMaster(WebSocketNode):
     @NodeSlot
     def region(self, data, i, userkey):
 
-        self.debug("send next region signal")
         if self.processing:
             latIndexs = userdata[userkey]['latIndexs']
             lonIndexs = userdata[userkey]['lonIndexs']
@@ -128,7 +127,6 @@ class StreamMaster(WebSocketNode):
                 self.processing = False
                 self.send(json.dumps({'target':userkey, 'message':'done'}))
 
-        self.debug("send image data to user")
         xcount = userdata[userkey]['xcount']
         ycount = userdata[userkey]['ycount']
         w = 150 - 1;  # size of image

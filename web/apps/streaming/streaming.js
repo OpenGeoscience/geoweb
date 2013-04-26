@@ -51,11 +51,13 @@ function main() {
   $('#button').click(function () {
     if(!streaming) {
       output("Starting streaming threads");
-      ws.signal('streammaster', 'start', [$('#file').val(), $('#var').val()]);
+      ws.signal('streammaster', 'start', [$('#file').val(), $('#var').val(), recieveCount]);
       streaming = true;
+      $(this).html(stopText);
     } else {
       ws.signal('streammaster','stop');
       streaming = false;
+      $(this).html(startText);
     }
   }).hover(function() {
     $(this).css({background:'yellow'});

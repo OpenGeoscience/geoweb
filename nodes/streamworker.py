@@ -45,7 +45,7 @@ class StreamWorker(WebSocketNode):
         lonCoords = userdata[userkey]['lonCoords']
         clevs = userdata[userkey]['clevs']
 
-        self.debug("get data for only this region")
+        #self.debug("get data for only this region")
         # need to expand bounds by one due to the difference in how
         # basemap and cdms work with bounds
         t = len(latCoords) - 1
@@ -53,7 +53,7 @@ class StreamWorker(WebSocketNode):
         a, b, c, d = latBounds[0], latBounds[1], lonBounds[0], lonBounds[1]
         regiondata = cdmsVar[:, (a - 1 if a > 0 else a):(b + 1 if b < t else b), (c - 1 if c > 0 else c):(d + 1 if d < n else d)]
 
-        self.debug("perform time average on data")
+        #self.debug("perform time average on data")
         cdutil.setTimeBoundsMonthly(regiondata)
         avg = cdutil.averager(regiondata, axis='t')
 
@@ -63,7 +63,7 @@ class StreamWorker(WebSocketNode):
         ax.set_axis_off()
         fig.add_axes(ax)
 
-        self.debug("plot using basemap")
+        #self.debug("plot using basemap")
         lons, lats = avg.getLongitude()[:], avg.getLatitude()[:]
         m = Basemap(projection='cyl', resolution='c',
                     llcrnrlon=lonCoords[lonBounds[0]],
@@ -82,11 +82,11 @@ class StreamWorker(WebSocketNode):
 
         m.drawcoastlines()
 
-        self.debug("save to temp file")
+        #self.debug("save to temp file")
         temp_image_file = os.path.join(TEMP_DIR, '%s.png' % str(uuid4()))
         fig.savefig(temp_image_file, dpi=100)
 
-        self.debug("convert image data to base64")
+        #self.debug("convert image data to base64")
         with open(temp_image_file, "rb") as temp_image:
             base64png = base64.b64encode(temp_image.read())
 

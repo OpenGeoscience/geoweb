@@ -29,7 +29,6 @@ class WebSocketNodeBase(WebSocketClient):
         raise NotImplementedError
 
     def opened(self):
-        self.debug("Opened")
         registerData = {'target':SERVER_KEY, 'message':self.nodeFileName()}
         self.send(json.dumps(registerData))
 
@@ -37,10 +36,9 @@ class WebSocketNodeBase(WebSocketClient):
         self.debug("Closed")
 
     def received_message(self, textMessage):
-        self.debug("Recieved message %s" % str(textMessage))
+        #self.debug("Recieved message %s" % str(textMessage))
         try:
             data = json.loads(str(textMessage))
-            self.debug("Decoded message")
         except:
             self.error("Failed to decode %s" % str(textMessage))
             return
@@ -48,12 +46,9 @@ class WebSocketNodeBase(WebSocketClient):
         if 'target' not in data:
             self.error("Recieved Invalid Message %s" % str(textMessage))
             return
-        else:
-            self.debug("Data has 'target' attr")
 
         self.sender = data['target']
         try:
-            self.debug("Trying onMessage")
             result = self.onMessage(data.get('message', ''))
         except Exception, e:
             self.error(" Function: %s\nSender: %s\nMessage: %s\nError: %s" % (
@@ -61,11 +56,9 @@ class WebSocketNodeBase(WebSocketClient):
                     traceback.format_exc()))
             return
 
-        self.debug("called onMessage -> %s" % str(result))
         if result is not None:
             data['message'] = result
             self.send(json.dumps(data))
-            self.debug("sent result")
 
     def signal(self, nodeFileName, nodeSlot, *args, **kwargs):
         slotData = {'slot': nodeSlot,

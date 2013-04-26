@@ -177,8 +177,16 @@ class NodeManager():
         debug(pidfile)
 
         if os.path.exists(pidfile):
-            debug("pid file exists")
-            return message
+            debug("pid file exists, check if it's running")
+            file = open(pidfile)
+            try:
+                pid = int(file.read())
+            except:
+                debug("%s.pid does not contain a valid process id" % nodename)
+            else:
+                if NodeManager.check_pid(pid):
+                    debug("process is still running")
+                    return message
 
         pid = Popen(["python", cmdfile]).pid
 
@@ -191,26 +199,27 @@ class NodeManager():
 
         return None
 
+    @staticmethod
+    def check_pid(pid):
+        """ Check For the existence of a unix pid. """
+        try:
+            os.kill(pid, 0)
+        except OSError:
+            return False
+        else:
+            return True
+
     def stop(self, nodename):
 
         pidfile = os.path.join(NODE_DIR, '%s.pid' % nodename)
         if os.path.exists(pidfile):
-            error = ''
-            file = open(pidfile)
-
             try:
-                pid = int(file.read())
+                exitCode = str(os.kill(pid, signal.SIGKILL))
+                debug("Exit code: %s" % exitCode)
             except:
-                error += "%s.pid does not contain a valid process id" % nodename
-
-            try:
-                error = "Exit code: %s" % str(os.kill(pid, signal.SIGKILL))
-            except:
-                error += "unable to kill %s process" % nodename
+                debug("unable to kill %s process" % nodename)
             finally:
                 os.remove(pidfile)
-
-            print error
         return nodename
 
         # cherrypy.engine.publish('websocket-broadcast', TextMessage(reason))
