@@ -81,6 +81,7 @@ class Root(object):
         for i in range(len(path)):
             service = None
             runningPath = os.path.join(runningPath, path[i])
+            cherrypy.log(runningPath)
 
             if runningPath in services:
                 service = services[runningPath]
