@@ -60,6 +60,7 @@ set(JS_LINT_FILES
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/groupMapper.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/materialAttribute.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/blend.js
+    ${CMAKE_SOURCE_DIR}/web/lib/vgl/freezeObject.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/defaultValue.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/material.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/modelViewMatrixStack.js
@@ -91,13 +92,13 @@ set(JS_UGLIFY_FILES
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/init.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/timestamp.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/object.js
-  ${CMAKE_SOURCE_DIR}/web/lib/geo/ellipsoid.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/command.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/boundingObject.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/node.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/groupNode.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/actor.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/camera.js
+  ${CMAKE_SOURCE_DIR}/web/lib/vgl/freezeObject.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/defaultValue.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/geojsonReader.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/geomData.js
@@ -121,6 +122,7 @@ set(JS_UGLIFY_FILES
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/utils.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/vtkUnpack.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/init.js
+  ${CMAKE_SOURCE_DIR}/web/lib/geo/ellipsoid.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/latlng.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/layer.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/command.js
