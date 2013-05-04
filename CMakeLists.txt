@@ -79,6 +79,7 @@ set(JS_LINT_FILES
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/pointSource.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/utils.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/command.js
+    ${CMAKE_SOURCE_DIR}/web/lib/vgl/picker.js
     ${CMAKE_SOURCE_DIR}/web/lib/srv/init.js
     ${CMAKE_SOURCE_DIR}/web/lib/srv/webSocket.js
 )
@@ -119,6 +120,7 @@ set(JS_UGLIFY_FILES
   ${CMAKE_SOURCE_DIR}/web/lib/geo/latlng.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/layer.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/command.js
+  ${CMAKE_SOURCE_DIR}/web/lib/vgl/picker.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/mapInteractorStyle.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/map.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/feature.js
