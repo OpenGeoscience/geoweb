@@ -12,6 +12,7 @@ set(MINIFY ON CACHE BOOL "Minify the JavaScript files prior to concatenating.")
 set(MANGLE ON CACHE BOOL "When minifying, also mangle non-public symbol names.")
 set(DOCUMENT OFF CACHE BOOL "Generate documentation for JavaScript files.")
 set(SERVER_LOGS ON CACHE BOOL "Write cherrypy server access and error logs in deploy/logs")
+set(SERVER_DEBUG ON CACHE BOOL "Write debug statements to error logs")
 set(DATA_ROOT "data" CACHE PATH "Root directory for the data")
 
 # Non-cache variables.
@@ -78,6 +79,9 @@ set(JS_LINT_FILES
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/pointSource.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/utils.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/command.js
+    ${CMAKE_SOURCE_DIR}/web/lib/vgl/picker.js
+    ${CMAKE_SOURCE_DIR}/web/lib/srv/init.js
+    ${CMAKE_SOURCE_DIR}/web/lib/srv/webSocket.js
 )
 
 # These files should be uglified and concatenated.
@@ -116,12 +120,15 @@ set(JS_UGLIFY_FILES
   ${CMAKE_SOURCE_DIR}/web/lib/geo/latlng.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/layer.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/command.js
+  ${CMAKE_SOURCE_DIR}/web/lib/vgl/picker.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/mapInteractorStyle.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/map.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/feature.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/data.js
   ${CMAKE_SOURCE_DIR}/web/lib/ui/init.js
   ${CMAKE_SOURCE_DIR}/web/lib/ui/gis.js
+  ${CMAKE_SOURCE_DIR}/web/lib/srv/init.js
+  ${CMAKE_SOURCE_DIR}/web/lib/srv/webSocket.js
 )
 
 # These files should have documentation generated for them.
@@ -133,7 +140,6 @@ set(JS_DOCUMENT_FILES
 set(sources
     geoweb
     geoweb.py
-    geowebsocket.py
 )
 
 set(paths
@@ -141,12 +147,9 @@ set(paths
   web/common
   web/index.html
   modules
+  nodes
   services
   temp
-)
-
-configure_file(configure_server.cmake.in
-  ${CMAKE_CURRENT_BINARY_DIR}/configure_server.cmake @ONLY
 )
 
 set(lib_dir "${CMAKE_BINARY_DIR}/${deploy_dir}/web/lib")
@@ -217,10 +220,22 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -E make_directory
   ${CMAKE_BINARY_DIR}/${deploy_dir}/logs
 )
+
 if(SERVER_LOGS)
     set(LOG_ERROR_FILE "logs/error.log")
     set(LOG_ACCESS_FILE "logs/access.log")
 endif()
+
+if(SERVER_DEBUG)
+	set(LOG_DEBUG "True")
+else()
+	set(LOG_DEBUG "False")
+endif()
+
+#setup config file
+configure_file(configure_server.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/configure_server.cmake @ONLY
+)
 
 # Generate documentation.
 set(documentation_stamp ${CMAKE_BINARY_DIR}/stamps/documentation.txt)
