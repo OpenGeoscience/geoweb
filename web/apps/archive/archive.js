@@ -23,7 +23,7 @@ archive.main = function() {
     zoom : 6,
     center : ogs.geo.latlng(0.0, 0.0),
     source: '/data/land_shallow_topo_2048.png',
-    country_boundries: true
+    country_boundaries: true
   };
 
   archive.myMap = ogs.geo.map(document.getElementById("glcanvas"), mapOptions);
