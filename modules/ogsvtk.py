@@ -155,7 +155,6 @@ class VTKRoot(object):
         }
         if (data.scalarFormat == "values")
         {
-          console.log("values fss");
           fragmentShaderSource = [
            'precision mediump float;',
            'varying float vScalar;',
@@ -295,7 +294,6 @@ class VTKRoot(object):
         var actors = [];
         for (var i = 0; i < geoms.length; i++)
           {
-          console.log("Adding mapper " + i + " for " + geoms[i]);
           var mapper = new ogs.vgl.mapper();
           mapper.setGeometryData(geoms[i]);
           var actor = new ogs.vgl.actor();
@@ -584,7 +582,6 @@ class VTKRoot(object):
         //geom.addPrimitive(vgltriangle2);
 
         var actors = [];
-        console.log("Adding mapper ");
         var mapper = new ogs.vgl.mapper();
         mapper.setGeometryData(geom);
         var actor = new ogs.vgl.actor();
@@ -722,7 +719,6 @@ class VTKRoot(object):
         //geom.addPrimitive(vgltriangle2);
 
         var actors = [];
-        console.log("Adding mapper ");
         var mapper = new ogs.vgl.mapper();
         mapper.setGeometryData(geom);
         var actor = new ogs.vgl.actor();
