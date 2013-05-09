@@ -227,9 +227,9 @@ if(SERVER_LOGS)
 endif()
 
 if(SERVER_DEBUG)
-	set(LOG_DEBUG "True")
+  set(LOG_DEBUG "True")
 else()
-	set(LOG_DEBUG "False")
+  set(LOG_DEBUG "False")
 endif()
 
 #setup config file
