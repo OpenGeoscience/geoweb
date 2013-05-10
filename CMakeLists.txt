@@ -23,7 +23,7 @@ set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${deploy_dir})
 find_package(JSLint)
 
 # Find UglifyJS.
-find_package(UglifyJS REQUIRED)
+find_package(UglifyJS)
 
 # Find JSDuck.
 if (DOCUMENT)
@@ -216,11 +216,26 @@ if(${MINIFY} AND ${MANGLE})
 endif()
 
 set(min_js_file ${CMAKE_BINARY_DIR}/${deploy_dir}/web/lib/geoweb.min.js)
-add_custom_command(
+
+if (UglifyJS_EXECUTABLE)
+  add_custom_command(
+      OUTPUT ${min_js_file}
+      COMMAND ${UglifyJS_EXECUTABLE} -o ${min_js_file} ${JS_UGLIFY_FILES}
+              ${MINIFY_FLAG} ${MANGLE_FLAG}
+      DEPENDS ${lib_dir} ${JS_UGLIFY_FILES}
+  )
+else()
+  # Use custom command to call CMake script to cat files together
+  add_custom_command(
     OUTPUT ${min_js_file}
-    COMMAND ${UglifyJS_EXECUTABLE} -o ${min_js_file} ${JS_UGLIFY_FILES} ${MINIFY_FLAG} ${MANGLE_FLAG}
+    COMMAND ${CMAKE_COMMAND} -DCAT_OUTPUT_FILE=${min_js_file}
+            # Note the quotes so we get the ; included
+            "-DCAT_FILES=${JS_UGLIFY_FILES}"
+            -P ${CMAKE_SOURCE_DIR}/cmake/cat.cmake
     DEPENDS ${lib_dir} ${JS_UGLIFY_FILES}
-)
+    VERBATIM
+  )
+endif()
 
 set(logs_dir ${CMAKE_BINARY_DIR}/${deploy_dir}/logs)
 add_custom_command(
@@ -235,9 +250,9 @@ if(SERVER_LOGS)
 endif()
 
 if(SERVER_DEBUG)
-	set(LOG_DEBUG "True")
+  set(LOG_DEBUG "True")
 else()
-	set(LOG_DEBUG "False")
+  set(LOG_DEBUG "False")
 endif()
 
 #setup config file
