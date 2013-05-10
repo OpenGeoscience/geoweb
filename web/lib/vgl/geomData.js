@@ -26,7 +26,7 @@ vglModule.primitive = function() {
   }
 
   /** @private */
-  var m_indexCount = 0;
+  var m_indicesPerPrimitive = 0;
 
   /** @private */
   var m_primitiveType = 0;
@@ -35,7 +35,7 @@ vglModule.primitive = function() {
   var m_indicesValueType = 0;
 
   /** @private */
-  var m_indices = 0;
+  var m_indices = null;
 
   this.indices = function() {
     return m_indices;
@@ -75,17 +75,17 @@ vglModule.primitive = function() {
   };
 
   /**
-   * Return index count ((how many indices form a primitive) of the primitive
+   * Return count of indices that form a primitives
    */
-  this.indexCount = function() {
-    return m_indexCount;
+  this.indicesPerPrimitive = function() {
+    return m_indicesPerPrimitive;
   };
 
   /**
-   * Set index count (how many indices form a primitive)
+   * Set count of indices that form a primitive
    */
-  this.setIndexCount = function(count) {
-    m_indexCount = count;
+  this.setIndicesPerPrimitive = function(count) {
+    m_indicesPerPrimitive = count;
   };
 
   /**
@@ -128,7 +128,7 @@ vglModule.triangleStrip = function() {
 
   this.setPrimitiveType(gl.TRIANGLE_STRIP);
   this.setIndicesValueType(gl.UNSIGNED_SHORT);
-  this.setIndexCount(3);
+  this.setIndicesPerPrimitive(3);
 
   return this;
 };
@@ -150,7 +150,7 @@ vglModule.triangles = function() {
 
   this.setPrimitiveType(gl.TRIANGLES);
   this.setIndicesValueType(gl.UNSIGNED_SHORT);
-  this.setIndexCount(3);
+  this.setIndicesPerPrimitive(3);
 
   return this;
 };
@@ -172,7 +172,7 @@ vglModule.lines = function() {
 
   this.setPrimitiveType(gl.LINE_STRIP);
   this.setIndicesValueType(gl.UNSIGNED_SHORT);
-  this.setIndexCount(2);
+  this.setIndicesPerPrimitive(2);
 
   return this;
 };
@@ -194,7 +194,7 @@ vglModule.points = function() {
 
   this.setPrimitiveType(gl.POINTS);
   this.setIndicesValueType(gl.UNSIGNED_SHORT);
-  this.setIndexCount(1);
+  this.setIndicesPerPrimitive(1);
 
   return this;
 };
@@ -212,7 +212,10 @@ vglModule.vertexDataP3f = function() {
     return new vglModule.vertexDataP3f();
   }
 
+  /** @private */
   this.m_position = [];
+
+  return this;
 };
 
 /**
@@ -227,8 +230,13 @@ vglModule.vertexDataP3N3f = function() {
     return new vglModule.vertexDataP3N3f();
   }
 
+  /** @private */
   this.m_position = [];
+
+  /** @private */
   this.m_normal = [];
+
+  return this;
 };
 
 /**
@@ -242,8 +250,13 @@ vglModule.vertexDataP3T3f = function() {
     return new vglModule.vertexDataP3T3f();
   }
 
+  /** @private */
   this.m_position = [];
+
+  /** @private */
   this.m_texCoordinate = [];
+
+  return this
 };
 
 /**
@@ -258,20 +271,21 @@ vglModule.sourceData = function() {
     return new vglModule.sourceData();
   }
 
-  // / Private member variables
+  /** @private */
   var m_attributesMap = {};
+
+  /** @private */
   var m_data = [];
-  var m_glData = null;
 
   var vglAttributeData = function() {
     // Number of components per group
     this.m_numberOfComponents = 0;
 
     // Type of data type (GL_FLOAT etc)
-    m_dataType = 0;
+    this.m_dataType = 0;
 
     // Size of data type
-    m_dataTypeSize = 0;
+    this.m_dataTypeSize = 0;
 
     // Specifies whether fixed-point data values should be normalized
     // (true) or converted directly as fixed-point values (false)
@@ -288,11 +302,10 @@ vglModule.sourceData = function() {
   /**
    * Return raw data for this source
    *
-   * @returns {Float32Array}
+   * @returns {Array}
    */
   this.data = function() {
-    this.m_glData = new Float32Array(m_data);
-    return this.m_glData;
+    return m_data;
   };
 
   /**
@@ -406,6 +419,7 @@ vglModule.sourceData = function() {
       return m_attributesMap[key].m_dataType;
     }
 
+    // @note: where is this defined?
     return vglDataType.Undefined;
   };
 
@@ -721,7 +735,7 @@ vglModule.geometryData = function() {
     m_bounds[3] = 0.0;
     m_bounds[4] = 0.0;
     m_bounds[5] = 0.0;
-  }
+  };
 
   /**
    * Set bounds
@@ -743,22 +757,33 @@ vglModule.geometryData = function() {
    * Compute bounds
    */
   this.computeBounds = function() {
-
     if (m_boundsDirtyTimestamp.getMTime() > m_computeBoundsTimestamp.getMTime()) {
+      var sourceData = this.sourceData(
+            vglModule.vertexAttributeKeys.Position),
+          data = sourceData.data(),
+          numberOfComponents = sourceData.attributeNumberOfComponents(
+            vglModule.vertexAttributeKeys.Position),
+          stride = sourceData.attributeStride(
+            vglModule.vertexAttributeKeys.Position),
+          offset = sourceData.attributeOffset(
+            vglModule.vertexAttributeKeys.Position),
+          sizeOfDataType = sourceData.sizeOfAttributeDataType(
+            vglModule.vertexAttributeKeys.Position),
+          count = data.length,
+          ib = 0,
+          jb = 0,
+          value = null,
+          vertexPosition = null;
 
-      var sourceData = this.sourceData(vglModule.vertexAttributeKeys.Position);
-      var data = sourceData.data();
-      var numberOfComponents = sourceData.attributeNumberOfComponents(
-        vglModule.vertexAttributeKeys.Position);
-      var count = sourceData.lengthOfArray() / numberOfComponents;
-      var ib = 0, jb = 0;
-      var value = null;
+      // We need to operate on arrays
+      stride /= sizeOfDataType;
+      offset /= sizeOfDataType;
 
       this.resetBounds();
-      for (var i = 0; i < count; ++i) {
-        var vertexPosition = i * numberOfComponents;
-        for (var j = 0; j < numberOfComponents; ++j) {
 
+      for (var i = 0; i < count; i += numberOfComponents) {
+        vertexPosition = i * stride + offset;
+        for (var j = 0; j < numberOfComponents; ++j) {
           value = data[vertexPosition + j];
           ib = j * 2;
           jb = j * 2 + 1;

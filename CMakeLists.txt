@@ -42,11 +42,12 @@ set(JS_LINT_FILES
     ${CMAKE_SOURCE_DIR}/web/lib/ui/gis.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/init.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/latlng.js
+    ${CMAKE_SOURCE_DIR}/web/lib/geo/ellipsoid.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/command.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/layer.js
+    ${CMAKE_SOURCE_DIR}/web/lib/geo/mapInteractorStyle.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/map.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/feature.js
-    ${CMAKE_SOURCE_DIR}/web/lib/geo/mapInteractorStyle.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/data.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/boundingObject.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/camera.js
@@ -59,6 +60,8 @@ set(JS_LINT_FILES
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/groupMapper.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/materialAttribute.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/blend.js
+    ${CMAKE_SOURCE_DIR}/web/lib/vgl/freezeObject.js
+    ${CMAKE_SOURCE_DIR}/web/lib/vgl/defaultValue.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/material.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/modelViewMatrixStack.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/node.js
@@ -66,6 +69,7 @@ set(JS_LINT_FILES
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/renderer.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/renderWindow.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/interactorStyle.js
+    ${CMAKE_SOURCE_DIR}/web/lib/vgl/trackballInteractorStyle.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/viewer.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/shader.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/shaderProgram.js
@@ -95,6 +99,8 @@ set(JS_UGLIFY_FILES
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/groupNode.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/actor.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/camera.js
+  ${CMAKE_SOURCE_DIR}/web/lib/vgl/freezeObject.js
+  ${CMAKE_SOURCE_DIR}/web/lib/vgl/defaultValue.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/geojsonReader.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/geomData.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/mapper.js
@@ -105,6 +111,7 @@ set(JS_UGLIFY_FILES
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/renderer.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/renderWindow.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/interactorStyle.js
+  ${CMAKE_SOURCE_DIR}/web/lib/vgl/trackballInteractorStyle.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/viewer.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/shader.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/shaderProgram.js
@@ -117,6 +124,7 @@ set(JS_UGLIFY_FILES
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/utils.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/vtkUnpack.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/init.js
+  ${CMAKE_SOURCE_DIR}/web/lib/geo/ellipsoid.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/latlng.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/layer.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/command.js

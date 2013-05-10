@@ -11,8 +11,8 @@
 geoModule.mapOptions = {
   zoom: 0,
   center: geoModule.latlng(0.0, 0.0),
-  country_boundries: true,
-  state_boundries: {},
+  country_boundaries: true,
+  state_boundaries: {},
   sourcebigb: ""
 };
 
@@ -69,30 +69,6 @@ geoModule.map = function(node, options) {
   }
 
   /**
-   * Get mouse pointer coordinates for canvas
-   */
-  function relMouseCoords(event) {
-    var totalOffsetX = 0,
-        totalOffsetY = 0,
-        canvasX = 0,
-        canvasY = 0,
-        currentElement = m_node;
-
-    do {
-      totalOffsetX += currentElement.offsetLeft - currentElement.scrollLeft;
-      totalOffsetY += currentElement.offsetTop - currentElement.scrollTop;
-    } while (currentElement === currentElement.offsetParent);
-
-    canvasX = event.pageX - totalOffsetX;
-    canvasY = event.pageY - totalOffsetY;
-
-    return {
-      x: canvasX,
-      y: canvasY
-    };
-  }
-
-  /**
    * Initialize the scene
    */
   function initScene() {
@@ -102,8 +78,6 @@ geoModule.map = function(node, options) {
 
   /**
    * Initialize the scene (if not initialized) and then render the map
-   *
-   * @param event
    */
   function draw() {
     if (m_initialized === false) {
@@ -139,7 +113,7 @@ geoModule.map = function(node, options) {
     document.onmouseup = m_viewer.handleMouseUp;
     document.onmousemove = m_viewer.handleMouseMove;
     document.oncontextmenu = m_viewer.handleContextMenu;
-    HTMLCanvasElement.prototype.relMouseCoords = relMouseCoords;
+    HTMLCanvasElement.prototype.relMouseCoords = m_viewer.relMouseCoords;
 
     return mapActor;
   }());
@@ -163,7 +137,7 @@ geoModule.map = function(node, options) {
   /**
    * Set zoom level of the map
    *
-   * @param val {0-17}
+   * @param val [0-17]
    */
   this.setZoom = function(val) {
     if (val !== m_options.zoom) {
@@ -210,7 +184,7 @@ geoModule.map = function(node, options) {
    * @return {Boolean}
    */
   this.removeLayer = function(layer) {
-    if (layer !== null || layer !== undefined) {
+    if (layer !== null && typeof layer !== 'undefined') {
       m_renderer.removeActor(layer.feature());
       this.modified();
       $(this).trigger({
@@ -227,11 +201,11 @@ geoModule.map = function(node, options) {
    * Toggle visibility of a layer
    *
    *  @method toggleLayer
-   *  @param {geo.layer}
+   *  @param {geo.layer} layer
    *  @returns {Boolean}
    */
   this.toggleLayer = function(layer) {
-    if (layer !== null || layer !== undefined) {
+    if (layer !== null && typeof layer !== 'undefined') {
       layer.setVisible(!layer.visible());
       this.modified();
       $(this).trigger({
@@ -257,13 +231,12 @@ geoModule.map = function(node, options) {
    * Make a layer current or active for operations
    *
    * @method selectLayer
-   * @param {geo.layer}
+   * @param {geo.layer} layer
    * @returns {Boolean}
    *
    */
   this.selectLayer = function(layer) {
-    if (layer !== undefined && m_activeLayer !== layer) {
-      var tempLayer = layer;
+    if (typeof layer !== 'undefined' && m_activeLayer !== layer) {
       m_activeLayer = layer;
       this.modified();
       if (layer !== null) {
@@ -274,7 +247,7 @@ geoModule.map = function(node, options) {
       } else {
         $(this).trigger({
           type: geoModule.command.unselectLayerEvent,
-          layer: tempLayer
+          layer: layer
         });
       }
       return true;
@@ -286,8 +259,8 @@ geoModule.map = function(node, options) {
   /**
    * Find layer by layer id
    *
-   * @method toggleLayer
-   * @param {String}
+   * @method findLayerById
+   * @param {String} layerId
    * @returns {geo.layer}
    */
   this.findLayerById = function(layerId) {
@@ -305,7 +278,10 @@ geoModule.map = function(node, options) {
   };
 
   /**
-   * Resize the maps
+   * Resize map
+   *
+   * @param {Number} width
+   * @param {Number} height
    */
   this.resize = function(width, height) {
     m_viewer.renderWindow().resize(width, height);
@@ -317,18 +293,17 @@ geoModule.map = function(node, options) {
   };
 
   /**
-   * Toggle country boundries
+   * Toggle country boundaries
    *
    * @returns {Boolean}
    */
-  this.toggleCountryBoundries = function() {
+  this.toggleCountryBoundaries = function() {
     var layer, reader, geoms;
-    layer = this.findLayerById('country-boundries');
+    layer = this.findLayerById('country-boundaries');
     if (layer !== null) {
       layer.setVisible(!layer.visible());
-      return true;
-    }
-    if (layer === null) {
+      return layer.visible();
+    } else {
       // Load countries data first
       reader = ogs.vgl.geojsonReader();
       geoms = reader.readGJObject(ogs.geo.countries);
@@ -338,23 +313,24 @@ geoModule.map = function(node, options) {
         "visible": 1
       }, ogs.geo.multiGeometryFeature(geoms));
 
-      layer.setName('country-boundries');
+      layer.setName('country-boundaries');
       this.addLayer(layer);
+      return layer.visible();
     }
   };
 
   /**
-   * Toggle us state boudries
+   * Toggle us state boundaries
    *
    * @returns {Boolean}
    */
-  this.toggleStateBoundries = function() {
-    // @todo Imeplement this
+  this.toggleStateBoundaries = function() {
+    // @todo Implement this
   };
 
-  // Check if need to show country boundries
-  if (m_options.country_boundries === true) {
-    this.toggleCountryBoundries();
+  // Check if need to show country boundaries
+  if (m_options.country_boundaries === true) {
+    this.toggleCountryBoundaries();
   }
 
   return this;

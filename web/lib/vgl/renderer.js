@@ -49,14 +49,14 @@ vglModule.renderer = function() {
    */
   this.width = function() {
     return m_width;
-  }
+  };
 
   /**
    * Get height of the renderer
    */
   this.height = function() {
     return m_height;
-  }
+  };
 
   /**
    * Get background color
@@ -75,7 +75,7 @@ vglModule.renderer = function() {
     m_backgroundColor[3] = a;
 
     this.modified();
-  }
+  };
 
   /**
    * Get scene root
@@ -101,11 +101,11 @@ vglModule.renderer = function() {
     gl.depthFunc(gl.LEQUAL);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    perspectiveMatrix = m_camera.projectionMatrix();
+    var renSt = new vglModule.renderState(),
+        children = m_sceneRoot.children();
 
-    var renSt = new vglModule.renderState();
-    renSt.m_projectionMatrix = perspectiveMatrix;
-    var children = m_sceneRoot.children();
+    renSt.m_projectionMatrix = m_camera.projectionMatrix();
+
     for ( var i = 0; i < children.length; ++i) {
       var actor = children[i];
       actor.computeBounds();
@@ -132,25 +132,22 @@ vglModule.renderer = function() {
   this.resetCamera = function() {
     m_camera.computeBounds();
 
-    var vn = m_camera.directionOfProjection();
-    var visibleBounds = m_camera.bounds();
+    var vn = m_camera.directionOfProjection(),
+        visibleBounds = m_camera.bounds(),
+        center = [
+          (visibleBounds[0] + visibleBounds[1]) / 2.0,
+          (visibleBounds[2] + visibleBounds[3]) / 2.0,
+          (visibleBounds[4] + visibleBounds[5]) / 2.0
+        ],
+        diagonals = [
+          visibleBounds[1] - visibleBounds[0],
+          visibleBounds[3] - visibleBounds[2],
+          visibleBounds[5] - visibleBounds[4]
+        ],
+        radius = 0.0,
+        aspect = m_camera.viewAspect(),
+        angle = m_camera.viewAngle();
 
-    // console.log('visibleBounds ', visibleBounds);
-
-    var center = [
-      (visibleBounds[0] + visibleBounds[1]) / 2.0,
-      (visibleBounds[2] + visibleBounds[3]) / 2.0,
-      (visibleBounds[4] + visibleBounds[5]) / 2.0];
-
-    // console.log('center ', center);
-
-    var diagonals = [
-      visibleBounds[1] - visibleBounds[0],
-      visibleBounds[3] - visibleBounds[2],
-      visibleBounds[5] - visibleBounds[4],
-    ];
-
-    var radius = 0.0;
     if (diagonals[0] > diagonals[1]) {
       if (diagonals[0] > diagonals[2]) {
         radius = diagonals[0] / 2.0;
@@ -165,9 +162,6 @@ vglModule.renderer = function() {
       }
     }
 
-    var aspect = m_camera.viewAspect();
-    var angle = m_camera.viewAngle();
-
     // @todo Need to figure out what's happening here
     if (aspect >= 1.0) {
       angle = 2.0 * Math.atan(Math.tan(angle * 0.5) / aspect);
@@ -175,30 +169,92 @@ vglModule.renderer = function() {
       angle = 2.0 * Math.atan(Math.tan(angle * 0.5) * aspect);
     }
 
-    var distance =  radius / Math.sin(angle * 0.5);
-
-    var vup = m_camera.viewUpDirection();
+    var distance = radius / Math.sin(angle * 0.5),
+        vup = m_camera.viewUpDirection();
 
     if (Math.abs(vec3.dot(vup, vn)) > 0.999) {
-      m_camera.setViewDirection(-vup[2], vup[0], vup[1]);
+      m_camera.setViewUpDirection(-vup[2], vup[0], vup[1]);
     }
 
     m_camera.setFocalPoint(center[0], center[1], center[2]);
     m_camera.setPosition(center[0] + distance * -vn[0],
       center[1] + distance * -vn[1], center[2] + distance * -vn[2]);
+
+    this.resetCameraClippingRange(visibleBounds);
   };
 
   /**
    * Recalculate camera's clipping range
    */
-  this.resetCameraClippingRange = function() {
-    // TODO
+  this.resetCameraClippingRange = function(bounds) {
+    var vn = m_camera.viewPlaneNormal(),
+        position = m_camera.position(),
+        a = -vn[0],
+        b = -vn[1],
+        c = -vn[2],
+        d = -(a*position[0] + b*position[1] + c*position[2]),
+        range = vec2.create(),
+        dist = null;
+
+    // Set the max near clipping plane and the min far clipping plane
+    range[0] = a * bounds[0] + b * bounds[2] + c * bounds[4] + d;
+    range[1] = 1e-18;
+
+    // Find the closest / farthest bounding box vertex
+    for (var k = 0; k < 2; k++ ) {
+      for (var j = 0; j < 2; j++) {
+        for (var i = 0; i < 2; i++) {
+          dist = a * bounds[i] + b * bounds[2 + j] + c * bounds[4 + k] + d;
+          range[0] = (dist < range[0]) ? (dist) : (range[0]);
+          range[1] = (dist > range[1]) ? (dist) : (range[1]);
+        }
+      }
+    }
+
+    // Do not let the range behind the camera throw off the calculation.
+    if (range[0] < 0.0) {
+      range[0] = 0.0;
+    }
+
+    // Give ourselves a little breathing room
+    range[0] = 0.99*range[0] - (range[1] - range[0])*0.5;
+    range[1] = 1.01*range[1] + (range[1] - range[0])*0.5;
+
+    // Make sure near is not bigger than far
+    range[0] = (range[0] >= range[1])?(0.01*range[1]):(range[0]);
+
+    // @todo
+    // Make sure near is at least some fraction of far - this prevents near
+    // from being behind the camera or too close in front. How close is too
+    // close depends on the resolution of the depth buffer
+    // if (!this->NearClippingPlaneTolerance)
+    //   {
+    //   this->NearClippingPlaneTolerance = 0.01;
+    //   if (this->RenderWindow)
+    //     {
+    //     int ZBufferDepth = this->RenderWindow->GetDepthBufferSize();
+    //     if ( ZBufferDepth > 16 )
+    //       {
+    //       this->NearClippingPlaneTolerance = 0.001;
+    //       }
+    //     }
+    //   }
+
+    // make sure the front clipping range is not too far from the far clippnig
+    // range, this is to make sure that the zbuffer resolution is effectively
+    // used
+    // if (range[0] < this->NearClippingPlaneTolerance*range[1]) {
+    //   range[0] = this->NearClippingPlaneTolerance*range[1];
+    // }
+
+    m_camera.setClippingRange(range[0], range[1]);
   };
 
   /**
    * Resize viewport given a width and height
    */
   this.resize = function(width, height) {
+    // @note: where do m_x and m_y come from?
     this.positionAndResize(m_x, m_y, width, height);
   };
 
@@ -280,16 +336,15 @@ vglModule.renderer = function() {
    */
   this.displayToWorld = function(displayPt, viewMatrix, projectionMatrix,
                                  width, height) {
-    var x = (2.0 * displayPt[0] / width) - 1;
-    var y = -(2.0 * displayPt[1] / height) + 1;
-    var z = displayPt[2];
+    var x = (2.0 * displayPt[0] / width) - 1,
+        y = -(2.0 * displayPt[1] / height) + 1,
+        z = displayPt[2];
 
     var viewProjectionInverse = mat4.create();
     mat4.multiply(viewProjectionInverse, projectionMatrix, viewMatrix);
     mat4.invert(viewProjectionInverse, viewProjectionInverse);
 
     var worldPt = vec4.fromValues(x, y, z, 1);
-    var myvec = vec4.create();
     vec4.transformMat4(worldPt, worldPt, viewProjectionInverse);
     if (worldPt[3] !== 0.0) {
       worldPt[0] = worldPt[0] / worldPt[3];
