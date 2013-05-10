@@ -211,10 +211,10 @@ set(min_js_file ${CMAKE_BINARY_DIR}/${deploy_dir}/web/lib/geoweb.min.js)
 
 if (UglifyJS_EXECUTABLE)
   add_custom_command(
-      OUTPUT ${min_js_file}
-      COMMAND ${UglifyJS_EXECUTABLE} -o ${min_js_file} ${JS_UGLIFY_FILES}
-              ${MINIFY_FLAG} ${MANGLE_FLAG}
-      DEPENDS ${lib_dir} ${JS_UGLIFY_FILES}
+    OUTPUT ${min_js_file}
+    COMMAND ${UglifyJS_EXECUTABLE} -o ${min_js_file} ${JS_UGLIFY_FILES}
+            ${MINIFY_FLAG} ${MANGLE_FLAG}
+    DEPENDS ${lib_dir} ${JS_UGLIFY_FILES}
   )
 else()
   # Use custom command to call CMake script to cat files together
