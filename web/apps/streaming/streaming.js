@@ -1,4 +1,4 @@
-/*global $, document, window, console*/
+/*global $, document, window, console, ogs*/
 
 // Disable console log
 // console.log = function() {}
@@ -9,7 +9,7 @@
 function main() {
   "use strict";
 
-  var ws = srvModule.webSocket({nodes: ['streammaster','streamworker']}),
+  var ws = ogs.srv.webSocket({nodes: ['streammaster','streamworker']}),
   baseurl = 'http://' + window.location.host,
   recieveCount = 0,
 
