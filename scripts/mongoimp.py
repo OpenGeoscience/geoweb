@@ -26,10 +26,15 @@ class mongo_import:
       filesuffix = filenamesplitted[1]
       if filesuffix == ".nc":
         import vtk
-        reader = vtk.vtkNetCDFReader()
+        reader = vtk.vtkNetCDFCFReader()
+        reader.SphericalCoordinatesOff()
+        reader.SetOutputTypeToImage()
         reader.SetFileName(os.path.join(directory, filename))
         reader.Update()
+        #record temporal information
+        temporalrange = reader.GetOutputInformation(0).Get(vtk.vtkStreamingDemandDrivenPipeline.TIME_STEPS())
         data = reader.GetOutput();
+        #record arrays information
         pds = data.GetPointData()
         pdscount = pds.GetNumberOfArrays()
         for i in range(0, pdscount):
@@ -41,7 +46,7 @@ class mongo_import:
           variable["tags"] = []
           variables.append(variable)
 
-      insertId = coll.insert({"name":fileprefix, "basename":basename, "variables":variables})
+      insertId = coll.insert({"name":fileprefix, "basename":basename, "variables":variables, "temporalrange":temporalrange})
 
 if __name__ == "__main__":
   import sys
