@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
+    <script type="text/javascript" src="/common/js/bootstrap.js"></script>
+    <script type="text/javascript" src="/common/js/gl-matrix.js"></script>
+    <script type="text/javascript" src="/common/js/select2.min.js"></script>
+    <script type="text/javascript" src="/lib/geoweb.min.js"></script>
+    <script>
+      function triStripIndices ( rows, columns ) {
+        var i = 0,
+            j = 0,
+            count = 0,
+            allStrips = [];
+
+        if ( ( rows < 2 ) || ( columns < 2 ) ) {
+          throw "error: minimum mesh size for tri-strip generation is 2x2";
+        }
+
+        // Initialize the answer.
+        // allStrips.length = (rows - 1) * 2 * columns;
+        count = (rows - 1);
+
+        // Loop through the rows.
+        for ( i = 0; i < count; ++i) {
+          // Loop through the columns of this row.
+          for ( j = 0; j < columns; ++j ) {
+            // console.log( ( ( i + 1 ) * columns ) + j);
+            // console.log( ( ( i ) * columns ) + j);
+
+            allStrips.push ( ( ( i + 1 ) * columns ) + j );
+            allStrips.push ( ( ( i     ) * columns ) + j );
+          }
+        }
+
+        return allStrips;
+      }
+
+      function createTile() {
+        var i = 0,
+            j = 0;
+            rows = 256,
+            columns = 256,
+            index = 0,
+            mn = [-180, -90.0, 0.0],
+            mx = [180, 90.0, 0.0],
+            positions = [],
+            textureCoordinates = [],
+            normals = [];
+
+        positions.length = rows * columns;
+
+        for ( i = rows - 1; i >= 0; --i ) {
+          var u  = 1.0 - i / ( rows - 1 );
+          for ( j = 0; j < columns; ++j ) {
+            var v = j / (columns - 1);
+
+            var lon = ( mn[0] + u * ( mx[0] - mn[0] ) );
+            var lat = ( mn[1] + v * ( mx[1] - mn[1] ) );
+
+            // const double heightAboveSeaLevel ( elevationValid ? elevation->value ( rows - i - 1, j ) : 0.0 );
+
+            // Calculate texture coordinate.  Lower left corner should be (0,0).
+            var s = u;
+            var t = v;
+
+            // Set the data.
+            // this->_setLocationData ( body, boundingSphere, i, j, lat, lon, heightAboveSeaLevel, s, t );
+            positions[index] = lon;
+            positions[++index] = lat;
+            positions[++index] = 0.0
+            ++index;
+          }
+        }
+        var geom = ogs.vgl.geometryData();
+        var triStrip = ogs.vgl.triangleStrip();
+        triStrip.setIndices(triStripIndices(rows, columns));
+
+        var sourcePositions = ogs.vgl.sourceDataP3fv();
+        sourcePositions.pushBack(positions);
+
+        // // var sourceColors = ogs.vgl.sourceDataC3fv();
+        // // sourceColors.pushBack(colors);
+
+        // // var sourceTexCoords = ogs.vgl.sourceDataT2fv();
+        // // sourceTexCoords.pushBack(texCoords);
+
+        geom.addSource(sourcePositions);
+        // // m_geom.addSource(sourceColors);
+        // // m_geom.addSource(sourceTexCoords);
+        geom.addPrimitive(triStrip);
+
+        return geom;
+      }
+
+      var data = {};
+
+      var testDrawSphere = {};
+      testDrawSphere.main = function() {
+        var node = document.getElementById("glcanvas");
+        var viewer = ogs.vgl.viewer(node);
+        viewer.init();
+
+        var interactorStyle = ogs.vgl.trackballInteractorStyle();
+        viewer.setInteractorStyle(interactorStyle);
+
+        viewer.renderWindow().resize($(node).width(), $(node).height());
+        var renderer = viewer.renderWindow().activeRenderer();
+        var geom = createTile();
+        var mapper = ogs.vgl.mapper();
+        mapper.setGeometryData(geom);
+        var material = ogs.vgl.utils.createGeometryMaterial();
+        var actor = ogs.vgl.actor();
+        actor.setMapper(mapper);
+        actor.setMaterial(material);
+        renderer.addActor(actor);
+        renderer.setBackgroundColor(0.5, 0.5, 0.5, 1.0);
+        renderer.resetCamera();
+        viewer.render();
+
+        document.onmousedown = viewer.handleMouseDown;
+        document.onmouseup = viewer.handleMouseUp;
+        document.onmousemove = viewer.handleMouseMove;
+        document.oncontextmenu = viewer.handleContextMenu;
+        HTMLCanvasElement.prototype.relMouseCoords = viewer.relMouseCoords;
+
+        $(interactorStyle).on(ogs.vgl.command.leftButtonPressEvent, viewer.render);
+        $(interactorStyle).on(ogs.vgl.command.middleButtonPressEvent, viewer.render);
+        $(interactorStyle).on(ogs.vgl.command.rightButtonPressEvent, viewer.render);
+      }
+    </script>
+  </head>
+  <body onload="testDrawSphere.main()">
+    <div>
+      <!-- It is important that canvas has height and width -->
+      <canvas id="glcanvas" width="400px" height="400px"></canvas>
+    </div>
+  </body>
+</html>

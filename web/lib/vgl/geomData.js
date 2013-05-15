@@ -119,11 +119,9 @@ vglModule.primitive = function() {
  * @returns {vglModule.triangleStrip}
  */
 vglModule.triangleStrip = function() {
-
   if (!(this instanceof vglModule.triangleStrip)) {
     return new vglModule.triangleStrip();
   }
-
   vglModule.primitive.call(this);
 
   this.setPrimitiveType(gl.TRIANGLE_STRIP);
