@@ -1,7 +1,8 @@
-import types
+import inspect
+import json
 
 def str_to_class(s):
-    if s in globals() and isinstance(globals()[s], types.ClassType):
+    if s in globals() and inspect.isclass(globals()[s]):
         return globals()[s]
     return None
 
@@ -14,15 +15,28 @@ class WorkFlow(object):
     def addConnection(self, source, target):
         self.connections.append(Connection(source, target))
 
-    def addModule(self, module='', id=None):
+    def addModule(self, module, id=None):
         if isinstance(module, Module):
-            self.modules.append(module)
-            module.workflow = self
+            pass
+        elif inspect.isclass(module):
+            module = module(self, id)
         elif isinstance(module, basestring):
-            self.modules.append(Module(self, module, id))
+            klass = str_to_class(module)
+            module = klass(self, id)
         else:
             raise Exception("Expected Module or string, got %s instead" %
                             str(module))
+
+        module.workflow = self
+        self.modules.append(module)
+
+        return module
+
+    def findModuleById(self, id):
+        for m in self.modules:
+            if m.id == id:
+                return m
+        return None
 
     def run(self):
         start_modules = [m for m in self.modules if m.canRun()]
@@ -37,19 +51,22 @@ class WorkFlow(object):
 
     @staticmethod
     def fromJSON(s):
+        wf = WorkFlow()
         dict = json.loads(s)
-        self.modules = [Module.fromDict(m) for m in dict['modules']]
-        self.connections = [Connection.fromDict(c)
+        wf.modules = [Module.fromDict(m, wf) for m in dict['modules']]
+        wf.connections = [Connection.fromDict(c, wf)
                             for c in dict['connections']]
+
+        return wf
 
 
 class Module(object):
 
     _next_id = 0
 
-    def __init__(self, workflow, name='', id=None):
+    def __init__(self, workflow, id=None):
         self.workflow = workflow
-        self.name = name
+        self.name = ''
         self.id = Module._next_id if id is None else id
         if self.id >= Module._next_id:
             Module._next_id = self.id + 1
@@ -58,8 +75,11 @@ class Module(object):
         self.outPorts = {}
         self._ran = False
 
+        self.init()
+
     def toDict(self):
-        return {'name': self.name,
+        return {'class': self.__class__.__name__,
+                'name': self.name,
                 'id': self.id,
                 'inPorts': [ip.toDict() for ip in self.inPorts.itervalues()],
                 'outPorts': [op.toDict() for op in self.outPorts.itervalues()]}
@@ -67,11 +87,16 @@ class Module(object):
     @staticmethod
     def fromDict(d, workflow):
         klass = str_to_class(d['class'])
-        m = klass(workflow, d['name'], d['id'])
+        m = klass(workflow, d['id'])
+        m.name = d.get('name', '')
         for p in d['inPorts']:
-            m.addInPort(p['name'], p['type'], p.get('value', None))
+            if p['name'] in m.inPorts:
+                m.getInPort(p['name']).value = p.get('value', None)
+            else:
+                m.addInPort(p['name'], p['type'], p.get('value', None))
         for p in d['outPorts']:
-            m.addOutPort(p['name'], p['type'])
+            if p['name'] not in m.outPorts:
+                m.addOutPort(p['name'], p['type'])
         return m
 
     def _addPort(self, dict, klass, name, type=None):
@@ -82,7 +107,7 @@ class Module(object):
             dict[name] = klass(self, name, type)
 
     def addInPort(self, name, type=None, value=None):
-        self._addPort(self.inPorts, InPort, name, type, value)
+        self._addPort(self.inPorts, InPort, name, type)
         self.inPorts[name].value = value
 
     def addOutPort(self, name, type=None):
@@ -133,6 +158,10 @@ class Module(object):
             return result
         return [self.getInPort(name).value]
 
+    def init(self):
+        #subclasses do custom initialization here
+        pass
+
     def execute(self):
         raise NotImplementedError()
 
@@ -171,7 +200,8 @@ class InPort(Port):
 
     def toDict(self):
         d = super(InPort, self).toDict()
-        d['value'] = self.value
+        if len(self.connections) == 0:
+            d['value'] = self.value
         return d
 
 class OutPort(Port):
@@ -220,46 +250,56 @@ class Connection(object):
 #TESTS
 import unittest
 
-class TestNumber(Module):
+class TestAdd(Module):
 
-    def onInit(self):
-        self.name = 'Number'
-        self.value = 0
-        self.addOutPort('value')
+    def init(self):
+        self.addInPorts(['op1','op2'])
+        self.addOutPort('result')
 
     def execute(self):
-        self.setOutput('value', self.value)
+        self.setOutput('result',
+                       self.getInput('op1')[0] + self.getInput('op2')[0])
+
+
+class TestNumber(Module):
+
+    def init(self):
+        self.name = 'Number'
+        self.addOutPort('value')
+        self.addInPort('value')
+
+    def execute(self):
+        self.setOutput('value', self.getInput('value')[0])
 
 
 class TestModuleExecution(unittest.TestCase):
 
     def setUp(self):
-        self.wf = WorkFlow()
+        wf = WorkFlow()
 
-        add = Module('Add')
-        add.addInPorts(['op1','op2'])
-        add.addOutPort('result')
-
-        def add_execute(this):
-            this.setOutput('result', this.getInput('op1')[0] + this.getInput('op2')[0])
-
-        add.execute = types.MethodType(add_execute, add)
+        add = wf.addModule('TestAdd')
 
         n1 = wf.addModule(TestNumber)
-        n1.value = 3
+        n1.getInPort('value').value = 3
         n2 = wf.addModule(TestNumber)
-        n2.value = 5
+        n2.getInPort('value').value = 5
 
-        c1 = Connection(n1.getOutPort('value'), add.getInPort('op1'))
-        c2 = Connection(n2.getOutPort('value'), add.getInPort('op2'))
+        wf.addConnection(n1.getOutPort('value'), add.getInPort('op1'))
+        wf.addConnection(n2.getOutPort('value'), add.getInPort('op2'))
 
-        self.wf.modules = [add, n1, n2]
-        self.wf.connections = [c1, c2]
+        self.wf = wf
         self.add = add
 
     def test_execution(self):
         self.wf.run()
         self.assertEqual(self.add.getOutPort('result').value, 8)
+
+    def test_serialization(self):
+        s = self.wf.toJSON()
+        wf2 = WorkFlow.fromJSON(s)
+        wf2.run()
+        add2 = wf2.findModuleById(self.add.id)
+        self.assertEqual(add2.getOutPort('result').value, 8)
 
 if __name__ == '__main__':
     unittest.main()
