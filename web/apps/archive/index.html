@@ -118,6 +118,14 @@
       overflow: auto;
     }
 
+    .error-dialog .ui-dialog-titlebar {
+      display: none;
+    }
+
+    .error-dialog .ui-dialog-buttonpane {
+      border-width: 0 0 0 0;
+    }
+
   </style>
   </head>
   <body onload="archive.main()">
@@ -170,4 +178,9 @@
     </div>
 </div>
 </body>
- </html>
+<div id="error-dialog">
+  <p id="text">
+    <span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>
+  </p>
+</div>
+</html>

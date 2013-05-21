@@ -4,6 +4,22 @@
 var archive = {};
 archive.myMap = null;
 
+archive.error = function(errorString) {
+  $('#error-dialog > p').text(errorString);
+  $('#error-dialog')
+  .dialog({
+    dialogClass: "error-dialog",
+    modal: true,
+    draggable: false,
+    resizable: false,
+    minHeight: 15,
+    buttons: { "Close": function() {
+                 $(this).dialog("close");
+               }
+    }
+    });
+}
+
 archive.getMongoConfig = function() {
   "use strict";
     return {
@@ -76,6 +92,9 @@ archive.main = function() {
          archive.myMap.addLayer(pointLayer);
         };
       }
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+      archive.error("Error reading cities.csv: " + errorThrown)
     }
   });
 
@@ -150,6 +169,9 @@ archive.getDocuments = function() {
       } else {
         ogs.ui.gis.createDataList('documents', 'Documents', 'table-layers', response.result.data, archive.addLayer);
       }
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+      archive.error("Error reading data from mongodb: " + errorThrown)
     }
   });
 };
@@ -221,7 +243,9 @@ archive.addLayer = function(event) {
       dataType: 'json',
       success: function(response) {
         if (response.error !== null) {
-          console.log("[error] " + response.error ? response.error : "no results returned from server");
+          errorString = response.error ? response.error : "no results returned from server"
+          console.log("[error] " + errorString);
+          archive.error(errorString);
         } else {
           var reader = ogs.vgl.geojsonReader();
           var geoms = reader.readGJObject(jQuery.parseJSON(response.result.data[0]));
@@ -244,6 +268,10 @@ archive.addLayer = function(event) {
             }
           );
         }
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        archive.error("Error reading " + $(event.target).attr('basename') +
+              ": " + errorThrown)
       }
     });
   });
