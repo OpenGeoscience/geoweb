@@ -31,6 +31,7 @@ def read(expr, vars):
   gw = vtk.vtkGeoJSONWriter()
   gw.SetInputConnection(sf.GetOutputPort())
   gw.WriteToOutputStringOn()
+  gw.SetScalarFormat(2)
   gw.Write()
   gj = str(gw.RegisterAndGetOutputString()).replace('\n','')
   return gj
