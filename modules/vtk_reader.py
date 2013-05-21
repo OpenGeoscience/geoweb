@@ -27,6 +27,10 @@ def read(expr, vars):
   sf.SetInputConnection(ss.GetOutputPort())
   sf.Update()
 
+  # Error reading file?
+  if not sf.GetOutput():
+    raise IOError("Unable to load data file: " + filename)
+
   # Convert to GeoJSON
   gw = vtk.vtkGeoJSONWriter()
   gw.SetInputConnection(sf.GetOutputPort())

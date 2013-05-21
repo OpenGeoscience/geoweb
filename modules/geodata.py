@@ -46,21 +46,25 @@ def run(method='read', expr=None, vars=None, fields=None, limit=1000, sort=None,
     elif method == 'read':
         # Load reader module
         import reader
-        it = reader.read(expr, vars)
+        try:
+          it = reader.read(expr, vars)
 
-        # Create a list of the results.
-        if fill:
-            results = [it]
-        else:
-            results = []
 
-        # Create an object to structure the results.
-        retobj = {}
-        retobj['count'] = 1
-        retobj['data'] = results
+          # Create a list of the results.
+          if fill:
+              results = [it]
+          else:
+              results = []
 
-        # Pack the results into the response object, and return it.
-        response['result'] = retobj
+          # Create an object to structure the results.
+          retobj = {}
+          retobj['count'] = 1
+          retobj['data'] = results
+
+          # Pack the results into the response object, and return it.
+          response['result'] = retobj
+        except IOError as io:
+          response['error'] = io.message
     else:
         raise RuntimeError("illegal method '%s' in module 'mongo'")
 
