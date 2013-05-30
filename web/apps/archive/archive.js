@@ -224,7 +224,10 @@ archive.addLayer = function(event) {
           console.log("[error] " + response.error ? response.error : "no results returned from server");
         } else {
           var reader = ogs.vgl.geojsonReader();
+          //var time0, time2, time3, time4;
+          //time0 = new Date().getTime();
           var geoms = reader.readGJObject(jQuery.parseJSON(response.result.data[0]));
+          //time1 = new Date().getTime();
           for (var i = 0; i < geoms.length; ++i) {
             var layer = ogs.geo.featureLayer({
               "opacity" : 0.5,
@@ -235,9 +238,12 @@ archive.addLayer = function(event) {
             layer.setName(layerId);
             archive.myMap.addLayer(layer);
           }
+          //time2 = new Date().getTime();
           archive.myMap.redraw();
+          //time3 = new Date().getTime();
           ogs.ui.gis.layerAdded(event.target);
-
+          //time4 = new Date().getTime();
+          //console.log("vgl times: ", time1-time0, ",", time2-time1, ",", time3-time2, ",", time4-time3);
           $('.btn-layer').each(function(index){
               $(this).removeClass('disabled');
               $(this).removeAttr('disabled');
