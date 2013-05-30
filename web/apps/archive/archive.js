@@ -141,7 +141,7 @@ archive.getDocuments = function() {
     data: {
       query: JSON.stringify({}),
       limit:100,
-      fields: JSON.stringify(['name', 'basename', 'variables'])
+      fields: JSON.stringify(['name', 'basename', 'variables', 'temporalrange'])
     },
     dataType: 'json',
     success: function(response) {
@@ -212,11 +212,23 @@ archive.removeLayer = function(target, layerId) {
 archive.addLayer = function(event) {
   ogs.ui.gis.addLayer(archive, 'table-layers', event.target, archive.selectLayer,
     archive.toggleLayer, archive.removeLayer, function() {
+    var widgetName, widget, timeval, varval;
+
+    //figure out what time and variable were chosen
+    widgetName = $(event.target).attr('name') + '_tselect';
+    widget = document.getElementById(widgetName);
+    timeval = widget.options[widget.selectedIndex].text
+    widgetName = $(event.target).attr('name') + '_vselect';
+    widget = document.getElementById(widgetName);
+    varval = widget.options[widget.selectedIndex].text
+    //console.log("ASK FOR " + $(event.target).attr('basename') + " " + timeval + " " + varval)
     $.ajax({
       type: 'POST',
       url: '/data/read',
       data: {
-        expr: JSON.stringify($(event.target).attr('basename'))
+        expr: JSON.stringify($(event.target).attr('basename')),
+        vars: JSON.stringify(varval),
+        time: JSON.stringify(timeval)
       },
       dataType: 'json',
       success: function(response) {
