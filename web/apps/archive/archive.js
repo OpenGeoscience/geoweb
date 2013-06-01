@@ -72,7 +72,7 @@ archive.main = function() {
             "showAttribution" : 1,
             "visible" : 1
           }, ogs.geo.pointSpritesFeature(image, citieslatlon, colors));
-
+          pointLayer.setName('cities');
          archive.myMap.addLayer(pointLayer);
         };
       }
@@ -221,48 +221,60 @@ archive.addLayer = function(event) {
     widgetName = $(event.target).attr('name') + '_vselect';
     widget = document.getElementById(widgetName);
     varval = widget.options[widget.selectedIndex].text
-    //console.log("ASK FOR " + $(event.target).attr('basename') + " " + timeval + " " + varval)
-    $.ajax({
-      type: 'POST',
-      url: '/data/read',
-      data: {
-        expr: JSON.stringify($(event.target).attr('basename')),
-        vars: JSON.stringify(varval),
-        time: JSON.stringify(timeval)
-      },
-      dataType: 'json',
-      success: function(response) {
-        if (response.error !== null) {
-          console.log("[error] " + response.error ? response.error : "no results returned from server");
-        } else {
-          var reader = ogs.vgl.geojsonReader();
-          //var time0, time2, time3, time4;
-          //time0 = new Date().getTime();
-          var geoms = reader.readGJObject(jQuery.parseJSON(response.result.data[0]));
-          //time1 = new Date().getTime();
-          for (var i = 0; i < geoms.length; ++i) {
-            var layer = ogs.geo.featureLayer({
-              "opacity" : 0.5,
-              "showAttribution" : 1,
-              "visible" : 1
-            }, ogs.geo.geometryFeature(geoms[i]));
-            var layerId = $(event.target).attr('name');
-            layer.setName(layerId);
-            archive.myMap.addLayer(layer);
-          }
-          //time2 = new Date().getTime();
-          archive.myMap.redraw();
-          //time3 = new Date().getTime();
-          ogs.ui.gis.layerAdded(event.target);
-          //time4 = new Date().getTime();
-          //console.log("vgl times: ", time1-time0, ",", time2-time1, ",", time3-time2, ",", time4-time3);
-          $('.btn-layer').each(function(index){
+
+    var source = ogs.geo.archiveLayerSource(JSON.stringify($(event.target).attr('basename')),
+      JSON.stringify(varval));
+    var layer = ogs.geo.featureLayer();
+    layer.setName($(event.target).attr('name'));
+    layer.setDataSource(source);
+    layer.update(JSON.stringify(timeval));
+    archive.myMap.addLayer(layer);
+    archive.myMap.redraw();
+    ogs.ui.gis.layerAdded(event.target);
+    $('.btn-layer').each(function(index){
               $(this).removeClass('disabled');
               $(this).removeAttr('disabled');
-            }
-          );
-        }
-      }
     });
+
+    // $.ajax({
+    //   type: 'POST',
+    //   url: '/data/read',
+    //   data: {
+    //     expr: JSON.stringify($(event.target).attr('basename')),
+    //     vars: JSON.stringify(varval),
+    //     time: JSON.stringify(timeval)
+    //   },
+    //   dataType: 'json',
+    //   success: function(response) {
+    //     if (response.error !== null) {
+    //       console.log("[error] " + response.error ? response.error : "no results returned from server");
+    //     } else {
+    //       var reader = ogs.vgl.geojsonReader();
+    //       //var time0, time2, time3, time4;
+    //       //time0 = new Date().getTime();
+    //       var geoms = reader.readGJObject(jQuery.parseJSON(response.result.data[0]));
+    //       //time1 = new Date().getTime();
+    //       for (var i = 0; i < geoms.length; ++i) {
+    //         var layer = ogs.geo.featureLayer({
+    //           "opacity" : 0.5,
+    //           "showAttribution" : 1,
+    //           "visible" : 1
+    //         }, ogs.geo.geometryFeature(geoms[i]));
+    //         var layerId = $(event.target).attr('name');
+    //         layer.setName(layerId);
+    //         archive.myMap.addLayer(layer);
+    //       }
+    //       //time2 = new Date().getTime();
+    //       archive.myMap.redraw();
+    //       //time3 = new Date().getTime();
+
+    //       //time4 = new Date().getTime();
+    //       //console.log("vgl times: ", time1-time0, ",", time2-time1, ",", time3-time2, ",", time4-time3);
+
+
+    //     }
+    //   }
+    // });
+
   });
 };
