@@ -47,6 +47,8 @@ set(JS_LINT_FILES
     ${CMAKE_SOURCE_DIR}/web/lib/geo/layer.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/layerDrawables.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/mapInteractorStyle.js
+    ${CMAKE_SOURCE_DIR}/web/lib/geo/layerSource.js
+    ${CMAKE_SOURCE_DIR}/web/lib/geo/archiveLayerSource.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/map.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/feature.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/data.js
@@ -131,6 +133,8 @@ set(JS_UGLIFY_FILES
   ${CMAKE_SOURCE_DIR}/web/lib/geo/latlng.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/layer.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/layerDrawables.js
+  ${CMAKE_SOURCE_DIR}/web/lib/geo/layerSource.js
+  ${CMAKE_SOURCE_DIR}/web/lib/geo/archiveLayerSource.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/command.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/picker.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/mapInteractorStyle.js
