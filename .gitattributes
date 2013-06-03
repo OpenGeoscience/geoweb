@@ -3,3 +3,5 @@
 *                text=auto
 
 /scripts/gitsetup  export-ignore
+
+*.js		   hooks.MaxObjectKiB=8196
