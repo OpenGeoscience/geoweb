@@ -26,10 +26,10 @@ def read(expr, vars, time):
 
   # pick particular timestep
   trange = reader.GetOutputInformation(0).Get(vtk.vtkStreamingDemandDrivenPipeline.TIME_STEPS())
-  if time != None and trange != None and time >= trange[0] and time <= trange[-1]:
+  if time is not None and trange is not None and int(time) >= trange[0] and int(time) <= trange[-1]:
     #cherrypy.log("rTime " + str(time))
     sddp = reader.GetExecutive()
-    sddp.SetUpdateTimeStep(0,time)
+    sddp.SetUpdateTimeStep(0,int(time))
 
   # enable only chosen array(s)
   narrays = reader.GetNumberOfVariableArrays()
