@@ -28,57 +28,6 @@ archive.main = function() {
 
   archive.myMap = ogs.geo.map(document.getElementById("glcanvas"), mapOptions);
 
- // @note For testing only
- //  var planeLayer = ogs.geo.featureLayer({
- //    "opacity" : 1,
- //    "showAttribution" : 1,
- //    "visible" : 1
- //  }, ogs.geo.planeFeature(ogs.geo.latlng(-90.0, 0.0), ogs.geo.latlng(90.0,
- //                                                                     180.0)));
- // archive.myMap.addLayer(planeLayer);
-
-  // Read city geo-coded data
-  var table = [];
-  var citieslatlon = [];
-  var colors = [];
-  $.ajax({
-    type : "GET",
-    url : "/data/cities.csv",
-    dataType : "text",
-    success : function(data) {
-      table = archive.processCSVData(data);
-      if (table.length > 0) {
-        var i;
-        for (i = 0; i < table.length; ++i) {
-          if (table[i][2] != undefined) {
-            var lat = table[i][2];
-            lat = lat.replace(/(^\s+|\s+$|^\"|\"$)/g, '');
-            lat = parseFloat(lat);
-
-            var lon = table[i][3];
-            lon = lon.replace(/(^\s+|\s+$|^\"|\"$)/g, '');
-            lon = parseFloat(lon);
-            citieslatlon.push(lon, lat, 0.0);
-            colors.push(1.0, 1.0, 153.0 / 255.0);
-          }
-        }
-
-        // Load image to be used for drawing dots
-        var image = new Image();
-        image.src = '/data/spark.png';
-        image.onload = function() {
-          var pointLayer = ogs.geo.featureLayer({
-            "opacity" : 1,
-            "showAttribution" : 1,
-            "visible" : 1
-          }, ogs.geo.pointSpritesFeature(image, citieslatlon, colors));
-          pointLayer.setName('cities');
-         archive.myMap.addLayer(pointLayer);
-        };
-      }
-    }
-  });
-
   $(function() {
     var canvas = document.getElementById('glcanvas');
 
