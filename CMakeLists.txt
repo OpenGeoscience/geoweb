@@ -45,7 +45,7 @@ set(JS_LINT_FILES
     ${CMAKE_SOURCE_DIR}/web/lib/geo/ellipsoid.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/command.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/layer.js
-    ${CMAKE_SOURCE_DIR}/web/lib/geo/layerDrawables.js
+    ${CMAKE_SOURCE_DIR}/web/lib/geo/layerFeatures.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/mapInteractorStyle.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/layerSource.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/archiveLayerSource.js
@@ -132,7 +132,7 @@ set(JS_UGLIFY_FILES
   ${CMAKE_SOURCE_DIR}/web/lib/geo/ellipsoid.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/latlng.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/layer.js
-  ${CMAKE_SOURCE_DIR}/web/lib/geo/layerDrawables.js
+  ${CMAKE_SOURCE_DIR}/web/lib/geo/layerFeatures.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/layerSource.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/archiveLayerSource.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/command.js
