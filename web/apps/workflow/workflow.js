@@ -21,8 +21,8 @@ function debug(text) {
 $(function () {
   activeWorkflow = new WorkflowGUI(exworkflow);
   //activeWorkflow = new WorkflowGUI(newWorkflow());
-	setupDragAndDrop();
-	setupModuleList();
+  setupDragAndDrop();
+  setupModuleList();
   setupInteraction();
 
   function myResize() {
@@ -56,6 +56,7 @@ function WorkflowGUI(data) {
     moduleInstances[workflow.module[i]['@id']] = workflow.module[i];
     workflow.module[i].location['@x'] = parseFloat(workflow.module[i].location['@x']);
     workflow.module[i].location['@y'] = parseFloat(workflow.module[i].location['@y']);
+
     while (mid > nextId) {
       nextId = nextModuleId();
     }
