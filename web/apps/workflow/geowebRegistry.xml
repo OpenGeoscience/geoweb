@@ -1,0 +1,338 @@
+<registry id="" rootDescriptorId="0" version="1.0.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.vistrails.org/registry.xsd">
+  <package codepath="basic_modules" description="basic_modules defines basic VisTrails Modules that are used in most&#10;pipelines." id="0" identifier="org.vistrails.vistrails.basic" loadConfiguration="1" name="Basic Modules" version="2.1">
+    <moduleDescriptor baseDescriptorId="-1" id="0" name="Module" namespace="" package="org.vistrails.vistrails.basic" packageVersion="2.1" version="">
+      <portSpec id="0" maxConns="-1" minConns="0" name="self" optional="1" sortKey="-1" type="output">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Module" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+    </moduleDescriptor>
+    <moduleDescriptor baseDescriptorId="0" id="1" name="Constant" namespace="" package="org.vistrails.vistrails.basic" packageVersion="2.1" version="">
+      <portSpec id="1" maxConns="-1" minConns="0" name="value_as_string" optional="0" sortKey="-1" type="output">
+        <portSpecItem default="" entryType="" id="-1" label="" module="String" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+    </moduleDescriptor>
+    <moduleDescriptor baseDescriptorId="1" id="2" name="Boolean" namespace="" package="org.vistrails.vistrails.basic" packageVersion="2.1" version="">
+      <portSpec id="57" maxConns="-1" minConns="0" name="value" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Boolean" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="58" maxConns="-1" minConns="0" name="value" optional="0" sortKey="-1" type="output">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Boolean" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+    </moduleDescriptor>
+    <moduleDescriptor baseDescriptorId="1" id="3" name="Float" namespace="" package="org.vistrails.vistrails.basic" packageVersion="2.1" version="">
+      <portSpec id="59" maxConns="-1" minConns="0" name="value" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Float" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="60" maxConns="-1" minConns="0" name="value" optional="0" sortKey="-1" type="output">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Float" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+    </moduleDescriptor>
+    <moduleDescriptor baseDescriptorId="1" id="4" name="Integer" namespace="" package="org.vistrails.vistrails.basic" packageVersion="2.1" version="">
+      <portSpec id="61" maxConns="-1" minConns="0" name="value" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Integer" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="62" maxConns="-1" minConns="0" name="value" optional="0" sortKey="-1" type="output">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Integer" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+    </moduleDescriptor>
+    <moduleDescriptor baseDescriptorId="1" id="5" name="String" namespace="" package="org.vistrails.vistrails.basic" packageVersion="2.1" version="">
+      <portSpec id="2" maxConns="-1" minConns="0" name="value_as_string" optional="1" sortKey="-1" type="output">
+        <portSpecItem default="" entryType="" id="-1" label="" module="String" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="63" maxConns="-1" minConns="0" name="value" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="String" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="64" maxConns="-1" minConns="0" name="value" optional="0" sortKey="-1" type="output">
+        <portSpecItem default="" entryType="" id="-1" label="" module="String" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+    </moduleDescriptor>
+    <moduleDescriptor baseDescriptorId="1" id="6" name="List" namespace="" package="org.vistrails.vistrails.basic" packageVersion="2.1" version="">
+      <portSpec id="3" maxConns="-1" minConns="0" name="head" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Module" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="4" maxConns="-1" minConns="0" name="tail" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="List" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="65" maxConns="-1" minConns="0" name="value" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="List" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="66" maxConns="-1" minConns="0" name="value" optional="0" sortKey="-1" type="output">
+        <portSpecItem default="" entryType="" id="-1" label="" module="List" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+    </moduleDescriptor>
+    <moduleDescriptor baseDescriptorId="1" id="7" name="Path" namespace="" package="org.vistrails.vistrails.basic" packageVersion="2.1" version="">
+      <portSpec id="5" maxConns="-1" minConns="0" name="value" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Path" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="6" maxConns="-1" minConns="0" name="value" optional="0" sortKey="-1" type="output">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Path" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="7" maxConns="-1" minConns="0" name="name" optional="1" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="String" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+    </moduleDescriptor>
+    <moduleDescriptor baseDescriptorId="7" id="8" name="File" namespace="" package="org.vistrails.vistrails.basic" packageVersion="2.1" version="">
+      <portSpec id="8" maxConns="-1" minConns="0" name="value" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="File" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="9" maxConns="-1" minConns="0" name="value" optional="0" sortKey="-1" type="output">
+        <portSpecItem default="" entryType="" id="-1" label="" module="File" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="10" maxConns="-1" minConns="0" name="self" optional="1" sortKey="-1" type="output">
+        <portSpecItem default="" entryType="" id="-1" label="" module="File" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="11" maxConns="-1" minConns="0" name="create_file" optional="1" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Boolean" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="12" maxConns="-1" minConns="0" name="local_filename" optional="1" sortKey="-1" type="output">
+        <portSpecItem default="" entryType="" id="-1" label="" module="String" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+    </moduleDescriptor>
+    <moduleDescriptor baseDescriptorId="7" id="9" name="Directory" namespace="" package="org.vistrails.vistrails.basic" packageVersion="2.1" version="">
+      <portSpec id="13" maxConns="-1" minConns="0" name="value" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Directory" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="14" maxConns="-1" minConns="0" name="value" optional="0" sortKey="-1" type="output">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Directory" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="15" maxConns="-1" minConns="0" name="itemList" optional="0" sortKey="-1" type="output">
+        <portSpecItem default="" entryType="" id="-1" label="" module="List" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="16" maxConns="-1" minConns="0" name="create_directory" optional="1" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Boolean" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+    </moduleDescriptor>
+    <moduleDescriptor baseDescriptorId="7" id="10" name="OutputPath" namespace="" package="org.vistrails.vistrails.basic" packageVersion="2.1" version="">
+      <portSpec id="17" maxConns="-1" minConns="0" name="value" optional="0" sortKey="-1" type="output">
+        <portSpecItem default="" entryType="" id="-1" label="" module="OutputPath" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+    </moduleDescriptor>
+    <moduleDescriptor baseDescriptorId="0" id="11" name="FileSink" namespace="" package="org.vistrails.vistrails.basic" packageVersion="2.1" version="">
+      <portSpec id="18" maxConns="-1" minConns="0" name="file" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="File" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="19" maxConns="-1" minConns="0" name="outputPath" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="OutputPath" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="20" maxConns="-1" minConns="0" name="overwrite" optional="1" sortKey="-1" type="input">
+        <portSpecItem default="True" entryType="" id="-1" label="" module="Boolean" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="21" maxConns="-1" minConns="0" name="publishFile" optional="1" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Boolean" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+    </moduleDescriptor>
+    <moduleDescriptor baseDescriptorId="0" id="12" name="DirectorySink" namespace="" package="org.vistrails.vistrails.basic" packageVersion="2.1" version="">
+      <portSpec id="22" maxConns="-1" minConns="0" name="dir" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Directory" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="23" maxConns="-1" minConns="0" name="outputPath" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="OutputPath" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="24" maxConns="-1" minConns="0" name="overwrite" optional="1" sortKey="-1" type="input">
+        <portSpecItem default="True" entryType="" id="-1" label="" module="Boolean" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+    </moduleDescriptor>
+    <moduleDescriptor baseDescriptorId="1" id="13" name="Color" namespace="" package="org.vistrails.vistrails.basic" packageVersion="2.1" version="">
+      <portSpec id="25" maxConns="-1" minConns="0" name="value" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Color" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="26" maxConns="-1" minConns="0" name="value" optional="0" sortKey="-1" type="output">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Color" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+    </moduleDescriptor>
+    <moduleDescriptor baseDescriptorId="0" id="14" name="StandardOutput" namespace="" package="org.vistrails.vistrails.basic" packageVersion="2.1" version="">
+      <portSpec id="27" maxConns="-1" minConns="0" name="value" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Module" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+    </moduleDescriptor>
+    <moduleDescriptor baseDescriptorId="0" id="15" name="Tuple" namespace="" package="org.vistrails.vistrails.basic" packageVersion="2.1" version="">
+      <portSpec id="28" maxConns="-1" minConns="0" name="self" optional="0" sortKey="-1" type="output">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Tuple" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+    </moduleDescriptor>
+    <moduleDescriptor baseDescriptorId="0" id="16" name="Untuple" namespace="" package="org.vistrails.vistrails.basic" packageVersion="2.1" version="">
+      <portSpec id="29" maxConns="-1" minConns="0" name="tuple" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Tuple" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+    </moduleDescriptor>
+    <moduleDescriptor baseDescriptorId="0" id="17" name="ConcatenateString" namespace="" package="org.vistrails.vistrails.basic" packageVersion="2.1" version="">
+      <portSpec id="30" maxConns="-1" minConns="0" name="str1" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="String" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="31" maxConns="-1" minConns="0" name="str2" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="String" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="32" maxConns="-1" minConns="0" name="str3" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="String" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="33" maxConns="-1" minConns="0" name="str4" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="String" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="34" maxConns="-1" minConns="0" name="value" optional="0" sortKey="-1" type="output">
+        <portSpecItem default="" entryType="" id="-1" label="" module="String" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+    </moduleDescriptor>
+    <moduleDescriptor baseDescriptorId="0" id="18" name="Not" namespace="" package="org.vistrails.vistrails.basic" packageVersion="2.1" version="">
+      <portSpec id="35" maxConns="-1" minConns="0" name="input" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Boolean" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="36" maxConns="-1" minConns="0" name="value" optional="0" sortKey="-1" type="output">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Boolean" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+    </moduleDescriptor>
+    <moduleDescriptor baseDescriptorId="1" id="19" name="Dictionary" namespace="" package="org.vistrails.vistrails.basic" packageVersion="2.1" version="">
+      <portSpec id="37" maxConns="-1" minConns="0" name="addPair" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Module" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+        <portSpecItem default="" entryType="" id="-1" label="" module="Module" namespace="" package="org.vistrails.vistrails.basic" pos="1" values="None" />
+      </portSpec>
+      <portSpec id="38" maxConns="-1" minConns="0" name="addPairs" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="List" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="67" maxConns="-1" minConns="0" name="value" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Dictionary" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="68" maxConns="-1" minConns="0" name="value" optional="0" sortKey="-1" type="output">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Dictionary" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+    </moduleDescriptor>
+    <moduleDescriptor baseDescriptorId="0" id="20" name="Null" namespace="" package="org.vistrails.vistrails.basic" packageVersion="2.1" version="" />
+    <moduleDescriptor baseDescriptorId="0" id="21" name="PythonSource" namespace="" package="org.vistrails.vistrails.basic" packageVersion="2.1" version="">
+      <portSpec id="39" maxConns="-1" minConns="0" name="source" optional="1" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="String" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="40" maxConns="-1" minConns="0" name="self" optional="0" sortKey="-1" type="output">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Module" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+    </moduleDescriptor>
+    <moduleDescriptor baseDescriptorId="0" id="22" name="SmartSource" namespace="" package="org.vistrails.vistrails.basic" packageVersion="2.1" version="">
+      <portSpec id="41" maxConns="-1" minConns="0" name="source" optional="1" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="String" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+    </moduleDescriptor>
+    <moduleDescriptor baseDescriptorId="0" id="23" name="Unzip" namespace="" package="org.vistrails.vistrails.basic" packageVersion="2.1" version="">
+      <portSpec id="42" maxConns="-1" minConns="0" name="archive_file" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="File" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="43" maxConns="-1" minConns="0" name="filename_in_archive" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="String" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="44" maxConns="-1" minConns="0" name="file" optional="0" sortKey="-1" type="output">
+        <portSpecItem default="" entryType="" id="-1" label="" module="File" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+    </moduleDescriptor>
+    <moduleDescriptor baseDescriptorId="0" id="24" name="Variant" namespace="" package="org.vistrails.vistrails.basic" packageVersion="2.1" version="" />
+    <moduleDescriptor baseDescriptorId="0" id="25" name="InputPort" namespace="" package="org.vistrails.vistrails.basic" packageVersion="2.1" version="">
+      <portSpec id="45" maxConns="-1" minConns="0" name="name" optional="1" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="String" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="46" maxConns="-1" minConns="0" name="optional" optional="1" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Boolean" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="47" maxConns="-1" minConns="0" name="spec" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="String" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="48" maxConns="-1" minConns="0" name="ExternalPipe" optional="1" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Variant" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="49" maxConns="-1" minConns="0" name="Default" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Variant" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="50" maxConns="-1" minConns="0" name="InternalPipe" optional="0" sortKey="-1" type="output">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Variant" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+    </moduleDescriptor>
+    <moduleDescriptor baseDescriptorId="0" id="26" name="OutputPort" namespace="" package="org.vistrails.vistrails.basic" packageVersion="2.1" version="">
+      <portSpec id="51" maxConns="-1" minConns="0" name="name" optional="1" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="String" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="52" maxConns="-1" minConns="0" name="optional" optional="1" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Boolean" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="53" maxConns="-1" minConns="0" name="spec" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="String" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="54" maxConns="-1" minConns="0" name="InternalPipe" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Variant" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="55" maxConns="-1" minConns="0" name="ExternalPipe" optional="1" sortKey="-1" type="output">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Variant" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+    </moduleDescriptor>
+    <moduleDescriptor baseDescriptorId="0" id="27" name="Group" namespace="" package="org.vistrails.vistrails.basic" packageVersion="2.1" version="">
+      <portSpec id="56" maxConns="-1" minConns="0" name="self" optional="1" sortKey="-1" type="output">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Group" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+    </moduleDescriptor>
+    <moduleDescriptor baseDescriptorId="27" id="28" name="SubWorkflow" namespace="" package="org.vistrails.vistrails.basic" packageVersion="2.1" version="" />
+  </package>
+  <package codepath="abstraction" description="No description available" id="1" identifier="local.abstractions" loadConfiguration="1" name="My SubWorkflows" version="1.6" />
+  <package codepath="geoweb" description="No description available" id="26" identifier="org.opengeoscience.geoweb.climate" loadConfiguration="1" name="Climate" version="0.9.0">
+    <moduleDescriptor baseDescriptorId="0" id="164" name="Dataset" namespace="" package="org.opengeoscience.geoweb.climate" packageVersion="0.9.0" version="">
+      <portSpec id="402" maxConns="-1" minConns="0" name="file" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="String" namespace="" package="edu.utah.sci.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="403" maxConns="-1" minConns="0" name="self" optional="0" sortKey="-1" type="output">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Dataset" namespace="" package="org.opengeoscience.geoweb.climate" pos="0" values="None" />
+      </portSpec>
+    </moduleDescriptor>
+    <moduleDescriptor baseDescriptorId="0" id="165" name="WriteJSON" namespace="" package="org.opengeoscience.geoweb.climate" packageVersion="0.9.0" version="">
+      <portSpec id="404" maxConns="-1" minConns="0" name="tvariable" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="TransientVariable" namespace="" package="org.opengeoscience.geoweb.climate" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="405" maxConns="-1" minConns="0" name="filename" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="String" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+    </moduleDescriptor>
+    <moduleDescriptor baseDescriptorId="0" id="166" name="Variable" namespace="" package="org.opengeoscience.geoweb.climate" packageVersion="0.9.0" version="">
+      <portSpec id="406" maxConns="-1" minConns="0" name="dataset" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Dataset" namespace="" package="org.opengeoscience.geoweb.climate" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="407" maxConns="-1" minConns="0" name="name" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="String" namespace="" package="edu.utah.sci.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="408" maxConns="-1" minConns="0" name="self" optional="0" sortKey="-1" type="output">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Variable" namespace="" package="org.opengeoscience.geoweb.climate" pos="0" values="None" />
+      </portSpec>
+    </moduleDescriptor>
+    <moduleDescriptor baseDescriptorId="0" id="167" name="TransientVariable" namespace="" package="org.opengeoscience.geoweb.climate" packageVersion="0.9.0" version="">
+      <portSpec id="409" maxConns="-1" minConns="0" name="self" optional="0" sortKey="-1" type="output">
+        <portSpecItem default="" entryType="" id="-1" label="" module="TransientVariable" namespace="" package="org.opengeoscience.geoweb.climate" pos="0" values="None" />
+      </portSpec>
+    </moduleDescriptor>
+    <moduleDescriptor baseDescriptorId="0" id="168" name="SubSelect" namespace="" package="org.opengeoscience.geoweb.climate" packageVersion="0.9.0" version="">
+      <portSpec id="410" maxConns="-1" minConns="0" name="variable" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="Variable" namespace="" package="org.opengeoscience.geoweb.climate" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="411" maxConns="-1" minConns="0" name="axis" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="String" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="412" maxConns="-1" minConns="0" name="start" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="String" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="413" maxConns="-1" minConns="0" name="end" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="String" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="414" maxConns="-1" minConns="0" name="tvariable" optional="0" sortKey="-1" type="output">
+        <portSpecItem default="" entryType="" id="-1" label="" module="TransientVariable" namespace="" package="org.opengeoscience.geoweb.climate" pos="0" values="None" />
+      </portSpec>
+    </moduleDescriptor>
+    <moduleDescriptor baseDescriptorId="0" id="169" name="MonthlyTimeBounds" namespace="" package="org.opengeoscience.geoweb.climate" packageVersion="0.9.0" version="">
+      <portSpec id="415" maxConns="-1" minConns="0" name="tvariable" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="TransientVariable" namespace="" package="org.opengeoscience.geoweb.climate" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="416" maxConns="-1" minConns="0" name="tvariable" optional="0" sortKey="-1" type="output">
+        <portSpecItem default="" entryType="" id="-1" label="" module="TransientVariable" namespace="" package="org.opengeoscience.geoweb.climate" pos="0" values="None" />
+      </portSpec>
+    </moduleDescriptor>
+    <moduleDescriptor baseDescriptorId="0" id="170" name="Average" namespace="" package="org.opengeoscience.geoweb.climate" packageVersion="0.9.0" version="">
+      <portSpec id="417" maxConns="-1" minConns="0" name="tvariable" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="TransientVariable" namespace="" package="org.opengeoscience.geoweb.climate" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="418" maxConns="-1" minConns="0" name="axis" optional="0" sortKey="-1" type="input">
+        <portSpecItem default="" entryType="" id="-1" label="" module="String" namespace="" package="org.vistrails.vistrails.basic" pos="0" values="None" />
+      </portSpec>
+      <portSpec id="419" maxConns="-1" minConns="0" name="tvariable" optional="0" sortKey="-1" type="output">
+        <portSpecItem default="" entryType="" id="-1" label="" module="TransientVariable" namespace="" package="org.opengeoscience.geoweb.climate" pos="0" values="None" />
+      </portSpec>
+    </moduleDescriptor>
+  </package>
+</registry>

@@ -118,7 +118,30 @@ archive.main = function() {
   });
 
   init();
+  archive.initWebSockets();
 };
+
+archive.initWebSockets = function() {
+  var ws = srvModule.webSocket({nodes: ['streammaster','streamworker']}),
+    streaming = false;
+
+  ws.bind('streammaster', function(message) {
+    if(message == 'done') {
+      streaming = false;
+      //$('#button').html(startText);
+    } else {
+      var img = new Image();
+      img.onload = function() {
+        ctx.drawImage(img, parseInt(message.x), parseInt(message.y)-img.height);
+      };
+      img.src = "data:image/png;base64," + message.img;
+      recieveCount += 1;
+    }
+  });
+
+
+
+}
 
 
 archive.processCSVData = function(csvdata) {
@@ -141,7 +164,7 @@ archive.getDocuments = function() {
     data: {
       query: JSON.stringify({}),
       limit:100,
-      fields: JSON.stringify(['name', 'basename', 'variables'])
+      fields: JSON.stringify(['name', 'basename', 'variables', 'temporalrange'])
     },
     dataType: 'json',
     success: function(response) {
@@ -212,11 +235,23 @@ archive.removeLayer = function(target, layerId) {
 archive.addLayer = function(event) {
   ogs.ui.gis.addLayer(archive, 'table-layers', event.target, archive.selectLayer,
     archive.toggleLayer, archive.removeLayer, function() {
+    var widgetName, widget, timeval, varval;
+
+    //figure out what time and variable were chosen
+    widgetName = $(event.target).attr('name') + '_tselect';
+    widget = document.getElementById(widgetName);
+    timeval = widget.options[widget.selectedIndex].text
+    widgetName = $(event.target).attr('name') + '_vselect';
+    widget = document.getElementById(widgetName);
+    varval = widget.options[widget.selectedIndex].text
+    //console.log("ASK FOR " + $(event.target).attr('basename') + " " + timeval + " " + varval)
     $.ajax({
       type: 'POST',
       url: '/data/read',
       data: {
-        expr: JSON.stringify($(event.target).attr('basename'))
+        expr: JSON.stringify($(event.target).attr('basename')),
+        vars: JSON.stringify(varval),
+        time: JSON.stringify(timeval)
       },
       dataType: 'json',
       success: function(response) {
@@ -224,7 +259,10 @@ archive.addLayer = function(event) {
           console.log("[error] " + response.error ? response.error : "no results returned from server");
         } else {
           var reader = ogs.vgl.geojsonReader();
+          //var time0, time2, time3, time4;
+          //time0 = new Date().getTime();
           var geoms = reader.readGJObject(jQuery.parseJSON(response.result.data[0]));
+          //time1 = new Date().getTime();
           for (var i = 0; i < geoms.length; ++i) {
             var layer = ogs.geo.featureLayer({
               "opacity" : 0.5,
@@ -235,9 +273,12 @@ archive.addLayer = function(event) {
             layer.setName(layerId);
             archive.myMap.addLayer(layer);
           }
+          //time2 = new Date().getTime();
           archive.myMap.redraw();
+          //time3 = new Date().getTime();
           ogs.ui.gis.layerAdded(event.target);
-
+          //time4 = new Date().getTime();
+          //console.log("vgl times: ", time1-time0, ",", time2-time1, ",", time3-time2, ",", time4-time3);
           $('.btn-layer').each(function(index){
               $(this).removeClass('disabled');
               $(this).removeAttr('disabled');
