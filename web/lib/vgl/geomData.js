@@ -259,12 +259,13 @@ vglModule.vertexDataP3T3f = function() {
   return this
 };
 
+//////////////////////////////////////////////////////////////////////////////
 /**
  * Create a new instance of class sourceData
- *
  * @class
  * @returns {vglModule.sourceData}
  */
+//////////////////////////////////////////////////////////////////////////////
 vglModule.sourceData = function() {
 
   if (!(this instanceof vglModule.sourceData)) {
@@ -459,6 +460,16 @@ vglModule.sourceData = function() {
     m_data = m_data.concat(data);
   };
 
+  this.insertAt = function(index, data) {
+    if (!data.length) {
+      m_data[index] = data;
+    } else {
+      for (var i = 0; i < data.length; i++) {
+        m_data[index*data.length+i] = data[i];
+      }
+    }
+  };
+
   return this;
 };
 
@@ -597,12 +608,61 @@ vglModule.sourceDataC3fv = function() {
 inherit(vglModule.sourceDataC3fv, vglModule.sourceData);
 
 /**
+ * Create a new instance of class sourceDataSf meant to hold scalar float values
+ *
+ * @class
+ * @returns {vglModule.sourceDataSf}
+ */
+vglModule.sourceDataSf = function() {
+
+  if (!(this instanceof vglModule.sourceDataSf)) {
+    return new vglModule.sourceDataSf();
+  }
+
+  var m_min = null;
+  var m_max = null;
+
+  vglModule.sourceData.call(this);
+
+  this.addAttribute(vglModule.vertexAttributeKeys.Scalar, gl.FLOAT, 4, 0, 4, 1, false);
+
+  this.pushBack = function(value) {
+    if (m_max == null || value > m_max) m_max = value;
+    if (m_min == null || value < m_min) m_min = value;
+    this.insert(value);
+  };
+
+  this.insertAt = function(index, value) {
+    if (m_max == null || value > m_max) m_max = value;
+    if (m_min == null || value < m_min) m_min = value;
+    //call superclass ??
+    //vglModule.sourceData.insertAt.call(this, index, value);
+    this.data()[index] = value;
+  };
+
+  this.scalarRange = function() {
+    return [m_min, m_max];
+  }
+  return this;
+};
+
+inherit(vglModule.sourceDataSf, vglModule.sourceData);
+
+//////////////////////////////////////////////////////////////////////////////
+/**
  * Create a new instance of class geometryData
  *
  * @class
  * @returns {vglModule.geometryData}
  */
+ /////////////////////////////////////////////////////////////////////////////
 vglModule.geometryData = function() {
+
+  if (!(this instanceof vglModule.geometryData)) {
+    return vglModule.geometryData();
+  }
+  vglModule.data.call(this);
+
   /** @private */
   var m_name = "";
 
@@ -621,23 +681,38 @@ vglModule.geometryData = function() {
   /** @private */
   var m_boundsDirtyTimestamp = vglModule.timestamp();
 
+  ////////////////////////////////////////////////////////////////////////////
+  /**
+   * Return type
+   */
+  ////////////////////////////////////////////////////////////////////////////
+  this.type = function() {
+    return vglModule.data.geometry;
+  };
+
+  ////////////////////////////////////////////////////////////////////////////
   /**
    * Return ID of the geometry data
    */
+  ////////////////////////////////////////////////////////////////////////////
   this.name = function() {
     return m_name;
   };
 
+  ////////////////////////////////////////////////////////////////////////////
   /**
    * Set name of the geometry data
    */
+  ////////////////////////////////////////////////////////////////////////////
   this.setName = function(name) {
     m_name = name;
   };
 
+  ////////////////////////////////////////////////////////////////////////////
   /**
    * Add new source
    */
+  ////////////////////////////////////////////////////////////////////////////
   this.addSource = function(source) {
     // @todo Check if the incoming source has duplicate keys
 
@@ -654,9 +729,11 @@ vglModule.geometryData = function() {
     return false;
   };
 
+  ////////////////////////////////////////////////////////////////////////////
   /**
    * Return source for a given index. Returns 0 if not found.
    */
+  ////////////////////////////////////////////////////////////////////////////
   this.source = function(index) {
     if (index < m_sources.length) {
       return m_sources[index];
@@ -665,9 +742,11 @@ vglModule.geometryData = function() {
     return 0;
   };
 
+  ////////////////////////////////////////////////////////////////////////////
   /**
    * Return number of sources
    */
+  ////////////////////////////////////////////////////////////////////////////
   this.numberOfSources = function() {
     return m_sources.length;
   };
@@ -685,21 +764,25 @@ vglModule.geometryData = function() {
     return null;
   };
 
+  ////////////////////////////////////////////////////////////////////////////
   /**
    * Add new primitive
    */
+  ////////////////////////////////////////////////////////////////////////////
   this.addPrimitive = function(primitive) {
-    if (m_primitives.indexOf(primitive) == -1) {
+    //if (m_primitives.indexOf(primitive) == -1) {
       m_primitives.push(primitive);
       return true;
-    }
+    //}
 
     return false;
   };
 
+  ////////////////////////////////////////////////////////////////////////////
   /**
    * Return primitive for a given index. Returns 0 if not found.
    */
+  ////////////////////////////////////////////////////////////////////////////
   this.primitive = function(index) {
     if (index < m_primitives.length) {
       return m_primitives[index];
@@ -708,16 +791,20 @@ vglModule.geometryData = function() {
     return null;
   };
 
+  ////////////////////////////////////////////////////////////////////////////
   /**
    * Return number of primitives
    */
+  ////////////////////////////////////////////////////////////////////////////
   this.numberOfPrimitives = function() {
     return m_primitives.length;
   };
 
+  ////////////////////////////////////////////////////////////////////////////
   /**
    * Return bounds [minX, maxX, minY, maxY, minZ, maxZ]
    */
+  ////////////////////////////////////////////////////////////////////////////
   this.bounds = function() {
     if (m_boundsDirtyTimestamp.getMTime() > m_computeBoundsTimestamp.getMTime()) {
       this.computeBounds();
@@ -725,9 +812,11 @@ vglModule.geometryData = function() {
     return m_bounds;
   };
 
+  ////////////////////////////////////////////////////////////////////////////
   /**
    * Reset bounds
    */
+  ////////////////////////////////////////////////////////////////////////////
   this.resetBounds = function() {
     m_bounds[0] = 0.0;
     m_bounds[1] = 0.0;
@@ -737,9 +826,11 @@ vglModule.geometryData = function() {
     m_bounds[5] = 0.0;
   };
 
+  ////////////////////////////////////////////////////////////////////////////
   /**
    * Set bounds
    */
+  ////////////////////////////////////////////////////////////////////////////
   this.setBounds = function(minX, maxX, minY, maxY, minZ, maxZ) {
     m_bounds[0] = minX;
     m_bounds[1] = maxX;
@@ -753,9 +844,11 @@ vglModule.geometryData = function() {
     return true;
   };
 
+  ////////////////////////////////////////////////////////////////////////////
   /**
    * Compute bounds
    */
+  ////////////////////////////////////////////////////////////////////////////
   this.computeBounds = function() {
     if (m_boundsDirtyTimestamp.getMTime() > m_computeBoundsTimestamp.getMTime()) {
       var sourceData = this.sourceData(
@@ -808,3 +901,5 @@ vglModule.geometryData = function() {
 
   return this;
 };
+
+inherit(ogs.vgl.geometryData, ogs.vgl.data);

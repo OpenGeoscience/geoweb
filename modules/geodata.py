@@ -10,7 +10,7 @@ def decode(s, argname, resp):
         resp['error'] = e.message + " (argument '%s' was '%s')" % (argname, s)
         raise
 
-def run(method='read', expr=None, vars=None, fields=None, limit=1000, sort=None, fill=None):
+def run(method='read', expr=None, vars=None, time=None, fields=None, limit=1000, sort=None, fill=None):
     # Create an empty response object.
     response = geoweb.empty_response();
 
@@ -22,8 +22,9 @@ def run(method='read', expr=None, vars=None, fields=None, limit=1000, sort=None,
     # Decode the strings into Python objects.
     try:
         if expr is not None: expr = decode(expr, 'expr', response)
-        if vars is not None: vars = decode(expr, 'vars', response)
-        if fields is not None: vars = decode(fields, 'f', response)
+        if vars is not None: vars = decode(vars, 'vars', response)
+        if time is not None: time = decode(time, 'time', response)
+        if fields is not None: fields = decode(fields, 'f', response)
         if sort is not None: sort = decode(sort, 'sort', response)
         if fill is not None:
             fill = decode(fill, 'fill', response)
@@ -47,24 +48,23 @@ def run(method='read', expr=None, vars=None, fields=None, limit=1000, sort=None,
         # Load reader module
         import reader
         try:
-          it = reader.read(expr, vars)
+            it = reader.read(expr, vars)
 
+            # Create a list of the results.
+            if fill:
+                results = [it]
+            else:
+                results = []
 
-          # Create a list of the results.
-          if fill:
-              results = [it]
-          else:
-              results = []
+            # Create an object to structure the results.
+            retobj = {}
+            retobj['count'] = 1
+            retobj['data'] = results
 
-          # Create an object to structure the results.
-          retobj = {}
-          retobj['count'] = 1
-          retobj['data'] = results
-
-          # Pack the results into the response object, and return it.
-          response['result'] = retobj
+            # Pack the results into the response object, and return it.
+            response['result'] = retobj
         except IOError as io:
-          response['error'] = io.message
+            response['error'] = io.message
     else:
         raise RuntimeError("illegal method '%s' in module 'mongo'")
 
