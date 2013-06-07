@@ -4,6 +4,22 @@
 var archive = {};
 archive.myMap = null;
 
+archive.error = function(errorString) {
+  $('#error-dialog > p').text(errorString);
+  $('#error-dialog')
+  .dialog({
+    dialogClass: "error-dialog",
+    modal: true,
+    draggable: false,
+    resizable: false,
+    minHeight: 15,
+    buttons: { "Close": function() {
+                 $(this).dialog("close");
+               }
+    }
+    });
+}
+
 archive.getMongoConfig = function() {
   "use strict";
     return {
@@ -99,6 +115,9 @@ archive.getDocuments = function() {
       } else {
         ogs.ui.gis.createDataList('documents', 'Documents', 'table-layers', response.result.data, archive.addLayer);
       }
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+      archive.error("Error reading data from mongodb: " + errorThrown)
     }
   });
 };
@@ -172,7 +191,7 @@ archive.addLayer = function(event) {
     varval = widget.options[widget.selectedIndex].text
 
     var source = ogs.geo.archiveLayerSource(JSON.stringify($(event.target).attr('basename')),
-      JSON.stringify(varval));
+      JSON.stringify(varval), archive.error);
     var layer = ogs.geo.featureLayer();
     layer.setName($(event.target).attr('name'));
     layer.setDataSource(source);

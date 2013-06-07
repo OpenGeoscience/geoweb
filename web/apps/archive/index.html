@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
+  <head>
   <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
   <script src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
 
@@ -119,6 +119,14 @@
       overflow: auto;
     }
 
+    .error-dialog .ui-dialog-titlebar {
+      display: none;
+    }
+
+    .error-dialog .ui-dialog-buttonpane {
+      border-width: 0 0 0 0;
+    }
+
   </style>
   </head>
   <body onload="archive.main()">
@@ -171,4 +179,9 @@
     </div>
 </div>
 </body>
- </html>
+<div id="error-dialog">
+  <p id="text">
+    <span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>
+  </p>
+</div>
+</html>
