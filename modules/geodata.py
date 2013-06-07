@@ -48,7 +48,7 @@ def run(method='read', expr=None, vars=None, time=None, fields=None, limit=1000,
         # Load reader module
         import reader
         try:
-            it = reader.read(expr, vars)
+            it = reader.read(expr, vars, time)
 
             # Create a list of the results.
             if fill:
