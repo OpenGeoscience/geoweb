@@ -4,6 +4,22 @@
 var archive = {};
 archive.myMap = null;
 
+archive.error = function(errorString) {
+  $('#error-dialog > p').text(errorString);
+  $('#error-dialog')
+  .dialog({
+    dialogClass: "error-dialog",
+    modal: true,
+    draggable: false,
+    resizable: false,
+    minHeight: 15,
+    buttons: { "Close": function() {
+                 $(this).dialog("close");
+               }
+    }
+    });
+}
+
 archive.getMongoConfig = function() {
   "use strict";
     return {
@@ -27,57 +43,6 @@ archive.main = function() {
   };
 
   archive.myMap = ogs.geo.map(document.getElementById("glcanvas"), mapOptions);
-
- // @note For testing only
- //  var planeLayer = ogs.geo.featureLayer({
- //    "opacity" : 1,
- //    "showAttribution" : 1,
- //    "visible" : 1
- //  }, ogs.geo.planeFeature(ogs.geo.latlng(-90.0, 0.0), ogs.geo.latlng(90.0,
- //                                                                     180.0)));
- // archive.myMap.addLayer(planeLayer);
-
-  // Read city geo-coded data
-  var table = [];
-  var citieslatlon = [];
-  var colors = [];
-  $.ajax({
-    type : "GET",
-    url : "/data/cities.csv",
-    dataType : "text",
-    success : function(data) {
-      table = archive.processCSVData(data);
-      if (table.length > 0) {
-        var i;
-        for (i = 0; i < table.length; ++i) {
-          if (table[i][2] != undefined) {
-            var lat = table[i][2];
-            lat = lat.replace(/(^\s+|\s+$|^\"|\"$)/g, '');
-            lat = parseFloat(lat);
-
-            var lon = table[i][3];
-            lon = lon.replace(/(^\s+|\s+$|^\"|\"$)/g, '');
-            lon = parseFloat(lon);
-            citieslatlon.push(lon, lat, 0.0);
-            colors.push(1.0, 1.0, 153.0 / 255.0);
-          }
-        }
-
-        // Load image to be used for drawing dots
-        var image = new Image();
-        image.src = '/data/spark.png';
-        image.onload = function() {
-          var pointLayer = ogs.geo.featureLayer({
-            "opacity" : 1,
-            "showAttribution" : 1,
-            "visible" : 1
-          }, ogs.geo.pointSpritesFeature(image, citieslatlon, colors));
-
-         archive.myMap.addLayer(pointLayer);
-        };
-      }
-    }
-  });
 
   $(function() {
     var canvas = document.getElementById('glcanvas');
@@ -173,6 +138,9 @@ archive.getDocuments = function() {
       } else {
         ogs.ui.gis.createDataList('documents', 'Documents', 'table-layers', response.result.data, archive.addLayer);
       }
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+      archive.error("Error reading data from mongodb: " + errorThrown)
     }
   });
 };
@@ -244,48 +212,60 @@ archive.addLayer = function(event) {
     widgetName = $(event.target).attr('name') + '_vselect';
     widget = document.getElementById(widgetName);
     varval = widget.options[widget.selectedIndex].text
-    //console.log("ASK FOR " + $(event.target).attr('basename') + " " + timeval + " " + varval)
-    $.ajax({
-      type: 'POST',
-      url: '/data/read',
-      data: {
-        expr: JSON.stringify($(event.target).attr('basename')),
-        vars: JSON.stringify(varval),
-        time: JSON.stringify(timeval)
-      },
-      dataType: 'json',
-      success: function(response) {
-        if (response.error !== null) {
-          console.log("[error] " + response.error ? response.error : "no results returned from server");
-        } else {
-          var reader = ogs.vgl.geojsonReader();
-          //var time0, time2, time3, time4;
-          //time0 = new Date().getTime();
-          var geoms = reader.readGJObject(jQuery.parseJSON(response.result.data[0]));
-          //time1 = new Date().getTime();
-          for (var i = 0; i < geoms.length; ++i) {
-            var layer = ogs.geo.featureLayer({
-              "opacity" : 0.5,
-              "showAttribution" : 1,
-              "visible" : 1
-            }, ogs.geo.geometryFeature(geoms[i]));
-            var layerId = $(event.target).attr('name');
-            layer.setName(layerId);
-            archive.myMap.addLayer(layer);
-          }
-          //time2 = new Date().getTime();
-          archive.myMap.redraw();
-          //time3 = new Date().getTime();
-          ogs.ui.gis.layerAdded(event.target);
-          //time4 = new Date().getTime();
-          //console.log("vgl times: ", time1-time0, ",", time2-time1, ",", time3-time2, ",", time4-time3);
-          $('.btn-layer').each(function(index){
+
+    var source = ogs.geo.archiveLayerSource(JSON.stringify($(event.target).attr('basename')),
+      JSON.stringify(varval), archive.error);
+    var layer = ogs.geo.featureLayer();
+    layer.setName($(event.target).attr('name'));
+    layer.setDataSource(source);
+    layer.update(JSON.stringify(timeval));
+    archive.myMap.addLayer(layer);
+    archive.myMap.redraw();
+    ogs.ui.gis.layerAdded(event.target);
+    $('.btn-layer').each(function(index){
               $(this).removeClass('disabled');
               $(this).removeAttr('disabled');
-            }
-          );
-        }
-      }
     });
+
+    // $.ajax({
+    //   type: 'POST',
+    //   url: '/data/read',
+    //   data: {
+    //     expr: JSON.stringify($(event.target).attr('basename')),
+    //     vars: JSON.stringify(varval),
+    //     time: JSON.stringify(timeval)
+    //   },
+    //   dataType: 'json',
+    //   success: function(response) {
+    //     if (response.error !== null) {
+    //       console.log("[error] " + response.error ? response.error : "no results returned from server");
+    //     } else {
+    //       var reader = ogs.vgl.geojsonReader();
+    //       //var time0, time2, time3, time4;
+    //       //time0 = new Date().getTime();
+    //       var geoms = reader.readGJObject(jQuery.parseJSON(response.result.data[0]));
+    //       //time1 = new Date().getTime();
+    //       for (var i = 0; i < geoms.length; ++i) {
+    //         var layer = ogs.geo.featureLayer({
+    //           "opacity" : 0.5,
+    //           "showAttribution" : 1,
+    //           "visible" : 1
+    //         }, ogs.geo.geometryFeature(geoms[i]));
+    //         var layerId = $(event.target).attr('name');
+    //         layer.setName(layerId);
+    //         archive.myMap.addLayer(layer);
+    //       }
+    //       //time2 = new Date().getTime();
+    //       archive.myMap.redraw();
+    //       //time3 = new Date().getTime();
+
+    //       //time4 = new Date().getTime();
+    //       //console.log("vgl times: ", time1-time0, ",", time2-time1, ",", time3-time2, ",", time4-time3);
+
+
+    //     }
+    //   }
+    // });
+
   });
 };
