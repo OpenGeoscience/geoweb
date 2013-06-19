@@ -199,10 +199,31 @@ archive.removeLayer = function(target, layerId) {
   return false;
 };
 
+archive.workflowLayer = function(target, layerId) {
+  var layer = archive.myMap.findLayerById(layerId);
+  if(layer != null) {
+    $('#workflow-dialog')
+      .dialog({
+        modal: true,
+        draggable: true,
+        resizable: true,
+        minHeight: 300,
+        width: Math.floor(window.screen.width * 0.8),
+        height: Math.floor(window.screen.height * 0.8),
+        buttons: {
+          "Close": function() {
+            $(this).dialog("close");
+          }
+        }
+      });
+    resizeWorkflow();
+  }
+}
+
 
 archive.addLayer = function(event) {
   ogs.ui.gis.addLayer(archive, 'table-layers', event.target, archive.selectLayer,
-    archive.toggleLayer, archive.removeLayer, function() {
+    archive.toggleLayer, archive.removeLayer, archive.workflowLayer, function() {
     var widgetName, widget, timeval, varval;
 
     //figure out what time and variable were chosen
