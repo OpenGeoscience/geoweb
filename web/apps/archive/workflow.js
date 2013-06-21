@@ -118,6 +118,8 @@ function moduleMetrics(ctx, moduleObject) {
     moduleHeight = style.module.port.pad*4 + portWidth*2 +
       style.module.text.ypad*2 + textHeight;
 
+  mx = mx - Math.floor(moduleWidth/2);
+
   return {
     mx: mx,
     my: my,
@@ -125,6 +127,77 @@ function moduleMetrics(ctx, moduleObject) {
     inPortsWidth: inPortsWidth,
     fontMetrics: fontMetrics,
     textWidth: textWidth,
+    moduleWidth: moduleWidth,
+    textHeight: textHeight,
+    moduleHeight: moduleHeight,
+    inPortX: mx + style.module.port.pad,
+    inPortY: my + style.module.port.pad,
+    outPortX: mx + moduleWidth - outPortsWidth,
+    outPortY: my + moduleHeight - style.module.port.pad - portWidth
+  };
+
+}
+
+function expandedModuleMetrics(ctx, moduleObject) {
+  var moduleInfo = moduleRegistry[moduleObject['@package']][moduleObject['@name']],
+    inPortCount = 0,
+    outPortCount = 0,
+    maxInPortTextWidth = 0,
+    maxOutPortTextWidth = 0,
+    maxInPortTextIndex = 0,
+    maxOutPortTextIndex = 0,
+    portWidth = style.module.port.width,
+    mx = Math.floor(moduleObject.location['@x']),
+    my = -Math.floor(moduleObject.location['@y']),
+    i;
+
+
+  for(i = 0; i < moduleInfo.portSpec.length; i++) {
+    if(moduleInfo.portSpec[i]['@type'] != 'output') {
+      inPortCount += 1;
+      if(moduleInfo.portSpec[i]['@name'].length > maxInPortTextWidth) {
+        maxInPortTextWidth = moduleInfo.portSpec[i]['@name'].length;
+        maxInPortTextIndex = i;
+      }
+    } else {
+      outPortCount += 1;
+      if(moduleInfo.portSpec[i]['@name'].length > maxOutPortTextWidth) {
+        maxOutPortTextWidth = moduleInfo.portSpec[i]['@name'].length;
+        maxOutPortTextIndex = i;
+      }
+    }
+  }
+
+  var textHeight = 12, //TODO: get real height based on text font
+    totalInPortHeight = style.module.port.inputHeight + textHeight + style.module.port.inputYPad + style.module.port.inpad,
+    totalOutPortHeight = textHeight + style.module.port.outpad,
+    inPortsHeight = inPortCount * totalInPortHeight + style.module.text.xpad,
+    outPortsHeight = outPortCount * totalOutPortHeight,
+    titleFontMetrics = ctx.measureText(moduleObject['@name']),
+    titleTextWidth = titleFontMetrics.width + style.module.text.xpad * 2,
+    inPortFontMetrics = ctx.measureText(
+      moduleInfo.portSpec[maxInPortTextIndex]['@name']),
+    outPortFontMetrics = ctx.measureText(
+      moduleInfo.portSpec[maxOutPortTextIndex]['@name']),
+    moduleWidth = Math.max(
+      inPortFontMetrics.width + outPortFontMetrics.width + portWidth*2
+        + style.module.port.pad*6,
+      titleTextWidth + style.module.text.xpad*2,
+      style.module.minWidth
+    ),
+    moduleHeight = Math.max(
+      inPortsHeight,
+      outPortsHeight,
+      style.module.minWidth
+    ) + style.module.text.ypad*2 + textHeight;
+
+  mx = mx - Math.floor(moduleWidth/2);
+
+  return {
+    mx: mx,
+    my: my,
+    fontMetrics: titleFontMetrics,
+    textWidth: titleTextWidth,
     moduleWidth: moduleWidth,
     textHeight: textHeight,
     moduleHeight: moduleHeight,
@@ -160,31 +233,35 @@ function drawModuleExpanded(ctx, moduleObject) {
     moduleTargetPortY[moduleObject['@id']] = {};
   }
 
-  ctx.fillStyle = style.module.port.fill;
   ctx.strokeStyle = style.module.port.stroke;
   ctx.font = style.module.port.font;
   for(i = 0; i < moduleInfo.portSpec.length; i++) {
+    ctx.fillStyle = style.module.port.fill;
     if(moduleInfo.portSpec[i]['@type'] != 'output') {
       moduleTargetPortY[moduleObject['@id']][moduleInfo.portSpec[i]['@name']] = inPortY;
       ctx.fillRect(props.inPortX, inPortY, portWidth, portWidth);
       ctx.strokeRect(props.inPortX, inPortY, portWidth, portWidth);
+      ctx.fillStyle = style.module.text.fill;
       ctx.fillText(moduleInfo.portSpec[i]['@name'], props.inPortX + portWidth*2, inPortY);
+      ctx.fillStyle = 'white';
       ctx.fillRect(
         props.inPortX + portWidth*2,
         inPortY + style.module.port.inputYPad,
         style.module.port.inputWidth,
         style.module.port.inputHeight
       );
-      inPortY += portWidth + style.module.port.inpad;
+      inPortY += style.module.port.inputHeight + props.textHeight + style.module.port.inputYPad + style.module.port.inpad;
     } else {
       moduleSourcePortY[moduleObject['@id']][moduleInfo.portSpec[i]['@name']] = outPortY;
       ctx.fillRect(props.outPortX, outPortY, portWidth, portWidth);
       ctx.strokeRect(props.outPortX, outPortY, portWidth, portWidth);
-      outPortY += portWidth + style.module.port.outpad;
+      ctx.fillStyle = style.module.text.fill;
+      ctx.fillText(moduleInfo.portSpec[i]['@name'], props.outPortTextX, inPortY);
+      outPortY += props.textHeight + style.module.port.outpad;
     }
   }
-  moduleTargetPortY[moduleObject['@id']] = props.inPortY;
-  moduleSourcePortY[moduleObject['@id']] = props.outPortY;
+  moduleTargetPortX[moduleObject['@id']] = props.inPortX;
+  moduleSourcePortX[moduleObject['@id']] = props.outPortX;
 
   //draw module name
   ctx.fillStyle = style.module.text.fill;
