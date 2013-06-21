@@ -136,6 +136,66 @@ function moduleMetrics(ctx, moduleObject) {
 
 }
 
+function drawModuleExpanded(ctx, moduleObject) {
+  var moduleInfo = moduleRegistry[moduleObject['@package']][moduleObject['@name']],
+    portWidth = style.module.port.width,
+    i,
+    props = expandedModuleMetrics(ctx, moduleObject),
+    mx = props.mx,
+    my = props.my,
+    inPortY = props.inPortY,
+    outPortY = props.outPortY;
+
+  //draw rectangle
+  ctx.fillStyle = style.module.fill;
+  ctx.strokeStyle = style.module.stroke;
+  ctx.fillRect(mx, my, props.moduleWidth, props.moduleHeight);
+  ctx.strokeRect(mx, my, props.moduleWidth, props.moduleHeight);
+
+  //draw ports
+  if(!moduleSourcePortY.hasOwnProperty(moduleObject['@id'])) {
+    moduleSourcePortY[moduleObject['@id']] = {};
+  }
+  if(!moduleTargetPortY.hasOwnProperty(moduleObject['@id'])) {
+    moduleTargetPortY[moduleObject['@id']] = {};
+  }
+
+  ctx.fillStyle = style.module.port.fill;
+  ctx.strokeStyle = style.module.port.stroke;
+  ctx.font = style.module.port.font;
+  for(i = 0; i < moduleInfo.portSpec.length; i++) {
+    if(moduleInfo.portSpec[i]['@type'] != 'output') {
+      moduleTargetPortY[moduleObject['@id']][moduleInfo.portSpec[i]['@name']] = inPortY;
+      ctx.fillRect(props.inPortX, inPortY, portWidth, portWidth);
+      ctx.strokeRect(props.inPortX, inPortY, portWidth, portWidth);
+      ctx.fillText(moduleInfo.portSpec[i]['@name'], props.inPortX + portWidth*2, inPortY);
+      ctx.fillRect(
+        props.inPortX + portWidth*2,
+        inPortY + style.module.port.inputYPad,
+        style.module.port.inputWidth,
+        style.module.port.inputHeight
+      );
+      inPortY += portWidth + style.module.port.inpad;
+    } else {
+      moduleSourcePortY[moduleObject['@id']][moduleInfo.portSpec[i]['@name']] = outPortY;
+      ctx.fillRect(props.outPortX, outPortY, portWidth, portWidth);
+      ctx.strokeRect(props.outPortX, outPortY, portWidth, portWidth);
+      outPortY += portWidth + style.module.port.outpad;
+    }
+  }
+  moduleTargetPortY[moduleObject['@id']] = props.inPortY;
+  moduleSourcePortY[moduleObject['@id']] = props.outPortY;
+
+  //draw module name
+  ctx.fillStyle = style.module.text.fill;
+  ctx.font = style.module.text.font;
+  ctx.fillText(
+    moduleObject['@name'],
+    mx + Math.floor((props.moduleWidth - props.fontMetrics.width)/2),
+    my + props.textHeight + style.module.text.ypad
+  );
+}
+
 function drawModule(ctx, moduleObject) {
   var moduleInfo = moduleRegistry[moduleObject['@package']][moduleObject['@name']],
     portWidth = style.module.port.width,
