@@ -4,7 +4,8 @@ var activeWorkflow,
   moduleTargetPortY = {},
   moduleSourcePortY = {},
   moduleRegistry = {},
-  moduleInstances = {};
+  moduleInstances = {},
+  style = climatePipesStyle;
 
 if (typeof Object.create !== 'function') {
   Object.create = function (o) {
@@ -80,11 +81,11 @@ WorkflowGUI.prototype.draw = function() {
   ctx.fillRect(-translated.x, -translated.y, canvas.width, canvas.height);
 
   for(i = 0; i < this.data.workflow.module.length; i++) {
-    drawModule(ctx, this.data.workflow.module[i]);
+    drawModuleExpanded(ctx, this.data.workflow.module[i]);
   }
 
   for(i = 0; i < this.data.workflow.connection.length; i++) {
-    drawConnection(ctx, this.data.workflow.connection[i]);
+    drawConnectionExpanded(ctx, this.data.workflow.connection[i]);
   }
 
   ctx.restore();
@@ -202,9 +203,10 @@ function expandedModuleMetrics(ctx, moduleObject) {
     textHeight: textHeight,
     moduleHeight: moduleHeight,
     inPortX: mx + style.module.port.pad,
-    inPortY: my + style.module.port.pad,
-    outPortX: mx + moduleWidth - outPortsWidth,
-    outPortY: my + moduleHeight - style.module.port.pad - portWidth
+    inPortY: my + style.module.port.pad + textHeight,
+    outPortX: mx + moduleWidth - style.module.port.pad - portWidth,
+    outPortY: my + moduleHeight - style.module.port.pad - portWidth,
+    outPortTextX: inPortFontMetrics.width + portWidth + style.module.port.pad*4
   };
 
 }
@@ -328,6 +330,10 @@ function drawConnection(ctx, connectionObject) {
   drawConnectionCurve(ctx, computeConnectionPositions(connectionObject));
 }
 
+function drawConnectionExpanded(ctx, connectionObject) {
+  drawConnectionCurveExpanded(ctx, computeConnectionPositionsExpanded(connectionObject));
+}
+
 function drawConnectionCurve(ctx, posInfo) {
   ctx.beginPath();
   ctx.moveTo(posInfo.cx1, posInfo.cy1);
@@ -339,6 +345,41 @@ function drawConnectionCurve(ctx, posInfo) {
   // line color
   ctx.strokeStyle = style.conn.stroke;
   ctx.stroke();
+}
+
+function drawConnectionCurveExpanded(ctx, posInfo) {
+  ctx.beginPath();
+  ctx.moveTo(posInfo.cx1, posInfo.cy1);
+  ctx.bezierCurveTo(posInfo.cx1 + style.module.ypad, posInfo.cy1,
+    posInfo.cx2 - style.module.ypad, posInfo.cy2,
+    posInfo.cx2, posInfo.cy2);
+  ctx.lineWidth = style.conn.lineWidth;
+
+  // line color
+  ctx.strokeStyle = style.conn.stroke;
+  ctx.stroke();
+}
+
+function computeConnectionPositionsExpanded(connectionObject) {
+  var sourceModule, targetModule, sourcePort, targetPort,
+    centerOffset = Math.floor(style.module.port.width/2);
+  for(var i = 0; i < connectionObject.port.length; i++) {
+    var port = connectionObject.port[i];
+    if(port['@type'] == 'source') {
+      sourcePort = port;
+      sourceModule = moduleInstances[port['@moduleId']];
+    } else {
+      targetPort = port;
+      targetModule = moduleInstances[port['@moduleId']];
+    }
+  }
+
+  return {
+    cx1: moduleSourcePortX[sourceModule['@id']] + centerOffset,
+    cy1: moduleSourcePortY[sourceModule['@id']][sourcePort['@name']] + centerOffset,
+    cx2: moduleTargetPortX[targetModule['@id']] + centerOffset,
+    cy2: moduleTargetPortY[targetModule['@id']][targetPort['@name']] + centerOffset
+  };
 }
 
 function computeConnectionPositions(connectionObject) {
