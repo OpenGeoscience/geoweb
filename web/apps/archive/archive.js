@@ -106,7 +106,7 @@ archive.getDocuments = function() {
     data: {
       query: JSON.stringify({}),
       limit:100,
-      fields: JSON.stringify(['name', 'basename', 'variables', 'temporalrange'])
+      fields: JSON.stringify(['name', 'basename', 'variables', 'timeInfo'])
     },
     dataType: 'json',
     success: function(response) {

@@ -1,5 +1,6 @@
 import cherrypy
 import os
+from standardtime import attrib_to_converters
 
 vtkOK = False
 try:
@@ -11,7 +12,7 @@ except ImportError:
 def can_read():
   return True
 
-def read(expr, vars, time):
+def read(expr, vars, rqstTime):
   ''' Read a file or files from a directory given a wild-card expression
   '''
   # @todo Reading a single file of netcdf cf convention now
@@ -24,12 +25,25 @@ def read(expr, vars, time):
   reader.SetFileName(filename)
   reader.UpdateInformation()
 
+  #obtain temporal information
+  times = reader.GetOutputInformation(0).Get(vtk.vtkStreamingDemandDrivenPipeline.TIME_STEPS())
+  tunits = reader.GetTimeUnits()
+  converters = attrib_to_converters(tunits)
+
   # pick particular timestep
-  trange = reader.GetOutputInformation(0).Get(vtk.vtkStreamingDemandDrivenPipeline.TIME_STEPS())
-  if time is not None and trange is not None and int(time) >= trange[0] and int(time) <= trange[-1]:
+  if (rqstTime is not None and
+      times is not None
+      and int(rqstTime) >= times[0] and int(rqstTime) <= times[-1]):
     #cherrypy.log("rTime " + str(time))
     sddp = reader.GetExecutive()
-    sddp.SetUpdateTimeStep(0,int(time))
+    sddp.SetUpdateTimeStep(0,int(rqstTime))
+    if converters and temporalrange:
+      stdTime = converters[0](int(rqstTime))
+      date = converters[1](stdTime)))
+      cherrypy.log("time = " + rqstTime +
+                   " tunits: " + tunits +
+                   " stdTime: " + str(stdTime) +
+                   " date " + str(date))
 
   # enable only chosen array(s)
   narrays = reader.GetNumberOfVariableArrays()
