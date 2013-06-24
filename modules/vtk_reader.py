@@ -26,20 +26,20 @@ def read(expr, vars, rqstTime):
   reader.UpdateInformation()
 
   #obtain temporal information
-  times = reader.GetOutputInformation(0).Get(vtk.vtkStreamingDemandDrivenPipeline.TIME_STEPS())
+  rawTimes = reader.GetOutputInformation(0).Get(vtk.vtkStreamingDemandDrivenPipeline.TIME_STEPS())
   tunits = reader.GetTimeUnits()
   converters = attrib_to_converters(tunits)
 
   # pick particular timestep
   if (rqstTime is not None and
-      times is not None
-      and int(rqstTime) >= times[0] and int(rqstTime) <= times[-1]):
+      rawTimes is not None
+      and int(rqstTime) >= rawTimes[0] and int(rqstTime) <= rawTimes[-1]):
     #cherrypy.log("rTime " + str(time))
     sddp = reader.GetExecutive()
     sddp.SetUpdateTimeStep(0,int(rqstTime))
-    if converters and temporalrange:
+    if converters:
       stdTime = converters[0](int(rqstTime))
-      date = converters[1](stdTime)))
+      date = converters[1](stdTime)
       cherrypy.log("time = " + rqstTime +
                    " tunits: " + tunits +
                    " stdTime: " + str(stdTime) +
