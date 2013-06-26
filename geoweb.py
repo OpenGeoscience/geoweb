@@ -65,6 +65,11 @@ class Root(object):
         cherrypy.log("Handler created: %s" % repr(cherrypy.request.ws_handler))
 
     @cherrypy.expose
+    def esgf(self, *args, **kwargs):
+        import esgf
+        return esgf.run(*args, **kwargs)
+
+    @cherrypy.expose
     def default(self, *args, **kwargs):
         # If there are no positional arguments, abort
         if len(args) == 0:
