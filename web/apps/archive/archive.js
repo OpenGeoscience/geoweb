@@ -122,7 +122,7 @@ archive.processResults = function(results, removeFilter) {
 
     var timestep  = ['N/A'];
 
-    if (row && 'temporalrange' in row)
+    if (row && 'temporalrange' in row && row['temporalrange'])
       timestep = row['temporalrange'];
 
     return timestep;
@@ -204,7 +204,8 @@ archive.query = function(query) {
       nameOr[index] = {name: {$regex: '.*' + value +'.*', $options: 'i'}};
   });
 
-  mongoQuery = {$or: [{ $or: nameOr},{variables: {$elemMatch: { $or: variableOr}}}] }
+  mongoQuery = {$and: [{$or: [{ $or: nameOr},{variables: {$elemMatch: { $or: variableOr}}}] },
+               {variables: {$not: {$size: 0}}}]}
 
   $.ajax({
     type: 'POST',
