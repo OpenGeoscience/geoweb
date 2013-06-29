@@ -369,13 +369,13 @@ archive.addLayer = function(target) {
     var layer = ogs.geo.featureLayer();
     layer.setName(target.name);
     layer.setDataSource(source);
-    layer.update(timeval);
+    layer.update(ogs.geo.updateRequest(timeval));
     archive.myMap.addLayer(layer);
     archive.myMap.redraw();
     ogs.ui.gis.layerAdded(target);
     $('.btn-layer').each(function(index){
-              $(this).removeClass('disabled');
-              $(this).removeAttr('disabled');
+      $(this).removeClass('disabled');
+      $(this).removeAttr('disabled');
     });
 
     // $.ajax({
