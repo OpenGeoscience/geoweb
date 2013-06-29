@@ -369,7 +369,7 @@ archive.addLayer = function(target) {
     var layer = ogs.geo.featureLayer();
     layer.setName(target.name);
     layer.setDataSource(source);
-    layer.update(JSON.stringify(timeval));
+    layer.update(timeval);
     archive.myMap.addLayer(layer);
     archive.myMap.redraw();
     ogs.ui.gis.layerAdded(target);
