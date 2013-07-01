@@ -180,9 +180,10 @@ function expandedModuleMetrics(ctx, moduleObject) {
       moduleInfo.portSpec[maxInPortTextIndex]['@name']),
     outPortFontMetrics = ctx.measureText(
       moduleInfo.portSpec[maxOutPortTextIndex]['@name']),
+    inPortsWidth = Math.max(inPortFontMetrics.width, style.module.port.inputWidth),
+    outPortsWidth = outPortFontMetrics.width,
     moduleWidth = Math.max(
-      inPortFontMetrics.width + outPortFontMetrics.width + portWidth*2
-        + style.module.port.pad*6,
+      inPortsWidth + outPortsWidth + portWidth*2 + style.module.port.pad*6,
       titleTextWidth + style.module.text.xpad*2,
       style.module.minWidth
     ),
@@ -203,10 +204,10 @@ function expandedModuleMetrics(ctx, moduleObject) {
     textHeight: textHeight,
     moduleHeight: moduleHeight,
     inPortX: mx + style.module.port.pad,
-    inPortY: my + style.module.port.pad + textHeight,
+    inPortY: my + style.module.port.pad + textHeight + portWidth*2,
     outPortX: mx + moduleWidth - style.module.port.pad - portWidth,
     outPortY: my + moduleHeight - style.module.port.pad - portWidth,
-    outPortTextX: inPortFontMetrics.width + portWidth + style.module.port.pad*4
+    outPortTextX: mx + inPortsWidth + portWidth + style.module.port.pad*4
   };
 
 }
@@ -258,7 +259,7 @@ function drawModuleExpanded(ctx, moduleObject) {
       ctx.fillRect(props.outPortX, outPortY, portWidth, portWidth);
       ctx.strokeRect(props.outPortX, outPortY, portWidth, portWidth);
       ctx.fillStyle = style.module.text.fill;
-      ctx.fillText(moduleInfo.portSpec[i]['@name'], props.outPortTextX, inPortY);
+      ctx.fillText(moduleInfo.portSpec[i]['@name'], props.outPortTextX, outPortY);
       outPortY += props.textHeight + style.module.port.outpad;
     }
   }
@@ -604,7 +605,8 @@ function setupInteraction() {
 
     // find modules
     for(i = workflow.module.length-1; i >= 0; i--) {
-      var metrics = moduleMetrics(ctx, workflow.module[i]);
+      //var metrics = moduleMetrics(ctx, workflow.module[i]);
+      var metrics = expandedModuleMetrics(ctx, workflow.module[i]);
       if(moduleContains(metrics, lastPoint)) {
         if(port = modulePortByPos(metrics, workflow.module[i], lastPoint)) {
           draggingPort = port;
@@ -678,7 +680,8 @@ function setupInteraction() {
         ctx = this.getContext('2d');
 
       for(i = workflow.module.length-1; i >= 0; i--) {
-        var metrics = moduleMetrics(ctx, workflow.module[i]);
+        //var metrics = moduleMetrics(ctx, workflow.module[i]);
+        var metrics = expandedModuleMetrics(ctx, workflow.module[i]);
         if(moduleContains(metrics, lastPoint)) {
           if(port = modulePortByPos(metrics, workflow.module[i], lastPoint)) {
             newConnection(workflow, draggingPortModule, draggingPort, workflow.module[i], port);
