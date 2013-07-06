@@ -57,6 +57,7 @@ set(JS_LINT_FILES
     ${CMAKE_SOURCE_DIR}/web/lib/geo/map.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/mapSource.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/feature.js
+    ${CMAKE_SOURCE_DIR}/web/lib/geo/geoTransform.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/data.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/boundingObject.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/camera.js
@@ -152,6 +153,7 @@ set(JS_UGLIFY_FILES
   ${CMAKE_SOURCE_DIR}/web/lib/geo/map.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/mapSource.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/feature.js
+  ${CMAKE_SOURCE_DIR}/web/lib/geo/geoTransform.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/data.js
   ${CMAKE_SOURCE_DIR}/web/lib/ui/init.js
   ${CMAKE_SOURCE_DIR}/web/lib/ui/gis.js
