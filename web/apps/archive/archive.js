@@ -378,45 +378,5 @@ archive.addLayer = function(target) {
       $(this).removeAttr('disabled');
     });
 
-    // $.ajax({
-    //   type: 'POST',
-    //   url: '/data/read',
-    //   data: {
-    //     expr: JSON.stringify($(event.target).attr('basename')),
-    //     vars: JSON.stringify(varval),
-    //     time: JSON.stringify(timeval)
-    //   },
-    //   dataType: 'json',
-    //   success: function(response) {
-    //     if (response.error !== null) {
-    //       console.log("[error] " + response.error ? response.error : "no results returned from server");
-    //     } else {
-    //       var reader = ogs.vgl.geojsonReader();
-    //       //var time0, time2, time3, time4;
-    //       //time0 = new Date().getTime();
-    //       var geoms = reader.readGJObject(jQuery.parseJSON(response.result.data[0]));
-    //       //time1 = new Date().getTime();
-    //       for (var i = 0; i < geoms.length; ++i) {
-    //         var layer = ogs.geo.featureLayer({
-    //           "opacity" : 0.5,
-    //           "showAttribution" : 1,
-    //           "visible" : 1
-    //         }, ogs.geo.geometryFeature(geoms[i]));
-    //         var layerId = $(event.target).attr('name');
-    //         layer.setName(layerId);
-    //         archive.myMap.addLayer(layer);
-    //       }
-    //       //time2 = new Date().getTime();
-    //       archive.myMap.redraw();
-    //       //time3 = new Date().getTime();
-
-    //       //time4 = new Date().getTime();
-    //       //console.log("vgl times: ", time1-time0, ",", time2-time1, ",", time3-time2, ",", time4-time3);
-
-
-    //     }
-    //   }
-    // });
-
   });
 };
