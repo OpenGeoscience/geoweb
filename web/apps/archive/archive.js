@@ -240,7 +240,6 @@ archive.query = function(query) {
  *
  */
 archive.main = function() {
-
   archive.initQueryInteface();
 
   var mapOptions = {
@@ -250,9 +249,8 @@ archive.main = function() {
     country_boundaries: true
   };
 
-  archive.myMap = ogs.geo.map(document.getElementById("glcanvas"), mapOptions);
-
   $(function() {
+    archive.myMap = ogs.geo.map(document.getElementById("glcanvas"), mapOptions);
     var canvas = document.getElementById('glcanvas');
 
     // Resize the canvas to fill browser window dynamically
@@ -266,7 +264,9 @@ archive.main = function() {
     resizeCanvas();
 
     function updateAndDraw(width, height) {
+     archive.myMap.redraw();
      archive.myMap.resize(width, height);
+     archive.myMap.update();
      archive.myMap.redraw();
     }
 
