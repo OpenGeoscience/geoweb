@@ -55,7 +55,6 @@ set(JS_LINT_FILES
     ${CMAKE_SOURCE_DIR}/web/lib/geo/layerSource.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/archiveLayerSource.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/map.js
-    ${CMAKE_SOURCE_DIR}/web/lib/geo/mapSource.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/feature.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/geoTransform.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/data.js
@@ -151,7 +150,6 @@ set(JS_UGLIFY_FILES
   ${CMAKE_SOURCE_DIR}/web/lib/geo/prepareForRenderRequest.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/mapInteractorStyle.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/map.js
-  ${CMAKE_SOURCE_DIR}/web/lib/geo/mapSource.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/feature.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/geoTransform.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/data.js
