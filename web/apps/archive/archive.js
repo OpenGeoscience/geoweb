@@ -58,8 +58,13 @@ archive.main = function() {
     resizeCanvas();
 
     function updateAndDraw(width, height) {
-     archive.myMap.resize(width, height);
-     archive.myMap.redraw();
+      archive.myMap.resize(width, height);
+      archive.myMap.redraw();
+
+      var layer = archive.myMap.activeLayer();
+      if(layer && layer.hasOwnProperty('workflow')) {
+        layer.workflow.resize();
+      }
     }
 
     // Fetch documents from the database
@@ -84,6 +89,7 @@ archive.main = function() {
 
   init();
   archive.initWebSockets();
+  initWorkflowCanvas();
 };
 
 archive.initWebSockets = function() {
@@ -213,10 +219,12 @@ archive.workflowLayer = function(target, layerId) {
         buttons: {
           "Close": function() {
             $(this).dialog("close");
+            layer.setVisible(false);
           }
         }
       });
-    resizeWorkflow();
+    activeWorkflow = layer.workflow;
+    layer.workflow.show();
   }
 }
 
@@ -240,6 +248,8 @@ archive.addLayer = function(event) {
     layer.setName($(event.target).attr('name'));
     layer.setDataSource(source);
     layer.update(JSON.stringify(timeval));
+    layer.workflow = ogs.ui.workflow({data:exworkflow});
+    layer.workflow.generateModulesFromData();
     archive.myMap.addLayer(layer);
     archive.myMap.redraw();
     ogs.ui.gis.layerAdded(event.target);
