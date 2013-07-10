@@ -10,6 +10,10 @@ function initWorkflowCanvas() {
   setupDragAndDrop();
   setupModuleList();
   setupInteraction();
+  $('#canvasContainer').css({
+    position: 'relative',
+    overflow: 'hidden'
+  })
 }
 
 function setupDragAndDrop() {
@@ -164,6 +168,7 @@ function setupInteraction() {
       );
       lastPanEvent = e;
       activeWorkflow.draw(ctx);
+      activeWorkflow.updateElementPositions();
     }
   });
 
