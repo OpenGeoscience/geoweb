@@ -20,6 +20,7 @@ def read(expr, vars, rqstTime):
   reader = vtk.vtkNetCDFCFReader() #get test data
   reader.SphericalCoordinatesOff()
   reader.SetOutputTypeToImage()
+  reader.ReplaceFillValueWithNanOn()
   datadir = cherrypy.request.app.config['/data']['tools.staticdir.dir']
   filename = os.path.join(datadir, expr)
   reader.SetFileName(filename)
@@ -33,12 +34,12 @@ def read(expr, vars, rqstTime):
   # pick particular timestep
   if (rqstTime is not None and
       rawTimes is not None
-      and int(rqstTime) >= rawTimes[0] and int(rqstTime) <= rawTimes[-1]):
+      and float(rqstTime) >= rawTimes[0] and float(rqstTime) <= rawTimes[-1]):
     #cherrypy.log("rTime " + str(time))
     sddp = reader.GetExecutive()
-    sddp.SetUpdateTimeStep(0,int(rqstTime))
+    sddp.SetUpdateTimeStep(0,float(rqstTime))
     if converters:
-      stdTime = converters[0](int(rqstTime))
+      stdTime = converters[0](float(rqstTime))
       date = converters[1](stdTime)
       cherrypy.log("time = " + rqstTime +
                    " tunits: " + tunits +
@@ -56,9 +57,21 @@ def read(expr, vars, rqstTime):
           #cherrypy.log("Disable " + arrayname)
           reader.SetVariableArrayStatus(arrayname, 0)
 
+  # wrap around to get the implicit cell
+  extent = reader.GetOutputInformation(0).Get(vtk.vtkStreamingDemandDrivenPipeline.WHOLE_EXTENT())
+  pad = vtk.vtkImageWrapPad()
+  reader.Update()
+  data = reader.GetOutput()
+  da = data.GetPointData().GetArray(0).GetName();
+  data.GetPointData().SetActiveScalars(da)
+  pad.SetInputData(data)
+  pad.SetOutputWholeExtent(extent[0], extent[1]+1,
+                           extent[2], extent[3],
+                           extent[4], extent[5]);
+
   # Convert to polydata
   sf = vtk.vtkDataSetSurfaceFilter()
-  sf.SetInputConnection(reader.GetOutputPort())
+  sf.SetInputConnection(pad.GetOutputPort())
 
   # Error reading file?
   if not sf.GetOutput():
@@ -67,8 +80,8 @@ def read(expr, vars, rqstTime):
   # Convert to GeoJSON
   gw = vtk.vtkGeoJSONWriter()
   gw.SetInputConnection(sf.GetOutputPort())
-  gw.WriteToOutputStringOn()
   gw.SetScalarFormat(2)
+  gw.WriteToOutputStringOn()
   gw.Write()
   gj = str(gw.RegisterAndGetOutputString()).replace('\n','')
   return gj

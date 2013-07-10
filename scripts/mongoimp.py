@@ -30,8 +30,13 @@ class mongo_import:
         reader = vtk.vtkNetCDFCFReader()
         reader.SphericalCoordinatesOff()
         reader.SetOutputTypeToImage()
+        reader.ReplaceFillValueWithNanOn()
         reader.SetFileName(os.path.join(directory, filename))
         reader.Update()
+        data = reader.GetOutput()
+
+        #obtain spatial information
+        bounds = data.GetBounds()
 
         #obtain temporal information
         timeInfo = {}
@@ -50,22 +55,35 @@ class mongo_import:
             print filename, "tunits:", tunits, "times: ", times, "std time range:", stdTimeRange, "dates: ", dateRange
 
         #obtain array information
-        data = reader.GetOutput();
         pds = data.GetPointData()
         pdscount = pds.GetNumberOfArrays()
         for i in range(0, pdscount):
             variable = {}
             pdarray = pds.GetArray(i)
+            if not pdarray:
+                # got an abstract array
+                continue
             variable["name"] = pdarray.GetName()
             variable["dim"] = []
-            variable["time"] = []
             variable["tags"] = []
-            #variable["range"] = pdarray.GetRange(0)
-            #variable["units"] = reader.GetUnits("pointdata", pdarray.GetName())
+            variable["units"] = reader.GetArrayUnits(pdarray.GetName())
+            # todo: iterate over all timesteps, default (first) timestep may not be representative
+            variable["time"] = []
+            componentCount = pdarray.GetNumberOfComponents()
+            minmax = []
+            for j in range(0, componentCount):
+                minmaxJ = [0,-1]
+                pdarray.GetRange(minmaxJ, j)
+                minmax.append(minmaxJ[0])
+                minmax.append(minmaxJ[1])
+            variable["range"] = minmax
             variables.append(variable)
 
         #record what we've learned
-        insertId = coll.insert({"name":fileprefix, "basename":basename, "variables":variables, "timeInfo":timeInfo})
+        insertId = coll.insert({"name":fileprefix, "basename":basename,
+                                "variables":variables,
+                                "timeInfo":timeInfo,
+                                "spatialInfo":bounds})
 
 if __name__ == "__main__":
   import sys
