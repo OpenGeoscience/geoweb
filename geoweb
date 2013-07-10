@@ -4,18 +4,22 @@ import os
 import signal
 import subprocess
 import sys
+import argparse
 
 def start():
     print pidfile
+
     if os.path.exists(pidfile):
         sys.stderr.write("error: geoweb already seems to be running")
         return 1
 
+    run_path = os.path.dirname(os.path.abspath(sys.argv[0]))
     os.chdir(path)
+
     return subprocess.call([cherry,
         "-d",
         "-i", "geoweb",
-        "-c", "server.conf",
+        "-c", "%s/server.conf" % run_path,
         "-p", pidfile,
         "-P", path])
 
@@ -40,13 +44,20 @@ def restart():
     stop()
     return start()
 
-def usage():
-    sys.stderr.write("usage: geoweb [start|stop|restart]\n")
+path = os.path.dirname(os.path.abspath(sys.argv[0]))
+parser = argparse.ArgumentParser(description='start/stop geoweb')
+parser.add_argument('--path', dest='path', nargs=1,
+                   help='the path to where the modules can be found')
+parser.add_argument('action', metavar='action',
+                     choices=['start', 'stop', 'restart'],
+                     help='[start|stop|restart]')
 
 # Read the action argument.
 if len(sys.argv) < 2:
-    usage()
+    parser.print_help()
     sys.exit(1)
+
+args = parser.parse_args()
 
 # Determine the correct executable.
 #
@@ -71,20 +82,23 @@ if cherry is None:
     sys.exit(1)
 
 # Determine the path to this script.
-path = os.path.dirname(os.path.abspath(sys.argv[0]))
-pidfile = path + "/geoweb.pid"
+if args.path:
+  path = args.path[0]
+
+print type(path)
+
+pidfile = os.path.dirname(os.path.abspath(sys.argv[0])) + "/geoweb.pid"
 
 # Dispatch on action argument.
-action = sys.argv[1]
 code = 1
-if action == "start":
+if args.action == "start":
     code = start()
-elif action == "stop":
+elif args.action == "stop":
     code = stop()
-elif action == "restart":
+elif args.action == "restart":
     code = restart()
 else:
-    usage()
+    parser.print_help()
     code = 1
 
 print code
