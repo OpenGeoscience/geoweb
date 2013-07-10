@@ -240,6 +240,7 @@ archive.query = function(query) {
  *
  */
 archive.main = function() {
+  archive.initQueryInteface();
 
   archive.initQueryInteface();
 
@@ -250,9 +251,8 @@ archive.main = function() {
     country_boundaries: true
   };
 
-  archive.myMap = ogs.geo.map(document.getElementById("glcanvas"), mapOptions);
-
   $(function() {
+    archive.myMap = ogs.geo.map(document.getElementById("glcanvas"), mapOptions);
     var canvas = document.getElementById('glcanvas');
 
     // Resize the canvas to fill browser window dynamically
@@ -266,7 +266,9 @@ archive.main = function() {
     resizeCanvas();
 
     function updateAndDraw(width, height) {
+     archive.myMap.redraw();
      archive.myMap.resize(width, height);
+     archive.myMap.update();
      archive.myMap.redraw();
     }
 
@@ -369,54 +371,14 @@ archive.addLayer = function(target) {
     var layer = ogs.geo.featureLayer();
     layer.setName(target.name);
     layer.setDataSource(source);
-    layer.update(JSON.stringify(timeval));
+    layer.update(ogs.geo.updateRequest(timeval));
     archive.myMap.addLayer(layer);
     archive.myMap.redraw();
     ogs.ui.gis.layerAdded(target);
     $('.btn-layer').each(function(index){
-              $(this).removeClass('disabled');
-              $(this).removeAttr('disabled');
+      $(this).removeClass('disabled');
+      $(this).removeAttr('disabled');
     });
-
-    // $.ajax({
-    //   type: 'POST',
-    //   url: '/data/read',
-    //   data: {
-    //     expr: JSON.stringify($(event.target).attr('basename')),
-    //     vars: JSON.stringify(varval),
-    //     time: JSON.stringify(timeval)
-    //   },
-    //   dataType: 'json',
-    //   success: function(response) {
-    //     if (response.error !== null) {
-    //       console.log("[error] " + response.error ? response.error : "no results returned from server");
-    //     } else {
-    //       var reader = ogs.vgl.geojsonReader();
-    //       //var time0, time2, time3, time4;
-    //       //time0 = new Date().getTime();
-    //       var geoms = reader.readGJObject(jQuery.parseJSON(response.result.data[0]));
-    //       //time1 = new Date().getTime();
-    //       for (var i = 0; i < geoms.length; ++i) {
-    //         var layer = ogs.geo.featureLayer({
-    //           "opacity" : 0.5,
-    //           "showAttribution" : 1,
-    //           "visible" : 1
-    //         }, ogs.geo.geometryFeature(geoms[i]));
-    //         var layerId = $(event.target).attr('name');
-    //         layer.setName(layerId);
-    //         archive.myMap.addLayer(layer);
-    //       }
-    //       //time2 = new Date().getTime();
-    //       archive.myMap.redraw();
-    //       //time3 = new Date().getTime();
-
-    //       //time4 = new Date().getTime();
-    //       //console.log("vgl times: ", time1-time0, ",", time2-time1, ",", time3-time2, ",", time4-time3);
-
-
-    //     }
-    //   }
-    // });
 
   });
 };

@@ -43,14 +43,20 @@ set(JS_LINT_FILES
     ${CMAKE_SOURCE_DIR}/web/lib/geo/init.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/latlng.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/ellipsoid.js
+    ${CMAKE_SOURCE_DIR}/web/lib/geo/mercator.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/command.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/layer.js
-    ${CMAKE_SOURCE_DIR}/web/lib/geo/layerFeatures.js
+    ${CMAKE_SOURCE_DIR}/web/lib/geo/featureLayer.js
+    ${CMAKE_SOURCE_DIR}/web/lib/geo/openStreetMapLayer.js
+    ${CMAKE_SOURCE_DIR}/web/lib/geo/featureCollection.js
+    ${CMAKE_SOURCE_DIR}/web/lib/geo/updateRequest.js
+    ${CMAKE_SOURCE_DIR}/web/lib/geo/prepareForRenderRequest.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/mapInteractorStyle.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/layerSource.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/archiveLayerSource.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/map.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/feature.js
+    ${CMAKE_SOURCE_DIR}/web/lib/geo/geoTransform.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/data.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/boundingObject.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/camera.js
@@ -130,16 +136,22 @@ set(JS_UGLIFY_FILES
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/vtkUnpack.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/init.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/ellipsoid.js
+  ${CMAKE_SOURCE_DIR}/web/lib/geo/mercator.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/latlng.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/layer.js
-  ${CMAKE_SOURCE_DIR}/web/lib/geo/layerFeatures.js
+  ${CMAKE_SOURCE_DIR}/web/lib/geo/featureLayer.js
+  ${CMAKE_SOURCE_DIR}/web/lib/geo/openStreetMapLayer.js
+  ${CMAKE_SOURCE_DIR}/web/lib/geo/featureCollection.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/layerSource.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/archiveLayerSource.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/command.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/picker.js
+  ${CMAKE_SOURCE_DIR}/web/lib/geo/updateRequest.js
+  ${CMAKE_SOURCE_DIR}/web/lib/geo/prepareForRenderRequest.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/mapInteractorStyle.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/map.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/feature.js
+  ${CMAKE_SOURCE_DIR}/web/lib/geo/geoTransform.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/data.js
   ${CMAKE_SOURCE_DIR}/web/lib/ui/init.js
   ${CMAKE_SOURCE_DIR}/web/lib/ui/gis.js
