@@ -24,7 +24,7 @@ var baseStyle = {
   conn: {
     stroke: 'black',
     lineWidth: 2,
-    bezierOffset: 20
+    bezierOffset: 75
   }
 };
 

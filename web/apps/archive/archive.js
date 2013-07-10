@@ -249,7 +249,6 @@ archive.addLayer = function(event) {
     layer.setDataSource(source);
     layer.update(JSON.stringify(timeval));
     layer.workflow = ogs.ui.workflow({data:exworkflow});
-    layer.workflow.generateModulesFromData();
     archive.myMap.addLayer(layer);
     archive.myMap.redraw();
     ogs.ui.gis.layerAdded(event.target);
