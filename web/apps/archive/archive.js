@@ -30,10 +30,219 @@ archive.getMongoConfig = function() {
 };
 
 /**
+ * Setup the basic query components and bindings.
+ */
+archive.initQueryInteface = function() {
+
+  $('#document-table-body').tooltip();
+
+  $('#from').datepicker();
+  $('#to').datepicker();
+
+  $('#query-input').bind("keyup", function() {
+    query = $('#query-input').val();
+    if (query.length == 0) {
+      $('#query-input').removeClass("query-in-progress");
+      $('#document-table-body').empty();
+    }
+    else {
+      $('#query-input').addClass("query-in-progress");
+      archive.query(query);
+    }
+  })
+
+  $('#glcanvas').droppable({
+    drop: function(event, ui) {
+      archive.addLayer($(ui.helper).data("dataset"));
+
+      // The user now knows how to add layers to the map so remove tool tip
+      $('#document-table-body').tooltip('disable')
+    }
+  });
+}
+
+/**
+ * Process the result coming from mongo.
+ */
+archive.processLocalResults = function(results, remove) {
+  remove = typeof remove !== 'undefined' ? remove : false;
+
+  var removeFilter = function(d) {return false};
+  if (remove) {
+    removeFilter = function(d) {return d['source'] == 'Local'};
+  }
+
+  archive.processResults(results, removeFilter);
+}
+
+/**
+ * Use D3 to update document table with results.
+ */
+archive.processResults = function(results, removeFilter) {
+
+  var tr = d3.select('#document-table-body').selectAll("tr")
+    .data(results, function(d) {
+      return d['id'];
+    });
+
+  var rows = tr.enter().append('tr');
+
+  $.each(tr.exit()[0], function(index, row) {
+    if (row) {
+      selection = d3.select(row);
+      if (removeFilter(selection.data()[0]))
+        selection.remove();
+    }
+  });
+
+  var td = rows.selectAll('td')
+    .data(function(row) {
+      // Display the tags, we should probably truncate the list ...
+      var tags = []
+      $.each(row['variables'], function(index, variable) {
+        tags = tags.concat(variable['tags']);
+      });
+
+      return [ {column: 'name', data: row['name']},
+               {column: 'source', data: row['source']},
+               {column: 'tags', data: tags.join()}] ;
+    });
+
+   td = td.enter().append('td');
+   td.text(function(d) { return d['data']; });
+   td.each(function(d, i) { $(this).addClass(d['column']);});
+
+  // Populate the timesteps parameter list
+  var selectTimestep = rows.append('td');
+  selectTimestep.classed('timesteps', true);
+  selectTimestep = selectTimestep.append('select')
+  selectTimestep.classed('timestep-select', true);
+
+  selectTimestep = selectTimestep.selectAll('select').data(function(row) {
+
+    var timestep  = ['N/A'];
+
+    if (row && 'temporalrange' in row && row['temporalrange'])
+      timestep = row['temporalrange'];
+
+    return timestep;
+  });
+
+  selectTimestep.enter().append('option').text(function(timestep) {
+    return timestep;
+  })
+  selectTimestep.exit().remove();
+
+  // Populate the parameter list
+  var select = rows.append('td');
+  select.classed('parameter', true);
+  select = select.append('select');
+  select.classed("parameter-select", true);
+
+  select = select.selectAll('select').data(function(row) {
+    var variables = [];
+    $.each(row['variables'], function(index, variable) {
+      variables = variables.concat(variable['name']);
+    });
+
+    return variables;
+  });
+
+  select.enter().append('option').text(function(variable) {
+    return variable;
+  });
+  select.exit().remove();
+
+  $('tr').draggable( {
+    cursor: 'move',
+    containment: 'window',
+    appendTo: 'body',
+    helper: function(event) {
+
+    var parameter = $('.parameter-select', this).val();
+    var timestep = $('.timestep-select', this).val();
+
+    if (timestep == 'N/A')
+      timestep = null;
+
+    var data = d3.select(this).data();
+
+    drag = $('<div id="parameter" class="whatadrag">' + parameter + '</div>');
+
+    drag.data("dataset", {
+      name: data[0].name,
+      dataset_id: data[0].id,
+      source: data[0].source,
+      parameter: parameter,
+      timestep: timestep,
+      url: data[0].url,
+      basename: data[0].basename
+    });
+
+    return drag;
+    }
+  })
+
+  $('#query-input').removeClass("query-in-progress");
+}
+
+archive.query = function(query) {
+
+  mongo = archive.getMongoConfig();
+
+  // Currently use hand craft query, in future we can problem use text search
+  // indexes.
+  queryTerms = query.split(" ")
+  variableOr = []
+  $.each(queryTerms, function(index, value) {
+    if (value.length != 0)
+      variableOr[index] = {tags: {$regex: '.*' + value +'.*', $options: 'i'}};
+  });
+  nameOr = []
+  $.each(queryTerms, function(index, value) {
+    if (value.length != 0)
+      nameOr[index] = {name: {$regex: '.*' + value +'.*', $options: 'i'}};
+  });
+
+  mongoQuery = {$and: [{$or: [{ $or: nameOr},{variables: {$elemMatch: { $or: variableOr}}}] },
+               {variables: {$not: {$size: 0}}}]}
+
+  $.ajax({
+    type: 'POST',
+    url: '/mongo/' + mongo.server + '/' + mongo.database + '/' + mongo.collection,
+    data: {
+      query: JSON.stringify(mongoQuery),
+      limit:100,
+      fields: JSON.stringify(['name', 'basename', 'temporalrange', 'variables'])
+    },
+    dataType: 'json',
+    success: function(response) {
+      if (response.error !== null) {
+          console.log("[error] " + response.error ? response.error : "no results returned from server");
+      } else {
+
+        // Convert _id.$oid into id field, this transformation is do so the
+        // data is in the same for as other sources. Also add the source.
+        $.each(response.result.data, function(index, row) {
+          row['id'] = row['_id'].$oid;
+          row['source'] = "Local";
+        });
+
+        archive.processLocalResults(response.result.data, true);
+        archive.performingLocalQuery = false;
+      }
+    }
+  });
+}
+
+/**
  * Main program
  *
  */
 archive.main = function() {
+  archive.initQueryInteface();
+
+  archive.initQueryInteface();
 
   var mapOptions = {
     zoom : 6,
@@ -42,9 +251,8 @@ archive.main = function() {
     country_boundaries: true
   };
 
-  archive.myMap = ogs.geo.map(document.getElementById("glcanvas"), mapOptions);
-
   $(function() {
+    archive.myMap = ogs.geo.map(document.getElementById("glcanvas"), mapOptions);
     var canvas = document.getElementById('glcanvas');
 
     // Resize the canvas to fill browser window dynamically
@@ -54,21 +262,21 @@ archive.main = function() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
       updateAndDraw(canvas.width, canvas.height);
-    }
-    resizeCanvas();
-
-    function updateAndDraw(width, height) {
-      archive.myMap.resize(width, height);
-      archive.myMap.redraw();
 
       var layer = archive.myMap.activeLayer();
       if(layer && layer.hasOwnProperty('workflow')) {
         layer.workflow.resize();
       }
     }
+    resizeCanvas();
 
-    // Fetch documents from the database
-    archive.getDocuments();
+    function updateAndDraw(width, height) {
+
+      archive.myMap.redraw();
+      archive.myMap.resize(width, height);
+      archive.myMap.update();
+      archive.myMap.redraw();
+    }
 
     // Create a placeholder for the layers
     var layersTable = ogs.ui.gis.createList('layers', 'Layers');
@@ -125,32 +333,6 @@ archive.processCSVData = function(csvdata) {
   }
   return table;
 };
-
-
-archive.getDocuments = function() {
-  mongo = archive.getMongoConfig();
-  $.ajax({
-    type: 'POST',
-    url: '/mongo/' + mongo.server + '/' + mongo.database + '/' + mongo.collection,
-    data: {
-      query: JSON.stringify({}),
-      limit:100,
-      fields: JSON.stringify(['name', 'basename', 'variables', 'temporalrange'])
-    },
-    dataType: 'json',
-    success: function(response) {
-      if (response.error !== null) {
-          console.log("[error] " + response.error ? response.error : "no results returned from server");
-      } else {
-        ogs.ui.gis.createDataList('documents', 'Documents', 'table-layers', response.result.data, archive.addLayer);
-      }
-    },
-    error: function(jqXHR, textStatus, errorThrown) {
-      archive.error("Error reading data from mongodb: " + errorThrown)
-    }
-  });
-};
-
 
 archive.selectLayer = function(target, layerId) {
   var layer = archive. myMap.findLayerById(layerId);
@@ -228,74 +410,30 @@ archive.workflowLayer = function(target, layerId) {
   }
 }
 
-
-archive.addLayer = function(event) {
-  ogs.ui.gis.addLayer(archive, 'table-layers', event.target, archive.selectLayer,
+archive.addLayer = function(target) {
+  ogs.ui.gis.addLayer(archive, 'table-layers', target, archive.selectLayer,
     archive.toggleLayer, archive.removeLayer, archive.workflowLayer, function() {
     var widgetName, widget, timeval, varval;
 
-    //figure out what time and variable were chosen
-    widgetName = $(event.target).attr('name') + '_tselect';
-    widget = document.getElementById(widgetName);
-    timeval = widget.options[widget.selectedIndex].text
-    widgetName = $(event.target).attr('name') + '_vselect';
-    widget = document.getElementById(widgetName);
-    varval = widget.options[widget.selectedIndex].text
+    var timeval = target.timestep;
+    var varval = target.parameter;
 
-    var source = ogs.geo.archiveLayerSource(JSON.stringify($(event.target).attr('basename')),
+    var source = ogs.geo.archiveLayerSource(JSON.stringify(target.basename),
       JSON.stringify(varval), archive.error);
     var layer = ogs.geo.featureLayer();
-    layer.setName($(event.target).attr('name'));
+    layer.setName(target.name);
     layer.setDataSource(source);
-    layer.update(JSON.stringify(timeval));
+
+    layer.update(ogs.geo.updateRequest(timeval));
     layer.workflow = ogs.ui.workflow({data:exworkflow});
+
     archive.myMap.addLayer(layer);
     archive.myMap.redraw();
-    ogs.ui.gis.layerAdded(event.target);
+    ogs.ui.gis.layerAdded(target);
     $('.btn-layer').each(function(index){
-              $(this).removeClass('disabled');
-              $(this).removeAttr('disabled');
+      $(this).removeClass('disabled');
+      $(this).removeAttr('disabled');
     });
-
-    // $.ajax({
-    //   type: 'POST',
-    //   url: '/data/read',
-    //   data: {
-    //     expr: JSON.stringify($(event.target).attr('basename')),
-    //     vars: JSON.stringify(varval),
-    //     time: JSON.stringify(timeval)
-    //   },
-    //   dataType: 'json',
-    //   success: function(response) {
-    //     if (response.error !== null) {
-    //       console.log("[error] " + response.error ? response.error : "no results returned from server");
-    //     } else {
-    //       var reader = ogs.vgl.geojsonReader();
-    //       //var time0, time2, time3, time4;
-    //       //time0 = new Date().getTime();
-    //       var geoms = reader.readGJObject(jQuery.parseJSON(response.result.data[0]));
-    //       //time1 = new Date().getTime();
-    //       for (var i = 0; i < geoms.length; ++i) {
-    //         var layer = ogs.geo.featureLayer({
-    //           "opacity" : 0.5,
-    //           "showAttribution" : 1,
-    //           "visible" : 1
-    //         }, ogs.geo.geometryFeature(geoms[i]));
-    //         var layerId = $(event.target).attr('name');
-    //         layer.setName(layerId);
-    //         archive.myMap.addLayer(layer);
-    //       }
-    //       //time2 = new Date().getTime();
-    //       archive.myMap.redraw();
-    //       //time3 = new Date().getTime();
-
-    //       //time4 = new Date().getTime();
-    //       //console.log("vgl times: ", time1-time0, ",", time2-time1, ",", time3-time2, ",", time4-time3);
-
-
-    //     }
-    //   }
-    // });
 
   });
 };

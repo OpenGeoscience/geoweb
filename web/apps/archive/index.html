@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-  <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
-  <script src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
+
+      <script type="text/javascript" src="/common/js/jquery-1.9.1.js"></script>
+      <script type="text/javascript" src="/common/js/jquery-ui.js"></script>
 
       <script src="geowebRegistry.js"></script>
       <script src="10yearAverage.js"></script>
@@ -13,6 +14,8 @@
   <script type="text/javascript" src="/common/js/gl-matrix.js"></script>
   <script type="text/javascript" src="/common/js/select2.min.js"></script>
   <script type="text/javascript" src="/common/js/tween.min.js"></script>
+  <script type="text/javascript" src="/common/js/d3.v3.min.js"></script>
+  <script type="text/javascript" src="/common/js/proj4.js"></script>
   <script type="text/javascript" src="/lib/geoweb.min.js"></script>
   <script type="text/javascript" src="archive.js"></script>
   <script>
@@ -53,7 +56,7 @@
   </script>
   <link href=http://code.jquery.com/ui/1.9.1/themes/base/jquery-ui.css rel=stylesheet type=text/css>
   <link href="/common/css/bootstrap.css" rel=stylesheet type=text/css>
-  <link href="/common/css/select2.css" rel=stylesheet type=text/css></link>
+  <link href="/common/css/select2.css" rel=stylesheet type=text/css>
   <link href="/common/css/geoweb.css" rel=stylesheet type=text/css>
       <link rel='stylesheet' href='workflow.css' />
   <style>
@@ -133,6 +136,42 @@
       border-width: 0 0 0 0;
     }
 
+    .query-in-progress {
+        background-image: url('ui-anim_basic_16x16.gif');
+        background-position: right center;
+        background-repeat: no-repeat;
+        background-origin:content-box;
+    }
+
+   .whatadrag {
+      background:rgba(255,255,255,0.5);
+      padding: 10px;
+      border-radius: 15px;
+    }
+
+     /* Style for document table */
+
+     #document-table .name {
+       width: 10%;
+     }
+     #document-table .source {
+       width: 10%;
+     }
+     #document-table .tags {
+       width: 20%;
+     }
+     #document-table .timesteps {
+       width: 30%;
+     }
+     #document-table .parameter {
+       width: 30%;
+     }
+     #document-table .timestep-select {
+       width: 100%;
+     }
+     #document-table .parameter-select {
+       width: 100%;
+     }
   </style>
   </head>
   <body onload="archive.main()">
@@ -160,6 +199,51 @@
           <div class="span5">
             <div id="documents-container" class="row-fluid">
               <div class="accordion" id="documents">
+                <div class="accordion-group">
+                  <div class="accordion-heading">
+                    <a class="accordion-toggle" data-toggle="collapse"
+                      data-parent="#documents"
+                      href="#collapse-documents">Documents</a>
+                  </div>
+                  <div class="accordion-body collapse in"
+                    id="collapse-documents">
+                    <div class="accordion-inner">
+                      <div>
+                      <div class="input-prepend">
+                      <span class="add-on"><i class="icon-search"></i></span>
+                      </div>
+                      <input class="input-large" id="query-input" type="text"
+                             placeholder="Query" style="width:90%;" />
+                      <div>
+                         <div style="display: inline; position: relative; left: 10px; top: 5px;">
+                           <div class="input-prepend">
+                             <span class="add-on"><i class="icon-calendar"></i></span>
+                           </div>
+                          <input class="input-small" type="text" id="from"/>
+                          <div class="input-prepend">
+                            <span class="add-on"><i class="icon-calendar"></i></span>
+                          </div>
+                          <input class="input-small" type="text" id="to"/>
+                        </div>
+                      </div>
+
+                      <table id="document-table" class="table-hover"
+                         title="Drag row onto map to add layer">
+                        <thead>
+                        <tr>
+                          <th class="name">Name</th>
+                          <th class="source">Source</th>
+                          <th class="tags">Tags</th>
+                          <th class="timestep">Timestep</th>
+                          <th class="parameter">Parameters</th><tr>
+                        </thead>
+                        <tbody id="document-table-body">
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
