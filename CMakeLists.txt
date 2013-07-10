@@ -1,6 +1,14 @@
 cmake_minimum_required(VERSION 2.8)
 project(geoweb)
 
+option(DEV_BUILD "Allow running from source tree" OFF)
+
+set(STATICDIR_ROOT "geoweb.current_dir")
+
+if (DEV_BUILD)
+  set(STATICDIR_ROOT "\\\"${CMAKE_SOURCE_DIR}\\\"")
+endif()
+
 # Extend cmake module path.
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
@@ -265,8 +273,8 @@ add_custom_command(
 )
 
 if(SERVER_LOGS)
-    set(LOG_ERROR_FILE "logs/error.log")
-    set(LOG_ACCESS_FILE "logs/access.log")
+    set(LOG_ERROR_FILE "${logs_dir}/error.log")
+    set(LOG_ACCESS_FILE "${logs_dir}/access.log")
 endif()
 
 if(SERVER_DEBUG)
@@ -324,6 +332,14 @@ endif()
 foreach(f ${JS_LINT_FILES})
     add_test(jslint-${f} ${JSLint_EXECUTABLE} ${f})
 endforeach()
+
+if (DEV_BUILD)
+  configure_file(${CMAKE_SOURCE_DIR}/geoweb_dev.in
+    ${CMAKE_BINARY_DIR}/CMakeFiles/geoweb_dev)
+  file(COPY ${CMAKE_BINARY_DIR}/CMakeFiles/geoweb_dev
+    DESTINATION ${CMAKE_BINARY_DIR}/${deploy_dir}
+    FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)
+endif()
 
 # Now include sub-directories
 add_subdirectory(web)
