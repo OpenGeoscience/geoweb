@@ -271,25 +271,27 @@ function setupInteraction() {
     draggingModule;
 
   $canvas.mousedown(function (e) {
-    var i,
-      modules = activeWorkflow.modules(),
+    var modules = activeWorkflow.modules(),
+      key,
       module,
       port;
 
     lastPoint = this.ctxMousePos(e);
 
     // find modules
-    for(i = modules.length-1; i >= 0; i--) {
-      module = modules[i];
-      if(module.contains(lastPoint)) {
-        if(port = module.portByPos(lastPoint)) {
-          draggingPort = port.data();
-          draggingPortPos = lastPoint;
-          draggingPortModule = module;
-        } else {
-          draggingModule = module;
+    for(key in modules) {
+      if(modules.hasOwnProperty(key)) {
+        module = modules[key];
+        if(module.contains(lastPoint)) {
+          if(port = module.portByPos(lastPoint)) {
+            draggingPort = port.data();
+            draggingPortPos = lastPoint;
+            draggingPortModule = module;
+          } else {
+            draggingModule = module;
+          }
+          return;
         }
-        return;
       }
     }
 
@@ -305,8 +307,9 @@ function setupInteraction() {
 
     if(draggingModule) {
       var newPoint = this.ctxMousePos(e);
-      draggingModule.data().location['@x'] += newPoint.x - lastPoint.x;
-      draggingModule.data().location['@y'] -= newPoint.y - lastPoint.y;
+      draggingModule.getData().location['@x'] += newPoint.x - lastPoint.x;
+      draggingModule.getData().location['@y'] -= newPoint.y - lastPoint.y;
+      draggingModule.recomputeMetrics($canvas[0].getContext('2d'), style);
       lastPoint = newPoint;
       activeWorkflow.draw(ctx);
     } else if (draggingPort) {
@@ -351,18 +354,25 @@ function setupInteraction() {
     panning = false;
     draggingModule = null;
     if( draggingPort ) {
-      var i,
-        port,
-        workflow = activeWorkflow.data.workflow,
+      var port,
+        modules = activeWorkflow.modules(),
+        key,
+        module,
         ctx = this.getContext('2d');
 
-      for(i = workflow.module.length-1; i >= 0; i--) {
-        //var metrics = moduleMetrics(ctx, workflow.module[i]);
-        var metrics = expandedModuleMetrics(ctx, workflow.module[i]);
-        if(moduleContains(metrics, lastPoint)) {
-          if(port = modulePortByPos(metrics, workflow.module[i], lastPoint)) {
-            newConnection(workflow, draggingPortModule, draggingPort, workflow.module[i], port);
-            break;
+      for(key in modules) {
+        if(modules.hasOwnProperty(key)) {
+          module = modules[key];
+          if(module.contains(lastPoint)) {
+            if(port = module.portByPos(lastPoint)) {
+              activeWorkflow.addConnection(
+                draggingPortModule,
+                draggingPort,
+                module,
+                port
+              );
+              break;
+            }
           }
         }
       }
