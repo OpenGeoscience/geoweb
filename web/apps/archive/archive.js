@@ -214,8 +214,8 @@ archive.workflowLayer = function(target, layerId) {
         draggable: true,
         resizable: true,
         minHeight: 300,
-        width: Math.floor(window.screen.width * 0.8),
-        height: Math.floor(window.screen.height * 0.8),
+        width: Math.floor(window.screen.width * 0.95),
+        height: Math.floor(window.screen.height * 0.95),
         buttons: {
           "Close": function() {
             $(this).dialog("close");
