@@ -1,5 +1,4 @@
 var moduleRegistry = {},
-  moduleInstances = {},
   style = climatePipesStyle,
   activeWorkflow;
 
@@ -8,91 +7,9 @@ function debug(msg) {
 }
 
 function initWorkflowCanvas() {
-
   setupDragAndDrop();
   setupModuleList();
   setupInteraction();
-
-}
-
-function drawConnection(ctx, connectionObject) {
-  drawConnectionCurve(ctx, computeConnectionPositions(connectionObject));
-}
-
-function drawConnectionExpanded(ctx, connectionObject) {
-  drawConnectionCurveExpanded(ctx, computeConnectionPositionsExpanded(connectionObject));
-}
-
-function drawConnectionCurve(ctx, posInfo) {
-  ctx.beginPath();
-  ctx.moveTo(posInfo.cx1, posInfo.cy1);
-  ctx.bezierCurveTo(
-    posInfo.cx1, posInfo.cy1 + style.module.ypad,
-    posInfo.cx2, posInfo.cy2 - style.module.ypad,
-    posInfo.cx2, posInfo.cy2);
-  ctx.lineWidth = style.conn.lineWidth;
-
-  // line color
-  ctx.strokeStyle = style.conn.stroke;
-  ctx.stroke();
-}
-
-function drawConnectionCurveExpanded(ctx, posInfo) {
-  ctx.beginPath();
-  ctx.moveTo(posInfo.cx1, posInfo.cy1);
-  ctx.bezierCurveTo(
-    posInfo.cx1 + style.module.ypad, posInfo.cy1,
-    posInfo.cx2 - style.module.ypad, posInfo.cy2,
-    posInfo.cx2, posInfo.cy2);
-  ctx.lineWidth = style.conn.lineWidth;
-
-  // line color
-  ctx.strokeStyle = style.conn.stroke;
-  ctx.stroke();
-}
-
-function computeConnectionPositionsExpanded(connectionObject) {
-  var sourceModule, targetModule, sourcePort, targetPort,
-    centerOffset = Math.floor(style.module.port.width/2);
-  for(var i = 0; i < connectionObject.port.length; i++) {
-    var port = connectionObject.port[i];
-    if(port['@type'] == 'source') {
-      sourcePort = port;
-      sourceModule = moduleInstances[port['@moduleId']];
-    } else {
-      targetPort = port;
-      targetModule = moduleInstances[port['@moduleId']];
-    }
-  }
-
-  return {
-    cx1: moduleSourcePortX[sourceModule['@id']] + centerOffset,
-    cy1: moduleSourcePortY[sourceModule['@id']][sourcePort['@name']] + centerOffset,
-    cx2: moduleTargetPortX[targetModule['@id']] + centerOffset,
-    cy2: moduleTargetPortY[targetModule['@id']][targetPort['@name']] + centerOffset
-  };
-}
-
-function computeConnectionPositions(connectionObject) {
-  var sourceModule, targetModule, sourcePort, targetPort,
-    centerOffset = Math.floor(style.module.port.width/2);
-  for(var i = 0; i < connectionObject.port.length; i++) {
-    var port = connectionObject.port[i];
-    if(port['@type'] == 'source') {
-      sourcePort = port;
-      sourceModule = moduleInstances[port['@moduleId']];
-    } else {
-      targetPort = port;
-      targetModule = moduleInstances[port['@moduleId']];
-    }
-  }
-
-  return {
-    cx1: moduleSourcePortX[sourceModule['@id']][sourcePort['@name']] + centerOffset,
-    cy1: moduleSourcePortY[sourceModule['@id']] + centerOffset,
-    cx2: moduleTargetPortX[targetModule['@id']][targetPort['@name']] + centerOffset,
-    cy2: moduleTargetPortY[targetModule['@id']] + centerOffset
-  };
 }
 
 function setupDragAndDrop() {
@@ -139,52 +56,6 @@ function setupDragAndDrop() {
 	});
 }
 
-//function newModule(workflow, moduleInfoJSON, x, y) {
-//  var moduleInfo = JSON.parse(moduleInfoJSON),
-//    module = {
-//      "@name": moduleInfo['@name'],
-//      "@package": moduleInfo['@package'],
-//      "@version": moduleInfo['@packageVersion'],
-//      "@namespace": moduleInfo['@namespace'],
-//      "@cache": "1",
-//      "location": {
-//        "@x": parseFloat(x),
-//        "@y": -parseFloat(y),
-//        "@id": nextLocationId()
-//      },
-//      "@id": nextModuleId()
-//    };
-//
-//  moduleInstances[module['@id']] = module;
-//  workflow.data().workflow.module.push(module);
-//  workflow.draw();
-//}
-
-function newConnection(workflow, sourceModule, sourcePortSpec, targetModule, targetPortSpec) {
-  var connection = {
-    "@id": nextConnectionId(),
-    "port": [
-      {
-        "@moduleName": targetModule['@name'],
-        "@name": targetPortSpec['@name'],
-        "@signature": targetPortSpec['@sigstring'],
-        "@id": nextPortId(),
-        "@type": "destination",
-        "@moduleId": targetModule['@id']
-      }, {
-        "@moduleName": sourceModule['@name'],
-        "@name": sourcePortSpec['@name'],
-        "@signature": sourcePortSpec['@sigstring'],
-        "@id": nextPortId(),
-        "@type": "source",
-        "@moduleId": sourceModule['@id']
-      }
-    ]
-  }
-  workflow.connection.push(connection);
-  activeWorkflow.draw();
-}
-
 function setupModuleList() {
 	var $moduleTableBody = $('#moduletable > tbody:last');
 
@@ -224,41 +95,6 @@ function addModuleToList(moduleInfo, $moduleTableBody) {
   $moduleTableBody.append($tr.append($td.append($text)));
 }
 
-function defaultValue(param, _default) {
-  return typeof param !== 'undefined' ? param: _default;
-}
-
-function createIdCounter(initialId) {
-  initialId = defaultValue(initialId, -1);
-  return function() { initialId += 1; return initialId; };
-}
-
-var nextWorkflowId = createIdCounter();
-var nextModuleId = createIdCounter();
-var nextLocationId = createIdCounter();
-var nextConnectionId = createIdCounter();
-var nextPortId = createIdCounter();
-
-function newWorkflow(name, version, connections, modules, vistrail_id, id) {
-  name = defaultValue(name, 'untitled');
-  version = defaultValue(version, '1.0.2');
-  connections = defaultValue(connections, []);
-  modules = defaultValue(modules, []);
-  vistrail_id = defaultValue(vistrail_id, "");
-  id = defaultValue(id, nextWorkflowId());
-  return {
-    "workflow": {
-      "@name": name,
-      "@version": version,
-      "@{http://www.w3.org/2001/XMLSchema-instance}schemaLocation": "http://www.vistrails.org/workflow.xsd",
-      "connection": connections,
-      "module": modules,
-      "@vistrail_id": vistrail_id,
-      "@id": id
-    }
-  };
-}
-
 function setupInteraction() {
   var $canvas = $('#workspace'),
     ctx = $canvas[0].getContext('2d'),
@@ -268,13 +104,13 @@ function setupInteraction() {
     draggingPort,
     draggingPortPos,
     draggingPortModule,
-    draggingModule;
+    draggingModule,
+    tempConnection = uiModule.connection();
 
   $canvas.mousedown(function (e) {
     var modules = activeWorkflow.modules(),
       key,
-      module,
-      port;
+      module;
 
     lastPoint = this.ctxMousePos(e);
 
@@ -283,8 +119,7 @@ function setupInteraction() {
       if(modules.hasOwnProperty(key)) {
         module = modules[key];
         if(module.contains(lastPoint)) {
-          if(port = module.portByPos(lastPoint)) {
-            draggingPort = port.data();
+          if(draggingPort = module.portByPos(lastPoint)) {
             draggingPortPos = lastPoint;
             draggingPortModule = module;
           } else {
@@ -315,14 +150,13 @@ function setupInteraction() {
     } else if (draggingPort) {
       lastPoint = this.ctxMousePos(e);
       activeWorkflow.draw(ctx);
-      drawConnectionCurve(this.getContext('2d'), {
+      tempConnection.drawCurve(ctx, style, {
         cx1: draggingPortPos.x,
         cy1: draggingPortPos.y,
         cx2: lastPoint.x,
         cy2: lastPoint.y
       });
     } else if (panning) {
-      //var text = ['(', newPoint.x, ', ', newPoint.y, ') (',lastPoint.x, ', ', lastPoint.y, ')'].join('');
       activeWorkflow.translate(
         this.getContext('2d'),
         e.clientX - lastPanEvent.clientX,
@@ -330,24 +164,7 @@ function setupInteraction() {
       );
       lastPanEvent = e;
       activeWorkflow.draw(ctx);
-      //this.ctxMousePos();
-
-//      var translated = myTranslated();
-//      ctx.fillStyle = 'yellow';
-//      ctx.fillRect(-translated.x, -translated.y, 100, 20);
-//      //var np = this.ctxMousePos(e);
-//      ctx.fillStyle = 'black';
-//      ctx.fillText(text,
-//        -translated.x + 5, -translated.y + 18);
     }
-
-//    var translated = myTranslated(),
-//      ctx = this.getContext('2d');
-//    ctx.fillStyle = 'yellow';
-//    ctx.fillRect(-translated.x, -translated.y, 100, 20);
-//    var np = this.ctxMousePos(e);
-//    ctx.fillStyle = 'black';
-//    ctx.fillText(np.x + ', ' + np.y, -translated.x + 5, -translated.y + 18);
   });
 
   $canvas.mouseup(function (e) {
@@ -379,21 +196,13 @@ function setupInteraction() {
       draggingPort = null;
       draggingPortModule = null;
       draggingPortPos = null;
+      activeWorkflow.draw(ctx, style);
     }
   });
 
   $canvas.mouseout(function (e) {
     panning = false;
   });
-}
-
-function moduleContains(metrics, pos) {
-  return pos.x > metrics.mx && pos.x < metrics.mx + metrics.moduleWidth &&
-    pos.y > metrics.my && pos.y < metrics.my + metrics.moduleHeight;
-}
-
-function modulePortByPos(metrics, module, pos) {
-  return null;
 }
 
 function ctxMousePos(event){
