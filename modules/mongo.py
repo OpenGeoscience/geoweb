@@ -3,6 +3,7 @@
 import bson.json_util
 import pymongo
 import geoweb
+import cherrypy
 
 def decode(s, argname, resp):
     try:
@@ -12,6 +13,9 @@ def decode(s, argname, resp):
         raise
 
 def run(server, db, coll, method='find', query=None, limit=1000, fields=None, sort=None, fill=None):
+    cherrypy.log("Hello world")
+    cherrypy.log(fields)
+
     # Create an empty response object.
     response = geoweb.empty_response();
 

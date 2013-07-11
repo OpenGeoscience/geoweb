@@ -122,8 +122,8 @@ archive.processResults = function(results, removeFilter) {
 
     var timestep  = ['N/A'];
 
-    if (row && 'temporalrange' in row && row['temporalrange'])
-      timestep = row['temporalrange'];
+    if (row && 'timeInfo' in row && row['timeInfo'].rawTimes)
+      timestep = row['timeInfo'].rawTimes;
 
     return timestep;
   });
@@ -213,7 +213,7 @@ archive.query = function(query) {
     data: {
       query: JSON.stringify(mongoQuery),
       limit:100,
-      fields: JSON.stringify(['name', 'basename', 'temporalrange', 'variables'])
+      fields: JSON.stringify(['name', 'basename', 'timeInfo', 'variables'])
     },
     dataType: 'json',
     success: function(response) {
@@ -304,6 +304,30 @@ archive.processCSVData = function(csvdata) {
   return table;
 };
 
+archive.getDocuments = function() {
+  mongo = archive.getMongoConfig();
+  $.ajax({
+    type: 'POST',
+    url: '/mongo/' + mongo.server + '/' + mongo.database + '/' + mongo.collection,
+    data: {
+      query: JSON.stringify({}),
+      limit:100,
+      fields: JSON.stringify(['name', 'basename', 'variables', 'timeInfo'])
+    },
+    dataType: 'json',
+    success: function(response) {
+      if (response.error !== null) {
+          console.log("[error] " + response.error ? response.error : "no results returned from server");
+      } else {
+        ogs.ui.gis.createDataList('documents', 'Documents', 'table-layers', response.result.data, archive.addLayer);
+      }
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+      archive.error("Error reading data from mongodb: " + errorThrown)
+    }
+  });
+};
+
 archive.selectLayer = function(target, layerId) {
   var layer = archive. myMap.findLayerById(layerId);
 
@@ -367,7 +391,7 @@ archive.addLayer = function(target) {
     var varval = target.parameter;
 
     var source = ogs.geo.archiveLayerSource(JSON.stringify(target.basename),
-      JSON.stringify(varval), archive.error);
+      JSON.stringify(varval), JSON.stringify(timeval), archive.error);
     var layer = ogs.geo.featureLayer();
     layer.setName(target.name);
     layer.setDataSource(source);
