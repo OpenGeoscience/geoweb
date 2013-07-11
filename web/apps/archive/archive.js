@@ -419,7 +419,9 @@ archive.addLayer = function(target) {
     layer.setDataSource(source);
 
     layer.update(ogs.geo.updateRequest(timeval));
-    layer.workflow = ogs.ui.workflow({data:defaultWorkflow});
+    layer.workflow = ogs.ui.workflow({
+      data: jQuery.extend(true, {}, defaultWorkflow)
+    });
     layer.workflow.setDefaultWorkflowInputs(target);
 
     archive.myMap.addLayer(layer);
