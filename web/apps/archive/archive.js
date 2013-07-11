@@ -153,7 +153,7 @@ archive.processResults = function(results, removeFilter) {
   });
   select.exit().remove();
 
-  $('tr').draggable( {
+  $('#document-table  tr').draggable( {
     cursor: 'move',
     containment: 'window',
     appendTo: 'body',
@@ -262,11 +262,6 @@ archive.main = function() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
       updateAndDraw(canvas.width, canvas.height);
-
-      var layer = archive.myMap.activeLayer();
-      if(layer && layer.hasOwnProperty('workflow')) {
-        layer.workflow.resize();
-      }
     }
     resizeCanvas();
 
@@ -401,11 +396,10 @@ archive.workflowLayer = function(target, layerId) {
         buttons: {
           "Close": function() {
             $(this).dialog("close");
-            layer.setVisible(false);
+            layer.workflow.hide();
           }
         }
       });
-    activeWorkflow = layer.workflow;
     layer.workflow.show();
   }
 }
@@ -425,7 +419,8 @@ archive.addLayer = function(target) {
     layer.setDataSource(source);
 
     layer.update(ogs.geo.updateRequest(timeval));
-    layer.workflow = ogs.ui.workflow({data:exworkflow});
+    layer.workflow = ogs.ui.workflow({data:defaultWorkflow});
+    layer.workflow.setDefaultWorkflowInputs(target);
 
     archive.myMap.addLayer(layer);
     archive.myMap.redraw();
