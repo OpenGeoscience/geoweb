@@ -3,6 +3,7 @@
 import bson.json_util
 import pymongo
 import geoweb
+import cherrypy
 
 def decode(s, argname, resp):
     try:

@@ -2,6 +2,7 @@
 
 import pymongo
 import os
+from standardtime import attrib_to_converters
 
 class mongo_import:
   def import_directory(seff, server, database, collection, directory):
@@ -19,6 +20,7 @@ class mongo_import:
 
     # Add files to the database
     for filename in files:
+      print 'Working on %s' % filename
       variables = []
       basename = os.path.basename(filename)
       filenamesplitted = os.path.splitext(basename)
@@ -29,24 +31,60 @@ class mongo_import:
         reader = vtk.vtkNetCDFCFReader()
         reader.SphericalCoordinatesOff()
         reader.SetOutputTypeToImage()
+        reader.ReplaceFillValueWithNanOn()
         reader.SetFileName(os.path.join(directory, filename))
         reader.Update()
-        #record temporal information
-        temporalrange = reader.GetOutputInformation(0).Get(vtk.vtkStreamingDemandDrivenPipeline.TIME_STEPS())
-        data = reader.GetOutput();
-        #record arrays information
+        data = reader.GetOutput()
+
+        #obtain spatial information
+        bounds = data.GetBounds()
+
+        #obtain temporal information
+        timeInfo = {}
+        times = reader.GetOutputInformation(0).Get(vtk.vtkStreamingDemandDrivenPipeline.TIME_STEPS())
+        timeInfo['rawTimes'] = times #time steps in raw format
+        tunits = reader.GetTimeUnits()
+        timeInfo['units'] = tunits #calendar info needed to interpret/convert times
+        converters = attrib_to_converters(tunits)
+        stdTimeRange = None
+        dateRange = None
+        if converters and times:
+            stdTimeRange = (converters[0](times[0]),converters[0](times[-1]))
+            timeInfo['stdTimeRange'] = stdTimeRange #first and last time as normalized integers
+            dateRange = (converters[1](stdTimeRange[0]), converters[1](stdTimeRange[1]))
+            timeInfo['dateRange'] = dateRange #first and last time in Y,M,D format
+            print filename, "tunits:", tunits, "times: ", times, "std time range:", stdTimeRange, "dates: ", dateRange
+
+        #obtain array information
         pds = data.GetPointData()
         pdscount = pds.GetNumberOfArrays()
         for i in range(0, pdscount):
-          variable = {}
-          pdarray = pds.GetArray(i)
-          variable["name"] = pdarray.GetName()
-          variable["dim"] = []
-          variable["time"] = []
-          variable["tags"] = []
-          variables.append(variable)
+            variable = {}
+            pdarray = pds.GetArray(i)
+            if not pdarray:
+                # got an abstract array
+                continue
+            variable["name"] = pdarray.GetName()
+            variable["dim"] = []
+            variable["tags"] = []
+            variable["units"] = reader.QueryArrayUnits(pdarray.GetName())
+            # todo: iterate over all timesteps, default (first) timestep may not be representative
+            variable["time"] = []
+            componentCount = pdarray.GetNumberOfComponents()
+            minmax = []
+            for j in range(0, componentCount):
+                minmaxJ = [0,-1]
+                pdarray.GetRange(minmaxJ, j)
+                minmax.append(minmaxJ[0])
+                minmax.append(minmaxJ[1])
+            variable["range"] = minmax
+            variables.append(variable)
 
-      insertId = coll.insert({"name":fileprefix, "basename":basename, "variables":variables, "temporalrange":temporalrange})
+        #record what we've learned
+        insertId = coll.insert({"name":fileprefix, "basename":basename,
+                                "variables":variables,
+                                "timeInfo":timeInfo,
+                                "spatialInfo":bounds})
 
 if __name__ == "__main__":
   import sys
