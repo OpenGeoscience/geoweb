@@ -293,6 +293,18 @@ archive.main = function() {
 
     // Generate options
     ogs.ui.gis.generateOptions(viewControlTable, archive.myMap);
+
+
+    $(canvas).on("mousemove", function(event) {
+        var infoBox = $("#map-info-box")[0];
+        infoBox.style.left = (event.pageX+20)+"px";
+        infoBox.style.top = (event.pageY+20)+"px";
+        infoBox.innerHTML = "["+event.pageX+","+event.pageY+"]";
+        var worldPos = archive.myMap.windowToWorld(event.pageX, event.pageY);
+        infoBox.innerHTML += "<br>"+worldPos;
+        return true;
+    });
+
   });
 
   init();
