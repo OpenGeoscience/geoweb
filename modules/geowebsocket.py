@@ -9,7 +9,7 @@ import cherrypy
 from ws4py.websocket import WebSocket
 from ws4py.messaging import TextMessage
 
-from logging import *
+from utils import log, debug, error
 
 SERVER_KEY = os.getenv('GEOWEBSOCKETKEY', 'aV64EBFjhYbhkeW0ETPGv43KGvBCYdO2Pq')
 MODU_DIR = os.path.dirname(os.path.abspath(__file__))

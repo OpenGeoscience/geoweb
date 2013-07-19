@@ -1,13 +1,6 @@
-#pydev project files
+*.pyc
+*~
 .project
 .pydevproject
-.settings
-
-#emacs temp files
-*~
-
-#python compiled binary files
-*.pyc
-
-#WebStorm project files
-.idea
+*.pyo
+.DS_Store
