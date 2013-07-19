@@ -361,24 +361,25 @@ archive.removeLayer = function(target, layerId) {
 archive.addLayer = function(target) {
   ogs.ui.gis.addLayer(archive, 'table-layers', target, archive.selectLayer,
     archive.toggleLayer, archive.removeLayer, function() {
-    var widgetName, widget, timeval, varval;
+    var widgetName = null,
+        widget = null,
+        timeval = target.timestep,
+        varval = target.parameter,
+        source = ogs.geo.archiveLayerSource(JSON.stringify(target.basename),
+                   JSON.stringify(varval), archive.error),
+        layer = ogs.geo.featureLayer();
 
-    var timeval = target.timestep;
-    var varval = target.parameter;
-
-    var source = ogs.geo.archiveLayerSource(JSON.stringify(target.basename),
-      JSON.stringify(varval), archive.error);
-    var layer = ogs.geo.featureLayer();
     layer.setName(target.name);
     layer.setDataSource(source);
     layer.update(ogs.geo.updateRequest(timeval));
+
     archive.myMap.addLayer(layer);
     archive.myMap.redraw();
+
     ogs.ui.gis.layerAdded(target);
     $('.btn-layer').each(function(index){
       $(this).removeClass('disabled');
       $(this).removeAttr('disabled');
     });
-
   });
 };
