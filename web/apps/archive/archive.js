@@ -394,9 +394,26 @@ archive.workflowLayer = function(target, layerId) {
         width: Math.floor(window.screen.width * 0.95),
         height: Math.floor(window.screen.height * 0.95),
         buttons: {
-          "Close": function() {
+          Close: function() {
             $(this).dialog("close");
             layer.workflow.hide();
+          },
+          Execute: function() {
+            var replacer = function(key, value) {
+              if(typeof value === 'number') {
+                return value+'';
+              }
+              return value;
+            };
+            $.post(
+              //['http://',window.location.host, '/modules/vistrail/execute/'].join('')
+              '/services/vistrail/execute/',
+              {workflowJSON: JSON.stringify(layer.workflow.data(), replacer, 2)},
+              function(result) {
+                console.log("Workflow executed");
+                console.log(result);
+              }
+            );
           }
         }
       });
