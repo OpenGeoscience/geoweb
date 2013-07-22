@@ -262,14 +262,20 @@ archive.main = function() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
       updateAndDraw(canvas.width, canvas.height);
+
+      var layer = archive.myMap.activeLayer();
+      if(layer && layer.hasOwnProperty('workflow')) {
+        layer.workflow.resize();
+      }
     }
     resizeCanvas();
 
     function updateAndDraw(width, height) {
-     archive.myMap.redraw();
-     archive.myMap.resize(width, height);
-     archive.myMap.update();
-     archive.myMap.redraw();
+
+      archive.myMap.redraw();
+      archive.myMap.resize(width, height);
+      archive.myMap.update();
+      archive.myMap.redraw();
     }
 
     // Create a placeholder for the layers
@@ -290,7 +296,31 @@ archive.main = function() {
   });
 
   init();
+  archive.initWebSockets();
+  initWorkflowCanvas();
 };
+
+archive.initWebSockets = function() {
+  var ws = srvModule.webSocket({nodes: ['streammaster','streamworker']}),
+    streaming = false;
+
+  ws.bind('streammaster', function(message) {
+    if(message == 'done') {
+      streaming = false;
+      //$('#button').html(startText);
+    } else {
+      var img = new Image();
+      img.onload = function() {
+        ctx.drawImage(img, parseInt(message.x), parseInt(message.y)-img.height);
+      };
+      img.src = "data:image/png;base64," + message.img;
+      recieveCount += 1;
+    }
+  });
+
+
+
+}
 
 
 archive.processCSVData = function(csvdata) {
@@ -357,10 +387,32 @@ archive.removeLayer = function(target, layerId) {
   return false;
 };
 
+archive.workflowLayer = function(target, layerId) {
+  var layer = archive.myMap.findLayerById(layerId);
+  if(layer != null) {
+    $('#workflow-dialog')
+      .dialog({
+        modal: true,
+        draggable: true,
+        resizable: true,
+        minHeight: 300,
+        width: Math.floor(window.screen.width * 0.95),
+        height: Math.floor(window.screen.height * 0.95),
+        buttons: {
+          "Close": function() {
+            $(this).dialog("close");
+            layer.setVisible(false);
+          }
+        }
+      });
+    activeWorkflow = layer.workflow;
+    layer.workflow.show();
+  }
+}
 
 archive.addLayer = function(target) {
   ogs.ui.gis.addLayer(archive, 'table-layers', target, archive.selectLayer,
-    archive.toggleLayer, archive.removeLayer, function() {
+    archive.toggleLayer, archive.removeLayer, archive.workflowLayer, function() {
     var widgetName, widget, timeval, varval;
 
     var timeval = target.timestep;
@@ -371,7 +423,10 @@ archive.addLayer = function(target) {
     var layer = ogs.geo.featureLayer();
     layer.setName(target.name);
     layer.setDataSource(source);
+
     layer.update(ogs.geo.updateRequest(timeval));
+    layer.workflow = ogs.ui.workflow({data:exworkflow});
+
     archive.myMap.addLayer(layer);
     archive.myMap.redraw();
     ogs.ui.gis.layerAdded(target);

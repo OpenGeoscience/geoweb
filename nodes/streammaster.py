@@ -54,7 +54,7 @@ class StreamMaster(WebSocketNode):
         return 'streammaster'
 
     @NodeSlot
-    def start(self, filename, varName, idx=0):
+    def start(self, filename, varName, idx=0, bins={}, **axes):
 
         try:
             if hasattr(self, 'processing') and self.processing:
@@ -64,7 +64,7 @@ class StreamMaster(WebSocketNode):
 
             self.debug('read data file')
             cdmsFile = cdms2.open(filename)
-            cdmsVar = cdmsFile[varName]
+            cdmsVar = cdmsFile(varName, **axes)
 
             self.debug('split data into regions')
             # need some hueristics to determine size of bins
@@ -77,18 +77,15 @@ class StreamMaster(WebSocketNode):
             latIndexs = [(i1, i2) for (i1, i2, j1, j2) in regionIndexes]
             lonIndexs = [(j1, j2) for (i1, i2, j1, j2) in regionIndexes]
 
-
-            #self.debug('get cpus')
+            # self.debug('get cpus')
             try:
                 numcpus = determineNumberOfCPUs()
             except:
                 numcpus = 8
 
             userdata[self.sender] = {'nextIdx': idx + 2,
-                                           'xcount': xcount,
-                                           'ycount': ycount,
-                                           'latIndexs': latIndexs,
-                                           'lonIndexs': lonIndexs}
+                                     'latIndexs': latIndexs,
+                                     'lonIndexs': lonIndexs}
 
             self.debug("send loadData signal")
             self.signal('streamworker', 'loadData', filename, varName,
@@ -127,14 +124,7 @@ class StreamMaster(WebSocketNode):
                 self.processing = False
                 self.send(json.dumps({'target':userkey, 'message':'done'}))
 
-        xcount = userdata[userkey]['xcount']
-        ycount = userdata[userkey]['ycount']
-        w = 150 - 1;  # size of image
-        h = 100 - 1;  # gets rid of 1px border
-        y = int(i / ycount)
-        x = i % ycount
-        response = {'x':x * w, 'y':(xcount - y) * h, 'img':data}
-        self.send(json.dumps({'target':userkey, 'message':response}))
+        self.send(json.dumps({'target': userkey, 'message': {'data': data}}))
         return None
 
     @NodeSlot

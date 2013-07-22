@@ -8,3 +8,6 @@
 
 #python compiled binary files
 *.pyc
+
+#WebStorm project files
+.idea
