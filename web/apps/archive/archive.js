@@ -411,9 +411,9 @@ archive.workflowLayer = function(target, layerId) {
               {workflowJSON: JSON.stringify(layer.workflow.data(), replacer, 2)},
               function(response) {
                 console.log("Workflow executed");
-                console.log(response);
+                var obj = JSON.parse(response);
                 var reader = ogs.vgl.geojsonReader(),
-                  retVal = reader.readGJObject(jQuery.parseJSON(response.result));
+                  retVal = reader.readGJObject(jQuery.parseJSON(obj.result));
                 //redefine layer source getData function
                 layer.dataSource().getData = function(time, callback) {
                   return retVal;

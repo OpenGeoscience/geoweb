@@ -19,3 +19,9 @@ def debug(_str):
         yes_debug(_str)
     else:
         debug = no_debug
+
+def empty_response():
+    return {'result': None, 'error': None}
+
+def empty_result():
+    return {}
