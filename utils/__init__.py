@@ -8,9 +8,14 @@ def debug(_str):
     global debug
     def no_debug(_): pass
     def yes_debug(_str): cherrypy.log("DEBUG: %s" % _str)
+    def std_debug(_str): print "DEBUG: %s" % _str
 
-    if cherrypy.tree.apps[''].config['global']['log.debug']:
+    if '' not in cherrypy.tree.apps:
+        #cherrypy probably not running
+        debug = std_debug
+        std_debug(_str)
+    elif cherrypy.tree.apps[''].config['global']['log.debug']:
         debug = yes_debug
-        cherrypy.log("DEBUG: %s" % _str)
+        yes_debug(_str)
     else:
         debug = no_debug

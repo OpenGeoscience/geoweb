@@ -57,7 +57,6 @@ class functions(object):
         '''
 
         debug('convert json to xml')
-        debug(workflowJSON)
         workflowXML = xml2json.json2xml(workflowJSON)
 
         #temp_wf_fd, temp_wf = tempfile.mkstemp('.xml')
@@ -123,23 +122,3 @@ class functions(object):
 
         finally:
             os.unlink(temp_wf)
-
-
-#TESTS
-import unittest
-
-class TestModuleExecution(unittest.TestCase):
-    def setUp(self):
-        dir = os.path.dirname(__file__)
-        with open(os.path.join(dir, 'testworkflow.json'),'r') as f:
-            self.workflowJSON = f.read()
-
-        with open(os.path.join(dir, 'testworkflowoutput.json'),'r') as f:
-            self.expectedResult = f.read()
-
-    def test_execution(self):
-        result = functions.execute(self.workflowJSON)
-        self.assertEqual(result, self.expectedResult)
-
-if __name__ == '__main__':
-    unittest.main()
