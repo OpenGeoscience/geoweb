@@ -409,9 +409,16 @@ archive.workflowLayer = function(target, layerId) {
               //['http://',window.location.host, '/modules/vistrail/execute/'].join('')
               '/services/vistrail/execute/',
               {workflowJSON: JSON.stringify(layer.workflow.data(), replacer, 2)},
-              function(result) {
+              function(response) {
                 console.log("Workflow executed");
-                console.log(result);
+                console.log(response);
+                var reader = ogs.vgl.geojsonReader(),
+                  retVal = reader.readGJObject(jQuery.parseJSON(response.result));
+                //redefine layer source getData function
+                layer.dataSource().getData = function(time, callback) {
+                  return retVal;
+                };
+                archive.myMap.update();
               }
             );
           }
