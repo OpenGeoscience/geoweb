@@ -236,6 +236,14 @@ foreach(m ${paths})
     list(APPEND all_targets ${outpath})
 endforeach()
 
+add_custom_command(
+  OUTPUT ${deploy_dir}/modules/standardtime.py
+  COMMAND ${CMAKE_COMMAND} -E "copy" ${CMAKE_SOURCE_DIR}/scripts/standardtime.py ${CMAKE_BINARY_DIR}/${deploy_dir}/modules
+  DEPENDS scripts/standardtime.py ${lib_dir}
+)
+list(APPEND all_targets ${deploy_dir}/modules/standardtime.py)
+
+
 # Uglify and concatenate the library js files.
 if(NOT ${MINIFY})
     set(MINIFY_FLAG "-b")

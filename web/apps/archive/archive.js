@@ -122,8 +122,8 @@ archive.processResults = function(results, removeFilter) {
 
     var timestep  = ['N/A'];
 
-    if (row && 'temporalrange' in row && row['temporalrange'])
-      timestep = row['temporalrange'];
+    if (row && 'timeInfo' in row && row['timeInfo'].rawTimes)
+      timestep = row['timeInfo'].rawTimes;
 
     return timestep;
   });
@@ -213,7 +213,7 @@ archive.query = function(query) {
     data: {
       query: JSON.stringify(mongoQuery),
       limit:100,
-      fields: JSON.stringify(['name', 'basename', 'temporalrange', 'variables'])
+      fields: JSON.stringify(['name', 'basename', 'timeInfo', 'variables'])
     },
     dataType: 'json',
     success: function(response) {
