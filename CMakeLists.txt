@@ -185,6 +185,7 @@ set(paths
   web/common
   web/index.html
   modules
+  utils
   nodes
   services
   temp
