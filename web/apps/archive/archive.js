@@ -297,11 +297,23 @@ archive.main = function() {
 
     $(canvas).on("mousemove", function(event) {
         var infoBox = $("#map-info-box")[0];
-        infoBox.style.left = (event.pageX+20)+"px";
-        infoBox.style.top = (event.pageY+20)+"px";
-        infoBox.innerHTML = "["+event.pageX+","+event.pageY+"]";
-        var worldPos = archive.myMap.windowToWorld(event.pageX, event.pageY);
-        infoBox.innerHTML += "<br>"+worldPos;
+        infoBox.style.left = (event.pageX+24)+"px";
+        infoBox.style.top = (event.pageY+24)+"px";
+        var mapCoord = archive.myMap.windowToLatLng(event.pageX, event.pageY);
+        infoBox.innerHTML = mapCoord.lat().toFixed(2)+" , "+mapCoord.lng().toFixed(2);
+        return true;
+    });
+
+    $(canvas).on("click", function(event) {
+        var infoBox = $("#map-info-box")[0];
+        infoBox.style.left = (event.pageX+24)+"px";
+        infoBox.style.top = (event.pageY+24)+"px";
+        var mapCoord = archive.myMap.windowToLatLng(event.pageX, event.pageY);
+        var locInfos = archive.myMap.queryLocation(mapCoord);
+        infoBox.innerHTML = "Map Info:";
+        for (var idx in locInfos) {
+            infoBox.innerHTML += "<br/>" + idx + " : " + locInfos[idx];
+        }
         return true;
     });
 
