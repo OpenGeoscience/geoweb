@@ -8,7 +8,8 @@ function debug(msg) {
 
 function initWorkflowCanvas() {
   $(window).on('resize', function() {
-    activeWorkflow.resize();
+    if (activeWorkflow)
+      activeWorkflow.resize();
   });
   setupDragAndDrop();
   setupModuleList();
