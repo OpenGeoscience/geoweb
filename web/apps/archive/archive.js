@@ -366,7 +366,7 @@ archive.addLayer = function(target) {
         timeval = target.timestep,
         varval = target.parameter,
         source = ogs.geo.archiveLayerSource(JSON.stringify(target.basename),
-                   JSON.stringify(varval), archive.error),
+                   [varval], archive.error),
         layer = ogs.geo.featureLayer();
 
     layer.setName(target.name);
