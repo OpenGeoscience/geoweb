@@ -5,7 +5,7 @@ import vistrails.core
 import vistrails.core.db.action
 from vistrails.core import application as vt_app
 from vistrails.core.api import get_api
-from vistrails.packages.Climate.init import WriteJSON
+from vistrails.packages.Climate.init import ToGeoJSON
 
 from vistrails.core.vistrail.pipeline import Pipeline
 from vistrails.core.vistrail.vistrail import Vistrail
@@ -99,7 +99,7 @@ class functions(object):
             modules = execution_pipeline.objects
 
             for id, module in modules.iteritems():
-                if isinstance(module, WriteJSON):
+                if isinstance(module, ToGeoJSON):
                     return module.JSON
 
         finally:

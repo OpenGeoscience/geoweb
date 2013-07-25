@@ -2191,119 +2191,9 @@ var reg = {
       "@version": "0.9.0",
       "moduleDescriptor": [{
         "#text": "\n      ",
-        "@name": "WriteJSON",
-        "@package": "org.opengeoscience.geoweb.climate",
-        "@id": "35",
-        "portSpec": [{
-          "@sortKey": "-1",
-          "@name": "tvariable",
-          "#tail": "\n      ",
-          "portSpecItem": {
-            "@default": "",
-            "@package": "org.opengeoscience.geoweb.climate",
-            "@pos": "0",
-            "@label": "",
-            "@namespace": "",
-            "#tail": "\n      ",
-            "@values": "",
-            "@module": "TransientVariable",
-            "@id": "-1",
-            "@entryType": ""
-          },
-          "@maxConns": "-1",
-          "@optional": "False",
-          "@minConns": "0",
-          "#text": "\n        ",
-          "@id": "85",
-          "@type": "input"
-        }, {
-          "@sortKey": "-1",
-          "@name": "filename",
-          "#tail": "\n    ",
-          "portSpecItem": {
-            "@default": "",
-            "@package": "org.vistrails.vistrails.basic",
-            "@pos": "0",
-            "@label": "",
-            "@namespace": "",
-            "#tail": "\n      ",
-            "@values": "",
-            "@module": "String",
-            "@id": "-1",
-            "@entryType": ""
-          },
-          "@maxConns": "-1",
-          "@optional": "False",
-          "@minConns": "0",
-          "#text": "\n        ",
-          "@id": "86",
-          "@type": "input"
-        }],
-        "@namespace": "",
-        "#tail": "\n    ",
-        "@packageVersion": "0.9.0",
-        "@version": "",
-        "@baseDescriptorId": "0"
-      }, {
-        "#text": "\n      ",
-        "@name": "Dataset",
-        "@package": "org.opengeoscience.geoweb.climate",
-        "@id": "36",
-        "portSpec": [{
-          "@sortKey": "-1",
-          "@name": "file",
-          "#tail": "\n      ",
-          "portSpecItem": {
-            "@default": "",
-            "@package": "edu.utah.sci.vistrails.basic",
-            "@pos": "0",
-            "@label": "",
-            "@namespace": "",
-            "#tail": "\n      ",
-            "@values": "",
-            "@module": "String",
-            "@id": "-1",
-            "@entryType": ""
-          },
-          "@maxConns": "-1",
-          "@optional": "False",
-          "@minConns": "0",
-          "#text": "\n        ",
-          "@id": "87",
-          "@type": "input"
-        }, {
-          "@sortKey": "-1",
-          "@name": "self",
-          "#tail": "\n    ",
-          "portSpecItem": {
-            "@default": "",
-            "@package": "org.opengeoscience.geoweb.climate",
-            "@pos": "0",
-            "@label": "",
-            "@namespace": "",
-            "#tail": "\n      ",
-            "@values": "",
-            "@module": "Dataset",
-            "@id": "-1",
-            "@entryType": ""
-          },
-          "@maxConns": "-1",
-          "@optional": "False",
-          "@minConns": "0",
-          "#text": "\n        ",
-          "@id": "88",
-          "@type": "output"
-        }],
-        "@namespace": "",
-        "#tail": "\n    ",
-        "@packageVersion": "0.9.0",
-        "@version": "",
-        "@baseDescriptorId": "0"
-      }, {
-        "#text": "\n      ",
         "@name": "Variable",
         "@package": "org.opengeoscience.geoweb.climate",
-        "@id": "37",
+        "@id": "34",
         "portSpec": [{
           "@sortKey": "-1",
           "@name": "dataset",
@@ -2324,7 +2214,7 @@ var reg = {
           "@optional": "False",
           "@minConns": "0",
           "#text": "\n        ",
-          "@id": "89",
+          "@id": "81",
           "@type": "input"
         }, {
           "@sortKey": "-1",
@@ -2346,7 +2236,7 @@ var reg = {
           "@optional": "False",
           "@minConns": "0",
           "#text": "\n        ",
-          "@id": "90",
+          "@id": "82",
           "@type": "input"
         }, {
           "@sortKey": "-1",
@@ -2368,7 +2258,7 @@ var reg = {
           "@optional": "False",
           "@minConns": "0",
           "#text": "\n        ",
-          "@id": "91",
+          "@id": "83",
           "@type": "output"
         }],
         "@namespace": "",
@@ -2378,9 +2268,9 @@ var reg = {
         "@baseDescriptorId": "0"
       }, {
         "#text": "\n      ",
-        "@name": "TransientVariable",
+        "@name": "SubSelect",
         "@package": "org.opengeoscience.geoweb.climate",
-        "@id": "38",
+        "@id": "35",
         "portSpec": [{
           "@sortKey": "-1",
           "@name": "variable",
@@ -2401,11 +2291,77 @@ var reg = {
           "@optional": "False",
           "@minConns": "0",
           "#text": "\n        ",
-          "@id": "92",
+          "@id": "84",
           "@type": "input"
         }, {
           "@sortKey": "-1",
-          "@name": "self",
+          "@name": "axis",
+          "#tail": "\n      ",
+          "portSpecItem": {
+            "@default": "",
+            "@package": "org.vistrails.vistrails.basic",
+            "@pos": "0",
+            "@label": "",
+            "@namespace": "",
+            "#tail": "\n      ",
+            "@values": "",
+            "@module": "String",
+            "@id": "-1",
+            "@entryType": ""
+          },
+          "@maxConns": "-1",
+          "@optional": "False",
+          "@minConns": "0",
+          "#text": "\n        ",
+          "@id": "85",
+          "@type": "input"
+        }, {
+          "@sortKey": "-1",
+          "@name": "start",
+          "#tail": "\n      ",
+          "portSpecItem": {
+            "@default": "",
+            "@package": "org.vistrails.vistrails.basic",
+            "@pos": "0",
+            "@label": "",
+            "@namespace": "",
+            "#tail": "\n      ",
+            "@values": "",
+            "@module": "String",
+            "@id": "-1",
+            "@entryType": ""
+          },
+          "@maxConns": "-1",
+          "@optional": "False",
+          "@minConns": "0",
+          "#text": "\n        ",
+          "@id": "86",
+          "@type": "input"
+        }, {
+          "@sortKey": "-1",
+          "@name": "end",
+          "#tail": "\n      ",
+          "portSpecItem": {
+            "@default": "",
+            "@package": "org.vistrails.vistrails.basic",
+            "@pos": "0",
+            "@label": "",
+            "@namespace": "",
+            "#tail": "\n      ",
+            "@values": "",
+            "@module": "String",
+            "@id": "-1",
+            "@entryType": ""
+          },
+          "@maxConns": "-1",
+          "@optional": "False",
+          "@minConns": "0",
+          "#text": "\n        ",
+          "@id": "87",
+          "@type": "input"
+        }, {
+          "@sortKey": "-1",
+          "@name": "variable",
           "#tail": "\n    ",
           "portSpecItem": {
             "@default": "",
@@ -2415,7 +2371,139 @@ var reg = {
             "@namespace": "",
             "#tail": "\n      ",
             "@values": "",
-            "@module": "TransientVariable",
+            "@module": "Variable",
+            "@id": "-1",
+            "@entryType": ""
+          },
+          "@maxConns": "-1",
+          "@optional": "False",
+          "@minConns": "0",
+          "#text": "\n        ",
+          "@id": "88",
+          "@type": "output"
+        }],
+        "@namespace": "",
+        "#tail": "\n    ",
+        "@packageVersion": "0.9.0",
+        "@version": "",
+        "@baseDescriptorId": "0"
+      }, {
+        "#text": "\n      ",
+        "@name": "MonthlyTimeBounds",
+        "@package": "org.opengeoscience.geoweb.climate",
+        "@id": "36",
+        "portSpec": [{
+          "@sortKey": "-1",
+          "@name": "variable",
+          "#tail": "\n      ",
+          "portSpecItem": {
+            "@default": "",
+            "@package": "org.opengeoscience.geoweb.climate",
+            "@pos": "0",
+            "@label": "",
+            "@namespace": "",
+            "#tail": "\n      ",
+            "@values": "",
+            "@module": "Variable",
+            "@id": "-1",
+            "@entryType": ""
+          },
+          "@maxConns": "-1",
+          "@optional": "False",
+          "@minConns": "0",
+          "#text": "\n        ",
+          "@id": "89",
+          "@type": "input"
+        }, {
+          "@sortKey": "-1",
+          "@name": "variable",
+          "#tail": "\n    ",
+          "portSpecItem": {
+            "@default": "",
+            "@package": "org.opengeoscience.geoweb.climate",
+            "@pos": "0",
+            "@label": "",
+            "@namespace": "",
+            "#tail": "\n      ",
+            "@values": "",
+            "@module": "Variable",
+            "@id": "-1",
+            "@entryType": ""
+          },
+          "@maxConns": "-1",
+          "@optional": "False",
+          "@minConns": "0",
+          "#text": "\n        ",
+          "@id": "90",
+          "@type": "output"
+        }],
+        "@namespace": "",
+        "#tail": "\n    ",
+        "@packageVersion": "0.9.0",
+        "@version": "",
+        "@baseDescriptorId": "0"
+      }, {
+        "#text": "\n      ",
+        "@name": "Average",
+        "@package": "org.opengeoscience.geoweb.climate",
+        "@id": "37",
+        "portSpec": [{
+          "@sortKey": "-1",
+          "@name": "variable",
+          "#tail": "\n      ",
+          "portSpecItem": {
+            "@default": "",
+            "@package": "org.opengeoscience.geoweb.climate",
+            "@pos": "0",
+            "@label": "",
+            "@namespace": "",
+            "#tail": "\n      ",
+            "@values": "",
+            "@module": "Variable",
+            "@id": "-1",
+            "@entryType": ""
+          },
+          "@maxConns": "-1",
+          "@optional": "False",
+          "@minConns": "0",
+          "#text": "\n        ",
+          "@id": "91",
+          "@type": "input"
+        }, {
+          "@sortKey": "-1",
+          "@name": "axis",
+          "#tail": "\n      ",
+          "portSpecItem": {
+            "@default": "",
+            "@package": "org.vistrails.vistrails.basic",
+            "@pos": "0",
+            "@label": "",
+            "@namespace": "",
+            "#tail": "\n      ",
+            "@values": "",
+            "@module": "String",
+            "@id": "-1",
+            "@entryType": ""
+          },
+          "@maxConns": "-1",
+          "@optional": "False",
+          "@minConns": "0",
+          "#text": "\n        ",
+          "@id": "92",
+          "@type": "input"
+        }, {
+          "@sortKey": "-1",
+          "@name": "variable",
+          "#tail": "\n    ",
+          "portSpecItem": {
+            "@default": "",
+            "@package": "org.opengeoscience.geoweb.climate",
+            "@pos": "0",
+            "@label": "",
+            "@namespace": "",
+            "#tail": "\n      ",
+            "@values": "",
+            "@module": "Variable",
             "@id": "-1",
             "@entryType": ""
           },
@@ -2433,9 +2521,9 @@ var reg = {
         "@baseDescriptorId": "0"
       }, {
         "#text": "\n      ",
-        "@name": "SubSelect",
+        "@name": "ToGeoJSON",
         "@package": "org.opengeoscience.geoweb.climate",
-        "@id": "39",
+        "@id": "38",
         "portSpec": [{
           "@sortKey": "-1",
           "@name": "variable",
@@ -2460,8 +2548,8 @@ var reg = {
           "@type": "input"
         }, {
           "@sortKey": "-1",
-          "@name": "axis",
-          "#tail": "\n      ",
+          "@name": "JSON",
+          "#tail": "\n    ",
           "portSpecItem": {
             "@default": "",
             "@package": "org.vistrails.vistrails.basic",
@@ -2479,14 +2567,25 @@ var reg = {
           "@minConns": "0",
           "#text": "\n        ",
           "@id": "95",
-          "@type": "input"
-        }, {
+          "@type": "output"
+        }],
+        "@namespace": "",
+        "#tail": "\n    ",
+        "@packageVersion": "0.9.0",
+        "@version": "",
+        "@baseDescriptorId": "0"
+      }, {
+        "#text": "\n      ",
+        "@name": "Dataset",
+        "@package": "org.opengeoscience.geoweb.climate",
+        "@id": "39",
+        "portSpec": [{
           "@sortKey": "-1",
-          "@name": "start",
+          "@name": "file",
           "#tail": "\n      ",
           "portSpecItem": {
             "@default": "",
-            "@package": "org.vistrails.vistrails.basic",
+            "@package": "edu.utah.sci.vistrails.basic",
             "@pos": "0",
             "@label": "",
             "@namespace": "",
@@ -2504,17 +2603,17 @@ var reg = {
           "@type": "input"
         }, {
           "@sortKey": "-1",
-          "@name": "end",
-          "#tail": "\n      ",
+          "@name": "self",
+          "#tail": "\n    ",
           "portSpecItem": {
             "@default": "",
-            "@package": "org.vistrails.vistrails.basic",
+            "@package": "org.opengeoscience.geoweb.climate",
             "@pos": "0",
             "@label": "",
             "@namespace": "",
             "#tail": "\n      ",
             "@values": "",
-            "@module": "String",
+            "@module": "Dataset",
             "@id": "-1",
             "@entryType": ""
           },
@@ -2523,160 +2622,6 @@ var reg = {
           "@minConns": "0",
           "#text": "\n        ",
           "@id": "97",
-          "@type": "input"
-        }, {
-          "@sortKey": "-1",
-          "@name": "tvariable",
-          "#tail": "\n    ",
-          "portSpecItem": {
-            "@default": "",
-            "@package": "org.opengeoscience.geoweb.climate",
-            "@pos": "0",
-            "@label": "",
-            "@namespace": "",
-            "#tail": "\n      ",
-            "@values": "",
-            "@module": "TransientVariable",
-            "@id": "-1",
-            "@entryType": ""
-          },
-          "@maxConns": "-1",
-          "@optional": "False",
-          "@minConns": "0",
-          "#text": "\n        ",
-          "@id": "98",
-          "@type": "output"
-        }],
-        "@namespace": "",
-        "#tail": "\n    ",
-        "@packageVersion": "0.9.0",
-        "@version": "",
-        "@baseDescriptorId": "0"
-      }, {
-        "#text": "\n      ",
-        "@name": "MonthlyTimeBounds",
-        "@package": "org.opengeoscience.geoweb.climate",
-        "@id": "40",
-        "portSpec": [{
-          "@sortKey": "-1",
-          "@name": "tvariable",
-          "#tail": "\n      ",
-          "portSpecItem": {
-            "@default": "",
-            "@package": "org.opengeoscience.geoweb.climate",
-            "@pos": "0",
-            "@label": "",
-            "@namespace": "",
-            "#tail": "\n      ",
-            "@values": "",
-            "@module": "TransientVariable",
-            "@id": "-1",
-            "@entryType": ""
-          },
-          "@maxConns": "-1",
-          "@optional": "False",
-          "@minConns": "0",
-          "#text": "\n        ",
-          "@id": "99",
-          "@type": "input"
-        }, {
-          "@sortKey": "-1",
-          "@name": "tvariable",
-          "#tail": "\n    ",
-          "portSpecItem": {
-            "@default": "",
-            "@package": "org.opengeoscience.geoweb.climate",
-            "@pos": "0",
-            "@label": "",
-            "@namespace": "",
-            "#tail": "\n      ",
-            "@values": "",
-            "@module": "TransientVariable",
-            "@id": "-1",
-            "@entryType": ""
-          },
-          "@maxConns": "-1",
-          "@optional": "False",
-          "@minConns": "0",
-          "#text": "\n        ",
-          "@id": "100",
-          "@type": "output"
-        }],
-        "@namespace": "",
-        "#tail": "\n    ",
-        "@packageVersion": "0.9.0",
-        "@version": "",
-        "@baseDescriptorId": "0"
-      }, {
-        "#text": "\n      ",
-        "@name": "Average",
-        "@package": "org.opengeoscience.geoweb.climate",
-        "@id": "41",
-        "portSpec": [{
-          "@sortKey": "-1",
-          "@name": "tvariable",
-          "#tail": "\n      ",
-          "portSpecItem": {
-            "@default": "",
-            "@package": "org.opengeoscience.geoweb.climate",
-            "@pos": "0",
-            "@label": "",
-            "@namespace": "",
-            "#tail": "\n      ",
-            "@values": "",
-            "@module": "TransientVariable",
-            "@id": "-1",
-            "@entryType": ""
-          },
-          "@maxConns": "-1",
-          "@optional": "False",
-          "@minConns": "0",
-          "#text": "\n        ",
-          "@id": "101",
-          "@type": "input"
-        }, {
-          "@sortKey": "-1",
-          "@name": "axis",
-          "#tail": "\n      ",
-          "portSpecItem": {
-            "@default": "",
-            "@package": "org.vistrails.vistrails.basic",
-            "@pos": "0",
-            "@label": "",
-            "@namespace": "",
-            "#tail": "\n      ",
-            "@values": "",
-            "@module": "String",
-            "@id": "-1",
-            "@entryType": ""
-          },
-          "@maxConns": "-1",
-          "@optional": "False",
-          "@minConns": "0",
-          "#text": "\n        ",
-          "@id": "102",
-          "@type": "input"
-        }, {
-          "@sortKey": "-1",
-          "@name": "tvariable",
-          "#tail": "\n    ",
-          "portSpecItem": {
-            "@default": "",
-            "@package": "org.opengeoscience.geoweb.climate",
-            "@pos": "0",
-            "@label": "",
-            "@namespace": "",
-            "#tail": "\n      ",
-            "@values": "",
-            "@module": "TransientVariable",
-            "@id": "-1",
-            "@entryType": ""
-          },
-          "@maxConns": "-1",
-          "@optional": "False",
-          "@minConns": "0",
-          "#text": "\n        ",
-          "@id": "103",
           "@type": "output"
         }],
         "@namespace": "",
@@ -2687,11 +2632,11 @@ var reg = {
       }],
       "@identifier": "org.opengeoscience.geoweb.climate",
       "@codepath": "Climate",
-      "@id": "3"
+      "@id": "6"
     }],
     "@version": "1.0.3",
     "@{http://www.w3.org/2001/XMLSchema-instance}schemaLocation": "http://www.vistrails.org/registry.xsd",
     "#text": "\n  ",
     "@id": ""
   }
-}
+};
