@@ -294,7 +294,6 @@ archive.main = function() {
     // Generate options
     ogs.ui.gis.generateOptions(viewControlTable, archive.myMap);
 
-
     $(canvas).on("mousemove", function(event) {
         var infoBox = $("#map-info-box")[0];
         infoBox.style.left = (event.pageX+24)+"px";
@@ -306,13 +305,19 @@ archive.main = function() {
 
     $(canvas).on("click", function(event) {
         var infoBox = $("#map-info-box")[0];
+        infoBox.innerHTML = "";
         infoBox.style.left = (event.pageX+24)+"px";
         infoBox.style.top = (event.pageY+24)+"px";
         var mapCoord = archive.myMap.windowToLatLng(event.pageX, event.pageY);
-        var locInfos = archive.myMap.queryLocation(mapCoord);
-        infoBox.innerHTML = "Map Info:";
+        archive.myMap.queryLocation(mapCoord);
+        return true;
+    });
+
+    $(archive.myMap).on(geoModule.command.queryResultEvent, function(event, queryResult) {
+        var infoBox = $("#map-info-box")[0];
+        var locInfos = queryResult;
         for (var idx in locInfos) {
-            infoBox.innerHTML += "<br/>" + idx + " : " + locInfos[idx];
+            infoBox.innerHTML += idx + " : " + locInfos[idx] + "<br/>";
         }
         return true;
     });
