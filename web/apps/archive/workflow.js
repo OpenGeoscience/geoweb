@@ -8,7 +8,8 @@ function debug(msg) {
 
 function initWorkflowCanvas() {
   $(window).on('resize', function() {
-    activeWorkflow.resize();
+    if (activeWorkflow)
+      activeWorkflow.resize();
   });
   setupDragAndDrop();
   setupModuleList();
@@ -20,9 +21,9 @@ function initWorkflowCanvas() {
 }
 
 function setupDragAndDrop() {
-	var $canvas = $('#workspace');
+  var $canvas = $('#workspace');
 
-	$canvas.on('dragover', function(e) {
+  $canvas.on('dragover', function(e) {
     if (e.originalEvent) { //jQuery
       e = e.originalEvent;
     }
@@ -32,22 +33,22 @@ function setupDragAndDrop() {
     }
 
     e.dataTransfer.dropEffect = 'copy';
-	});
+  });
 
-	$canvas.on('drop', function(e) {
+  $canvas.on('drop', function(e) {
     if (e.originalEvent) { //jQuery
       e = e.originalEvent;
     }
 
-		if (e.preventDefault) {
-			e.preventDefault();
-		}
+    if (e.preventDefault) {
+      e.preventDefault();
+    }
 
-		// this / e.target is current target element.
+    // this / e.target is current target element.
 
-		if (e.stopPropagation) {
-			e.stopPropagation(); // stops the browser from redirecting.
-		}
+    if (e.stopPropagation) {
+      e.stopPropagation(); // stops the browser from redirecting.
+    }
 
     var ctxPos = this.ctxMousePos(e);
 
@@ -59,12 +60,12 @@ function setupDragAndDrop() {
 
     activeWorkflow.draw($canvas[0].getContext('2d'));
 
-		return false;
-	});
+    return false;
+  });
 }
 
 function setupModuleList() {
-	var $moduleTableBody = $('#moduletable > tbody:last');
+  var $moduleTableBody = $('#moduletable > tbody:last');
 
   for(var i = 0; i < reg.registry.package.length; i++) {
     var pkg = reg.registry.package[i];
