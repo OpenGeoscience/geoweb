@@ -294,32 +294,37 @@ archive.main = function() {
     // Generate options
     ogs.ui.gis.generateOptions(viewControlTable, archive.myMap);
 
+    // ask for mouseMove events
     $(canvas).on("mousemove", function(event) {
-        var infoBox = $("#map-info-box")[0];
-        infoBox.style.left = (event.pageX+24)+"px";
-        infoBox.style.top = (event.pageY+24)+"px";
-        var mapCoord = archive.myMap.windowToLatLng(event.pageX, event.pageY);
-        infoBox.innerHTML = mapCoord.lat().toFixed(2)+" , "+mapCoord.lng().toFixed(2);
-        return true;
+      var mousePos = canvas.relMouseCoords(event);
+      var infoBox = $("#map-info-box")[0];
+      infoBox.style.left = (mousePos.x+24)+"px";
+      infoBox.style.top = (mousePos.y+24)+"px";
+      var mapCoord = archive.myMap.displayToMap(mousePos.x, mousePos.y);
+      infoBox.innerHTML = mapCoord.x.toFixed(2)+" , "+mapCoord.y.toFixed(2);
+      return true;
     });
 
+    // ask for click events
     $(canvas).on("click", function(event) {
-        var infoBox = $("#map-info-box")[0];
-        infoBox.innerHTML = "";
-        infoBox.style.left = (event.pageX+24)+"px";
-        infoBox.style.top = (event.pageY+24)+"px";
-        var mapCoord = archive.myMap.windowToLatLng(event.pageX, event.pageY);
-        archive.myMap.queryLocation(mapCoord);
-        return true;
+      var mousePos = canvas.relMouseCoords(event);
+      var infoBox = $("#map-info-box")[0];
+      infoBox.innerHTML = "";
+      infoBox.style.left = (mousePos.x+24)+"px";
+      infoBox.style.top = (mousePos.y+24)+"px";
+      var mapCoord = archive.myMap.displayToMap(mousePos.x, mousePos.y);
+      archive.myMap.queryLocation(mapCoord);
+      return true;
     });
 
+    // react to queryResultEvent
     $(archive.myMap).on(geoModule.command.queryResultEvent, function(event, queryResult) {
-        var infoBox = $("#map-info-box")[0];
-        var locInfos = queryResult;
-        for (var idx in locInfos) {
-            infoBox.innerHTML += idx + " : " + locInfos[idx] + "<br/>";
-        }
-        return true;
+      var infoBox = $("#map-info-box")[0];
+      var locInfos = queryResult;
+      for (var idx in locInfos) {
+        infoBox.innerHTML += idx + " : " + locInfos[idx] + "<br/>";
+      }
+      return true;
     });
 
   });
@@ -466,3 +471,8 @@ archive.addLayer = function(target) {
 
   });
 };
+
+/* Local Variables:   */
+/* mode: js           */
+/* js-indent-level: 2 */
+/* End:               */
