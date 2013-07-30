@@ -298,8 +298,8 @@ archive.main = function() {
     $(canvas).on("mousemove", function(event) {
       var mousePos = canvas.relMouseCoords(event);
       var infoBox = $("#map-info-box")[0];
-      infoBox.style.left = (mousePos.x+24)+"px";
-      infoBox.style.top = (mousePos.y+24)+"px";
+      infoBox.style.left = (event.pageX+24)+"px";
+      infoBox.style.top = (event.pageY+24)+"px";
       var mapCoord = archive.myMap.displayToMap(mousePos.x, mousePos.y);
       infoBox.innerHTML = mapCoord.x.toFixed(2)+" , "+mapCoord.y.toFixed(2);
       return true;
@@ -310,8 +310,8 @@ archive.main = function() {
       var mousePos = canvas.relMouseCoords(event);
       var infoBox = $("#map-info-box")[0];
       infoBox.innerHTML = "";
-      infoBox.style.left = (mousePos.x+24)+"px";
-      infoBox.style.top = (mousePos.y+24)+"px";
+      infoBox.style.left = (event.pageX+24)+"px";
+      infoBox.style.top = (event.pageY+24)+"px";
       var mapCoord = archive.myMap.displayToMap(mousePos.x, mousePos.y);
       archive.myMap.queryLocation(mapCoord);
       return true;
