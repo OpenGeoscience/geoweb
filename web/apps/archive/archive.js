@@ -218,7 +218,8 @@ archive.query = function(query) {
     dataType: 'json',
     success: function(response) {
       if (response.error !== null) {
-          console.log("[error] " + response.error ? response.error : "no results returned from server");
+          console.log("[error] " + response.error ?
+                      response.error : "no results returned from server");
       } else {
 
         // Convert _id.$oid into id field, this transformation is do so the
@@ -351,11 +352,7 @@ archive.initWebSockets = function() {
       recieveCount += 1;
     }
   });
-
-
-
 }
-
 
 archive.processCSVData = function(csvdata) {
   var table = [];
@@ -372,7 +369,8 @@ archive.selectLayer = function(target, layerId) {
   var layer = archive. myMap.findLayerById(layerId);
 
   // See bootstrap issue: https://github.com/twitter/bootstrap/issues/2380
-  if ($(target).attr('data-toggle') !== 'button') { // don't toggle if data-toggle="button"
+  // don't toggle if data-toggle="button"
+  if ($(target).attr('data-toggle') !== 'button') {
       $(target).toggleClass('active');
     }
 
