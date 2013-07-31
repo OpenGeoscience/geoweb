@@ -295,7 +295,7 @@ archive.main = function() {
     // Generate options
     ogs.ui.gis.generateOptions(viewControlTable, archive.myMap);
 
-    // ask for mouseMove events
+    // Ask for mouseMove events
     $(canvas).on("mousemove", function(event) {
       var mousePos = canvas.relMouseCoords(event);
       var infoBox = $("#map-info-box")[0];
@@ -306,7 +306,7 @@ archive.main = function() {
       return true;
     });
 
-    // ask for click events
+    // Ask for click events
     $(canvas).on("click", function(event) {
       var mousePos = canvas.relMouseCoords(event);
       var infoBox = $("#map-info-box")[0];
@@ -318,7 +318,7 @@ archive.main = function() {
       return true;
     });
 
-    // react to queryResultEvent
+    // React to queryResultEvent
     $(archive.myMap).on(geoModule.command.queryResultEvent, function(event, queryResult) {
       var infoBox = $("#map-info-box")[0];
       var locInfos = queryResult;
