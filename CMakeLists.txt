@@ -48,7 +48,6 @@ file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/stamps)
 set(JS_LINT_FILES
     ${CMAKE_SOURCE_DIR}/web/lib/ui/init.js
     ${CMAKE_SOURCE_DIR}/web/lib/ui/gis.js
-    ${CMAKE_SOURCE_DIR}/web/lib/ui/workflow.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/init.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/latlng.js
     ${CMAKE_SOURCE_DIR}/web/lib/geo/ellipsoid.js
@@ -105,6 +104,18 @@ set(JS_LINT_FILES
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/picker.js
     ${CMAKE_SOURCE_DIR}/web/lib/srv/init.js
     ${CMAKE_SOURCE_DIR}/web/lib/srv/webSocket.js
+    ${CMAKE_SOURCE_DIR}/web/lib/wfl/init.js
+    ${CMAKE_SOURCE_DIR}/web/lib/wfl/workflow.js
+    ${CMAKE_SOURCE_DIR}/web/lib/wfl/workflowModule.js
+    ${CMAKE_SOURCE_DIR}/web/lib/wfl/connection.js
+    ${CMAKE_SOURCE_DIR}/web/lib/wfl/port.js
+    ${CMAKE_SOURCE_DIR}/web/lib/wfl/geowebRegistry.js
+    ${CMAKE_SOURCE_DIR}/web/lib/wfl/inputModule.js
+    ${CMAKE_SOURCE_DIR}/web/lib/wfl/inputPort.js
+    ${CMAKE_SOURCE_DIR}/web/lib/wfl/outputPort.js
+    ${CMAKE_SOURCE_DIR}/web/lib/wfl/staticWorkflows.js
+    ${CMAKE_SOURCE_DIR}/web/lib/wfl/workflowStyle.js
+    ${CMAKE_SOURCE_DIR}/web/lib/wfl/workflowUtils.js
 )
 
 # These files should be uglified and concatenated.
@@ -164,9 +175,20 @@ set(JS_UGLIFY_FILES
   ${CMAKE_SOURCE_DIR}/web/lib/geo/data.js
   ${CMAKE_SOURCE_DIR}/web/lib/ui/init.js
   ${CMAKE_SOURCE_DIR}/web/lib/ui/gis.js
-  ${CMAKE_SOURCE_DIR}/web/lib/ui/workflow.js
   ${CMAKE_SOURCE_DIR}/web/lib/srv/init.js
   ${CMAKE_SOURCE_DIR}/web/lib/srv/webSocket.js
+  ${CMAKE_SOURCE_DIR}/web/lib/wfl/init.js
+  ${CMAKE_SOURCE_DIR}/web/lib/wfl/workflow.js
+  ${CMAKE_SOURCE_DIR}/web/lib/wfl/workflowModule.js
+  ${CMAKE_SOURCE_DIR}/web/lib/wfl/connection.js
+  ${CMAKE_SOURCE_DIR}/web/lib/wfl/port.js
+  ${CMAKE_SOURCE_DIR}/web/lib/wfl/geowebRegistry.js
+  ${CMAKE_SOURCE_DIR}/web/lib/wfl/inputModule.js
+  ${CMAKE_SOURCE_DIR}/web/lib/wfl/outputPort.js
+  ${CMAKE_SOURCE_DIR}/web/lib/wfl/inputPort.js
+  ${CMAKE_SOURCE_DIR}/web/lib/wfl/staticWorkflows.js
+  ${CMAKE_SOURCE_DIR}/web/lib/wfl/workflowStyle.js
+  ${CMAKE_SOURCE_DIR}/web/lib/wfl/workflowUtils.js
 )
 
 # These files should have documentation generated for them.

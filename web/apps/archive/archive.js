@@ -431,19 +431,15 @@ archive.workflowLayer = function(target, layerId) {
 archive.addLayer = function(target) {
   ogs.ui.gis.addLayer(archive, 'table-layers', target, archive.selectLayer,
     archive.toggleLayer, archive.removeLayer, archive.workflowLayer, function() {
-    var widgetName, widget, timeval, varval;
-
-    var timeval = target.timestep;
-    var varval = target.parameter;
 
     var source = ogs.geo.archiveLayerSource(JSON.stringify(target.basename),
-      JSON.stringify(varval), archive.error);
+      JSON.stringify(target.parameter), archive.error);
     var layer = ogs.geo.featureLayer();
     layer.setName(target.name);
     layer.setDataSource(source);
 
-    layer.update(ogs.geo.updateRequest(timeval));
-    layer.workflow = ogs.ui.workflow({
+    layer.update(ogs.geo.updateRequest(target.timestep));
+    layer.workflow = ogs.wfl.workflow({
       data: jQuery.extend(true, {}, defaultWorkflow)
     });
     layer.workflow.setDefaultWorkflowInputs(target);
