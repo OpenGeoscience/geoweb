@@ -300,20 +300,19 @@ archive.main = function() {
       var mousePos = canvas.relMouseCoords(event);
       var infoBox = $("#map-info-box");
       var mapCoord = archive.myMap.displayToMap(mousePos.x, mousePos.y);
-      infoBox.html(mapCoord.x.toFixed(2)+" , "+mapCoord.y.toFixed(2));
+      infoBox.html(mapCoord.x.toFixed(2)+" , "+mapCoord.y.toFixed(2)+"<br/>");
+
       var x = event.pageX+24;
       var y = event.pageY+24;
       var w = infoBox.outerWidth();
       var h = infoBox.outerHeight();
       var cw = $(canvas).width();
       var ch = $(canvas).height();
-
       // don't overflow the canvas
       if (x + w > cw)
         x = event.pageX - 24 - w;
       if (y + h > ch)
         y = event.pageY - 24 - h;
-
       infoBox.offset({left: x, top: y});
       return true;
     });
@@ -337,10 +336,9 @@ archive.main = function() {
     // Ask for click events
     $(canvas).on("click", function(event) {
       var mousePos = canvas.relMouseCoords(event);
-      var infoBox = $("#map-info-box")[0];
-      infoBox.innerHTML = "";
-      infoBox.style.left = (event.pageX+24)+"px";
-      infoBox.style.top = (event.pageY+24)+"px";
+      var infoBox = $("#map-info-box");
+      //infoBox.empty();
+
       var mapCoord = archive.myMap.displayToMap(mousePos.x, mousePos.y);
       archive.myMap.queryLocation(mapCoord);
       return true;
@@ -348,11 +346,12 @@ archive.main = function() {
 
     // React to queryResultEvent
     $(archive.myMap).on(geoModule.command.queryResultEvent, function(event, queryResult) {
-      var infoBox = $("#map-info-box")[0];
+      var infoBox = $("#map-info-box");
       var locInfos = queryResult;
       for (var idx in locInfos) {
-        infoBox.innerHTML += idx + " : " + locInfos[idx] + "<br/>";
+        infoBox.append(idx + " : " + locInfos[idx] + "<br/>");
       }
+
       return true;
     });
 
