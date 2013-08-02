@@ -67,6 +67,10 @@ geoModule.map = function(node, options) {
     m_options.gcs = 'EPSG:3857';
   }
 
+  if (!options.display_gcs) {
+    m_options.display_gcs = 'EPSG:4326';
+  }
+
   if (!options.center) {
     m_options.center = geoModule.latlng(0.0, 0.0);
   }
@@ -559,6 +563,59 @@ geoModule.map = function(node, options) {
     intervalId = setInterval(frame, 2);
   };
 
+
+  ////////////////////////////////////////////////////////////////////////////
+  /**
+   * Convert display coordinates to map coordinates
+   *
+   * @returns {'x': number, 'y': number}
+   */
+  ////////////////////////////////////////////////////////////////////////////
+  this.displayToMap = function(winX, winY) {
+    var camera = m_renderer.camera(),
+        width = m_renderer.width(),
+        height = m_renderer.height(),
+        fpoint = camera.focalPoint(),
+        focusWorldPt = vec4.fromValues(fpoint[0], fpoint[1], fpoint[2], 1.0),
+        focusDisplayPt = m_renderer.worldToDisplay(focusWorldPt, camera.viewMatrix(),
+                                                    camera.projectionMatrix(),
+                                                    width, height),
+        displayPt = vec4.fromValues(winX, winY, focusDisplayPt[2], 1.0),
+        worldPt = m_renderer.displayToWorld(displayPt,
+                                            camera.viewMatrix(),
+                                            camera.projectionMatrix(),
+                                            width, height),
+        // NOTE: the map is using (nearly) normalized web-mercator.
+        // The constants below bring it to actual EPSG:3857 units.
+        latlon = geoModule.mercator.m2ll(
+          geoModule.mercator.deg2rad(worldPt[0]) * geoModule.mercator.r_major,
+          geoModule.mercator.deg2rad(worldPt[1]) * geoModule.mercator.r_minor),
+        location = {'x': latlon.lon, 'y': latlon.lat};
+
+    return location;
+  };
+
+  ////////////////////////////////////////////////////////////////////////////
+  /**
+   * Queries each layer for information at this location.
+   *
+   * @param location
+   */
+  ////////////////////////////////////////////////////////////////////////////
+  this.queryLocation = function(location) {
+    var layer = null,
+        srcPrj = new proj4.Proj(m_options.display_gcs),
+        dstPrj = new proj4.Proj(m_options.gcs),
+        point = new proj4.Point(location.x, location.y);
+
+    proj4.transform(srcPrj, dstPrj, point);
+
+    for (var layerName in m_layers) {
+      layer = m_layers[layerName];
+      layer.queryLocation(point);
+    }
+  };
+
   // Bind events to handlers
   document.onmousedown = m_viewer.handleMouseDown;
   document.onmouseup = m_viewer.handleMouseUp;
@@ -583,7 +640,19 @@ geoModule.map = function(node, options) {
     ogs.geo.command.updateViewPositionEvent, this.updateAndDraw);
   $(this).on(geoModule.command.updateEvent, this.updateAndDraw);
 
+  for (var name in m_layers)
+    $(m_layers[name]).on(geoModule.command.queryResultEvent, function(event, queryResult) {
+      $(m_that).trigger(event, queryResult);
+      return true;
+    });
+
+
   return this;
 };
 
 inherit(geoModule.map, ogs.vgl.object);
+
+/* Local Variables:   */
+/* mode: js           */
+/* js-indent-level: 2 */
+/* End:               */

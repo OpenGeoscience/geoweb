@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+  <meta charset="UTF-8">
 
-      <script type="text/javascript" src="/common/js/jquery-1.9.1.js"></script>
-      <script type="text/javascript" src="/common/js/jquery-ui.js"></script>
+  <script type="text/javascript" src="/common/js/jquery-1.9.1.js"></script>
+  <script type="text/javascript" src="/common/js/jquery-ui.js"></script>
 
-      <script src="geowebRegistry.js"></script>
-      <script src="10yearAverage.js"></script>
-      <script src="workflowStyle.js"></script>
-      <script src="workflow.js"></script>
+  <script src="geowebRegistry.js"></script>
+  <script src="10yearAverage.js"></script>
+  <script src="workflowStyle.js"></script>
+  <script src="workflow.js"></script>
 
   <script type="text/javascript" src="/common/js/bootstrap.js"></script>
   <script type="text/javascript" src="/common/js/gl-matrix.js"></script>
@@ -186,6 +187,7 @@
   <div style="width:100%; height:100%;">
     <canvas id="glcanvas" style="width:100%; height:100%;" ></canvas>
   </div>
+  <div id="map-info-box" style="position:absolute; z-index:100; background:rgba(255,255,255,0.75); padding: 6px"></div>
 
   <div id=control-panel style="position:fixed; bottom:0px; width:100%; height: 400px; background:rgba(255,255,255,0.5);">
     <div class="container-fluid">

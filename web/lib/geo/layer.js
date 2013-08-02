@@ -13,6 +13,8 @@
 //////////////////////////////////////////////////////////////////////////////
 /**
  * Layer options object specification
+ *
+ * @class geoModule.layerOptions
  */
 //////////////////////////////////////////////////////////////////////////////
 geoModule.layerOptions = function() {
@@ -35,6 +37,9 @@ geoModule.layerOptions = function() {
  * Base class for all layer types ogs.geo.layer represents any object that be
  * rendered on top of the map base. This could include image, points, line, and
  * polygons.
+ *
+ * @class geoModule.layer
+ * @returns {geoModule.layer}
  */
 //////////////////////////////////////////////////////////////////////////////
 geoModule.layer = function(options, source) {
@@ -58,10 +63,18 @@ geoModule.layer = function(options, source) {
       m_name = "",
       m_opacity = options.opacity || 1.0,
       m_gcs = 'EPSG:4326',
-      m_showAttribution = options.showAttribution || true,
-      m_visible = options.visible || true,
+      m_showAttribution = true,
+      m_visible = true,
       m_binNumber = ogs.vgl.material.RenderBin.Transparent,
       m_dataSource = source;
+
+  if (options.showAttribution) {
+    m_showAttribution = options.showAttribution;
+  }
+
+  if (options.m_visible) {
+    m_visible = options.m_visible;
+  }
 
   // TODO Write a function for this
   if (m_opacity > 1.0) {
@@ -327,7 +340,23 @@ geoModule.layer = function(options, source) {
     // Concrete class should implement this
   };
 
+  ////////////////////////////////////////////////////////////////////////////
+  /**
+   * Virtual method to return information about a given point.
+   * Concrete class should implement this method.
+   */
+  ////////////////////////////////////////////////////////////////////////////
+  this.queryLocation = function(location) {
+    // Concrete class should implement this
+  }
+
+
   return this;
 };
 
 inherit(geoModule.layer, ogs.vgl.object);
+
+/* Local Variables:   */
+/* mode: js           */
+/* js-indent-level: 2 */
+/* End:               */
