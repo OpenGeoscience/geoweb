@@ -100,6 +100,7 @@ set(JS_LINT_FILES
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/source.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/planeSource.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/pointSource.js
+    ${CMAKE_SOURCE_DIR}/web/lib/vgl/lineSource.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/utils.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/command.js
     ${CMAKE_SOURCE_DIR}/web/lib/vgl/picker.js
@@ -141,6 +142,7 @@ set(JS_UGLIFY_FILES
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/source.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/planeSource.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/pointSource.js
+  ${CMAKE_SOURCE_DIR}/web/lib/vgl/lineSource.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/utils.js
   ${CMAKE_SOURCE_DIR}/web/lib/vgl/vtkUnpack.js
   ${CMAKE_SOURCE_DIR}/web/lib/geo/init.js
