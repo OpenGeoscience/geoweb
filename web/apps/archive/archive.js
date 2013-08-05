@@ -345,6 +345,7 @@ archive.queryESGF = function(query) {
  *
  */
 archive.main = function() {
+
   archive.initQueryInterface();
 
   var mapOptions = {
@@ -671,10 +672,6 @@ archive.workflowLayer = function(target, layerId) {
 }
 
 archive.addLayer = function(target) {
-  ogs.ui.gis.addLayer(archive, 'table-layers', target, archive.selectLayer,
-    archive.toggleLayer, archive.removeLayer, archive.workflowLayer, function() {
-    var widgetName, widget, timeval, varval;
-
   var timeval = target.timestep;
   var varval = target.parameter;
 
@@ -695,4 +692,4 @@ archive.addLayer = function(target) {
         archive.downloadESGF(target, archive.onDownloadComplete)
     }, archive.workflowLayer, true);
   }
-};
+}
