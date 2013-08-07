@@ -572,7 +572,7 @@ archive.onDownloadComplete = function(dataSetId) {
     type: 'POST',
     url: '/esgf/filepath',
     data: {
-      user: user,
+      userUrl: user,
       url: dataSet.url
     },
     dataType: 'json',
@@ -593,7 +593,7 @@ archive.onDownloadComplete = function(dataSetId) {
 
 archive.downloadESGF = function(target, onComplete, message) {
 
-  $('#esgf-login').modal();
+  $('#esgf-login').modal({backdrop: 'static'});
 
   message = typeof message !== 'undefined' ? message : '';
 
@@ -610,7 +610,7 @@ archive.downloadESGF = function(target, onComplete, message) {
         url: target.url, // we could reused base name.
         size: target.size,
         checksum: target.checksum,
-        user: user,
+        userUrl: user,
         password: password
       },
       dataType: 'json',
