@@ -25,9 +25,15 @@ def user_cert_file(user_url):
 def aquire_certificate(user_url, password):
     from myproxy.client import MyProxyClient
 
-    filepath = user_url_to_filepath(user_url)
-    host = urlparse(user_url).netloc;
-    user = user_url.rsplit('/', 1)[1]
+    try:
+        filepath = user_url_to_filepath(user_url)
+        host = urlparse(user_url).netloc;
+        user = user_url.rsplit('/', 1)[1]
+    except IndexError:
+        raise Exception('Invalid OpenID identifier')
+
+    if not host or not user:
+        raise Exception('Invalid OpenID identifier')
 
     myproxy = MyProxyClient(hostname=host)
     credentials = myproxy.logon(user, password, bootstrap=True)

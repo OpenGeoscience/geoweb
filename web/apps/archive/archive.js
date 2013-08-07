@@ -550,7 +550,7 @@ archive.monitorESGFDownload = function(target, taskId, onComplete) {
           }
         }
         else {
-          // Try against?
+          // Try again?
           archive.downloadESGF(target, onComplete, response.result.message);
         }
       }
@@ -626,6 +626,12 @@ archive.downloadESGF = function(target, onComplete, message) {
         }
       }
     });
+  });
+
+  $('#password').keypress(function(e) {
+    if (e.charCode == 13) {
+      $('#esgf-login #download').click();
+    }
   });
 
   $('#esgf-login #cancel').one('click', function() {
