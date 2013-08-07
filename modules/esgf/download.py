@@ -6,43 +6,72 @@ import os.path
 from functools import partial
 import hashlib
 import tempfile
+from urlparse import urlparse
 
 mongo_url='mongodb://localhost/celery'
 celery = Celery('download', broker=mongo_url, backend=mongo_url)
 
-def aquire_certificate(user, password):
+def user_url_to_filepath(user_url):
+    user_url = user_url.replace('https://', '')
+    user_url = user_url.replace('http://', '')
+
+    return user_url
+
+def user_cert_file(user_url):
+    filepath = user_url_to_filepath(user_url)
+
+    return '%s/%s/cert.esgf' % (tempfile.gettempdir(), filepath)
+
+def aquire_certificate(user_url, password):
     from myproxy.client import MyProxyClient
-    myproxy = MyProxyClient(hostname='pcmdi9.llnl.gov')
+
+    try:
+        filepath = user_url_to_filepath(user_url)
+        host = urlparse(user_url).netloc;
+        user = user_url.rsplit('/', 1)[1]
+    except IndexError:
+        raise Exception('Invalid OpenID identifier')
+
+    if not host or not user:
+        raise Exception('Invalid OpenID identifier')
+
+    myproxy = MyProxyClient(hostname=host)
     credentials = myproxy.logon(user, password, bootstrap=True)
 
-    with open('%s/%s.esgf' % (tempfile.gettempdir(), user), 'w') as fd:
+    cert_filepath = user_cert_file(user_url)
+
+    dir = os.path.dirname(cert_filepath);
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+
+    with open(cert_filepath, 'w') as fd:
         fd.write(credentials[0])
         fd.write(credentials[1])
 
-def url_to_download_filepath(user, url):
-    print url
-    filepath = '%s/%s' %(tempfile.gettempdir(), user)
+    return cert_filepath
+
+def url_to_download_filepath(user_url, url):
+    user_filepath = user_url_to_filepath(user_url)
+    filepath = '%s/%s' %(tempfile.gettempdir(), user_filepath)
     filepath += url[6:]
     print filepath
     return filepath
 
 @celery.task
-def download(url, size, checksum, user, password):
-    aquire_certificate(user, password)
-
-    cert_path = '%s/%s.esgf' % (tempfile.gettempdir(), user)
+def download(url, size, checksum, user_url, password):
+    cert_filepath = aquire_certificate(user_url, password)
 
     request = requests.get(url,
-                           cert=(cert_path, cert_path), verify=False, stream=True)
+                           cert=(cert_filepath, cert_filepath), verify=False, stream=True)
 
-    filepath = url_to_download_filepath(user, url)
+    filepath = url_to_download_filepath(user_url, url)
     dir = os.path.dirname(filepath);
     if not os.path.exists(dir):
         os.makedirs(dir)
 
     # Now we know the user is authorized, first check if they have already
     # downloaded this file.
-    filepath = url_to_download_filepath(user, url)
+    filepath = url_to_download_filepath(user_url, url)
 
     if os.path.exists(filepath):
         md5 = hashlib.md5()
@@ -78,6 +107,6 @@ def status(taskId):
     elif task.state == 'SUCCESS':
         status['percentage'] = 100
     elif task.state == 'FAILURE':
-        status['message'] = task.result.message
+        status['message'] = str(task.result)
 
     return status

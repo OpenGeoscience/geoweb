@@ -14,9 +14,15 @@ from esgf.query import query
 
 streams = dict()
 
-def run(method, url=None, size=None, checksum=None, user=None, password=None, expr=None, vars=None,
+def run(method, url=None, size=None, checksum=None, userUrl=None, password=None, expr=None, vars=None,
         streamId=None, cancel=False, taskId=None):
     response = geoweb.empty_response();
+
+    if url:
+        url = url.strip('"')
+
+    if userUrl:
+        userUrl = userUrl.strip();
 
     if method == 'query':
         streamId = str(uuid.uuid1())
@@ -37,17 +43,15 @@ def run(method, url=None, size=None, checksum=None, user=None, password=None, ex
         except StopIteration:
             response['result'] = {'hasNext': False}
     elif method == 'read':
-        url = url.strip('"')
         read(url, user, password);
     elif method == "download":
-        url = url.strip('"')
-        r = esgf.download.download.delay(url, size, checksum, user, password);
+        r = esgf.download.download.delay(url, size, checksum, userUrl, password);
         response['result'] = {'taskId': r.task_id}
     elif method == 'download_status':
         taskId = taskId.strip('"')
         response['result'] = status(taskId)
     elif method == 'filepath':
-        response['result'] = {'filepath': url_to_download_filepath(user, url )}
+        response['result'] = {'filepath': url_to_download_filepath(userUrl, url )}
     else:
         raise RuntimeError("illegal method '%s' in module 'esgf'" % (method))
 
