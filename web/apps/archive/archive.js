@@ -218,7 +218,8 @@ archive.query = function(query) {
     dataType: 'json',
     success: function(response) {
       if (response.error !== null) {
-          console.log("[error] " + response.error ? response.error : "no results returned from server");
+          console.log("[error] " + response.error ?
+                      response.error : "no results returned from server");
       } else {
 
         // Convert _id.$oid into id field, this transformation is do so the
@@ -288,6 +289,40 @@ archive.main = function() {
 
     // Generate options
     ogs.ui.gis.generateOptions(viewControlTable, archive.myMap);
+
+    // Ask for mouseMove events
+    $(canvas).on("mousemove", function(event) {
+      var mousePos = canvas.relMouseCoords(event);
+      var infoBox = $("#map-info-box")[0];
+      infoBox.style.left = (event.pageX+24)+"px";
+      infoBox.style.top = (event.pageY+24)+"px";
+      var mapCoord = archive.myMap.displayToMap(mousePos.x, mousePos.y);
+      infoBox.innerHTML = mapCoord.x.toFixed(2)+" , "+mapCoord.y.toFixed(2);
+      return true;
+    });
+
+    // Ask for click events
+    $(canvas).on("click", function(event) {
+      var mousePos = canvas.relMouseCoords(event);
+      var infoBox = $("#map-info-box")[0];
+      infoBox.innerHTML = "";
+      infoBox.style.left = (event.pageX+24)+"px";
+      infoBox.style.top = (event.pageY+24)+"px";
+      var mapCoord = archive.myMap.displayToMap(mousePos.x, mousePos.y);
+      archive.myMap.queryLocation(mapCoord);
+      return true;
+    });
+
+    // React to queryResultEvent
+    $(archive.myMap).on(geoModule.command.queryResultEvent, function(event, queryResult) {
+      var infoBox = $("#map-info-box")[0];
+      var locInfos = queryResult;
+      for (var idx in locInfos) {
+        infoBox.innerHTML += idx + " : " + locInfos[idx] + "<br/>";
+      }
+      return true;
+    });
+
   });
 
   init();
@@ -312,11 +347,7 @@ archive.initWebSockets = function() {
       recieveCount += 1;
     }
   });
-
-
-
 }
-
 
 archive.processCSVData = function(csvdata) {
   var table = [];
@@ -333,7 +364,8 @@ archive.selectLayer = function(target, layerId) {
   var layer = archive. myMap.findLayerById(layerId);
 
   // See bootstrap issue: https://github.com/twitter/bootstrap/issues/2380
-  if ($(target).attr('data-toggle') !== 'button') { // don't toggle if data-toggle="button"
+  // don't toggle if data-toggle="button"
+  if ($(target).attr('data-toggle') !== 'button') {
       $(target).toggleClass('active');
     }
 
@@ -432,13 +464,19 @@ archive.addLayer = function(target) {
   ogs.ui.gis.addLayer(archive, 'table-layers', target, archive.selectLayer,
     archive.toggleLayer, archive.removeLayer, archive.workflowLayer, function() {
 
-    var source = ogs.geo.archiveLayerSource(JSON.stringify(target.basename),
-      JSON.stringify(target.parameter), archive.error);
-    var layer = ogs.geo.featureLayer();
+    var widgetName = null,
+        widget = null,
+        timeval = target.timestep,
+        varval = target.parameter,
+        source = ogs.geo.archiveLayerSource(JSON.stringify(target.basename),
+                   [varval], archive.error),
+        layer = ogs.geo.featureLayer();
+
+
     layer.setName(target.name);
     layer.setDataSource(source);
 
-    layer.update(ogs.geo.updateRequest(target.timestep));
+    layer.update(ogs.geo.updateRequest(timeval));
     layer.workflow = ogs.wfl.workflow({
       data: jQuery.extend(true, {}, defaultWorkflow)
     });
@@ -446,11 +484,16 @@ archive.addLayer = function(target) {
 
     archive.myMap.addLayer(layer);
     archive.myMap.redraw();
+
     ogs.ui.gis.layerAdded(target);
     $('.btn-layer').each(function(index){
       $(this).removeClass('disabled');
       $(this).removeAttr('disabled');
     });
-
   });
 };
+
+/* Local Variables:   */
+/* mode: js           */
+/* js-indent-level: 2 */
+/* End:               */
