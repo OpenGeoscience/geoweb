@@ -202,6 +202,7 @@ set(JS_DOCUMENT_FILES
 set(sources
     geoweb
     geoweb.py
+    geocelery
 )
 
 set(paths

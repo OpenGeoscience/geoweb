@@ -4,3 +4,4 @@
 .pydevproject
 *.pyo
 .DS_Store
+.idea
