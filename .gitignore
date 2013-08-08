@@ -11,3 +11,6 @@
 
 #WebStorm project files
 .idea
+
+#autogen files
+geoweb.min.js
