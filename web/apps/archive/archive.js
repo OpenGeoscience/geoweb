@@ -241,6 +241,7 @@ archive.query = function(query) {
  *
  */
 archive.main = function() {
+  $('#error-dialog').hide();
   archive.initQueryInteface();
 
   archive.initQueryInteface();
