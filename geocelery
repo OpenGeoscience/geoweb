@@ -1,0 +1,32 @@
+#!/usr/bin/env python
+
+import os
+import signal
+import subprocess
+import sys
+import argparse
+
+# Determine the correct executable.
+celery = "celery"
+stdout_stderr = subprocess.Popen(["which", celery], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+stdout, stderr = stdout_stderr.communicate()
+if stdout:
+  pass
+else:
+  print >> sys.stderr, "Unable to locate celery, please install celery package"
+  sys.exit(1)
+
+# Determine the path to this script.
+dir = os.path.dirname(os.path.abspath(__file__))
+
+new_python_path = [os.path.join(dir, "modules", "thirdparty", "MyProxyClient-1.3.0"),
+                   os.path.join(dir, "modules")]
+
+python_path = os.getenv('PYTHONPATH')
+
+if python_path:
+  new_python_path.append(python_path)
+
+os.putenv('PYTHONPATH', str(os.pathsep).join(new_python_path))
+
+subprocess.call([celery, '-A', 'esgf.download', 'worker'], stderr=subprocess.STDOUT)
