@@ -1,7 +1,23 @@
-*.pyc
-*~
+#eclipse files
 .project
 .pydevproject
 *.pyo
+
+#mac files
 .DS_Store
+
+#emacs temp files
+*~
+*\#
+
+#python compiled binary files
+*.pyc
+
+#WebStorm project files
 .idea
+
+#autogen files
+geoweb.min.js
+
+#other
+.settings
