@@ -101,9 +101,20 @@ set(DEV_SOURCE_FILES
   /lib/geo/data.js
   /lib/ui/init.js
   /lib/ui/gis.js
-  /lib/ui/workflow.js
   /lib/srv/init.js
   /lib/srv/webSocket.js
+  /lib/wfl/init.js
+  /lib/wfl/workflow.js
+  /lib/wfl/workflowModule.js
+  /lib/wfl/connection.js
+  /lib/wfl/port.js
+  /lib/wfl/geowebRegistry.js
+  /lib/wfl/inputModule.js
+  /lib/wfl/inputPort.js
+  /lib/wfl/outputPort.js
+  /lib/wfl/staticWorkflows.js
+  /lib/wfl/workflowStyle.js
+  /lib/wfl/workflowUtils.js
 )
 
 # These files should be validated with JSLint.
