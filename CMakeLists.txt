@@ -44,131 +44,78 @@ find_package(PythonInterp 2.6)
 # Create a "stamps" directory for storing fake targets for custom commands.
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/stamps)
 
-# These files should be validated with JSLint.
-set(JS_LINT_FILES
-    ${CMAKE_SOURCE_DIR}/web/lib/ui/init.js
-    ${CMAKE_SOURCE_DIR}/web/lib/ui/gis.js
-    ${CMAKE_SOURCE_DIR}/web/lib/ui/workflow.js
-    ${CMAKE_SOURCE_DIR}/web/lib/geo/init.js
-    ${CMAKE_SOURCE_DIR}/web/lib/geo/latlng.js
-    ${CMAKE_SOURCE_DIR}/web/lib/geo/ellipsoid.js
-    ${CMAKE_SOURCE_DIR}/web/lib/geo/mercator.js
-    ${CMAKE_SOURCE_DIR}/web/lib/geo/command.js
-    ${CMAKE_SOURCE_DIR}/web/lib/geo/layer.js
-    ${CMAKE_SOURCE_DIR}/web/lib/geo/featureLayer.js
-    ${CMAKE_SOURCE_DIR}/web/lib/geo/openStreetMapLayer.js
-    ${CMAKE_SOURCE_DIR}/web/lib/geo/featureCollection.js
-    ${CMAKE_SOURCE_DIR}/web/lib/geo/updateRequest.js
-    ${CMAKE_SOURCE_DIR}/web/lib/geo/prepareForRenderRequest.js
-    ${CMAKE_SOURCE_DIR}/web/lib/geo/mapInteractorStyle.js
-    ${CMAKE_SOURCE_DIR}/web/lib/geo/layerSource.js
-    ${CMAKE_SOURCE_DIR}/web/lib/geo/archiveLayerSource.js
-    ${CMAKE_SOURCE_DIR}/web/lib/geo/map.js
-    ${CMAKE_SOURCE_DIR}/web/lib/geo/feature.js
-    ${CMAKE_SOURCE_DIR}/web/lib/geo/geoTransform.js
-    ${CMAKE_SOURCE_DIR}/web/lib/geo/data.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/boundingObject.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/camera.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/geojsonReader.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/data.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/geomData.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/groupNode.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/init.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/timestamp.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/mapper.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/groupMapper.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/materialAttribute.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/blend.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/freezeObject.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/defaultValue.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/material.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/modelViewMatrixStack.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/node.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/object.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/renderer.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/renderWindow.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/interactorStyle.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/trackballInteractorStyle.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/viewer.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/shader.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/shaderProgram.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/texture.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/uniform.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/vertexAttribute.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/visitor.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/vtkUnpack.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/source.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/planeSource.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/pointSource.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/lineSource.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/utils.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/command.js
-    ${CMAKE_SOURCE_DIR}/web/lib/vgl/picker.js
-    ${CMAKE_SOURCE_DIR}/web/lib/srv/init.js
-    ${CMAKE_SOURCE_DIR}/web/lib/srv/webSocket.js
+set(DEV_SOURCE_FILES
+  /lib/vgl/init.js
+  /lib/vgl/timestamp.js
+  /lib/vgl/object.js
+  /lib/vgl/command.js
+  /lib/vgl/boundingObject.js
+  /lib/vgl/node.js
+  /lib/vgl/groupNode.js
+  /lib/vgl/actor.js
+  /lib/vgl/camera.js
+  /lib/vgl/freezeObject.js
+  /lib/vgl/defaultValue.js
+  /lib/vgl/geojsonReader.js
+  /lib/vgl/data.js
+  /lib/vgl/geomData.js
+  /lib/vgl/mapper.js
+  /lib/vgl/groupMapper.js
+  /lib/vgl/materialAttribute.js
+  /lib/vgl/blend.js
+  /lib/vgl/material.js
+  /lib/vgl/renderer.js
+  /lib/vgl/renderWindow.js
+  /lib/vgl/interactorStyle.js
+  /lib/vgl/trackballInteractorStyle.js
+  /lib/vgl/viewer.js
+  /lib/vgl/shader.js
+  /lib/vgl/shaderProgram.js
+  /lib/vgl/texture.js
+  /lib/vgl/uniform.js
+  /lib/vgl/vertexAttribute.js
+  /lib/vgl/source.js
+  /lib/vgl/planeSource.js
+  /lib/vgl/pointSource.js
+  /lib/vgl/lineSource.js
+  /lib/vgl/utils.js
+  /lib/vgl/vtkUnpack.js
+  /lib/geo/init.js
+  /lib/geo/ellipsoid.js
+  /lib/geo/mercator.js
+  /lib/geo/latlng.js
+  /lib/geo/layer.js
+  /lib/geo/featureLayer.js
+  /lib/geo/openStreetMapLayer.js
+  /lib/geo/featureCollection.js
+  /lib/geo/layerSource.js
+  /lib/geo/archiveLayerSource.js
+  /lib/geo/command.js
+  /lib/vgl/picker.js
+  /lib/geo/updateRequest.js
+  /lib/geo/prepareForRenderRequest.js
+  /lib/geo/mapInteractorStyle.js
+  /lib/geo/map.js
+  /lib/geo/feature.js
+  /lib/geo/geoTransform.js
+  /lib/geo/data.js
+  /lib/ui/init.js
+  /lib/ui/gis.js
+  /lib/ui/workflow.js
+  /lib/srv/init.js
+  /lib/srv/webSocket.js
 )
 
-# These files should be uglified and concatenated.
+# These files should be validated with JSLint.
+set(JS_LINT_FILES)
+
+foreach(d ${DEV_SOURCE_FILES})
+  set(JS_LINT_FILES ${JS_LINT_FILES} ${CMAKE_SOURCE_DIR}/web/${d})
+endforeach()
+
+# These files should be concatenated and uglified
 set(JS_UGLIFY_FILES
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/init.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/timestamp.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/object.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/command.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/boundingObject.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/node.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/groupNode.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/actor.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/camera.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/freezeObject.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/defaultValue.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/geojsonReader.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/data.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/geomData.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/mapper.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/groupMapper.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/materialAttribute.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/blend.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/material.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/renderer.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/renderWindow.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/interactorStyle.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/trackballInteractorStyle.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/viewer.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/shader.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/shaderProgram.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/texture.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/uniform.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/vertexAttribute.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/source.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/planeSource.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/pointSource.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/lineSource.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/utils.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/vtkUnpack.js
-  ${CMAKE_SOURCE_DIR}/web/lib/geo/init.js
-  ${CMAKE_SOURCE_DIR}/web/lib/geo/ellipsoid.js
-  ${CMAKE_SOURCE_DIR}/web/lib/geo/mercator.js
-  ${CMAKE_SOURCE_DIR}/web/lib/geo/latlng.js
-  ${CMAKE_SOURCE_DIR}/web/lib/geo/layer.js
-  ${CMAKE_SOURCE_DIR}/web/lib/geo/featureLayer.js
-  ${CMAKE_SOURCE_DIR}/web/lib/geo/openStreetMapLayer.js
-  ${CMAKE_SOURCE_DIR}/web/lib/geo/featureCollection.js
-  ${CMAKE_SOURCE_DIR}/web/lib/geo/layerSource.js
-  ${CMAKE_SOURCE_DIR}/web/lib/geo/archiveLayerSource.js
-  ${CMAKE_SOURCE_DIR}/web/lib/geo/command.js
-  ${CMAKE_SOURCE_DIR}/web/lib/vgl/picker.js
-  ${CMAKE_SOURCE_DIR}/web/lib/geo/updateRequest.js
-  ${CMAKE_SOURCE_DIR}/web/lib/geo/prepareForRenderRequest.js
-  ${CMAKE_SOURCE_DIR}/web/lib/geo/mapInteractorStyle.js
-  ${CMAKE_SOURCE_DIR}/web/lib/geo/map.js
-  ${CMAKE_SOURCE_DIR}/web/lib/geo/feature.js
-  ${CMAKE_SOURCE_DIR}/web/lib/geo/geoTransform.js
-  ${CMAKE_SOURCE_DIR}/web/lib/geo/data.js
-  ${CMAKE_SOURCE_DIR}/web/lib/ui/init.js
-  ${CMAKE_SOURCE_DIR}/web/lib/ui/gis.js
-  ${CMAKE_SOURCE_DIR}/web/lib/ui/workflow.js
-  ${CMAKE_SOURCE_DIR}/web/lib/srv/init.js
-  ${CMAKE_SOURCE_DIR}/web/lib/srv/webSocket.js
+  ${JS_LINT_FILES}
 )
 
 # These files should have documentation generated for them.
@@ -180,6 +127,7 @@ set(JS_DOCUMENT_FILES
 set(sources
     geoweb
     geoweb.py
+    geocelery
 )
 
 set(paths
@@ -343,6 +291,9 @@ if (DEV_BUILD)
   file(COPY ${CMAKE_BINARY_DIR}/CMakeFiles/geoweb_dev
     DESTINATION ${CMAKE_BINARY_DIR}/${deploy_dir}
     FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)
+  string(REPLACE ";" "','" DEV_SOURCE_FILES_JS "'${DEV_SOURCE_FILES}'")
+  configure_file(${CMAKE_SOURCE_DIR}/geoweb.min.js.in
+    ${CMAKE_SOURCE_DIR}/web/lib/geoweb.min.js)
 endif()
 
 # Now include sub-directories

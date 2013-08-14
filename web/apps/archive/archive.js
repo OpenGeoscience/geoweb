@@ -32,7 +32,7 @@ archive.getMongoConfig = function() {
 /**
  * Setup the basic query components and bindings.
  */
-archive.initQueryInteface = function() {
+archive.initQueryInterface = function() {
 
   $('#document-table-body').tooltip();
 
@@ -47,7 +47,8 @@ archive.initQueryInteface = function() {
     }
     else {
       $('#query-input').addClass("query-in-progress");
-      archive.query(query);
+      archive.queryDatabase(query);
+      archive.queryESGF(query);
     }
   })
 
@@ -70,6 +71,17 @@ archive.processLocalResults = function(results, remove) {
   var removeFilter = function(d) {return false};
   if (remove) {
     removeFilter = function(d) {return d['source'] == 'Local'};
+  }
+
+  archive.processResults(results, removeFilter);
+}
+
+archive.processESGFResults = function(results, remove) {
+  remove = typeof remove !== 'undefined' ? remove : false;
+
+  removeFilter = function(d) {return false};
+  if (remove) {
+    removeFilter = function(d) {return d['source'] == 'ESGF'};
   }
 
   archive.processResults(results, removeFilter);
@@ -103,8 +115,15 @@ archive.processResults = function(results, removeFilter) {
         tags = tags.concat(variable['tags']);
       });
 
+      var size = row['size'];
+
+      if (size && size != 'N/A') {
+        size = Math.round(row['size']/1024/1024) + "M"
+      }
+
       return [ {column: 'name', data: row['name']},
                {column: 'source', data: row['source']},
+               {column: 'size', data: size},
                {column: 'tags', data: tags.join()}] ;
     });
 
@@ -176,6 +195,8 @@ archive.processResults = function(results, removeFilter) {
       parameter: parameter,
       timestep: timestep,
       url: data[0].url,
+      size: data[0].size,
+      checksum: data[0].checksum,
       basename: data[0].basename
     });
 
@@ -186,7 +207,7 @@ archive.processResults = function(results, removeFilter) {
   $('#query-input').removeClass("query-in-progress");
 }
 
-archive.query = function(query) {
+archive.queryDatabase = function(query) {
 
   mongo = archive.getMongoConfig();
 
@@ -218,8 +239,7 @@ archive.query = function(query) {
     dataType: 'json',
     success: function(response) {
       if (response.error !== null) {
-          console.log("[error] " + response.error ?
-                      response.error : "no results returned from server");
+          console.log("[error] " + response.error ? response.error : "no results returned from server");
       } else {
 
         // Convert _id.$oid into id field, this transformation is do so the
@@ -227,6 +247,7 @@ archive.query = function(query) {
         $.each(response.result.data, function(index, row) {
           row['id'] = row['_id'].$oid;
           row['source'] = "Local";
+          row['size'] = 'N/A';
         });
 
         archive.processLocalResults(response.result.data, true);
@@ -236,14 +257,96 @@ archive.query = function(query) {
   });
 }
 
+archive.nextResult = function (streamId, remove) {
+  remove = typeof remove !== 'undefined' ? remove : false;
+
+  $.ajax({
+    type: 'POST',
+    url: '/esgf/stream',
+    data: {
+      streamId: streamId
+    },
+    dataType: 'json',
+    success: function(response) {
+      if (response.error !== null) {
+          console.log("[error] " + response.error ? response.error : "no results returned from server");
+      } else {
+
+        // Set the source
+
+        if (response.result.data) {
+          $.each(response.result.data, function(index, row) {
+            row['source'] = "ESGF";
+            // As this will be used as an attribute we need to repalce the .s
+            row['id'] = row['id'].replace(/\./g, "-")
+          });
+          archive.processESGFResults(response.result.data, remove);
+        }
+
+        if (response.result.hasNext) {
+          setTimeout(function() {archive.nextResult(streamId)}, 0);
+        }
+        else {
+          archive.performingESGFQuery = false;
+          //if (archive.isQueryComplete())
+          //  $('#query-input').removeClass("query-in-progress");
+        }
+      }
+    }
+  });
+}
+
+archive.cancelStream = function (streamId) {
+
+  $.ajax({
+    type: 'POST',
+    url: '/esgf/stream',
+    data: {
+      streamId: streamId,
+      cancel: true
+    },
+    dataType: 'json',
+    success: function(response) {
+      if (response.error !== null) {
+          console.log("[error] " + response.error ? response.error : "no results returned from server");
+      }
+      archive.performingESGFQuery = false;
+    }
+  });
+}
+
+archive.queryESGF = function(query) {
+  archive.performingESGFQuery = true;
+
+  $.ajax({
+    type: 'POST',
+    url: '/esgf/query',
+    data: {
+      expr: JSON.stringify(query)
+    },
+    dataType: 'json',
+    success: function(response) {
+      if (response.error !== null) {
+          console.log("[error] " + response.error ? response.error : "no results returned from server");
+      } else {
+
+        if (response.result.hasNext) {
+          archive.streamId = response.result.streamId;
+          archive.nextResult(response.result.streamId, true);
+        }
+      }
+    }
+  });
+}
+
+
 /**
  * Main program
  *
  */
 archive.main = function() {
-  archive.initQueryInteface();
 
-  archive.initQueryInteface();
+  archive.initQueryInterface();
 
   var mapOptions = {
     zoom : 6,
@@ -280,20 +383,21 @@ archive.main = function() {
     }
 
     // Create a placeholder for the layers
-    var layersTable = ogs.ui.gis.createList('layers', 'Layers');
+    var layersTable = ogs.ui.gis.createLayerList(archive.myMap,
+        'layers', 'Layers', archive.toggleLayer, archive.removeLayer);
 
     // Create a placeholder for layer controls
-    var layersControlTable = ogs.ui.gis.createList('layer-controls', 'Controls');
+//    //var layersControlTable = ogs.ui.gis.createList('layer-controls', 'Controls');
 
     // Populate controls
-    ogs.ui.gis.createControls(layersControlTable, archive.myMap);
+    //ogs.ui.gis.createControls(layersControlTable, archive.myMap);
 
     // Create a place holder for view controls
     // Create a placeholder for layer controls
-    var viewControlTable = ogs.ui.gis.createList('view-controls', 'View-Options');
+    //var viewControlTable = ogs.ui.gis.createList('view-controls', 'View-Options');
 
     // Generate options
-    ogs.ui.gis.generateOptions(viewControlTable, archive.myMap);
+    //ogs.ui.gis.createMapControls(archive.myMap, $('#map-controls'));
 
     // Ask for mouseMove events
     $(canvas).on("mousemove", function(event) {
@@ -354,7 +458,6 @@ archive.main = function() {
 
       return true;
     });
-
   });
 
   init();
@@ -435,16 +538,148 @@ archive.toggleLayer = function(target, layerId) {
 
 
 archive.removeLayer = function(target, layerId) {
+  ogs.ui.gis.removeLayer(target, layerId);
   var layer = archive.myMap.findLayerById(layerId);
   if (layer != null) {
     archive.myMap.removeLayer(layer);
     archive.myMap.redraw();
-    ogs.ui.gis.removeLayer(target, layerId);
     return true;
   }
 
   return false;
 };
+
+archive.monitorESGFDownload = function(target, taskId, onComplete) {
+  var dataSetId = target.dataset_id;
+
+  $.ajax({
+    type: 'POST',
+    url: '/esgf/download_status',
+    data: {
+      taskId: taskId
+    },
+    dataType: 'json',
+    success: function(response) {
+      if (response.error !== null) {
+          console.log("[error] " + response.error ? response.error : "no results returned from server");
+      } else {
+
+        if (response.result.state != 'FAILURE') {
+          var bar = $('tr#' + dataSetId + ' td:nth-child(4) div.bar');
+          bar.width(response.result.percentage+'%');
+
+          // If we are done then we can load the file
+          if (response.result.percentage == 100) {
+            onComplete(dataSetId);
+          }
+          else {
+            setTimeout(function() {archive.monitorESGFDownload(target, taskId, onComplete)}, 1000);
+          }
+        }
+        else {
+          // Try again?
+          archive.downloadESGF(target, onComplete, response.result.message);
+        }
+      }
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+        console.log(errorThrown)
+    }
+  });
+}
+
+archive.onDownloadComplete = function(dataSetId) {
+  var layerRow = $('tr#' + dataSetId);
+
+  // This sucks and is very fragile ... !
+  var user = $('#user').val();
+  var dataSet = layerRow.data("dataset");
+
+  $.ajax({
+    type: 'POST',
+    url: '/esgf/filepath',
+    data: {
+      userUrl: user,
+      url: dataSet.url
+    },
+    dataType: 'json',
+    success: function(response) {
+      if (response.error !== null) {
+          console.log("[error] " + response.error ? response.error : "Unable to get filepath");
+      } else {
+
+        // Remove the progress bar
+        $('tr#' + dataSetId + ' .progress').remove();
+
+        archive.addLayerToMap(dataSet.dataset_id, dataSet.name, response.result.filepath,
+            dataSet.parameter, null)
+      }
+    }
+  });
+}
+
+archive.downloadESGF = function(target, onComplete, message) {
+
+  $('#esgf-login').modal({backdrop: 'static'});
+
+  message = typeof message !== 'undefined' ? message : '';
+
+  $('#esgf-login #message').html(message);
+
+  $('#esgf-login #download').one('click', function() {
+    var user = $('#user').val();
+    var password = $('#password').val();
+
+    $.ajax({
+      type: 'POST',
+      url: '/esgf/download',
+      data: {
+        url: target.url, // we could reused base name.
+        size: target.size,
+        checksum: target.checksum,
+        userUrl: user,
+        password: password
+      },
+      dataType: 'json',
+      success: function(response) {
+        if (response.error !== null) {
+            console.log("[error] " + response.error ? response.error : "no results returned from server");
+        } else {
+          if (response.result && 'taskId' in response.result) {
+            archive.monitorESGFDownload(target, response.result['taskId'], onComplete);
+          } else {
+            archive.error("No id return to monitor download");
+          }
+        }
+      }
+    });
+  });
+
+  $('#password').keypress(function(e) {
+    if (e.charCode == 13) {
+      $('#esgf-login #download').click();
+    }
+  });
+
+  $('#esgf-login #cancel').one('click', function() {
+    archive.removeLayer(this, target.dataset_id);
+  });
+
+}
+
+archive.addLayerToMap = function(id, name, filePath, parameter, timeval) {
+
+  var source = ogs.geo.archiveLayerSource(JSON.stringify(filePath),
+    JSON.stringify(parameter), archive.error);
+  var layer = ogs.geo.featureLayer();
+  layer.setName(name);
+  layer.setDataSource(source);
+  layer.setId(id);
+  layer.update(ogs.geo.updateRequest(timeval));
+  layer.workflow = ogs.ui.workflow({data:exworkflow});
+  archive.myMap.addLayer(layer);
+  archive.myMap.redraw();
+}
 
 archive.workflowLayer = function(target, layerId) {
   var layer = archive.myMap.findLayerById(layerId);
@@ -470,34 +705,24 @@ archive.workflowLayer = function(target, layerId) {
 }
 
 archive.addLayer = function(target) {
-  ogs.ui.gis.addLayer(archive, 'table-layers', target, archive.selectLayer,
-    archive.toggleLayer, archive.removeLayer, archive.workflowLayer, function() {
-    var widgetName = null,
-        widget = null,
-        timeval = target.timestep,
-        varval = target.parameter,
-        source = ogs.geo.archiveLayerSource(JSON.stringify(target.basename),
-                   [varval], archive.error),
-        layer = ogs.geo.featureLayer();
+  var timeval = target.timestep;
+  var varval = target.parameter;
 
+  // If we already have this layer added just return
+  if (ogs.ui.gis.hasLayer($('#table-layers'), target.dataset_id))
+    return;
 
-    layer.setName(target.name);
-    layer.setDataSource(source);
-
-    layer.update(ogs.geo.updateRequest(timeval));
-    layer.workflow = ogs.ui.workflow({data:exworkflow});
-    archive.myMap.addLayer(layer);
-    archive.myMap.redraw();
-
-    ogs.ui.gis.layerAdded(target);
-    $('.btn-layer').each(function(index){
-      $(this).removeClass('disabled');
-      $(this).removeAttr('disabled');
-    });
-  });
-};
-
-/* Local Variables:   */
-/* mode: js           */
-/* js-indent-level: 2 */
-/* End:               */
+  if (target.source == 'Local') {
+    ogs.ui.gis.addLayer(archive, 'table-layers', target, archive.selectLayer,
+      archive.toggleLayer, archive.removeLayer, function() {
+        ogs.ui.gis.layerAdded(target);
+        archive.addLayerToMap(target.dataset_id, target.name, target.basename, varval, timeval);
+    }, archive.workflowLayer);
+  }
+  else {
+    ogs.ui.gis.addLayer(archive, 'table-layers', target, archive.selectLayer,
+      archive.toggleLayer, archive.removeLayer, function() {
+        archive.downloadESGF(target, archive.onDownloadComplete)
+    }, archive.workflowLayer, true);
+  }
+}
