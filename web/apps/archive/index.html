@@ -145,7 +145,7 @@
         background-origin:content-box;
     }
 
-   .whatadrag {
+    .whatadrag {
       background:rgba(255,255,255,0.5);
       padding: 10px;
       border-radius: 15px;
@@ -163,15 +163,21 @@
        width: 20%;
      }
      #document-table .timesteps {
-       width: 30%;
+       width: 20%;
      }
      #document-table .parameter {
-       width: 30%;
+       width: 20%;
+     }
+     #document-table .algorithm {
+       width: 20%;
      }
      #document-table .timestep-select {
        width: 100%;
      }
      #document-table .parameter-select {
+       width: 100%;
+     }
+     #document-table .algorithm-select {
        width: 100%;
      }
   </style>
@@ -260,7 +266,8 @@
                           <th class="size">Size</th>
                           <th class="tags">Tags</th>
                           <th class="timestep">Timestep</th>
-                          <th class="parameter">Parameters</th><tr>
+                          <th class="parameter">Parameters</th>
+                          <th class="algorithm">Algorithm</th><tr>
                         </thead>
                         <tbody id="document-table-body">
                         </tbody>

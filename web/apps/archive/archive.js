@@ -1,4 +1,4 @@
-// Disable console log
+// Disable console log test
 // console.log = function() {}
 
 var archive = {};
@@ -127,9 +127,9 @@ archive.processResults = function(results, removeFilter) {
                {column: 'tags', data: tags.join()}] ;
     });
 
-   td = td.enter().append('td');
-   td.text(function(d) { return d['data']; });
-   td.each(function(d, i) { $(this).addClass(d['column']);});
+    td = td.enter().append('td');
+    td.text(function(d) { return d['data']; });
+    td.each(function(d, i) { $(this).addClass(d['column']);});
 
   // Populate the timesteps parameter list
   var selectTimestep = rows.append('td');
@@ -172,6 +172,21 @@ archive.processResults = function(results, removeFilter) {
   });
   select.exit().remove();
 
+  // Populate the algorithm list
+  var selectAlgorithm = rows.append('td');
+  selectAlgorithm.classed('algorithm', true);
+  selectAlgorithm = selectAlgorithm.append('select');
+  selectAlgorithm.classed("algorithm-select", true);
+
+  selectAlgorithm = selectAlgorithm.selectAll('select').data(function(row) {
+    return ['default', '10 Year Average'];
+  });
+
+  selectAlgorithm.enter().append('option').text(function(algorithm) {
+    return algorithm;
+  });
+  selectAlgorithm.exit().remove();
+
   $('#document-table  tr').draggable( {
     cursor: 'move',
     containment: 'window',
@@ -180,6 +195,7 @@ archive.processResults = function(results, removeFilter) {
 
     var parameter = $('.parameter-select', this).val();
     var timestep = $('.timestep-select', this).val();
+    var algorithm = $('.algorithm-select', this).val();
 
     if (timestep == 'N/A')
       timestep = null;
@@ -194,6 +210,7 @@ archive.processResults = function(results, removeFilter) {
       source: data[0].source,
       parameter: parameter,
       timestep: timestep,
+      algorithm: algorithm,
       url: data[0].url,
       size: data[0].size,
       checksum: data[0].checksum,
@@ -633,23 +650,32 @@ archive.downloadESGF = function(target, onComplete, message) {
     archive.removeLayer(this, target.dataset_id);
   });
 
-}
+};
 
-archive.addLayerToMap = function(target, parameter, timeval) {
-  var source = ogs.geo.archiveLayerSource(JSON.stringify(target.basename),
-    JSON.stringify(parameter), archive.error);
-  var layer = ogs.geo.featureLayer();
+archive.addLayerToMap = function(target, parameter, timeval, algorithm) {
+  var algorithmData = (
+      algorithm == 'default' ? defaultWorkflow :
+      algorithm == '10 Year Average' ? averageWorkflow :
+      defaultWorkflow
+    ),
+    workflow = ogs.wfl.workflow({
+      data: jQuery.extend(true, {}, algorithmData)
+    }),
+    source = ogs.wfl.workflowLayerSource(
+      JSON.stringify(target.basename),
+      JSON.stringify(parameter),
+      workflow,
+      archive.error
+    ),
+    layer = ogs.geo.featureLayer();
+  workflow.setDefaultWorkflowInputs(target);
   layer.setName(target.name);
   layer.setDataSource(source);
   layer.setId(target.dataset_id);
   layer.update(ogs.geo.updateRequest(timeval));
-  layer.workflow = ogs.wfl.workflow({
-    data: jQuery.extend(true, {}, defaultWorkflow)
-  });
-  layer.workflow.setDefaultWorkflowInputs(target);
   archive.myMap.addLayer(layer);
   archive.myMap.redraw();
-}
+};
 
 archive.workflowLayer = function(target, layerId) {
   var layer = archive.myMap.findLayerById(layerId);
@@ -665,41 +691,22 @@ archive.workflowLayer = function(target, layerId) {
         buttons: {
           Close: function() {
             $(this).dialog("close");
-            layer.workflow.hide();
+            layer.workflow().hide();
           },
           Execute: function() {
-            var replacer = function(key, value) {
-              if(typeof value === 'number') {
-                return value+'';
-              }
-              return value;
-            };
-            $.post(
-              //['http://',window.location.host, '/modules/vistrail/execute/'].join('')
-              '/services/vistrail/execute/',
-              {workflowJSON: JSON.stringify(layer.workflow.data(), replacer, 2)},
-              function(response) {
-                console.log("Workflow executed");
-                var obj = JSON.parse(response);
-                var reader = ogs.vgl.geojsonReader(),
-                  retVal = reader.readGJObject(jQuery.parseJSON(obj.result));
-                //redefine layer source getData function
-                layer.dataSource().getData = function(time, callback) {
-                  return retVal;
-                };
-                archive.myMap.update();
-              }
-            );
+            layer.getData((new Date()).getTime());
+            archive.myMap.update();
           }
         }
       });
     layer.workflow.show();
   }
-}
+};
 
 archive.addLayer = function(target) {
   var timeval = target.timestep;
   var varval = target.parameter;
+  var algorithm = target.algorithm;
 
   // If we already have this layer added just return
   if (ogs.ui.gis.hasLayer($('#table-layers'), target.dataset_id))
@@ -709,7 +716,7 @@ archive.addLayer = function(target) {
     ogs.ui.gis.addLayer(archive, 'table-layers', target, archive.selectLayer,
       archive.toggleLayer, archive.removeLayer, function() {
         ogs.ui.gis.layerAdded(target);
-        archive.addLayerToMap(target, varval, timeval);
+        archive.addLayerToMap(target, varval, timeval, algorithm);
     }, archive.workflowLayer);
   }
   else {
@@ -718,4 +725,4 @@ archive.addLayer = function(target) {
         archive.downloadESGF(target, archive.onDownloadComplete)
     }, archive.workflowLayer, true);
   }
-}
+};

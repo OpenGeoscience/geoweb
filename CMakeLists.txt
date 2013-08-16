@@ -110,11 +110,12 @@ set(DEV_SOURCE_FILES
   /lib/wfl/port.js
   /lib/wfl/geowebRegistry.js
   /lib/wfl/inputModule.js
-  /lib/wfl/inputPort.js
   /lib/wfl/outputPort.js
+  /lib/wfl/inputPort.js
   /lib/wfl/staticWorkflows.js
   /lib/wfl/workflowStyle.js
   /lib/wfl/workflowUtils.js
+  /lib/wfl/workflowLayerSource.js
 )
 
 # These files should be validated with JSLint.
