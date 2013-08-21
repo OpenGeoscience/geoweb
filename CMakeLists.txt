@@ -95,6 +95,7 @@ set(DEV_SOURCE_FILES
   /lib/geo/updateRequest.js
   /lib/geo/prepareForRenderRequest.js
   /lib/geo/mapInteractorStyle.js
+  /lib/geo/time.js
   /lib/geo/map.js
   /lib/geo/feature.js
   /lib/geo/geoTransform.js
