@@ -64,29 +64,56 @@ class mongo_import:
         #obtain array information
         pds = data.GetPointData()
         pdscount = pds.GetNumberOfArrays()
-        for i in range(0, pdscount):
-            variable = {}
-            pdarray = pds.GetArray(i)
-            if not pdarray:
-                # got an abstract array
-                continue
-            variable["name"] = pdarray.GetName()
-            variable["dim"] = []
-            variable["tags"] = []
-            variable["units"] = reader.QueryArrayUnits(pdarray.GetName())
-            # todo: iterate over all timesteps, default (first) timestep may not be representative
-            variable["time"] = []
-            componentCount = pdarray.GetNumberOfComponents()
-            minmax = []
-            for j in range(0, componentCount):
-                minmaxJ = [0,-1]
-                pdarray.GetRange(minmaxJ, j)
-                minmax.append(minmaxJ[0])
-                minmax.append(minmaxJ[1])
-            variable["range"] = minmax
-            variables.append(variable)
+        if times == None:
+            times = [0]
+        #go through all timesteps to accumulate global min and max values
+        for t in times:
+            firstTStep = t==times[0]
+            arrayindex = 0
+            #go through all arrays
+            for i in range(0, pdscount):
+                pdarray = pds.GetArray(i)
+                if not pdarray:
+                    # got an abstract array
+                    continue
+                if firstTStep:
+                    #create new record for this array
+                    variable = {}
+                else:
+                    #extend existing record
+                    variable = variables[arrayindex]
+                #tell reader to read data so that we can get info about this time step
+                sddp = reader.GetExecutive()
+                sddp.SetUpdateTimeStep(0,t)
+                sddp.Update()
+                arrayindex = arrayindex + 1
+                if firstTStep:
+                    #record unchanging meta information
+                    variable["name"] = pdarray.GetName()
+                    variable["dim"] = []
+                    variable["tags"] = []
+                    variable["units"] = reader.QueryArrayUnits(pdarray.GetName())
+                # find min and max for each component of this array at this timestep
+                componentCount = pdarray.GetNumberOfComponents()
+                minmax = []
+                for j in range(0, componentCount):
+                    minmaxJ = [0,-1]
+                    pdarray.GetRange(minmaxJ, j)
+                    minmax.append(minmaxJ[0])
+                    minmax.append(minmaxJ[1])
+                if firstTStep:
+                    #remember what we learned about this new array
+                    variable["range"] = minmax
+                    variables.append(variable)
+                else:
+                    #extend range if necessary from this timesteps range
+                    for j in range(0, componentCount):
+                        if minmax[j*2+0] < variable["range"][j*2+0]:
+                            variable["range"][j*2+0] = minmax[j*2+0]
+                        if minmax[j*2+1] > variable["range"][j*2+1]:
+                            variable["range"][j*2+1] = minmax[j*2+1]
 
-        #record what we've learned
+        #record what we've learned in the data base
         insertId = coll.insert({"name":fileprefix, "basename":basename,
                                 "variables":variables,
                                 "timeInfo":timeInfo,
