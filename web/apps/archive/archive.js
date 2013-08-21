@@ -199,7 +199,7 @@ archive.processResults = function(results, removeFilter) {
       source: data[0].source,
       parameter: parameter,
       timestep: timestep,
-      timesteps: timesteps,
+      timeInfo: data[0].timeInfo,
       url: data[0].url,
       size: data[0].size,
       checksum: data[0].checksum,
@@ -389,7 +389,8 @@ archive.main = function() {
 
     // Create a placeholder for the layers
     var layersTable = ogs.ui.gis.createLayerList(archive.myMap,
-        'layers', 'Layers', archive.toggleLayer, archive.removeLayer);
+        'layers', 'Layers', archive.toggleLayer, archive.removeLayer,
+        archive.timeRange);
 
     // Ask for mouseMove events
     $(canvas).on("mousemove", function(event) {
@@ -513,6 +514,29 @@ archive.removeLayer = function(target, layerId) {
 
   return false;
 };
+
+archive.timeRange = function(basename, onComplete) {
+
+  var mongQuery = {basename: basename};
+
+  $.ajax({
+    type: 'POST',
+    url: '/mongo/' + mongo.server + '/' + mongo.database + '/' + mongo.collection,
+    data: {
+      query: JSON.stringify(mongoQuery),
+      limit:100,
+      fields: JSON.stringify(['timeInfo'])
+    },
+    dataType: 'json',
+    success: function(response) {
+      if (response.error !== null) {
+          console.log("[error] " + response.error ? response.error : "no results returned from server");
+      } else {
+        onComplete(response.result.data[0].timeInfo);
+      }
+    }
+  });
+}
 
 archive.monitorESGFDownload = function(target, taskId, onComplete) {
   var dataSetId = target.dataset_id;

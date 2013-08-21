@@ -29,7 +29,8 @@ uiModule.gis.selectedLayers = function() {
  * @param rootId
  * @param heading
  */
-uiModule.gis.createLayerList = function(map, rootId, heading, toggleFunct, removeFunct) {
+uiModule.gis.createLayerList = function(map, rootId, heading, toggleFunct, removeFunct,
+    rangeFunction) {
   var tableRoot = uiModule.gis.createList(rootId, heading);
 
   // Add the controls
@@ -149,28 +150,65 @@ uiModule.gis.createLayerList = function(map, rootId, heading, toggleFunct, remov
   animationControls.css({left: "10px"});
   controls.append($(animationControls));
 
-  var layersToAnimate = function() {
-    var layers = []
-
-    $.each(uiModule.gis.selectedLayers(), function(i, id) {
-      var dataset = $('#'+id).data('dataset');
-      var layer = map.findLayerById(dataset.dataset_id);
-
-      layers.push({dataset: dataset, layer: layer});
-    });
-
-    return layers;
-  };
-
   $('#play', animationControls).click(function() {
     $(this).addClass('active');
     $('#pause', animationControls).removeClass('active');
-    $.each(layersToAnimate(), function(i, data) {
-      var dataset = data.dataset;
-      var layer = data.layer;
 
-      map.animate(dataset.timesteps, [layer]);
-      $('#timestep-display').fadeIn('slow');
+    var layers = []
+
+    var delta = -1;
+    var start = -1;
+    var end = -1;
+    var selectedLayers = uiModule.gis.selectedLayers();
+    var rangesToProcess = selectedLayers.length;
+
+    // Function used to process an incoming range
+    var processTimeInfo = function(timeInfo) {
+      if (timeInfo.stdDelta < delta)
+        delta = timeInfo.stdDelta;
+
+      if (timeInfo.stdTimeRange[0] < start)
+        start = timeInfo.dataRange[0];
+
+      if (timeInfo.stdTimeRange[1] > end)
+        end = timeInfo.dataRange[1];
+
+      --rangesToProcess;
+
+      // Are we done processing? If so pass the information to the map to
+      // todo the animation.
+      if (rangesToProcess == 0) {
+
+        if (delta == -1 || end == -1 || start == -1 ) {
+          console.log('Unable to calculate time range.');
+          return;
+        }
+
+        var startDate = new Date(floor(start[0]), floor(start[1]), floort(start[2]));
+        var endDate = new Date(floor(end[0]), floor(end[1]), floort(end[2]));
+
+        map.animate({start: startDate, end: endDate, delta: delta}, layers);
+        $('#timestep-display').fadeIn('slow');
+      }
+    };
+
+    // Iterate through the selected layers and calcuate the range we are going
+    // to animate over.
+    $.each(selectedLayers, function(i, id){
+      var dataset = $('#'+id).data('dataset');
+
+      // Do we already have the range?
+      if (dataset.range) {
+        processTimeRange(dataset.range);
+      }
+      // We need to call the range function ( i.e. ask the server )
+      else {
+        rangeFunction(processTimeRange);
+      }
+
+      var layer = map.findLayerById(dataset.dataset_id);
+
+      layers.push({dataset: dataset, layer: layer});
     });
   });
 
