@@ -54,4 +54,4 @@ def attrib_to_converters(string):
 
         return year,month,day
 
-    return number_to_absday,absday_to_ymd
+    return number_to_absday, absday_to_ymd, units

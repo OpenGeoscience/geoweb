@@ -52,14 +52,27 @@ class mongo_import:
         tunits = reader.GetTimeUnits()
         timeInfo['units'] = tunits #calendar info needed to interpret/convert times
         converters = attrib_to_converters(tunits)
-        stdTimeRange = None
-        dateRange = None
         if converters and times:
-            stdTimeRange = (converters[0](times[0]),converters[0](times[-1]))
+            timeInfo['numSteps'] = len(times)
+
+            stepUnits = converters[2]
+            timeInfo['nativeUnits'] = stepUnits
+            stepSize = 0
+            if len(times) > 1:
+              stepSize = times[1]-times[0]
+            timeInfo['nativeDelta'] = stepSize
+            stdTimeRange = (converters[0](times[0]), converters[0](times[-1]))
+            timeInfo['nativeRange'] = (times[0], times[-1])
+
+            stdTimeDelta = 0
+            if len(times) > 1:
+                stdTimeDelta = converters[0](times[1]) - converters[0](times[0])
+            timeInfo['stdDelta'] = stdTimeDelta
+            stdTimeRange = (converters[0](times[0]), converters[0](times[-1]))
             timeInfo['stdTimeRange'] = stdTimeRange #first and last time as normalized integers
+
             dateRange = (converters[1](stdTimeRange[0]), converters[1](stdTimeRange[1]))
             timeInfo['dateRange'] = dateRange #first and last time in Y,M,D format
-            print filename, "tunits:", tunits, "times: ", times, "std time range:", stdTimeRange, "dates: ", dateRange
 
         #obtain array information
         pds = data.GetPointData()
