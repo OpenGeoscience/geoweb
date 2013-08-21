@@ -181,6 +181,11 @@ archive.processResults = function(results, removeFilter) {
     var parameter = $('.parameter-select', this).val();
     var timestep = $('.timestep-select', this).val();
 
+    var timesteps = [];
+    $('.timestep-select option', this).each(function() {
+      timesteps.push(parseInt($(this).val()));
+    });
+
     if (timestep == 'N/A')
       timestep = null;
 
@@ -194,6 +199,7 @@ archive.processResults = function(results, removeFilter) {
       source: data[0].source,
       parameter: parameter,
       timestep: timestep,
+      timesteps: timesteps,
       url: data[0].url,
       size: data[0].size,
       checksum: data[0].checksum,
@@ -345,7 +351,6 @@ archive.queryESGF = function(query) {
  *
  */
 archive.main = function() {
-
   archive.initQueryInterface();
 
   var mapOptions = {
@@ -385,19 +390,6 @@ archive.main = function() {
     // Create a placeholder for the layers
     var layersTable = ogs.ui.gis.createLayerList(archive.myMap,
         'layers', 'Layers', archive.toggleLayer, archive.removeLayer);
-
-    // Create a placeholder for layer controls
-//    //var layersControlTable = ogs.ui.gis.createList('layer-controls', 'Controls');
-
-    // Populate controls
-    //ogs.ui.gis.createControls(layersControlTable, archive.myMap);
-
-    // Create a place holder for view controls
-    // Create a placeholder for layer controls
-    //var viewControlTable = ogs.ui.gis.createList('view-controls', 'View-Options');
-
-    // Generate options
-    //ogs.ui.gis.createMapControls(archive.myMap, $('#map-controls'));
 
     // Ask for mouseMove events
     $(canvas).on("mousemove", function(event) {
