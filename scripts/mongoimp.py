@@ -55,6 +55,8 @@ class mongo_import:
         if converters and times:
             timeInfo['numSteps'] = len(times)
 
+            nativeStart = converters[3]
+            timeInfo['nativeStart'] = nativeStart
             stepUnits = converters[2]
             timeInfo['nativeUnits'] = stepUnits
             stepSize = 0
