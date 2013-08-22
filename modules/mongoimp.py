@@ -49,7 +49,7 @@ class mongo_import:
             reader.SphericalCoordinatesOff()
             reader.SetOutputTypeToImage()
             reader.ReplaceFillValueWithNanOn()
-            reader.SetFileName(os.path.join(directory, filename))
+            reader.SetFileName(filename)
             reader.Update()
             data = reader.GetOutput()
 
