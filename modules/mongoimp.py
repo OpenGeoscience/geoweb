@@ -11,11 +11,7 @@ sys.path.append(modules_dir)
 from standardtime import attrib_to_converters
 
 class mongo_import:
-  def __init__(self):
-    self._connection = None
-    self._db = None
-
-  def connect(self, server, database):
+  def __init__(self, server, database):
     self._connection = pymongo.Connection(server)
     self._db = self._connection[database]
 
@@ -93,7 +89,7 @@ class mongo_import:
                             "spatialInfo":bounds})
     print 'Done importing %s into database' % filename
 
-  def import_directory(self, collection, directory):
+  def import_directory(self, collection, directory, drop_existing=False):
     if (not (os.path.isdir(directory) and os.path.exists(directory))):
       raise Exception("Directory " + directory + " does not exist")
 
@@ -101,6 +97,10 @@ class mongo_import:
     from os import listdir
     from os.path import isfile, join
     files = [f for f in listdir(directory) if isfile(join(directory,f))]
+
+    # Check if requested to drop existing collection
+    if drop_existing:
+      self._db.drop_collection(collection)
 
     # Add files to the database
     for filename in files:
@@ -125,6 +125,5 @@ if __name__ == "__main__":
   coll = sys.argv[3]
   directory = sys.argv[4]
 
-  ins = mongo_import()
-  ins.connect(server, database, coll)
+  ins = mongo_import(server, database, drop_existing=True)
   ins.import_directory(coll, directory)
