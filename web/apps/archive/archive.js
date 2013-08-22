@@ -451,11 +451,18 @@ archive.main = function() {
     // React to queryResultEvent
     $(archive.myMap).on(geoModule.command.queryResultEvent, function(event, queryResult) {
       var infoBox = $("#map-info-box");
-      var locInfos = queryResult;
-      for (var idx in locInfos) {
-        infoBox.append(idx + " : " + locInfos[idx] + "<br/>");
+      var layer = queryResult.layer;
+      if (layer && layer.name())
+        infoBox.append("<div style='font-weight:bold;'>" + layer.name() + "</div>");
+      var queryData = queryResult.data;
+      if (queryData) {
+        var newResult = document.createElement("div");
+        newResult.style.paddingLeft = "12px";
+        for (var idx in queryData) {
+          $(newResult).append(idx + " : " + queryData[idx] + "<br/>");
+        }
+        infoBox.append(newResult);
       }
-
       return true;
     });
   });
