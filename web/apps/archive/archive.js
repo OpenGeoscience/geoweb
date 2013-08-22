@@ -218,6 +218,11 @@ archive.processResults = function(results, removeFilter) {
     var parameter = $('.parameter-select', this).val();
     var timestep = $('.timestep-select', this).val();
 
+    var timesteps = [];
+    $('.timestep-select option', this).each(function() {
+      timesteps.push(parseInt($(this).val()));
+    });
+
     if (timestep == 'N/A')
       timestep = null;
 
@@ -231,6 +236,7 @@ archive.processResults = function(results, removeFilter) {
       source: data[0].source,
       parameter: parameter,
       timestep: timestep,
+      timesteps: timesteps,
       url: data[0].url,
       size: data[0].size,
       checksum: data[0].checksum,
@@ -350,7 +356,7 @@ archive.cancelStream = function (streamId) {
       archive.performingESGFQuery = false;
     }
   });
-}
+};
 
 archive.queryESGF = function(query) {
   archive.performingESGFQuery = true;
@@ -374,7 +380,7 @@ archive.queryESGF = function(query) {
       }
     }
   });
-}
+};
 
 
 /**
@@ -417,19 +423,6 @@ archive.main = function() {
     // Create a placeholder for the layers
     var layersTable = ogs.ui.gis.createLayerList(archive.myMap,
         'layers', 'Layers', archive.toggleLayer, archive.removeLayer);
-
-    // Create a placeholder for layer controls
-//    //var layersControlTable = ogs.ui.gis.createList('layer-controls', 'Controls');
-
-    // Populate controls
-    //ogs.ui.gis.createControls(layersControlTable, archive.myMap);
-
-    // Create a place holder for view controls
-    // Create a placeholder for layer controls
-    //var viewControlTable = ogs.ui.gis.createList('view-controls', 'View-Options');
-
-    // Generate options
-    //ogs.ui.gis.createMapControls(archive.myMap, $('#map-controls'));
 
     // Ask for mouseMove events
     $(canvas).on("mousemove", function(event) {
@@ -495,7 +488,7 @@ archive.initWebSockets = function() {
       recieveCount += 1;
     }
   });
-}
+};
 
 archive.processCSVData = function(csvdata) {
   var table = [];
@@ -577,7 +570,12 @@ archive.monitorESGFDownload = function(target, taskId, onComplete) {
           console.log("[error] " + response.error ? response.error : "no results returned from server");
       } else {
 
-        if (response.result.state != 'FAILURE') {
+        if (response.result.state == 'CANCELED')
+        {
+          // We are done just return
+          return;
+        }
+        else if (response.result.state != 'FAILURE') {
           var bar = $('tr#' + dataSetId + ' td:nth-child(4) div.bar');
           bar.width(response.result.percentage+'%');
 
@@ -608,6 +606,10 @@ archive.onDownloadComplete = function(dataSetId) {
   var user = $('#user').val();
   var dataSet = layerRow.data("dataset");
 
+  // The row has been removed so we are nolonger interesting in this download.
+  if (!dataSet)
+    return;
+
   $.ajax({
     type: 'POST',
     url: '/esgf/filepath',
@@ -622,13 +624,42 @@ archive.onDownloadComplete = function(dataSetId) {
       } else {
 
         // Remove the progress bar
-        $('tr#' + dataSetId + ' .progress').remove();
+        $('tr#' + dataSetId + ' #progress').remove();
 
         archive.addLayerToMap(dataSet.dataset_id, dataSet.name, response.result.filepath,
             dataSet.parameter, null)
       }
     }
   });
+}
+
+archive.cancelESGFDownload = function(taskId, dataSetId) {
+
+  // If download hasn't started
+  if (taskId == null) {
+    var row = $('tr#' + dataSetId);
+    row.remove();
+  }
+  else {
+    $.ajax({
+      type: 'POST',
+      url: '/esgf/cancel_download',
+      data: {
+        taskId: taskId
+      },
+      dataType: 'json',
+      success: function(response) {
+        if (response.error !== null) {
+            console.log("[error] " + response.error ? response.error : "Unable to cancel task: " + taskId);
+        } else {
+            $('tr#' + dataSetId).remove();
+        }
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+          console.log(errorThrown)
+      }
+    });
+  }
 }
 
 archive.downloadESGF = function(target, onComplete, message) {
@@ -639,6 +670,7 @@ archive.downloadESGF = function(target, onComplete, message) {
 
   $('#esgf-login #message').html(message);
 
+  $('#esgf-login #download').off();
   $('#esgf-login #download').one('click', function() {
     var user = $('#user').val();
     var password = $('#password').val();
@@ -659,7 +691,23 @@ archive.downloadESGF = function(target, onComplete, message) {
             console.log("[error] " + response.error ? response.error : "no results returned from server");
         } else {
           if (response.result && 'taskId' in response.result) {
-            archive.monitorESGFDownload(target, response.result['taskId'], onComplete);
+            var taskId = response.result['taskId']
+            var dataSetId = target.dataset_id
+
+            if ($('tr#' + dataSetId).length ) {
+              $('tr#' + dataSetId + ' td:nth-child(4) #progress');
+
+              // Add listener to cancel the download task if requested
+              $('tr#' + dataSetId).on('cancel-download-task', function() {
+                archive.cancelESGFDownload(taskId, dataSetId);
+              });
+
+              archive.monitorESGFDownload(target, response.result['taskId'], onComplete);
+            }
+            // The row has been removed so cancel the download
+            else {
+              archive.cancelESGFDownload(taskId, dataSetId);
+            }
           } else {
             archive.error("No id return to monitor download");
           }
@@ -674,6 +722,7 @@ archive.downloadESGF = function(target, onComplete, message) {
     }
   });
 
+  $('#esgf-login #cancel').off();
   $('#esgf-login #cancel').one('click', function() {
     archive.removeLayer(this, target.dataset_id);
   });
@@ -748,5 +797,9 @@ archive.addLayer = function(target) {
       archive.toggleLayer, archive.removeLayer, function() {
         archive.downloadESGF(target, archive.onDownloadComplete)
     }, archive.workflowLayer, true);
+
+    $('tr#' + target.dataset_id).on('cancel-download-task', function() {
+      archive.cancelESGFDownload(null, target.dataset_id);
+    });
   }
 };

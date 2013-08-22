@@ -24,6 +24,9 @@ def run(method, url=None, size=None, checksum=None, userUrl=None, password=None,
     if userUrl:
         userUrl = userUrl.strip();
 
+    if taskId:
+        taskId = taskId.strip('"')
+
     if method == 'query':
         streamId = str(uuid.uuid1())
         streams[streamId] = query("http://pcmdi9.llnl.gov", expr)
@@ -48,8 +51,9 @@ def run(method, url=None, size=None, checksum=None, userUrl=None, password=None,
         r = esgf.download.download.delay(url, size, checksum, userUrl, password);
         response['result'] = {'taskId': r.task_id}
     elif method == 'download_status':
-        taskId = taskId.strip('"')
         response['result'] = status(taskId)
+    elif method == 'cancel_download':
+        esgf.download.cancel(taskId)
     elif method == 'filepath':
         response['result'] = {'filepath': url_to_download_filepath(userUrl, url )}
     else:

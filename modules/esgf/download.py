@@ -1,6 +1,7 @@
 from celery import Celery
 from celery import task, current_task
 from celery.result import AsyncResult
+from celery.exceptions import SoftTimeLimitExceeded
 import requests
 import os.path
 from functools import partial
@@ -54,47 +55,56 @@ def url_to_download_filepath(user_url, url):
     user_filepath = user_url_to_filepath(user_url)
     filepath = '%s/%s' %(tempfile.gettempdir(), user_filepath)
     filepath += url[6:]
-    print filepath
+
     return filepath
 
 @celery.task
 def download(url, size, checksum, user_url, password):
-    cert_filepath = aquire_certificate(user_url, password)
+    request = None
+    filepath = None
+    try:
+        cert_filepath = aquire_certificate(user_url, password)
+        request = requests.get(url,
+                               cert=(cert_filepath, cert_filepath), verify=False, stream=True)
 
-    request = requests.get(url,
-                           cert=(cert_filepath, cert_filepath), verify=False, stream=True)
+        filepath = url_to_download_filepath(user_url, url)
+        dir = os.path.dirname(filepath);
+        if not os.path.exists(dir):
+            os.makedirs(dir)
 
-    filepath = url_to_download_filepath(user_url, url)
-    dir = os.path.dirname(filepath);
-    if not os.path.exists(dir):
-        os.makedirs(dir)
+        # Now we know the user is authorized, first check if they have already
+        # downloaded this file.
+        filepath = url_to_download_filepath(user_url, url)
 
-    # Now we know the user is authorized, first check if they have already
-    # downloaded this file.
-    filepath = url_to_download_filepath(user_url, url)
+        if os.path.exists(filepath):
+            md5 = hashlib.md5()
+            with open(filepath) as fp:
+                for chunk in iter(partial(fp.read, 128), ''):
+                    md5.update(chunk)
 
-    if os.path.exists(filepath):
-        md5 = hashlib.md5()
-        with open(filepath) as fp:
-            for chunk in iter(partial(fp.read, 128), ''):
-                md5.update(chunk)
+            # if the checksums match we can skip the download
+            if checksum == md5.hexdigest():
+                current_task.update_state(state='PROGRESS',  meta={'percentage': 100})
+                return
 
-        # if the checksums match we can skip the download
-        if checksum == md5.hexdigest():
-            current_task.update_state(state='PROGRESS',  meta={'percentage': 100})
-            return
+        downloaded  = 0
+        with open(filepath, 'w') as fp:
+            for block in request.iter_content(1024):
+                if not block:
+                    break
 
-    downloaded  = 0
-    with open(filepath, 'w') as fp:
-        for block in request.iter_content(1024):
-            if not block:
-                break
-
-            fp.write(block)
-            downloaded += 1024
-            # update the task state
-            percentage = int((downloaded / float(size)) * 100)
-            current_task.update_state(state='PROGRESS',  meta={'percentage': percentage})
+                fp.write(block)
+                downloaded += 1024
+                # update the task state
+                percentage = int((downloaded / float(size)) * 100)
+                current_task.update_state(state='PROGRESS',  meta={'percentage': percentage})
+    except SoftTimeLimitExceeded:
+        current_task.update_state(state='CANCELED')
+        # Clean up the request and files
+        if request:
+            request.close()
+        if os.path.exists(filepath):
+            os.remove(filepath)
 
 def status(taskId):
     task = AsyncResult(taskId, backend=celery.backend)
@@ -110,3 +120,7 @@ def status(taskId):
         status['message'] = str(task.result)
 
     return status
+
+def cancel(taskId):
+    task = AsyncResult(taskId, backend=celery.backend)
+    task.revoke(celery.broker_connection(), terminate=True, signal="SIGUSR1")
