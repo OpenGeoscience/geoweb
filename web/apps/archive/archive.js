@@ -40,7 +40,7 @@ archive.initQueryInterface = function() {
   $('#to').datepicker();
 
   $('#query-input').bind("keyup", function() {
-    query = $('#query-input').val();
+    var query = $('#query-input').val();
     if (query.length == 0) {
       $('#query-input').removeClass("query-in-progress");
       $('#document-table-body').empty();
@@ -517,13 +517,13 @@ archive.removeLayer = function(target, layerId) {
 
 archive.timeRange = function(basename, onComplete) {
 
-  var mongQuery = {basename: basename};
+  var query = {basename: basename};
 
   $.ajax({
     type: 'POST',
     url: '/mongo/' + mongo.server + '/' + mongo.database + '/' + mongo.collection,
     data: {
-      query: JSON.stringify(mongoQuery),
+      query: JSON.stringify(query),
       limit:100,
       fields: JSON.stringify(['timeInfo'])
     },

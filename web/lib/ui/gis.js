@@ -156,22 +156,30 @@ uiModule.gis.createLayerList = function(map, rootId, heading, toggleFunct, remov
 
     var layers = []
 
-    var delta = -1;
-    var start = -1;
-    var end = -1;
-    var selectedLayers = uiModule.gis.selectedLayers();
-    var rangesToProcess = selectedLayers.length;
+    var delta = -1, stdDelta = -1, units = null, start = null, stdStart = null,
+    end = null, stdEnd = null, selectedLayers = uiModule.gis.selectedLayers(),
+    rangesToProcess = selectedLayers.length;
 
     // Function used to process an incoming range
     var processTimeInfo = function(timeInfo) {
-      if (timeInfo.stdDelta < delta)
-        delta = timeInfo.stdDelta;
+      if (delta == -1 || timeInfo.stdDelta < stdDelta) {
+        stdDelta = timeInfo.stdDelta;
+        delta = timeInfo.nativeDelta;
+        units = timeInfo.nativeUnits;
+      }
 
-      if (timeInfo.stdTimeRange[0] < start)
-        start = timeInfo.dataRange[0];
+      if (!start || timeInfo.stdTimeRange[0] < stdStart) {
+        stdStart = timeInfo.stdTimeRange[0];
+        start = timeInfo.dateRange[0];
+      }
 
-      if (timeInfo.stdTimeRange[1] > end)
-        end = timeInfo.dataRange[1];
+      if (!end || timeInfo.stdTimeRange[1] > stdEnd) {
+        stdEnd = timeInfo.stdTimeRange[1];
+        var startDate = timeInfo.dateRange[0];
+        end = new Date(Date.UTC(startDate[0], startDate[1], startDate[2]));
+        geoModule.time.incrementTime(end, timeInfo.nativeUnits,
+            timeInfo.nativeDelta * timeInfo.numSteps);
+      }
 
       --rangesToProcess;
 
@@ -179,15 +187,14 @@ uiModule.gis.createLayerList = function(map, rootId, heading, toggleFunct, remov
       // todo the animation.
       if (rangesToProcess == 0) {
 
-        if (delta == -1 || end == -1 || start == -1 ) {
+        if (delta == -1 || units == null || end == null || start == null ) {
           console.log('Unable to calculate time range.');
           return;
         }
 
-        var startDate = new Date(floor(start[0]), floor(start[1]), floort(start[2]));
-        var endDate = new Date(floor(end[0]), floor(end[1]), floort(end[2]));
+        var startDate = new Date(Date.UTC(start[0], start[1], start[2]));
 
-        map.animate({start: startDate, end: endDate, delta: delta}, layers);
+        map.animate({start: startDate, end: end, delta: delta, units: units}, layers);
         $('#timestep-display').fadeIn('slow');
       }
     };
@@ -198,17 +205,17 @@ uiModule.gis.createLayerList = function(map, rootId, heading, toggleFunct, remov
       var dataset = $('#'+id).data('dataset');
 
       // Do we already have the range?
-      if (dataset.range) {
-        processTimeRange(dataset.range);
+      if (dataset.timeInfo) {
+        processTimeInfo(dataset.timeInfo);
       }
       // We need to call the range function ( i.e. ask the server )
       else {
-        rangeFunction(processTimeRange);
+        rangeFunction(dataset.name, processTimeInfo);
       }
 
       var layer = map.findLayerById(dataset.dataset_id);
 
-      layers.push({dataset: dataset, layer: layer});
+      layers.push(layer);
     });
   });
 
@@ -243,8 +250,9 @@ uiModule.gis.createLayerList = function(map, rootId, heading, toggleFunct, remov
   });
 
   $(map).on(geoModule.command.animateEvent, function (event) {
-    if (event.currentTime == event.endTime)
+    if (event.currentTime >= event.endTime) {
       $('#play', animationControls).removeClass('active');
+    }
   });
 
   $('#table-layers').on('layers-selection', function() {
@@ -275,9 +283,9 @@ uiModule.gis.createLayerList = function(map, rootId, heading, toggleFunct, remov
 
   $(map).on(geoModule.command.animateEvent, function(event) {
 
-    var format = d3.time.format("%Y-%m-%d  %H:%M:%S:%L");
+    var format = d3.time.format("%Y-%m-%d");
     if (event.currentTime)
-      heading.html(format(new Date(event.currentTime*24*60*60*1000)));
+      heading.html(format(event.currentTime));
   });
 
 
