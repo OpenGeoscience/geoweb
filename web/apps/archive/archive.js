@@ -18,7 +18,41 @@ archive.error = function(errorString) {
                }
     }
     });
-}
+};
+
+archive.promptAlgorithm = function(event, callback) {
+
+  function okClicked($dialog) {
+    $dialog.dialog("close");
+    callback.call(this);
+  }
+
+  $('#algorithm-dialog').append($('#algorithm-select'));
+  $('#algorithm-dialog')
+    .dialog({
+      title: "Select an algorithm:",
+      dialogClass: "algorithm-prompt",
+      modal: true,
+      draggable: false,
+      resizable: false,
+      minHeight: 15,
+      buttons: {
+        "Ok": function() { okClicked($(this)); }
+      }
+    }).dialog('option', {
+      position: [
+        event.pageX - $(document).scrollLeft(),
+        event.pageY - $(document).scrollTop()
+      ]
+    });
+
+    $('#algorithm-select').off('keypress').keypress(function(event) {
+      if ( event.which == 13 ) {
+        event.preventDefault();
+        okClicked($('#algorithm-dialog'));
+      }
+    });
+};
 
 archive.getMongoConfig = function() {
   "use strict";
@@ -54,10 +88,13 @@ archive.initQueryInterface = function() {
 
   $('#glcanvas').droppable({
     drop: function(event, ui) {
-      archive.addLayer($(ui.helper).data("dataset"));
+      var target = $(ui.helper).data("dataset");
+      archive.promptAlgorithm(event, function() {
+        archive.addLayer(target);
 
-      // The user now knows how to add layers to the map so remove tool tip
-      $('#document-table-body').tooltip('disable')
+        // The user now knows how to add layers to the map so remove tool tip
+        $('#document-table-body').tooltip('disable')
+      });
     }
   });
 }
@@ -172,21 +209,6 @@ archive.processResults = function(results, removeFilter) {
   });
   select.exit().remove();
 
-  // Populate the algorithm list
-  var selectAlgorithm = rows.append('td');
-  selectAlgorithm.classed('algorithm', true);
-  selectAlgorithm = selectAlgorithm.append('select');
-  selectAlgorithm.classed("algorithm-select", true);
-
-  selectAlgorithm = selectAlgorithm.selectAll('select').data(function(row) {
-    return ['default', '10 Year Average'];
-  });
-
-  selectAlgorithm.enter().append('option').text(function(algorithm) {
-    return algorithm;
-  });
-  selectAlgorithm.exit().remove();
-
   $('#document-table  tr').draggable( {
     cursor: 'move',
     containment: 'window',
@@ -195,7 +217,6 @@ archive.processResults = function(results, removeFilter) {
 
     var parameter = $('.parameter-select', this).val();
     var timestep = $('.timestep-select', this).val();
-    var algorithm = $('.algorithm-select', this).val();
 
     if (timestep == 'N/A')
       timestep = null;
@@ -210,7 +231,6 @@ archive.processResults = function(results, removeFilter) {
       source: data[0].source,
       parameter: parameter,
       timestep: timestep,
-      algorithm: algorithm,
       url: data[0].url,
       size: data[0].size,
       checksum: data[0].checksum,
@@ -448,6 +468,14 @@ archive.main = function() {
   init();
   archive.initWebSockets();
   initWorkflowCanvas();
+
+  //setup algorithm select
+  // Populate the algorithm list
+  for(var name in staticWorkflows) {
+    if(staticWorkflows.hasOwnProperty(name)) {
+      $('#algorithm-select').append($('<option>'+name+'</option>'));
+    }
+  }
 };
 
 archive.initWebSockets = function() {
@@ -653,11 +681,7 @@ archive.downloadESGF = function(target, onComplete, message) {
 };
 
 archive.addLayerToMap = function(target, parameter, timeval, algorithm) {
-  var algorithmData = (
-      algorithm == 'default' ? defaultWorkflow :
-      algorithm == '10 Year Average' ? averageWorkflow :
-      defaultWorkflow
-    ),
+  var algorithmData = staticWorkflows[algorithm],
     workflow = ogs.wfl.workflow({
       data: jQuery.extend(true, {}, algorithmData)
     }),
@@ -691,7 +715,7 @@ archive.workflowLayer = function(target, layerId) {
         buttons: {
           Close: function() {
             $(this).dialog("close");
-            layer.workflow().hide();
+            layer.dataSource().workflow().hide();
           },
           Execute: function() {
             layer.getData((new Date()).getTime());
@@ -699,14 +723,14 @@ archive.workflowLayer = function(target, layerId) {
           }
         }
       });
-    layer.workflow.show();
+    layer.dataSource().workflow().show();
   }
 };
 
 archive.addLayer = function(target) {
   var timeval = target.timestep;
   var varval = target.parameter;
-  var algorithm = target.algorithm;
+  var algorithm = $('#algorithm-select').val();
 
   // If we already have this layer added just return
   if (ogs.ui.gis.hasLayer($('#table-layers'), target.dataset_id))

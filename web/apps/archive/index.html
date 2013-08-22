@@ -130,7 +130,7 @@
       overflow: auto;
     }
 
-    .error-dialog .ui-dialog-titlebar {
+    .error-dialog .ui-dialog-titlebar #algorithm-dialog {
       display: none;
     }
 
@@ -163,21 +163,15 @@
        width: 20%;
      }
      #document-table .timesteps {
-       width: 20%;
+       width: 30%;
      }
      #document-table .parameter {
-       width: 20%;
-     }
-     #document-table .algorithm {
-       width: 20%;
+       width: 30%;
      }
      #document-table .timestep-select {
        width: 100%;
      }
      #document-table .parameter-select {
-       width: 100%;
-     }
-     #document-table .algorithm-select {
        width: 100%;
      }
   </style>
@@ -267,7 +261,6 @@
                           <th class="tags">Tags</th>
                           <th class="timestep">Timestep</th>
                           <th class="parameter">Parameters</th>
-                          <th class="algorithm">Algorithm</th><tr>
                         </thead>
                         <tbody id="document-table-body">
                         </tbody>
@@ -289,11 +282,14 @@
     </div>
 </div>
 </body>
-<div id="error-dialog">
-  <p id="text">
-    <span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>
-  </p>
-</div>
+  <div id="error-dialog">
+      <p id="text">
+          <span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>
+      </p>
+  </div>
+  <div id="algorithm-dialog">
+      <select id="algorithm-select"></select>
+  </div>
 <div id='esgf-login' class="modal hide fade">
   <div class="modal-header">
     <h3>Please enter ESGF credentials for download.</h3>
