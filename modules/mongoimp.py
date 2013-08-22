@@ -42,6 +42,10 @@ class mongo_import:
         fileprefix = filenamesplitted[0]
         filesuffix = filenamesplitted[1]
 
+        if self.is_exists(collection, basename):
+          print 'Data  %s already exists' % basename
+          return
+
         if filesuffix == ".nc":
             # VTK is required
             import vtk
