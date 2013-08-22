@@ -187,11 +187,14 @@ class mongo_import:
         :type basename: str.
         :returns:  bool -- True if exists False otherwise.
         """
-        if not(self._connection and self._db):
+        if self._connection and self._db:
             coll = self._db[collection]
             if (coll.find({"basename": basename}).count() > 0):
                 return True
-            return False
+        else:
+            print 'Invalid connection'
+
+        return False
 
 if __name__ == "__main__":
     import sys
