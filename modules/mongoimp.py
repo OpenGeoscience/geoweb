@@ -191,7 +191,8 @@ class mongo_import:
             coll = self._db[collection]
             if (coll.find({"basename": basename}).count() > 0):
                 return True
-            return False
+
+        return False
 
 if __name__ == "__main__":
     import sys
