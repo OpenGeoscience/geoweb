@@ -6,9 +6,6 @@ import pymongo
 import os
 import sys
 
-# Import vtk
-import vtk
-
 current_dir = os.path.dirname(os.path.abspath(__file__))
 modules_dir = os.path.join(current_dir, "..", "modules")
 sys.path.append(modules_dir)
@@ -46,64 +43,107 @@ class mongo_import:
         filesuffix = filenamesplitted[1]
 
         if filesuffix == ".nc":
+            # VTK is required
+            import vtk
             reader = vtk.vtkNetCDFCFReader()
             reader.SphericalCoordinatesOff()
             reader.SetOutputTypeToImage()
             reader.ReplaceFillValueWithNanOn()
-            reader.SetFileName(filename)
+            reader.SetFileName(os.path.join(directory, filename))
             reader.Update()
             data = reader.GetOutput()
 
-            #obtain spatial information
+            # Obtain spatial information
             bounds = data.GetBounds()
 
-            #obtain temporal information
+            # Obtain temporal information
             timeInfo = {}
             times = reader.GetOutputInformation(0).Get(vtk.vtkStreamingDemandDrivenPipeline.TIME_STEPS())
             timeInfo['rawTimes'] = times #time steps in raw format
             tunits = reader.GetTimeUnits()
             timeInfo['units'] = tunits #calendar info needed to interpret/convert times
             converters = attrib_to_converters(tunits)
-            stdTimeRange = None
-            dateRange = None
+            if converters and times:
+               timeInfo['numSteps'] = len(times)
 
-        if converters and times:
-            stdTimeRange = (converters[0](times[0]),converters[0](times[-1]))
-            timeInfo['stdTimeRange'] = stdTimeRange #first and last time as normalized integers
-            dateRange = (converters[1](stdTimeRange[0]), converters[1](stdTimeRange[1]))
-            timeInfo['dateRange'] = dateRange #first and last time in Y,M,D format
-            print filename, "tunits:", tunits, "times: ", times, "std time range:", stdTimeRange, "dates: ", dateRange
+               nativeStart = converters[3]
+               timeInfo['nativeStart'] = nativeStart
+               stepUnits = converters[2]
+               timeInfo['nativeUnits'] = stepUnits
+               stepSize = 0
+               if len(times) > 1:
+                 stepSize = times[1]-times[0]
+               timeInfo['nativeDelta'] = stepSize
+               stdTimeRange = (converters[0](times[0]), converters[0](times[-1]))
+               timeInfo['nativeRange'] = (times[0], times[-1])
 
-        #obtain array information
-        pds = data.GetPointData()
-        pdscount = pds.GetNumberOfArrays()
-        for i in range(0, pdscount):
-            variable = {}
-            pdarray = pds.GetArray(i)
-            if not pdarray:
-                # got an abstract array
-                continue
-            variable["name"] = pdarray.GetName()
-            variable["dim"] = []
-            variable["tags"] = []
-            variable["units"] = reader.QueryArrayUnits(pdarray.GetName())
-            # todo: iterate over all timesteps, default (first) timestep may not be representative
-            variable["time"] = []
-            componentCount = pdarray.GetNumberOfComponents()
-            minmax = []
-            for j in range(0, componentCount):
-                minmaxJ = [0,-1]
-                pdarray.GetRange(minmaxJ, j)
-                minmax.append(minmaxJ[0])
-                minmax.append(minmaxJ[1])
-            variable["range"] = minmax
-            variables.append(variable)
+               stdTimeDelta = 0
+               if len(times) > 1:
+                   stdTimeDelta = converters[0](times[1]) - converters[0](times[0])
+               timeInfo['stdDelta'] = stdTimeDelta
+               stdTimeRange = (converters[0](times[0]), converters[0](times[-1]))
+               timeInfo['stdTimeRange'] = stdTimeRange #first and last time as normalized integers
 
-        #record what we've learned
-        insertId = coll.insert({"name":fileprefix, "basename":basename,
-                                "variables":variables,
-                                "timeInfo":timeInfo,
-                                "spatialInfo":bounds})
+               dateRange = (converters[1](stdTimeRange[0]), converters[1](stdTimeRange[1]))
+               timeInfo['dateRange'] = dateRange #first and last time in Y,M,D format
+
+            # Obtain array information
+            pds = data.GetPointData()
+            pdscount = pds.GetNumberOfArrays()
+            if times == None:
+               times = [0]
+            # Go through all timesteps to accumulate global min and max values
+            for t in times:
+               firstTStep = t==times[0]
+               arrayindex = 0
+               # Go through all arrays
+               for i in range(0, pdscount):
+                   pdarray = pds.GetArray(i)
+                   if not pdarray:
+                       # Got an abstract array
+                       continue
+                   if firstTStep:
+                       # Create new record for this array
+                       variable = {}
+                   else:
+                       # Extend existing record
+                       variable = variables[arrayindex]
+                   # Tell reader to read data so that we can get info about this time step
+                   sddp = reader.GetExecutive()
+                   sddp.SetUpdateTimeStep(0,t)
+                   sddp.Update()
+                   arrayindex = arrayindex + 1
+                   if firstTStep:
+                       # Record unchanging meta information
+                       variable["name"] = pdarray.GetName()
+                       variable["dim"] = []
+                       variable["tags"] = []
+                       variable["units"] = reader.QueryArrayUnits(pdarray.GetName())
+                   # Find min and max for each component of this array at this timestep
+                   componentCount = pdarray.GetNumberOfComponents()
+                   minmax = []
+                   for j in range(0, componentCount):
+                       minmaxJ = [0,-1]
+                       pdarray.GetRange(minmaxJ, j)
+                       minmax.append(minmaxJ[0])
+                       minmax.append(minmaxJ[1])
+                   if firstTStep:
+                       # Remember what we learned about this new array
+                       variable["range"] = minmax
+                       variables.append(variable)
+                   else:
+                       # Extend range if necessary from this timesteps range
+                       for j in range(0, componentCount):
+                           if minmax[j*2+0] < variable["range"][j*2+0]:
+                               variable["range"][j*2+0] = minmax[j*2+0]
+                           if minmax[j*2+1] > variable["range"][j*2+1]:
+                               variable["range"][j*2+1] = minmax[j*2+1]
+
+            # Record what we've learned in the data base
+            insertId = coll.insert({"name":fileprefix, "basename":basename,
+                                   "variables":variables,
+                                   "timeInfo":timeInfo,
+                                   "spatialInfo":bounds})
         print 'Done importing %s into database' % filename
 
     def import_directory(self, collection, directory, drop_existing=False):
