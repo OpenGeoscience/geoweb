@@ -767,7 +767,7 @@ archive.workflowLayer = function(target, layerId) {
             layer.dataSource().workflow().hide();
           },
           Execute: function() {
-            layer.getData((new Date()).getTime());
+            layer.dataSource().getData((new Date()).getTime());
             archive.myMap.update();
           }
         }
