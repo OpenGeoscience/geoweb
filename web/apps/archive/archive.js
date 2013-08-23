@@ -459,10 +459,9 @@ archive.main = function() {
   });
 
   init();
-  archive.initWebSockets();
+  //archive.initWebSockets();
   initWorkflowCanvas();
 
-  //setup algorithm select
   // Populate the algorithm list
   for(var name in staticWorkflows) {
     if(staticWorkflows.hasOwnProperty(name)) {
@@ -767,8 +766,11 @@ archive.workflowLayer = function(target, layerId) {
             layer.dataSource().workflow().hide();
           },
           Execute: function() {
-            layer.dataSource().getData((new Date()).getTime());
-            archive.myMap.update();
+            var workflow = layer.dataSource().workflow(),
+              variableModule = workflow.getModuleByName('Variable'),
+              time = variableModule.getFunctionValue('time');
+            time = time == null ? -1 : parseInt(time);
+            archive.myMap.animateTimestep(time, [layer]);
           }
         }
       });
