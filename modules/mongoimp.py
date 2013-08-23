@@ -143,6 +143,9 @@ class mongo_import:
                            if minmax[j*2+1] > variable["range"][j*2+1]:
                                variable["range"][j*2+1] = minmax[j*2+1]
 
+            if filename.startswith('/'):
+                basename = filename
+
             # Record what we've learned in the data base
             insertId = coll.insert({"name":fileprefix, "basename":basename,
                                    "variables":variables,
