@@ -39,6 +39,9 @@ def read(filename, vars, rqstTime):
       if float(local_request_time) >= rawTimes[0] and float(local_request_time) <= rawTimes[-1]:
           sddp = reader.GetExecutive()
           sddp.SetUpdateTimeStep(0, local_request_time)
+      # No data for the timestep so return empty document
+      else:
+          return "{}"
 
   # enable only chosen array(s)
   narrays = reader.GetNumberOfVariableArrays()
