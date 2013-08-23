@@ -30,19 +30,15 @@ def read(filename, vars, rqstTime):
   converters = attrib_to_converters(tunits)
 
   # pick particular timestep
-  if (rqstTime is not None and
-      rawTimes is not None
-      and float(rqstTime) >= rawTimes[0] and float(rqstTime) <= rawTimes[-1]):
-    #cherrypy.log("rTime " + str(time))
-    sddp = reader.GetExecutive()
-    sddp.SetUpdateTimeStep(0,float(rqstTime))
-    if converters:
-      stdTime = converters[0](float(rqstTime))
-      date = converters[1](stdTime)
-      #cherrypy.log("time = " + str(rqstTime) +
-      #             " tunits: " + str(tunits) +
-      #             " stdTime: " + str(stdTime) +
-      #             " date " + str(date))
+  if rqstTime is not None and rawTimes is not None:
+      utcconverter = attrib_to_converters("days since 1970-0-0")
+      abs_request_time = utcconverter[0](float(rqstTime)/(1000*60*60*24))
+
+      local_request_time = converters[5](abs_request_time)
+
+      if float(local_request_time) >= rawTimes[0] and float(local_request_time) <= rawTimes[-1]:
+          sddp = reader.GetExecutive()
+          sddp.SetUpdateTimeStep(0, local_request_time)
 
   # enable only chosen array(s)
   narrays = reader.GetNumberOfVariableArrays()
