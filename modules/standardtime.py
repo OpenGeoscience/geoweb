@@ -20,12 +20,12 @@ def attrib_to_converters(string):
     print units
 
     after = parts[1].strip()
-    parts = after.split(" ")[0]
-    start_year = int(parts.split("-")[0])
+    startDate = after.split(" ")[0]
+    start_year = int(startDate.split("-")[0])
     print "Y0", start_year
-    start_month = int(parts.split("-")[1])
+    start_month = int(startDate.split("-")[1])
     print "M0", start_month
-    start_day = int(parts.split("-")[2])
+    start_day = int(startDate.split("-")[2])
     print "D0", start_day
 
     ylen = 365
@@ -54,4 +54,4 @@ def attrib_to_converters(string):
 
         return year,month,day
 
-    return number_to_absday,absday_to_ymd
+    return number_to_absday, absday_to_ymd, units, startDate

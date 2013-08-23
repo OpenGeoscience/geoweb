@@ -12,17 +12,15 @@ except ImportError:
 def can_read():
   return True
 
-def read(expr, vars, rqstTime):
+def read(filename, vars, rqstTime):
   ''' Read a file or files from a directory given a wild-card expression
   '''
   # @todo Reading a single file of netcdf cf convention now
-  #cherrypy.log("vtkread " + expr + " " + vars + " " + str(time))
+  #cherrypy.log("vtkread " + filename + " " + vars + " " + str(time))
   reader = vtk.vtkNetCDFCFReader() #get test data
   reader.SphericalCoordinatesOff()
   reader.SetOutputTypeToImage()
   reader.ReplaceFillValueWithNanOn()
-  datadir = cherrypy.request.app.config['/data']['tools.staticdir.dir']
-  filename = os.path.join(datadir, expr)
   reader.SetFileName(filename)
   reader.UpdateInformation()
 
