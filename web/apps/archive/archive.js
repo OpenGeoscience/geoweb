@@ -691,7 +691,7 @@ archive.downloadESGF = function(target, onComplete, message) {
 archive.addLayerToMap = function(id, name, filePath, parameter, timeval) {
 
   var source = ogs.geo.archiveLayerSource(JSON.stringify(filePath),
-    JSON.stringify(parameter), archive.error);
+    [parameter], archive.error);
   var layer = ogs.geo.featureLayer();
   layer.setName(name);
   layer.setDataSource(source);
