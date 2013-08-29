@@ -88,12 +88,55 @@ geoModule.featureLayer = function(options, feature) {
 
   ////////////////////////////////////////////////////////////////////////////
   /**
+   * Return array that holds expired features for this layer
+   *
+   * This method is mostly should be used by the derived class.
+   *
+   * @returns {Array}
+   */
+  ////////////////////////////////////////////////////////////////////////////
+  this.expiredFeatures = function() {
+    return m_expiredFeatures;
+  };
+
+  ////////////////////////////////////////////////////////////////////////////
+  /**
+   * Return array that holds new features for this layer
+   *
+   * This method is mostly should be used by the derived class.
+   *
+   * @returns {Array}
+   */
+  ////////////////////////////////////////////////////////////////////////////
+  this.newFeatures = function() {
+    return m_newFeatures;
+  };
+
+  ////////////////////////////////////////////////////////////////////////////
+  /**
+   * Virtual function that inform if the layer has a legend
+   */
+  ////////////////////////////////////////////////////////////////////////////
+  this.hasLegend = function() {
+    if (!this.dataSource()) {
+      return false;
+    } else {
+      return true;
+    }
+  };
+
+  ////////////////////////////////////////////////////////////////////////////
+  /**
    * Create legend for this layer
    */
   ////////////////////////////////////////////////////////////////////////////
   this.createLegend = function() {
     if (m_legend) {
       console.log('[info] Legend already exists for this layer')
+      return;
+    }
+
+    if (!this.dataSource()) {
       return;
     }
 
@@ -122,6 +165,19 @@ geoModule.featureLayer = function(options, feature) {
   ////////////////////////////////////////////////////////////////////////////
   this.updateLegend = function() {
     // For now just delete the last one and create on from scratch
+    var i,
+        index;
+    if (m_legend && m_legend.length > 0) {
+      m_expiredFeatures = m_expiredFeatures.concat(m_legend);
+
+      // Also remove it from new features if exists
+      for (i = 0; i < m_legend.length; ++i) {
+        index = m_newFeatures.indexOf(m_legend[i]);
+        if (index != -1) {
+          m_newFeatures.splice(index, 1);
+        }
+      }
+    }
     m_legend = null;
     this.createLegend();
   };
@@ -158,8 +214,17 @@ geoModule.featureLayer = function(options, feature) {
     }
 
     // Clear our existing features
-    m_expiredFeatures = m_newFeatures.slice(0);
-    m_newFeatures = [];
+    if (m_expiredFeatures.length > 0) {
+      m_expiredFeatures = m_expiredFeatures.concat(m_newFeatures.slice(0));
+    } else {
+      m_expiredFeatures = m_newFeatures.slice(0);
+    }
+
+    m_newFeatures.length = 0;
+
+    if (m_legend && m_legend.length > 0) {
+      m_newFeatures = m_newFeatures.concat(m_legend);
+    }
 
     // Create legend if not created earlier
     if (!m_legend) {
@@ -168,7 +233,7 @@ geoModule.featureLayer = function(options, feature) {
 
     for(i = 0; i < data.length; ++i) {
       switch(data[i].type()) {
-        case ogs.vgl.data.geometry:
+        case vglModule.data.geometry:
           geomFeature = geoModule.geometryFeature(data[i]);
           geomFeature.material().setBinNumber(this.binNumber());
           geomFeature.setLookupTable(lut);
@@ -185,7 +250,6 @@ geoModule.featureLayer = function(options, feature) {
 
     if (data.length > 0) {
       m_updateTime. modified();
-      console.log('my opacity', this.opacity());
       this.setOpacity(this.opacity());
     }
   };
@@ -203,6 +267,8 @@ geoModule.featureLayer = function(options, feature) {
     var featureCollection = request.featureCollection();
     featureCollection.setNewFeatures(this.id(), m_newFeatures);
     featureCollection.setExpiredFeatures(this.id(), m_expiredFeatures);
+
+    m_expiredFeatures.length = 0;
 
     m_predrawTime.modified();
   };

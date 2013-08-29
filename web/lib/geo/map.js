@@ -21,7 +21,7 @@ geoModule.mapOptions = {
   gcs: 'EPSG:3857',
   display_gcs: 'EPSG:4326',
   country_boundaries: true,
-  state_boundaries: false,
+  state_boundaries: false
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -237,6 +237,54 @@ geoModule.map = function(node, options) {
     m_animationStep = 0;
   }
 
+  ////////////////////////////////////////////////////////////////////////////
+  /**
+   * Update legends for layers
+   *
+   * @private
+   */
+  ////////////////////////////////////////////////////////////////////////////
+  function updateLegends(width, height) {
+    var noOfLayers = 0,
+        heightPerLayer =  0,
+        i = 1.5,
+        layerName,
+        layer = null;
+
+    // First find out how many layers has legend
+    for (layerName in m_layers) {
+      layer = m_layers[layerName];
+      if (layer.hasLegend()) {
+        ++noOfLayers;
+      }
+    }
+
+    if (noOfLayers > 0) {
+      heightPerLayer = 100 > (height / noOfLayers) ?
+                         (height / noOfLayers) : 100;
+    } else {
+      return;
+    }
+
+    for (layerName in m_layers) {
+      if (m_layers.hasOwnProperty(layerName)) {
+        layer = m_layers[layerName];
+        if (!layer.hasLegend()) {
+          continue;
+        }
+
+        layer.setLegendOrigin(
+          [width - width * 0.25,
+          height - i * heightPerLayer,
+          0.0]);
+        layer.setLegendWidth(width * 0.20);
+        layer.setLegendHeight(heightPerLayer * 0.20);
+        layer.updateLegend();
+        ++i;
+      }
+    }
+  }
+
   /**
    * Get map options
    */
@@ -291,8 +339,11 @@ geoModule.map = function(node, options) {
 
       // Transform layer
       geoModule.geoTransform.transformLayer(m_options.gcs, layer);
-
       m_layers[layer.id()] = layer;
+
+      // Update legends
+      updateLegends($(m_node).width(), $(m_node).height());
+
       this.predraw();
       this.modified();
 
@@ -317,7 +368,12 @@ geoModule.map = function(node, options) {
   this.removeLayer = function(layer) {
     if (layer !== null && typeof layer !== 'undefined') {
       m_renderer.removeActors(layer.features());
+
+      // Update legends
+      updateLegends($(m_node).width(), $(m_node).height());
+
       this.modified();
+
       $(this).trigger({
         type: geoModule.command.removeLayerEvent,
         layer: layer
@@ -419,6 +475,9 @@ geoModule.map = function(node, options) {
   ////////////////////////////////////////////////////////////////////////////
   this.resize = function(width, height) {
     m_viewer.renderWindow().resize(width, height);
+
+    updateLegends(width, height);
+
     $(this).trigger({
       type: geoModule.command.resizeEvent,
       width: width,
