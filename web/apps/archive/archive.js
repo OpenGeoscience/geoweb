@@ -395,21 +395,47 @@ archive.main = function() {
     // Ask for mouseMove events
     $(canvas).on("mousemove", function(event) {
       var mousePos = canvas.relMouseCoords(event);
-      var infoBox = $("#map-info-box")[0];
-      infoBox.style.left = (event.pageX+24)+"px";
-      infoBox.style.top = (event.pageY+24)+"px";
+      var infoBox = $("#map-info-box");
       var mapCoord = archive.myMap.displayToMap(mousePos.x, mousePos.y);
-      infoBox.innerHTML = mapCoord.x.toFixed(2)+" , "+mapCoord.y.toFixed(2);
+      infoBox.html(mapCoord.x.toFixed(2)+" , "+mapCoord.y.toFixed(2)+"<br/>");
+
+      var x = event.pageX+24;
+      var y = event.pageY+24;
+      var w = infoBox.outerWidth();
+      var h = infoBox.outerHeight();
+      var cw = $(canvas).width();
+      var ch = $(canvas).height();
+      // don't overflow the canvas
+      if (x + w > cw)
+        x = event.pageX - 24 - w;
+      if (y + h > ch)
+        y = event.pageY - 24 - h;
+      infoBox.offset({left: x, top: y});
+      return true;
+    });
+
+    // hide when moving out of the map
+    $(canvas).on("mouseleave", function(event) {
+      var mousePos = canvas.relMouseCoords(event);
+      var infoBox = $("#map-info-box");
+      infoBox.fadeOut();
+      return true;
+    });
+
+    // show when moving into the map
+    $(canvas).on("mouseenter", function(event) {
+      var mousePos = canvas.relMouseCoords(event);
+      var infoBox = $("#map-info-box");
+      infoBox.fadeIn();
       return true;
     });
 
     // Ask for click events
     $(canvas).on("click", function(event) {
       var mousePos = canvas.relMouseCoords(event);
-      var infoBox = $("#map-info-box")[0];
-      infoBox.innerHTML = "";
-      infoBox.style.left = (event.pageX+24)+"px";
-      infoBox.style.top = (event.pageY+24)+"px";
+      var infoBox = $("#map-info-box");
+      //infoBox.empty();
+
       var mapCoord = archive.myMap.displayToMap(mousePos.x, mousePos.y);
       archive.myMap.queryLocation(mapCoord);
       return true;
@@ -417,10 +443,18 @@ archive.main = function() {
 
     // React to queryResultEvent
     $(archive.myMap).on(geoModule.command.queryResultEvent, function(event, queryResult) {
-      var infoBox = $("#map-info-box")[0];
-      var locInfos = queryResult;
-      for (var idx in locInfos) {
-        infoBox.innerHTML += idx + " : " + locInfos[idx] + "<br/>";
+      var infoBox = $("#map-info-box");
+      var layer = queryResult.layer;
+      if (layer && layer.name())
+        infoBox.append("<div style='font-weight:bold;'>" + layer.name() + "</div>");
+      var queryData = queryResult.data;
+      if (queryData) {
+        var newResult = document.createElement("div");
+        newResult.style.paddingLeft = "12px";
+        for (var idx in queryData) {
+          $(newResult).append(idx + " : " + queryData[idx] + "<br/>");
+        }
+        infoBox.append(newResult);
       }
       return true;
     });
