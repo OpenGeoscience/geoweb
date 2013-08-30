@@ -12,17 +12,15 @@ except ImportError:
 def can_read():
   return True
 
-def read(expr, vars, rqstTime):
+def read(filename, vars, rqstTime):
   ''' Read a file or files from a directory given a wild-card expression
   '''
   # @todo Reading a single file of netcdf cf convention now
-  #cherrypy.log("vtkread " + expr + " " + vars + " " + str(time))
+  #cherrypy.log("vtkread " + filename + " " + vars + " " + str(time))
   reader = vtk.vtkNetCDFCFReader() #get test data
   reader.SphericalCoordinatesOff()
   reader.SetOutputTypeToImage()
   reader.ReplaceFillValueWithNanOn()
-  datadir = cherrypy.request.app.config['/data']['tools.staticdir.dir']
-  filename = os.path.join(datadir, expr)
   reader.SetFileName(filename)
   reader.UpdateInformation()
 
@@ -32,19 +30,18 @@ def read(expr, vars, rqstTime):
   converters = attrib_to_converters(tunits)
 
   # pick particular timestep
-  if (rqstTime is not None and
-      rawTimes is not None
-      and float(rqstTime) >= rawTimes[0] and float(rqstTime) <= rawTimes[-1]):
-    #cherrypy.log("rTime " + str(time))
-    sddp = reader.GetExecutive()
-    sddp.SetUpdateTimeStep(0,float(rqstTime))
-    if converters:
-      stdTime = converters[0](float(rqstTime))
-      date = converters[1](stdTime)
-      #cherrypy.log("time = " + str(rqstTime) +
-      #             " tunits: " + str(tunits) +
-      #             " stdTime: " + str(stdTime) +
-      #             " date " + str(date))
+  if rqstTime is not None and rawTimes is not None:
+      utcconverter = attrib_to_converters("days since 1970-0-0")
+      abs_request_time = utcconverter[0](float(rqstTime)/(1000*60*60*24))
+
+      local_request_time = converters[5](abs_request_time)
+
+      if float(local_request_time) >= rawTimes[0] and float(local_request_time) <= rawTimes[-1]:
+          sddp = reader.GetExecutive()
+          sddp.SetUpdateTimeStep(0, local_request_time)
+      # No data for the timestep so return empty document
+      else:
+          return "{}"
 
   # enable only chosen array(s)
   narrays = reader.GetNumberOfVariableArrays()

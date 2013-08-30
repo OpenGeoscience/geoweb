@@ -74,7 +74,7 @@ archive.initQueryInterface = function() {
   $('#to').datepicker();
 
   $('#query-input').bind("keyup", function() {
-    query = $('#query-input').val();
+    var query = $('#query-input').val();
     if (query.length == 0) {
       $('#query-input').removeClass("query-in-progress");
       $('#document-table-body').empty();
@@ -236,7 +236,7 @@ archive.processResults = function(results, removeFilter) {
       source: data[0].source,
       parameter: parameter,
       timestep: timestep,
-      timesteps: timesteps,
+      timeInfo: data[0].timeInfo,
       url: data[0].url,
       size: data[0].size,
       checksum: data[0].checksum,
@@ -422,26 +422,53 @@ archive.main = function() {
 
     // Create a placeholder for the layers
     var layersTable = ogs.ui.gis.createLayerList(archive.myMap,
-        'layers', 'Layers', archive.toggleLayer, archive.removeLayer);
+        'layers', 'Layers', archive.toggleLayer, archive.removeLayer,
+        archive.timeRange);
 
     // Ask for mouseMove events
     $(canvas).on("mousemove", function(event) {
       var mousePos = canvas.relMouseCoords(event);
-      var infoBox = $("#map-info-box")[0];
-      infoBox.style.left = (event.pageX+24)+"px";
-      infoBox.style.top = (event.pageY+24)+"px";
+      var infoBox = $("#map-info-box");
       var mapCoord = archive.myMap.displayToMap(mousePos.x, mousePos.y);
-      infoBox.innerHTML = mapCoord.x.toFixed(2)+" , "+mapCoord.y.toFixed(2);
+      infoBox.html(mapCoord.x.toFixed(2)+" , "+mapCoord.y.toFixed(2)+"<br/>");
+
+      var x = event.pageX+24;
+      var y = event.pageY+24;
+      var w = infoBox.outerWidth();
+      var h = infoBox.outerHeight();
+      var cw = $(canvas).width();
+      var ch = $(canvas).height();
+      // don't overflow the canvas
+      if (x + w > cw)
+        x = event.pageX - 24 - w;
+      if (y + h > ch)
+        y = event.pageY - 24 - h;
+      infoBox.offset({left: x, top: y});
+      return true;
+    });
+
+    // hide when moving out of the map
+    $(canvas).on("mouseleave", function(event) {
+      var mousePos = canvas.relMouseCoords(event);
+      var infoBox = $("#map-info-box");
+      infoBox.fadeOut();
+      return true;
+    });
+
+    // show when moving into the map
+    $(canvas).on("mouseenter", function(event) {
+      var mousePos = canvas.relMouseCoords(event);
+      var infoBox = $("#map-info-box");
+      infoBox.fadeIn();
       return true;
     });
 
     // Ask for click events
     $(canvas).on("click", function(event) {
       var mousePos = canvas.relMouseCoords(event);
-      var infoBox = $("#map-info-box")[0];
-      infoBox.innerHTML = "";
-      infoBox.style.left = (event.pageX+24)+"px";
-      infoBox.style.top = (event.pageY+24)+"px";
+      var infoBox = $("#map-info-box");
+      //infoBox.empty();
+
       var mapCoord = archive.myMap.displayToMap(mousePos.x, mousePos.y);
       archive.myMap.queryLocation(mapCoord);
       return true;
@@ -449,10 +476,18 @@ archive.main = function() {
 
     // React to queryResultEvent
     $(archive.myMap).on(geoModule.command.queryResultEvent, function(event, queryResult) {
-      var infoBox = $("#map-info-box")[0];
-      var locInfos = queryResult;
-      for (var idx in locInfos) {
-        infoBox.innerHTML += idx + " : " + locInfos[idx] + "<br/>";
+      var infoBox = $("#map-info-box");
+      var layer = queryResult.layer;
+      if (layer && layer.name())
+        infoBox.append("<div style='font-weight:bold;'>" + layer.name() + "</div>");
+      var queryData = queryResult.data;
+      if (queryData) {
+        var newResult = document.createElement("div");
+        newResult.style.paddingLeft = "12px";
+        for (var idx in queryData) {
+          $(newResult).append(idx + " : " + queryData[idx] + "<br/>");
+        }
+        infoBox.append(newResult);
       }
       return true;
     });
@@ -554,7 +589,30 @@ archive.removeLayer = function(target, layerId) {
   return false;
 };
 
-archive.monitorESGFDownload = function(target, taskId, onComplete) {
+archive.timeRange = function(name, onComplete) {
+
+  var query = {name: name};
+
+  $.ajax({
+    type: 'POST',
+    url: '/mongo/' + mongo.server + '/' + mongo.database + '/' + mongo.collection,
+    data: {
+      query: JSON.stringify(query),
+      limit:100,
+      fields: JSON.stringify(['timeInfo'])
+    },
+    dataType: 'json',
+    success: function(response) {
+      if (response.error !== null) {
+          console.log("[error] " + response.error ? response.error : "no results returned from server");
+      } else {
+        onComplete(response.result.data[0].timeInfo);
+      }
+    }
+  });
+}
+
+archive.monitorESGFDownload = function(target, taskId, onComplete, algorithm) {
   var dataSetId = target.dataset_id;
 
   $.ajax({
@@ -580,10 +638,12 @@ archive.monitorESGFDownload = function(target, taskId, onComplete) {
 
           // If we are done then we can load the file
           if (response.result.percentage == 100) {
-            onComplete(dataSetId);
+            onComplete(dataSetId, algorithm);
           }
           else {
-            setTimeout(function() {archive.monitorESGFDownload(target, taskId, onComplete)}, 1000);
+            setTimeout(function() {
+              archive.monitorESGFDownload(target, taskId, onComplete, algorithm)
+            }, 1000);
           }
         }
         else {
@@ -598,7 +658,7 @@ archive.monitorESGFDownload = function(target, taskId, onComplete) {
   });
 }
 
-archive.onDownloadComplete = function(dataSetId) {
+archive.onDownloadComplete = function(dataSetId, algorithm) {
   var layerRow = $('tr#' + dataSetId);
 
   // This sucks and is very fragile ... !
@@ -625,12 +685,12 @@ archive.onDownloadComplete = function(dataSetId) {
         // Remove the progress bar
         $('tr#' + dataSetId + ' #progress').remove();
 
-        archive.addLayerToMap(dataSet.dataset_id, dataSet.name, response.result.filepath,
-            dataSet.parameter, null)
+        archive.addLayerToMap(dataSet.dataset_id, dataSet.name,
+          response.result.filepath, dataSet.parameter, null, algorithm);
       }
     }
   });
-}
+};
 
 archive.cancelESGFDownload = function(taskId, dataSetId) {
 
@@ -661,7 +721,7 @@ archive.cancelESGFDownload = function(taskId, dataSetId) {
   }
 }
 
-archive.downloadESGF = function(target, onComplete, message) {
+archive.downloadESGF = function(target, onComplete, message, algorithm) {
 
   $('#esgf-login').modal({backdrop: 'static'});
 
@@ -701,7 +761,8 @@ archive.downloadESGF = function(target, onComplete, message) {
                 archive.cancelESGFDownload(taskId, dataSetId);
               });
 
-              archive.monitorESGFDownload(target, response.result['taskId'], onComplete);
+              archive.monitorESGFDownload(target, response.result['taskId'],
+                onComplete, algorithm);
             }
             // The row has been removed so cancel the download
             else {
@@ -728,26 +789,27 @@ archive.downloadESGF = function(target, onComplete, message) {
 
 };
 
-archive.addLayerToMap = function(target, parameter, timeval, algorithm) {
+archive.addLayerToMap = function(id, name, filePath, parameter, timeval, algorithm) {
+
   var algorithmData = staticWorkflows[algorithm],
     workflow = ogs.wfl.workflow({
       data: jQuery.extend(true, {}, algorithmData)
     }),
-    source = ogs.wfl.workflowLayerSource(
-      JSON.stringify(target.basename),
-      JSON.stringify(parameter),
-      workflow,
-      archive.error
-    ),
+    source = ogs.wfl.workflowLayerSource(JSON.stringify(filePath),
+    [parameter], workflow, archive.error),
     layer = ogs.geo.featureLayer();
-  workflow.setDefaultWorkflowInputs(target);
-  layer.setName(target.name);
+
+  workflow.setDefaultWorkflowInputs(name, filePath, timeval);
+
+  layer.setName(name);
   layer.setDataSource(source);
-  layer.setId(target.dataset_id);
+  layer.setId(id);
   layer.update(ogs.geo.updateRequest(timeval));
+
   archive.myMap.addLayer(layer);
   archive.myMap.redraw();
-};
+}
+
 
 archive.workflowLayer = function(target, layerId) {
   var layer = archive.myMap.findLayerById(layerId);
@@ -778,6 +840,7 @@ archive.workflowLayer = function(target, layerId) {
   }
 };
 
+
 archive.addLayer = function(target) {
   var timeval = target.timestep;
   var varval = target.parameter;
@@ -791,14 +854,20 @@ archive.addLayer = function(target) {
     ogs.ui.gis.addLayer(archive, 'table-layers', target, archive.selectLayer,
       archive.toggleLayer, archive.removeLayer, function() {
         ogs.ui.gis.layerAdded(target);
-        archive.addLayerToMap(target, varval, timeval, algorithm);
-    }, archive.workflowLayer);
+        // Calculate the timestep in UTC
+        var start = target.timeInfo.dateRange[0];
+        var time = new Date(Date.UTC(start[0], start[1], start[2]));
+        geoModule.time.incrementTime(time, target.timeInfo.nativeUnits,
+          target.timeInfo.nativeDelta*timeval);
+        archive.addLayerToMap(target.dataset_id, target.name, target.basename,
+          varval, time.getTime(), algorithm);
+      }, archive.workflowLayer);
   }
   else {
     ogs.ui.gis.addLayer(archive, 'table-layers', target, archive.selectLayer,
       archive.toggleLayer, archive.removeLayer, function() {
-        archive.downloadESGF(target, archive.onDownloadComplete)
-    }, archive.workflowLayer, true);
+        archive.downloadESGF(target, archive.onDownloadComplete, algorithm)
+      }, archive.workflowLayer, true);
 
     $('tr#' + target.dataset_id).on('cancel-download-task', function() {
       archive.cancelESGFDownload(null, target.dataset_id);
