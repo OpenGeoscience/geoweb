@@ -79,7 +79,6 @@ set(DEV_SOURCE_FILES
   /lib/vgl/pointSource.js
   /lib/vgl/lineSource.js
   /lib/vgl/utils.js
-  /lib/vgl/vtkUnpack.js
   /lib/geo/init.js
   /lib/geo/ellipsoid.js
   /lib/geo/mercator.js
