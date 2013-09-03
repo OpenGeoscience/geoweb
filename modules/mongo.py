@@ -12,7 +12,7 @@ def decode(s, argname, resp):
         resp['error'] = e.message + " (argument '%s' was '%s')" % (argname, s)
         raise
 
-def run(server, db, coll, method='find', query=None, limit=1000, fields=None, sort=None, fill=None):
+def run(server, db, coll, method='find', queryId=None, query=None, limit=1000, fields=None, sort=None, fill=None):
     # Create an empty response object.
     response = geoweb.empty_response();
 
@@ -60,6 +60,8 @@ def run(server, db, coll, method='find', query=None, limit=1000, fields=None, so
 
         # Create an object to structure the results.
         retobj = {}
+        if queryId:
+            retobj['queryId'] = int(queryId)
         retobj['count'] = it.count()
         retobj['data'] = results
 
