@@ -52,6 +52,8 @@ archive.promptAlgorithm = function(event, callback) {
         okClicked($('#algorithm-dialog'));
       }
     });
+
+    $('#algorithm-select').show();
 };
 
 archive.getMongoConfig = function() {
