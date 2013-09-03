@@ -819,7 +819,7 @@ archive.workflowLayer = function(target, layerId) {
     $('#workflow-dialog')
       .dialog({
         modal: true,
-        draggable: true,
+        draggable: false,
         resizable: true,
         minHeight: 300,
         width: Math.floor(window.screen.width * 0.95),
