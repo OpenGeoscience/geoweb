@@ -29,6 +29,8 @@ archive.getMongoConfig = function() {
     }
 };
 
+archive.queriesInProgress = 0;
+
 /**
  * Setup the basic query components and bindings.
  */
@@ -38,6 +40,17 @@ archive.initQueryInterface = function() {
 
   $('#from').datepicker();
   $('#to').datepicker();
+
+  $(archive).on('query-started', function() {
+    archive.queriesInProgress++;
+    $('#query-input').addClass("query-in-progress");
+  })
+
+  $(archive).on('query-canceled query-finished query-error', function() {
+    archive.queriesInProgress--;
+    if (archive.queriesInProgress == 0)
+      $('#query-input').removeClass("query-in-progress");
+  })
 
   $('#query-input').bind("keyup", function() {
     var query = $('#query-input').val();
@@ -49,7 +62,6 @@ archive.initQueryInterface = function() {
       archive.lastEsgfQueryProcessed = archive.esgfQueryId++
     }
     else {
-      $('#query-input').addClass("query-in-progress");
       archive.queryDatabase(query);
       archive.queryESGF(query);
     }
@@ -212,8 +224,6 @@ archive.processResults = function(results, removeFilter) {
     return drag;
     }
   })
-
-  $('#query-input').removeClass("query-in-progress");
 }
 archive.databaseQueryId = 0;
 archive.lastDatabaseQueryProcessed = -1;
@@ -238,6 +248,8 @@ archive.queryDatabase = function(query) {
   mongoQuery = {$and: [{$or: [{ $or: nameOr},{variables: {$elemMatch: { $or: variableOr}}}] },
                {variables: {$not: {$size: 0}}}]}
 
+  $(archive).trigger('query-started');
+
   $.ajax({
     type: 'POST',
     url: '/mongo/' + mongo.server + '/' + mongo.database + '/' + mongo.collection,
@@ -250,7 +262,8 @@ archive.queryDatabase = function(query) {
     dataType: 'json',
     success: function(response) {
       if (response.error !== null) {
-          console.log("[error] " + response.error ? response.error : "no results returned from server");
+        console.log("[error] " + response.error ? response.error : "no results returned from server");
+        $(archive).trigger('query-error');s
       } else {
 
         // Convert _id.$oid into id field, this transformation is do so the
@@ -266,8 +279,11 @@ archive.queryDatabase = function(query) {
           archive.processLocalResults(response.result.data, true);
           archive.lastDatabaseQueryProcessed = response.result.queryId;
         }
-        archive.performingLocalQuery = false;
+        $(archive).trigger('query-finished');
       }
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+      $(archive).trigger('query-error');
     }
   });
 }
@@ -285,7 +301,8 @@ archive.nextResult = function (queryId, streamId, remove) {
     dataType: 'json',
     success: function(response) {
       if (response.error !== null) {
-          console.log("[error] " + response.error ? response.error : "no results returned from server");
+        console.log("[error] " + response.error ? response.error : "no results returned from server");
+        $(archive).trigger('query-error');
       } else {
 
         if (response.result.queryId >= archive.lastEsgfQueryProcessed) {
@@ -302,15 +319,16 @@ archive.nextResult = function (queryId, streamId, remove) {
             setTimeout(function() {archive.nextResult(queryId, streamId)}, 0);
           }
           else {
-            archive.performingESGFQuery = false;
-            //if (archive.isQueryComplete())
-            //  $('#query-input').removeClass("query-in-progress");
+            $(archive).trigger('query-finished');
           }
         }
         else {
           archive.cancelStream(response.result.streamId);
         }
       }
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+      $(archive).trigger('query-error');
     }
   });
 }
@@ -327,9 +345,15 @@ archive.cancelStream = function (streamId) {
     dataType: 'json',
     success: function(response) {
       if (response.error !== null) {
-          console.log("[error] " + response.error ? response.error : "no results returned from server");
+        console.log("[error] " + response.error ? response.error : "no results returned from server");
+        $(archive).trigger('query-error');
       }
-      archive.performingESGFQuery = false;
+      else {
+        $(archive).trigger('query-canceled');
+      }
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+      $(archive).trigger('query-error');
     }
   });
 }
@@ -337,7 +361,8 @@ archive.cancelStream = function (streamId) {
 archive.esgfQueryId = 0;
 archive.lastEsgfQueryProcessed = -1;
 archive.queryESGF = function(query) {
-  archive.performingESGFQuery = true;
+
+  $(archive).trigger('query-started');
 
   $.ajax({
     type: 'POST',
@@ -350,6 +375,7 @@ archive.queryESGF = function(query) {
     success: function(response) {
       if (response.error !== null) {
           console.log("[error] " + response.error ? response.error : "no results returned from server");
+          $(archive).trigger('query-error');
       } else {
 
         if (response.result.queryId > archive.lastEsgfQueryProcessed) {
@@ -364,8 +390,10 @@ archive.queryESGF = function(query) {
           // Cancel the stream so it gets cleaned up
           archive.cancelStream(response.result.streamId);
         }
-
       }
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+      $(archive).trigger('query-error');
     }
   });
 }
