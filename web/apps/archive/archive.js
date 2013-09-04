@@ -29,6 +29,8 @@ archive.getMongoConfig = function() {
     }
 };
 
+archive.queriesInProgress = 0;
+
 /**
  * Setup the basic query components and bindings.
  */
@@ -39,14 +41,27 @@ archive.initQueryInterface = function() {
   $('#from').datepicker();
   $('#to').datepicker();
 
+  $(archive).on('query-started', function() {
+    archive.queriesInProgress++;
+    $('#query-input').addClass("query-in-progress");
+  })
+
+  $(archive).on('query-canceled query-finished query-error', function() {
+    archive.queriesInProgress--;
+    if (archive.queriesInProgress == 0)
+      $('#query-input').removeClass("query-in-progress");
+  })
+
   $('#query-input').bind("keyup", function() {
     var query = $('#query-input').val();
     if (query.length == 0) {
       $('#query-input').removeClass("query-in-progress");
       $('#document-table-body').empty();
+      // Stop the processing of any pending queries
+      archive.lastDatabaseQueryProcessed = archive.databaseQueryId++
+      archive.lastEsgfQueryProcessed = archive.esgfQueryId++
     }
     else {
-      $('#query-input').addClass("query-in-progress");
       archive.queryDatabase(query);
       archive.queryESGF(query);
     }
@@ -209,10 +224,9 @@ archive.processResults = function(results, removeFilter) {
     return drag;
     }
   })
-
-  $('#query-input').removeClass("query-in-progress");
 }
-
+archive.databaseQueryId = 0;
+archive.lastDatabaseQueryProcessed = -1;
 archive.queryDatabase = function(query) {
 
   mongo = archive.getMongoConfig();
@@ -234,10 +248,13 @@ archive.queryDatabase = function(query) {
   mongoQuery = {$and: [{$or: [{ $or: nameOr},{variables: {$elemMatch: { $or: variableOr}}}] },
                {variables: {$not: {$size: 0}}}]}
 
+  $(archive).trigger('query-started');
+
   $.ajax({
     type: 'POST',
     url: '/mongo/' + mongo.server + '/' + mongo.database + '/' + mongo.collection,
     data: {
+      queryId: archive.databaseQueryId++,
       query: JSON.stringify(mongoQuery),
       limit:100,
       fields: JSON.stringify(['name', 'basename', 'timeInfo', 'variables'])
@@ -245,7 +262,8 @@ archive.queryDatabase = function(query) {
     dataType: 'json',
     success: function(response) {
       if (response.error !== null) {
-          console.log("[error] " + response.error ? response.error : "no results returned from server");
+        console.log("[error] " + response.error ? response.error : "no results returned from server");
+        $(archive).trigger('query-error');s
       } else {
 
         // Convert _id.$oid into id field, this transformation is do so the
@@ -256,48 +274,61 @@ archive.queryDatabase = function(query) {
           row['size'] = 'N/A';
         });
 
-        archive.processLocalResults(response.result.data, true);
-        archive.performingLocalQuery = false;
+        // Only process the result if its still relevant
+        if (response.result.queryId > archive.lastDatabaseQueryProcessed) {
+          archive.processLocalResults(response.result.data, true);
+          archive.lastDatabaseQueryProcessed = response.result.queryId;
+        }
+        $(archive).trigger('query-finished');
       }
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+      $(archive).trigger('query-error');
     }
   });
 }
 
-archive.nextResult = function (streamId, remove) {
+archive.nextResult = function (queryId, streamId, remove) {
   remove = typeof remove !== 'undefined' ? remove : false;
 
   $.ajax({
     type: 'POST',
     url: '/esgf/stream',
     data: {
+      queryId: queryId,
       streamId: streamId
     },
     dataType: 'json',
     success: function(response) {
       if (response.error !== null) {
-          console.log("[error] " + response.error ? response.error : "no results returned from server");
+        console.log("[error] " + response.error ? response.error : "no results returned from server");
+        $(archive).trigger('query-error');
       } else {
 
-        // Set the source
+        if (response.result.queryId >= archive.lastEsgfQueryProcessed) {
+          if (response.result.data) {
+            $.each(response.result.data, function(index, row) {
+              row['source'] = "ESGF";
+              // As this will be used as an attribute we need to repalce the .s
+              row['id'] = row['id'].replace(/\./g, "-")
+            });
+            archive.processESGFResults(response.result.data, remove);
+          }
 
-        if (response.result.data) {
-          $.each(response.result.data, function(index, row) {
-            row['source'] = "ESGF";
-            // As this will be used as an attribute we need to repalce the .s
-            row['id'] = row['id'].replace(/\./g, "-")
-          });
-          archive.processESGFResults(response.result.data, remove);
-        }
-
-        if (response.result.hasNext) {
-          setTimeout(function() {archive.nextResult(streamId)}, 0);
+          if (response.result.hasNext) {
+            setTimeout(function() {archive.nextResult(queryId, streamId)}, 0);
+          }
+          else {
+            $(archive).trigger('query-finished');
+          }
         }
         else {
-          archive.performingESGFQuery = false;
-          //if (archive.isQueryComplete())
-          //  $('#query-input').removeClass("query-in-progress");
+          archive.cancelStream(response.result.streamId);
         }
       }
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+      $(archive).trigger('query-error');
     }
   });
 }
@@ -314,33 +345,55 @@ archive.cancelStream = function (streamId) {
     dataType: 'json',
     success: function(response) {
       if (response.error !== null) {
-          console.log("[error] " + response.error ? response.error : "no results returned from server");
+        console.log("[error] " + response.error ? response.error : "no results returned from server");
+        $(archive).trigger('query-error');
       }
-      archive.performingESGFQuery = false;
+      else {
+        $(archive).trigger('query-canceled');
+      }
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+      $(archive).trigger('query-error');
     }
   });
 }
 
+archive.esgfQueryId = 0;
+archive.lastEsgfQueryProcessed = -1;
 archive.queryESGF = function(query) {
-  archive.performingESGFQuery = true;
+
+  $(archive).trigger('query-started');
 
   $.ajax({
     type: 'POST',
     url: '/esgf/query',
     data: {
+      queryId: archive.esgfQueryId++,
       expr: JSON.stringify(query)
     },
     dataType: 'json',
     success: function(response) {
       if (response.error !== null) {
           console.log("[error] " + response.error ? response.error : "no results returned from server");
+          $(archive).trigger('query-error');
       } else {
 
-        if (response.result.hasNext) {
-          archive.streamId = response.result.streamId;
-          archive.nextResult(response.result.streamId, true);
+        if (response.result.queryId > archive.lastEsgfQueryProcessed) {
+          archive.lastEsgfQueryProcessed = response.result.queryId;
+          if (response.result.hasNext) {
+            archive.streamId = response.result.streamId;
+            archive.nextResult(response.result.queryId,
+                response.result.streamId, true);
+          }
+        }
+        else {
+          // Cancel the stream so it gets cleaned up
+          archive.cancelStream(response.result.streamId);
         }
       }
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+      $(archive).trigger('query-error');
     }
   });
 }
