@@ -495,9 +495,7 @@ archive.main = function() {
     });
   });
 
-  init();
-  //archive.initWebSockets();
-  initWorkflowCanvas();
+  archive.workflowEditor = ogs.wfl.editor({div: "workflowEditor"});
 
   // Populate the algorithm list
   for(var name in staticWorkflows) {
@@ -797,7 +795,7 @@ archive.addLayerToMap = function(id, name, filePath, parameter, timeval, algorit
     workflow = ogs.wfl.workflow({
       data: jQuery.extend(true, {}, algorithmData)
     }),
-    source = ogs.wfl.workflowLayerSource(JSON.stringify(filePath),
+    source = ogs.wfl.layerSource(JSON.stringify(filePath),
     [parameter], workflow, archive.error),
     layer = ogs.geo.featureLayer();
 
@@ -814,8 +812,10 @@ archive.addLayerToMap = function(id, name, filePath, parameter, timeval, algorit
 
 
 archive.workflowLayer = function(target, layerId) {
-  var layer = archive.myMap.findLayerById(layerId);
+  var layer = archive.myMap.findLayerById(layerId),
+    workflow;
   if(layer != null) {
+    workflow = layer.dataSource().workflow();
     $('#workflow-dialog')
       .dialog({
         modal: true,
@@ -827,18 +827,20 @@ archive.workflowLayer = function(target, layerId) {
         buttons: {
           Close: function() {
             $(this).dialog("close");
-            layer.dataSource().workflow().hide();
+            archive.workflowEditor.workflow().hide();
           },
           Execute: function() {
-            var workflow = layer.dataSource().workflow(),
+            var workflow = archive.workflowEditor.workflow(),
               variableModule = workflow.getModuleByName('Variable'),
               time = variableModule.getFunctionValue('time');
             time = time == null ? -1 : parseInt(time);
+            //@todo: make right call to update layer rendering
             archive.myMap.animateTimestep(time, [layer]);
           }
         }
       });
-    layer.dataSource().workflow().show();
+    archive.workflowEditor.setWorkflow(layer.dataSource().workflow());
+    archive.workflowEditor.show();
   }
 };
 

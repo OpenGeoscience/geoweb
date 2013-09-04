@@ -105,18 +105,19 @@ set(DEV_SOURCE_FILES
   /lib/srv/init.js
   /lib/srv/webSocket.js
   /lib/wfl/init.js
+  /lib/wfl/utils.js
   /lib/wfl/workflow.js
-  /lib/wfl/workflowModule.js
+  /lib/wfl/module.js
   /lib/wfl/connection.js
   /lib/wfl/port.js
-  /lib/wfl/geowebRegistry.js
+  /lib/wfl/registry.js
   /lib/wfl/inputModule.js
   /lib/wfl/outputPort.js
   /lib/wfl/inputPort.js
+  /lib/wfl/layerSource.js
+  /lib/wfl/editor.js
   /lib/wfl/staticWorkflows.js
-  /lib/wfl/workflowStyle.js
-  /lib/wfl/workflowUtils.js
-  /lib/wfl/workflowLayerSource.js
+  /lib/wfl/style.js
 )
 
 # These files should be validated with JSLint.
