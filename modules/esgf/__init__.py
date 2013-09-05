@@ -14,8 +14,8 @@ from esgf.query import query
 
 streams = dict()
 
-def run(method, url=None, size=None, checksum=None, userUrl=None, password=None, expr=None, vars=None,
-        streamId=None, cancel=False, taskId=None):
+def run(method, url=None, size=None, checksum=None, userUrl=None, password=None,
+        queryId=None, expr=None, vars=None,streamId=None, cancel=False, taskId=None):
     response = geoweb.empty_response();
 
     if url:
@@ -30,7 +30,9 @@ def run(method, url=None, size=None, checksum=None, userUrl=None, password=None,
     if method == 'query':
         streamId = str(uuid.uuid1())
         streams[streamId] = query("http://pcmdi9.llnl.gov", expr)
-        response['result'] = {'hasNext': True, 'streamId': streamId }
+        response['result'] = {'hasNext': True, 'streamId': streamId}
+        if queryId:
+            response['result']['queryId'] = int(queryId)
     elif method == 'stream':
         if cancel:
             if streamId in streams:
@@ -45,6 +47,9 @@ def run(method, url=None, size=None, checksum=None, userUrl=None, password=None,
                 response['result'] = {'hasNext': False}
         except StopIteration:
             response['result'] = {'hasNext': False}
+
+        if queryId:
+            response['result']['queryId'] = int(queryId)
     elif method == 'read':
         read(url, user, password);
     elif method == "download":
