@@ -4,6 +4,8 @@ log.error_file: '@LOG_ERROR_FILE@'
 log.access_file: '@LOG_ACCESS_FILE@'
 log.screen = True
 log.debug: True #@LOG_DEBUG@
+geoweb.user: '@GEOWEB_USER@'
+geoweb.group: '@GEOWEB_GROUP@'
 
 [/]
 tools.staticdir.root: @STATICDIR_ROOT@

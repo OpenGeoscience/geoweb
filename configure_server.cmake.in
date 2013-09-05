@@ -5,6 +5,8 @@ set(DEPLOY_DIR "@deploy_dir@")
 set(DATA_ROOT "@DATA_ROOT@")
 set(LOG_ERROR_FILE "@LOG_ERROR_FILE@")
 set(LOG_ACCESS_FILE "@LOG_ACCESS_FILE@")
+set(GEOWEB_USER "@GEOWEB_USER@")
+set(GEOWEB_GROUP "@GEOWEB_GROUP@")
 configure_file("${SRC_DIR}/server.conf.in"
   "${BIN_DIR}/${DEPLOY_DIR}/server.conf" @ONLY
 )
