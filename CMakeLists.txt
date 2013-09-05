@@ -240,6 +240,10 @@ configure_file(configure_server.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/configure_server.cmake @ONLY
 )
 
+configure_file(geocelery_conf.py.in
+  ${CMAKE_CURRENT_BINARY_DIR}/deploy/modules/geocelery_conf.py @ONLY
+)
+
 # Generate documentation.
 set(documentation_stamp ${CMAKE_BINARY_DIR}/stamps/documentation.txt)
 set(documenation_dir ${CMAKE_BINARY_DIR}/doc)
