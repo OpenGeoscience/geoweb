@@ -42,8 +42,8 @@ class mongo_import:
         fileprefix = filenamesplitted[0]
         filesuffix = filenamesplitted[1]
 
-        if self.is_exists(collection, basename):
-          print 'Data  %s already exists' % basename
+        if self.is_exists(collection, filename):
+          print 'Data  %s already exists' % filename
           return
 
         if filesuffix == ".nc":
@@ -143,11 +143,8 @@ class mongo_import:
                            if minmax[j*2+1] > variable["range"][j*2+1]:
                                variable["range"][j*2+1] = minmax[j*2+1]
 
-            if filename.startswith('/'):
-                basename = filename
-
             # Record what we've learned in the data base
-            insertId = coll.insert({"name":fileprefix, "basename":basename,
+            insertId = coll.insert({"name":fileprefix, "basename":filename,
                                    "variables":variables,
                                    "timeInfo":timeInfo,
                                    "spatialInfo":bounds})
