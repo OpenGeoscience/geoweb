@@ -22,6 +22,8 @@ set(DOCUMENT OFF CACHE BOOL "Generate documentation for JavaScript files.")
 set(SERVER_LOGS ON CACHE BOOL "Write cherrypy server access and error logs in deploy/logs")
 set(SERVER_DEBUG ON CACHE BOOL "Write debug statements to error logs")
 set(DATA_ROOT "data" CACHE PATH "Root directory for the data")
+set(GEOWEB_USER $ENV{USER} CACHE STRING "User to run geoweb as when dropping privileges")
+set(GEOWEB_GROUP $ENV{USER} CACHE STRING "Group to run geoweb as when dropping privileges")
 
 # Non-cache variables.
 set(deploy_dir deploy)
@@ -252,6 +254,10 @@ endif()
 #setup config file
 configure_file(configure_server.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/configure_server.cmake @ONLY
+)
+
+configure_file(geocelery_conf.py.in
+  ${CMAKE_CURRENT_BINARY_DIR}/deploy/modules/geocelery_conf.py @ONLY
 )
 
 # Generate documentation.

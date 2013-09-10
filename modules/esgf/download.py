@@ -6,11 +6,14 @@ import requests
 import os.path
 from functools import partial
 import hashlib
-import tempfile
 from urlparse import urlparse
+import geocelery_conf
 
 mongo_url='mongodb://localhost/celery'
 celery = Celery('download', broker=mongo_url, backend=mongo_url)
+
+def download_dir():
+    return "%s/esgf" % geocelery_conf.DOWNLOAD_DIR
 
 def user_url_to_filepath(user_url):
     user_url = user_url.replace('https://', '')
@@ -21,7 +24,7 @@ def user_url_to_filepath(user_url):
 def user_cert_file(user_url):
     filepath = user_url_to_filepath(user_url)
 
-    return '%s/%s/cert.esgf' % (tempfile.gettempdir(), filepath)
+    return '%s/%s/cert.esgf' % (download_dir(), filepath)
 
 def aquire_certificate(user_url, password):
     from myproxy.client import MyProxyClient
@@ -53,7 +56,7 @@ def aquire_certificate(user_url, password):
 
 def url_to_download_filepath(user_url, url):
     user_filepath = user_url_to_filepath(user_url)
-    filepath = '%s/%s' %(tempfile.gettempdir(), user_filepath)
+    filepath = '%s/%s' %(download_dir(), user_filepath)
     filepath += url[6:]
 
     return filepath

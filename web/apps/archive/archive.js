@@ -469,10 +469,10 @@ archive.main = function() {
 
     function updateAndDraw(width, height) {
 
-      archive.myMap.redraw();
+      archive.myMap.draw();
       archive.myMap.resize(width, height);
       archive.myMap.update();
-      archive.myMap.redraw();
+      archive.myMap.draw();
     }
 
     // Create a placeholder for the layers
@@ -635,7 +635,7 @@ archive.removeLayer = function(target, layerId) {
   var layer = archive.myMap.findLayerById(layerId);
   if (layer != null) {
     archive.myMap.removeLayer(layer);
-    archive.myMap.redraw();
+    archive.myMap.draw();
     return true;
   }
 
@@ -860,7 +860,7 @@ archive.addLayerToMap = function(id, name, filePath, parameter, timeval, algorit
   layer.update(ogs.geo.updateRequest(timeval));
 
   archive.myMap.addLayer(layer);
-  archive.myMap.redraw();
+  archive.myMap.draw();
 }
 
 
