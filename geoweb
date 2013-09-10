@@ -1,38 +1,155 @@
 #!/usr/bin/env python
 
+import cherrypy
 import os
 import signal
 import subprocess
 import sys
 import argparse
+import platform
+
+
+def read_pid(pidfile):
+    # Open the file and convert the contents to an integer - if this fails for
+    # any reason, whatever exception is raised will propagate up to the caller.
+    f = open(pidfile)
+    pid = int(f.read())
+
+    return pid
 
 def start():
-    print pidfile
+    def live_pid(pid):
+        try:
+            os.kill(pid, 0)
+        except OSError:
+            return False
+        else:
+            return True
 
     if os.path.exists(pidfile):
-        sys.stderr.write("error: geoweb already seems to be running")
-        return 1
+          # Get the pid.
+          try:
+              pid = read_pid(pidfile)
+          except ValueError:
+              sys.stderr.write("Failed (pidfile exists and contains bad pid)\n")
+              return 1
+
+          # Check if the pid is live - if so, then geoweb is already running; if
+          # not, then remove the pidfile.
+          if live_pid(pid):
+              sys.stderr.write("Failed (already running)\n")
+              return 1
+          else:
+              try:
+                  os.remove(pidfile)
+              except OSError:
+                  sys.stderr.write("Failed (could not remove stale pidfile)")
+                  return 1
 
     run_path = os.path.dirname(os.path.abspath(sys.argv[0]))
     os.chdir(path)
 
-    return subprocess.call([cherry,
-        "-d",
-        "-i", "geoweb",
-        "-c", "%s/server.conf" % run_path,
-        "-p", pidfile,
-        "-P", path])
+    # Load the configuration
+    server_config = "%s/server.conf" % run_path
+    cherrypy.config.update(server_config)
+
+    # include the main module
+    import geoweb
+
+    cherrypy.tree.apps[''].merge(server_config)
+
+    error_file = cherrypy.tree.apps[''].config['global']['log.error_file']
+    access_file = cherrypy.tree.apps[''].config['global']['log.access_file']
+
+    # ensure pidfile is created with correct owner
+    with open(pidfile, "a"):
+        pass
+
+    retval = 0
+
+    # If we're on windows, don't supply any username/groupname, and just
+    # assume we should drop priveleges.
+    if platform.system() == "Windows":
+        cherrypy.process.plugins.DropPrivileges(cherrypy.engine).subscribe()
+    elif os.getuid() == 0:
+        import grp
+        import pwd
+
+        if 'geoweb.user' not in cherrypy.config or 'geoweb.group' not in cherrypy.config:
+            cherrypy.log("No user or group configured for drop privilege", "ERROR")
+            sys.exit(1)
+
+        user = cherrypy.config['geoweb.user']
+        group = cherrypy.config['geoweb.group']
+
+        try:
+            uid = pwd.getpwnam(user).pw_uid
+        except KeyError:
+            cherrypy.log("No such user '%s' to drop privileges to" % (user), "ERROR")
+            sys.exit(1)
+
+        try:
+            gid = grp.getgrnam(group).gr_gid
+        except KeyError:
+            cherrypy("No such group '%s' to drop privileges to" % (group), "ERROR")
+            sys.exit(1)
+
+        # Set the process home directory to be the dropped-down user's.
+        os.environ["HOME"] = os.path.expanduser("~%s" % (user))
+
+        # Perform the privilege drop.
+        cherrypy.process.plugins.DropPrivileges(cherrypy.engine, uid=uid, gid=gid).subscribe()
+
+        # Make sure the log files and pid file are owned by the same,
+        # non-superuser.
+        os.chown(error_file, uid, gid)
+        os.chown(access_file, uid, gid)
+        os.chown(pidfile, uid, gid)
+
+    fork = os.fork()
+
+    # Fork the process to allow the parent to poll the logfile to check for
+    # success.
+    if fork == 0:
+        # Return value of 0 means this branch is the child - start the
+        # process.
+        cherrypy.process.plugins.Daemonizer(cherrypy.engine).subscribe()
+        cherrypy.process.plugins.PIDFile(cherrypy.engine, pidfile).subscribe()
+        cherrypy.engine.start()
+        cherrypy.engine.block()
+    else:
+        # This branch is the parent - poll the log file and print a message
+        # on stdout.
+        f = open(error_file)
+        f.seek(0, 2)
+        done = False
+        while not done:
+            cur_pos = f.tell()
+            line = f.readline()
+            if not line:
+                f.seek(cur_pos)
+            else:
+                if "Bus STARTED" in line:
+                    retval = 0
+                    sys.stderr.write("Success (serving on %s)\n" % location)
+                    done = True
+                elif "Error" in line:
+                    retval = 1
+                    sys.stderr.write("Failed (check error.log for reason)\n")
+                    done = True
+                elif "Serving on" in line:
+                    location = line.split("Serving on")[1].strip()
+
+    return retval
 
 def stop():
     retval = 0
 
     if os.path.exists(pidfile):
-        f = open(pidfile)
-
         try:
-            pid = int(f.read())
+            pid = read_pid(pidfile)
         except ValueError:
-            sys.stderr.write("error: geoweb.pid does not contain a valid process id")
+            sys.stderr.write("Failed (pidfile exists and contains bad pid)\n")
             return 1
 
         retval = os.kill(pid, signal.SIGKILL)
@@ -59,33 +176,11 @@ if len(sys.argv) < 2:
 
 args = parser.parse_args()
 
-# Determine the correct executable.
-#
-# TODO(choudhury): Check the environment first, rather than always running this
-# test.
-cherry = "cherryd2"
-stdout_stderr = subprocess.Popen(["which", cherry], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-stdout, stderr = stdout_stderr.communicate()
-if stdout:
-  pass
-else:
-  cherry = "cherryd"
-  stdout_stderr = subprocess.Popen(["which", cherry], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-  stdout, stderr = stdout_stderr.communicate()
-  if stdout:
-    pass
-  else:
-    cherry = None
-
-if cherry is None:
-    sys.stderr.write("Neither `cherryd2` nor `cherry` seem to be in your path")
-    sys.exit(1)
-
 # Determine the path to this script.
 if args.path:
   path = args.path[0]
 
-print type(path)
+sys.path.insert(0, path)
 
 pidfile = os.path.dirname(os.path.abspath(sys.argv[0])) + "/geoweb.pid"
 
@@ -101,5 +196,4 @@ else:
     parser.print_help()
     code = 1
 
-print code
 sys.exit(code)
