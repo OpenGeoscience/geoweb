@@ -1,10 +1,15 @@
+#/////////////////////////////////////////////////////////////////////////////
+#
+# GeoJS
+#
+#/////////////////////////////////////////////////////////////////////////////
+
 cmake_minimum_required(VERSION 2.8)
-project(geoweb)
+project(geojs)
+
+set(STATICDIR_ROOT "geojs.current_dir")
 
 option(DEV_BUILD "Allow running from source tree" OFF)
-
-set(STATICDIR_ROOT "geoweb.current_dir")
-
 if (DEV_BUILD)
   set(STATICDIR_ROOT "\\\"${CMAKE_SOURCE_DIR}\\\"")
 endif()
@@ -12,7 +17,12 @@ endif()
 # Extend cmake module path.
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
-# Cache variables.
+#/////////////////////////////////////////////////////////////////////////////
+#
+# GeoJS options
+#
+#/////////////////////////////////////////////////////////////////////////////
+
 set(DEPLOY_TEST_SERVICES OFF CACHE BOOL "Deploy the \"testing\" web service modules.")
 set(SERVER_HOSTNAME localhost CACHE STRING "The hostname of the machine that will run the server.")
 set(SERVER_PORT 8080 CACHE STRING "The port the server will run on.")
@@ -22,12 +32,28 @@ set(DOCUMENT OFF CACHE BOOL "Generate documentation for JavaScript files.")
 set(SERVER_LOGS ON CACHE BOOL "Write cherrypy server access and error logs in deploy/logs")
 set(SERVER_DEBUG ON CACHE BOOL "Write debug statements to error logs")
 set(DATA_ROOT "data" CACHE PATH "Root directory for the data")
-set(GEOWEB_USER $ENV{USER} CACHE STRING "User to run geoweb as when dropping privileges")
-set(GEOWEB_GROUP $ENV{USER} CACHE STRING "Group to run geoweb as when dropping privileges")
+set(GEOJS_USER $ENV{USER} CACHE STRING "User to run geojs as when dropping privileges")
+set(GEOJS_GROUP $ENV{USER} CACHE STRING "Group to run geojs as when dropping privileges")
 
-# Non-cache variables.
-set(deploy_dir deploy)
-set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${deploy_dir})
+#/////////////////////////////////////////////////////////////////////////////
+#
+# Internal variables
+#
+#/////////////////////////////////////////////////////////////////////////////
+
+set(_deploy_dir deploy)
+set(_deploy_depends)
+set(_geojs_cmake_dir "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+# These files should be validated with JSLint.
+set(_js_lint_files)
+set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${_deploy_dir})
+
+#/////////////////////////////////////////////////////////////////////////////
+#
+# Find required packages
+#
+#/////////////////////////////////////////////////////////////////////////////
 
 # Find JSLint.
 find_package(JSLint)
@@ -41,7 +67,13 @@ if (DOCUMENT)
 endif()
 
 # Find a Python2 interpreter.
-find_package(PythonInterp 2.6)
+find_package(PythonInterp 2.7)
+
+#/////////////////////////////////////////////////////////////////////////////
+#
+# Add source files and directories
+#
+#/////////////////////////////////////////////////////////////////////////////
 
 # Create a "stamps" directory for storing fake targets for custom commands.
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/stamps)
@@ -121,56 +153,48 @@ set(DEV_SOURCE_FILES
   /lib/wfl/style.js
 )
 
-# These files should be validated with JSLint.
-set(JS_LINT_FILES)
-
 foreach(d ${DEV_SOURCE_FILES})
-  set(JS_LINT_FILES ${JS_LINT_FILES} ${CMAKE_SOURCE_DIR}/web/${d})
+  set(_js_lint_files ${_js_lint_files} ${CMAKE_SOURCE_DIR}/web/${d})
 endforeach()
 
 # These files should be concatenated and uglified
-set(JS_UGLIFY_FILES
-  ${JS_LINT_FILES}
+set(_js_uglify_files
+  ${_js_lint_files}
 )
 
 # These files should have documentation generated for them.
-set(JS_DOCUMENT_FILES
-  ${JS_UGLIFY_FILES}
+set(_js_document_files
+  ${_js_uglify_files}
 )
 
 # These files should be copied to the deployment directory.
 set(sources
-    geoweb
-    geoweb.py
-    geocelery
+    geojs geojs.py geocelery
 )
 
 set(paths
-  web/apps
-  web/common
-  web/index.html
-  modules
-  utils
-  nodes
-  services
-  temp
+  web/apps web/common web/index.html modules utils
+  nodes services temp
 )
 
-set(lib_dir "${CMAKE_BINARY_DIR}/${deploy_dir}/web/lib")
-if(NOT EXISTS ${lib_dir})
-  add_custom_command(OUTPUT ${lib_dir}
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${lib_dir}
-  )
-endif()
+set(_lib_dir "${CMAKE_BINARY_DIR}/${_deploy_dir}/web/lib")
+add_custom_command(OUTPUT ${_lib_dir}
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${_lib_dir}
+)
 
-# Configure the server config file.
-set(server_config "${deploy_dir}/server.conf")
-add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${deploy_dir}/server.conf
+#/////////////////////////////////////////////////////////////////////////////
+#
+# Create custom commands and necessary build pieces
+#
+#/////////////////////////////////////////////////////////////////////////////
+
+set(_server_config "${_deploy_dir}/server.conf")
+add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${_deploy_dir}/server.conf
   COMMAND ${CMAKE_COMMAND} -P
     ${CMAKE_CURRENT_BINARY_DIR}/configure_server.cmake
   DEPENDS
     ${CMAKE_CURRENT_BINARY_DIR}/configure_server.cmake
-    ${CMAKE_CURRENT_SOURCE_DIR}/server.conf.in
+    ${_geojs_cmake_dir}/server.conf.in
   COMMENT "Configuring server configuration script"
   VERBATIM
 )
@@ -178,10 +202,10 @@ add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${deploy_dir}/server.conf
 # Copy the files to the deployment directory.
 set(all_targets)
 foreach(m ${sources})
-  set(outfile ${deploy_dir}/${m})
-  add_custom_command(
-    OUTPUT ${outfile}
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/${m} ${CMAKE_BINARY_DIR}/${outfile}
+  set(outfile ${_deploy_dir}/${m})
+  add_custom_command(OUTPUT ${outfile}
+    COMMAND ${CMAKE_COMMAND} -E copy
+      ${CMAKE_SOURCE_DIR}/${m} ${CMAKE_BINARY_DIR}/${outfile}
     DEPENDS ${m}
   )
   list(APPEND all_targets ${outfile})
@@ -193,11 +217,12 @@ foreach(m ${paths})
     if (IS_DIRECTORY "${CMAKE_SOURCE_DIR}/${m}")
       set(copy_command "copy_directory")
     endif()
-    set(outpath ${deploy_dir}/${m})
+    set(outpath ${_deploy_dir}/${m})
     add_custom_command(
         OUTPUT ${outpath}
-        COMMAND ${CMAKE_COMMAND} -E ${copy_command} ${CMAKE_SOURCE_DIR}/${m} ${CMAKE_BINARY_DIR}/${outpath}
-        DEPENDS ${m} ${lib_dir}
+        COMMAND ${CMAKE_COMMAND} -E ${copy_command}
+          ${CMAKE_SOURCE_DIR}/${m} ${CMAKE_BINARY_DIR}/${outpath}
+        DEPENDS ${m} ${_lib_dir}
     )
     list(APPEND all_targets ${outpath})
 endforeach()
@@ -211,38 +236,38 @@ if(${MINIFY} AND ${MANGLE})
     set(MANGLE_FLAG "-m")
 endif()
 
-set(min_js_file ${CMAKE_BINARY_DIR}/${deploy_dir}/web/lib/geoweb.min.js)
+set(_min_js_file ${CMAKE_BINARY_DIR}/${_deploy_dir}/web/lib/geojs.min.js)
 
 if (UglifyJS_EXECUTABLE)
   add_custom_command(
-    OUTPUT ${min_js_file}
-    COMMAND ${UglifyJS_EXECUTABLE} -o ${min_js_file} ${JS_UGLIFY_FILES}
+    OUTPUT ${_min_js_file}
+    COMMAND ${UglifyJS_EXECUTABLE} -o ${_min_js_file} ${_js_uglify_files}
             ${MINIFY_FLAG} ${MANGLE_FLAG}
-    DEPENDS ${lib_dir} ${JS_UGLIFY_FILES}
+    DEPENDS ${_lib_dir} ${_js_uglify_files}
   )
 else()
   # Use custom command to call CMake script to cat files together
   add_custom_command(
-    OUTPUT ${min_js_file}
-    COMMAND ${CMAKE_COMMAND} -DCAT_OUTPUT_FILE=${min_js_file}
+    OUTPUT ${_min_js_file}
+    COMMAND ${CMAKE_COMMAND} -DCAT_OUTPUT_FILE=${_min_js_file}
             # Note the quotes so we get the ; included
-            "-DCAT_FILES=${JS_UGLIFY_FILES}"
+            "-DCAT_FILES=${_js_uglify_files}"
             -P ${CMAKE_SOURCE_DIR}/cmake/cat.cmake
-    DEPENDS ${lib_dir} ${JS_UGLIFY_FILES}
+    DEPENDS ${_lib_dir} ${_js_uglify_files}
     VERBATIM
   )
 endif()
 
-set(logs_dir ${CMAKE_BINARY_DIR}/${deploy_dir}/logs)
+set(_logs_dir ${CMAKE_BINARY_DIR}/${_deploy_dir}/logs)
 add_custom_command(
-  OUTPUT ${logs_dir}
+  OUTPUT ${_logs_dir}
   COMMAND ${CMAKE_COMMAND} -E make_directory
-  ${CMAKE_BINARY_DIR}/${deploy_dir}/logs
+  ${CMAKE_BINARY_DIR}/${_deploy_dir}/logs
 )
 
 if(SERVER_LOGS)
-    set(LOG_ERROR_FILE "${logs_dir}/error.log")
-    set(LOG_ACCESS_FILE "${logs_dir}/access.log")
+    set(LOG_ERROR_FILE "${_logs_dir}/error.log")
+    set(LOG_ACCESS_FILE "${_logs_dir}/access.log")
 endif()
 
 if(SERVER_DEBUG)
@@ -251,25 +276,36 @@ else()
   set(LOG_DEBUG "False")
 endif()
 
-#setup config file
-configure_file(configure_server.cmake.in
+#/////////////////////////////////////////////////////////////////////////////
+#
+# Setup config file
+#
+#/////////////////////////////////////////////////////////////////////////////
+
+configure_file(${_geojs_cmake_dir}/configure_server.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/configure_server.cmake @ONLY
 )
 
-configure_file(geocelery_conf.py.in
+configure_file(${_geojs_cmake_dir}/geocelery_conf.py.in
   ${CMAKE_CURRENT_BINARY_DIR}/deploy/modules/geocelery_conf.py @ONLY
 )
 
-# Generate documentation.
+#/////////////////////////////////////////////////////////////////////////////
+#
+# Generate documentation
+#
+#/////////////////////////////////////////////////////////////////////////////
+
 set(documentation_stamp ${CMAKE_BINARY_DIR}/stamps/documentation.txt)
 set(documenation_dir ${CMAKE_BINARY_DIR}/doc)
 if(DOCUMENT)
     add_custom_command(
         OUTPUT ${documentation_stamp}
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${documenation_dir}
-        COMMAND ${JSDuck_EXECUTABLE} ${JSDuck_ARGS} ${JS_DOCUMENT_FILES} --builtin-classes --output ${documenation_dir}
+        COMMAND ${JSDuck_EXECUTABLE} ${JSDuck_ARGS}
+          ${_js_document_files} --builtin-classes --output ${documenation_dir}
         COMMAND ${CMAKE_COMMAND} -E touch ${documentation_stamp}
-        DEPENDS ${JS_DOCUMENT_FILES}
+        DEPENDS ${_js_document_files}
     )
 
     # Remove the stamp file, which may have been trivially generated in a
@@ -286,13 +322,22 @@ else()
     )
 endif()
 
-# The top-level target.
-add_custom_target(
-  deploy
-  ALL
-  DEPENDS ${lib_dir} ${all_targets} ${min_js_file} ${server_config} ${logs_dir}
+#/////////////////////////////////////////////////////////////////////////////
+#
+# Add top level target
+#
+#/////////////////////////////////////////////////////////////////////////////
+
+add_custom_target(deploy ALL
+  DEPENDS ${_lib_dir} ${all_targets} ${_min_js_file} ${_server_config} ${_logs_dir}
   ${documentation_stamp}
 )
+
+#/////////////////////////////////////////////////////////////////////////////
+#
+# Add pieces for testing if enabled
+#
+#/////////////////////////////////////////////////////////////////////////////
 
 # Testing
 if (BUILD_TESTING)
@@ -301,19 +346,25 @@ if (BUILD_TESTING)
 endif()
 
 # JSLint tests.
-foreach(f ${JS_LINT_FILES})
+foreach(f ${_js_lint_files})
     add_test(jslint-${f} ${JSLint_EXECUTABLE} ${f})
 endforeach()
 
+#/////////////////////////////////////////////////////////////////////////////
+#
+# Handle development build
+#
+#/////////////////////////////////////////////////////////////////////////////
+
 if (DEV_BUILD)
-  configure_file(${CMAKE_SOURCE_DIR}/geoweb_dev.in
-    ${CMAKE_BINARY_DIR}/CMakeFiles/geoweb_dev)
-  file(COPY ${CMAKE_BINARY_DIR}/CMakeFiles/geoweb_dev
-    DESTINATION ${CMAKE_BINARY_DIR}/${deploy_dir}
+  configure_file(${_geojs_cmake_dir}/geojs_dev.in
+    ${CMAKE_BINARY_DIR}/CMakeFiles/geojs_dev)
+  file(COPY ${CMAKE_BINARY_DIR}/CMakeFiles/geojs_dev
+    DESTINATION ${CMAKE_BINARY_DIR}/${_deploy_dir}
     FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)
   string(REPLACE ";" "','" DEV_SOURCE_FILES_JS "'${DEV_SOURCE_FILES}'")
-  configure_file(${CMAKE_SOURCE_DIR}/geoweb.min.js.in
-    ${CMAKE_SOURCE_DIR}/web/lib/geoweb.min.js)
+  configure_file(${_geojs_cmake_dir}/geojs.min.js.in
+    ${CMAKE_SOURCE_DIR}/web/lib/geojs.min.js)
 endif()
 
 # Now include sub-directories
