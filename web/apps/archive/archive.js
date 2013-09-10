@@ -848,8 +848,8 @@ archive.addLayerToMap = function(id, name, filePath, parameter, timeval, algorit
     workflow = ogs.wfl.workflow({
       data: jQuery.extend(true, {}, algorithmData)
     }),
-    source = ogs.wfl.layerSource(JSON.stringify(filePath),
-      archive.getMongoConfig(), [parameter], workflow, archive.error),
+    source = ogs.wfl.layerSource(filePath, archive.getMongoConfig(),
+      [parameter], workflow, archive.error),
     layer = ogs.geo.featureLayer();
 
   workflow.setDefaultWorkflowInputs(name, filePath, timeval);
