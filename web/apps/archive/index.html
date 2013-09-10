@@ -183,6 +183,9 @@
       box-shadow: 6px 6px 6px;
       border-radius: 6px;
     }
+    #map-extra-info-box {
+      z-index:200;
+    }
   </style>
   </head>
   <body onload="archive.main()">
@@ -198,6 +201,7 @@
     <canvas id="glcanvas" style="width:100%; height:100%;" ></canvas>
   </div>
   <div id="map-info-box"></div>
+  <div id="map-extra-info-box" title="Map info"></div>
 
 <!--   <div id=map-control-panel style="position:fixed; top:40px; width:25%; height: 400px; background:rgba(255,255,255,0.5);"> -->
 <!--     <div class="container-fluid"> -->
