@@ -1,35 +1,111 @@
-#!/usr/bin/env python
+import os
+import tempfile
+
+import vistrails.core
+import vistrails.core.db.action
+from vistrails.core import application as vt_app
+from vistrails.core.api import get_api
+from vistrails.packages.Climate.init import ToGeoJSON
+
+from vistrails.core.vistrail.pipeline import Pipeline
+from vistrails.core.vistrail.vistrail import Vistrail
+from vistrails.core.db.locator import XMLFileLocator
+from vistrails.core.vistrail.controller import VistrailController
+
+from utils import error, debug
+
+
+debug('init vistrails')
+vt_app.init({}, [])
+
+debug('get vistrails api')
+vt = get_api()
+
+debug('create new vistrail')
+vt.new_vistrail()
+
+debug('load vistrail package')
+vt.load_package('org.opengeoscience.geoweb.climate', 'Climate')
+
+
+def run(func_name, **kwargs):
+    func = getattr(functions, func_name)
+    return func(**kwargs)
+
+class functions(object):
+    @staticmethod
+    def execute(workflowJSON):
+        ''' Execute a workflow from it's JSON representation
+        '''
+
+        debug('convert json to xml')
+        workflowXML = json2xml(workflowJSON)
+
+        #temp_wf_fd, temp_wf = tempfile.mkstemp('.xml')
+
+        debug('create temporary file')
+        temp_wf_fd, temp_wf = tempfile.mkstemp()
+        try:
+            f = open(temp_wf, 'w')
+            f.write(workflowXML)
+            f.close()
+            os.close(temp_wf_fd)
+
+            #load workflow temp file into vistrails
+            #vt.load_workflow(temp_wf)
+
+            #execute workflow
+            #execution = vt.execute()
+
+            debug('Load the Pipeline from the temporary file')
+            vistrail = Vistrail()
+            locator = XMLFileLocator(temp_wf)
+            workflow = locator.load(Pipeline)
+
+            debug('Build a Vistrail from this single Pipeline')
+            action_list = []
+            for module in workflow.module_list:
+                action_list.append(('add', module))
+            for connection in workflow.connection_list:
+                action_list.append(('add', connection))
+            action = vistrails.core.db.action.create_action(action_list)
+
+            debug('add actions')
+            vistrail.add_action(action, 0L)
+            vistrail.update_id_scope()
+            tag = 'climatepipes'
+            vistrail.addTag(tag, action.id)
+
+            debug('Build a controller and execute')
+            controller = VistrailController()
+            controller.set_vistrail(vistrail, None)
+            controller.change_selected_version(vistrail.get_version_number(tag))
+            execution = controller.execute_current_workflow(
+                    custom_aliases=None,
+                    custom_params=None,
+                    extra_info=None,
+                    reason='API Pipeline Execution')
+
+            debug('get result')
+            execution_pipeline = execution[0][0]
+
+            if len(execution_pipeline.errors) > 0:
+                error("Executing workflow")
+                for key in execution_pipeline.errors:
+                    error(execution_pipeline.errors[key])
+                    print execution_pipeline.errors[key]
+                return None
+
+            modules = execution_pipeline.objects
+
+            for id, module in modules.iteritems():
+                if isinstance(module, ToGeoJSON):
+                    return module.JSON
+
+        finally:
+            os.unlink(temp_wf)
 
 """xml2json.py  Convert XML to JSON
-
-Relies on ElementTree for the XML parsing.  This is based on
-pesterfish.py but uses a different XML->JSON mapping.
-The XML->JSON mapping is described at
-http://www.xml.com/pub/a/2006/05/31/converting-between-xml-and-json.html
-
-Rewritten to a command line utility by Hay Kranen < github.com/hay > with
-contributions from George Hamilton (gmh04) and Dan Brown (jdanbrown)
-
-XML                              JSON
-<e/>                             "e": null
-<e>text</e>                      "e": "text"
-<e name="value" />               "e": { "@name": "value" }
-<e name="value">text</e>         "e": { "@name": "value", "#text": "text" }
-<e> <a>text</a ><b>text</b> </e> "e": { "a": "text", "b": "text" }
-<e> <a>text</a> <a>text</a> </e> "e": { "a": ["text", "text"] }
-<e> text <a>text</a> </e>        "e": { "#text": "text", "a": "text" }
-
-This is very similar to the mapping used for Yahoo Web Services
-(http://developer.yahoo.com/common/json.html#xml).
-
-This is a mess in that it is so unpredictable -- it requires lots of testing
-(e.g. to see if values are lists or strings or dictionaries).  For use
-in Python this could be vastly cleaner.  Think about whether the internal
-form can be more self-consistent while maintaining good external characteristics
-for the JSON.
-
-Look at the Yahoo version closely to see how it works.  Maybe can adopt
-that completely if it makes more sense...
 
 R. White, 2006 November 6
 """
@@ -159,35 +235,3 @@ def json2xml(json, factory=ET.Element):
 
     elem = internal_to_elem(simplejson.loads(json), factory)
     return ET.tostring(elem)
-
-
-def main():
-    p = optparse.OptionParser(
-        description='Converts XML to JSON or the other way around',
-        prog='xml2json',
-        usage='%prog -t xml2json -o file.json file.xml'
-    )
-    p.add_option('--type', '-t', help="'xml2json' or 'json2xml'")
-    p.add_option('--out', '-o', help="Write to OUT instead of stdout")
-    options, arguments = p.parse_args()
-
-    if len(arguments) == 1:
-        input = open(arguments[0]).read()
-    else:
-        p.print_help()
-        sys.exit(-1)
-
-    if (options.type == "xml2json"):
-        out = xml2json(input, strip=0)
-    else:
-        out = json2xml(input)
-
-    if (options.out):
-        file = open(options.out, 'w')
-        file.write(out)
-        file.close()
-    else:
-        print out
-
-if __name__ == "__main__":
-    main()

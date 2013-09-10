@@ -205,7 +205,7 @@ geoModule.archiveLayerSource = function(name, config, vars, onError) {
       async: false,
       success: function(response) {
         if (response.error !== null) {
-          var errorString = "[error] " + response.error ?
+          errorString = "[error] " + response.error ?
             response.error : "no results returned from server";
           console.log(errorString);
           m_onError(errorString);

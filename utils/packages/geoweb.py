@@ -6,10 +6,6 @@ from vistrails.core.modules.vistrails_module import Module, ModuleError
 
 from pvcdmsreader import PVCDMSReader
 
-version = "0.9.0"
-name = "Climate"
-identifier = "org.opengeoscience.geoweb.climate"
-
 class Dataset(Module):
 
     _input_ports = [('file', '(edu.utah.sci.vistrails.basic:String')]

@@ -17,7 +17,7 @@ sys.path.append(os.path.join(current_dir, "modules", "thirdparty",
 
 from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
 
-import modules.geowebsocket #used by config
+import modules.geowebsocket #used by config for websockets
 
 from mako.template import Template
 from mako.lookup import TemplateLookup
@@ -26,6 +26,7 @@ lookup = TemplateLookup(directories=[template_dir])
 
 #render demo
 from ogsvtk import VTKRoot
+
 
 #make sure WebSocketPlugin runs after daemonizer plugin (priority 65)
 #see cherrypy plugin documentation for default plugin priorities
@@ -109,8 +110,14 @@ class Root(object):
             if service is not None:
                 if hasattr(service, 'run'):
                     pathArgs = path[i+1:]
-                    response['result'] = service.run(*pathArgs, **kwargs)
-                    return json.dumps(response)
+                    try:
+                        response['result'] = service.run(*pathArgs, **kwargs)
+                        return json.dumps(response)
+                    except Exception, e:
+                        error = str(e)
+                        cherrypy.log(error)
+                        response['error'] = error
+                        return json.dumps(response)
                 else:
                     error = "`run` not defined in service %s" % runningPath
                     cherrypy.log(error)

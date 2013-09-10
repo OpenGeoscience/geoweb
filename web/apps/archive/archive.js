@@ -1,4 +1,4 @@
-// Disable console log
+// Disable console log test
 // console.log = function() {}
 
 var archive = {};
@@ -18,7 +18,43 @@ archive.error = function(errorString) {
                }
     }
     });
-}
+};
+
+archive.promptAlgorithm = function(event, callback) {
+
+  function okClicked($dialog) {
+    $dialog.dialog("close");
+    callback.call(this);
+  }
+
+  $('#algorithm-dialog').append($('#algorithm-select'));
+  $('#algorithm-dialog')
+    .dialog({
+      title: "Select an algorithm:",
+      dialogClass: "algorithm-prompt",
+      modal: true,
+      draggable: false,
+      resizable: false,
+      minHeight: 15,
+      buttons: {
+        "Ok": function() { okClicked($(this)); }
+      }
+    }).dialog('option', {
+      position: [
+        event.pageX - $(document).scrollLeft(),
+        event.pageY - $(document).scrollTop()
+      ]
+    });
+
+    $('#algorithm-select').off('keypress').keypress(function(event) {
+      if ( event.which == 13 ) {
+        event.preventDefault();
+        okClicked($('#algorithm-dialog'));
+      }
+    });
+
+    $('#algorithm-select').show();
+};
 
 archive.getMongoConfig = function() {
   "use strict";
@@ -69,10 +105,13 @@ archive.initQueryInterface = function() {
 
   $('#glcanvas').droppable({
     drop: function(event, ui) {
-      archive.addLayer($(ui.helper).data("dataset"));
+      var target = $(ui.helper).data("dataset");
+      archive.promptAlgorithm(event, function() {
+        archive.addLayer(target);
 
-      // The user now knows how to add layers to the map so remove tool tip
-      $('#document-table-body').tooltip('disable')
+        // The user now knows how to add layers to the map so remove tool tip
+        $('#document-table-body').tooltip('disable')
+      });
     }
   });
 }
@@ -142,9 +181,9 @@ archive.processResults = function(results, removeFilter) {
                {column: 'tags', data: tags.join()}] ;
     });
 
-   td = td.enter().append('td');
-   td.text(function(d) { return d['data']; });
-   td.each(function(d, i) { $(this).addClass(d['column']);});
+    td = td.enter().append('td');
+    td.text(function(d) { return d['data']; });
+    td.each(function(d, i) { $(this).addClass(d['column']);});
 
   // Populate the timesteps parameter list
   var selectTimestep = rows.append('td');
@@ -187,7 +226,7 @@ archive.processResults = function(results, removeFilter) {
   });
   select.exit().remove();
 
-  $('tr').draggable( {
+  $('#document-table  tr').draggable( {
     cursor: 'move',
     containment: 'window',
     appendTo: 'body',
@@ -356,7 +395,7 @@ archive.cancelStream = function (streamId) {
       $(archive).trigger('query-error');
     }
   });
-}
+};
 
 archive.esgfQueryId = 0;
 archive.lastEsgfQueryProcessed = -1;
@@ -396,7 +435,7 @@ archive.queryESGF = function(query) {
       $(archive).trigger('query-error');
     }
   });
-}
+};
 
 
 /**
@@ -404,6 +443,7 @@ archive.queryESGF = function(query) {
  *
  */
 archive.main = function() {
+  $('#error-dialog').hide();
   archive.initQueryInterface();
 
   var mapOptions = {
@@ -424,11 +464,6 @@ archive.main = function() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
       updateAndDraw(canvas.width, canvas.height);
-
-      var layer = archive.myMap.activeLayer();
-      if(layer && layer.hasOwnProperty('workflow')) {
-        layer.workflow.resize();
-      }
     }
     resizeCanvas();
 
@@ -513,9 +548,14 @@ archive.main = function() {
     });
   });
 
-  init();
-  archive.initWebSockets();
-  initWorkflowCanvas();
+  archive.workflowEditor = ogs.wfl.editor({div: "workflowEditor"});
+
+  // Populate the algorithm list
+  for(var name in staticWorkflows) {
+    if(staticWorkflows.hasOwnProperty(name)) {
+      $('#algorithm-select').append($('<option>'+name+'</option>'));
+    }
+  }
 };
 
 archive.initWebSockets = function() {
@@ -535,7 +575,7 @@ archive.initWebSockets = function() {
       recieveCount += 1;
     }
   });
-}
+};
 
 archive.processCSVData = function(csvdata) {
   var table = [];
@@ -625,7 +665,7 @@ archive.timeRange = function(name, onComplete) {
   });
 }
 
-archive.monitorESGFDownload = function(target, taskId, onComplete) {
+archive.monitorESGFDownload = function(target, taskId, onComplete, algorithm) {
   var dataSetId = target.dataset_id;
 
   $.ajax({
@@ -651,10 +691,12 @@ archive.monitorESGFDownload = function(target, taskId, onComplete) {
 
           // If we are done then we can load the file
           if (response.result.percentage == 100) {
-            onComplete(dataSetId);
+            onComplete(dataSetId, algorithm);
           }
           else {
-            setTimeout(function() {archive.monitorESGFDownload(target, taskId, onComplete)}, 1000);
+            setTimeout(function() {
+              archive.monitorESGFDownload(target, taskId, onComplete, algorithm)
+            }, 1000);
           }
         }
         else {
@@ -669,7 +711,7 @@ archive.monitorESGFDownload = function(target, taskId, onComplete) {
   });
 }
 
-archive.onDownloadComplete = function(dataSetId) {
+archive.onDownloadComplete = function(dataSetId, algorithm) {
   var layerRow = $('tr#' + dataSetId);
 
   // This sucks and is very fragile ... !
@@ -696,12 +738,12 @@ archive.onDownloadComplete = function(dataSetId) {
         // Remove the progress bar
         $('tr#' + dataSetId + ' #progress').remove();
 
-        archive.addLayerToMap(dataSet.dataset_id, dataSet.name, response.result.filepath,
-            dataSet.parameter, null)
+        archive.addLayerToMap(dataSet.dataset_id, dataSet.name,
+          response.result.filepath, dataSet.parameter, null, algorithm);
       }
     }
   });
-}
+};
 
 archive.cancelESGFDownload = function(taskId, dataSetId) {
 
@@ -732,7 +774,7 @@ archive.cancelESGFDownload = function(taskId, dataSetId) {
   }
 }
 
-archive.downloadESGF = function(target, onComplete, message) {
+archive.downloadESGF = function(target, onComplete, message, algorithm) {
 
   $('#esgf-login').modal({backdrop: 'static'});
 
@@ -772,7 +814,8 @@ archive.downloadESGF = function(target, onComplete, message) {
                 archive.cancelESGFDownload(taskId, dataSetId);
               });
 
-              archive.monitorESGFDownload(target, response.result['taskId'], onComplete);
+              archive.monitorESGFDownload(target, response.result['taskId'],
+                onComplete, algorithm);
             }
             // The row has been removed so cancel the download
             else {
@@ -797,49 +840,68 @@ archive.downloadESGF = function(target, onComplete, message) {
     archive.removeLayer(this, target.dataset_id);
   });
 
-}
+};
 
-archive.addLayerToMap = function(id, name, filePath, parameter, timeval) {
+archive.addLayerToMap = function(id, name, filePath, parameter, timeval, algorithm) {
 
-  var source = ogs.geo.archiveLayerSource(filePath,
-    archive.getMongoConfig(),
-    [parameter], archive.error);
-  var layer = ogs.geo.featureLayer();
+  var algorithmData = staticWorkflows[algorithm],
+    workflow = ogs.wfl.workflow({
+      data: jQuery.extend(true, {}, algorithmData)
+    }),
+    source = ogs.wfl.layerSource(filePath, archive.getMongoConfig(),
+      [parameter], workflow, archive.error),
+    layer = ogs.geo.featureLayer();
+
+  workflow.setDefaultWorkflowInputs(name, filePath, timeval);
+
   layer.setName(name);
   layer.setDataSource(source);
   layer.setId(id);
   layer.update(ogs.geo.updateRequest(timeval));
-  layer.workflow = ogs.ui.workflow({data:exworkflow});
+
   archive.myMap.addLayer(layer);
   archive.myMap.draw();
 }
 
+
 archive.workflowLayer = function(target, layerId) {
-  var layer = archive.myMap.findLayerById(layerId);
+  var layer = archive.myMap.findLayerById(layerId),
+    workflow;
   if(layer != null) {
+    workflow = layer.dataSource().workflow();
     $('#workflow-dialog')
       .dialog({
         modal: true,
-        draggable: true,
+        draggable: false,
         resizable: true,
         minHeight: 300,
         width: Math.floor(window.screen.width * 0.95),
         height: Math.floor(window.screen.height * 0.95),
         buttons: {
-          "Close": function() {
+          Close: function() {
             $(this).dialog("close");
-            layer.setVisible(false);
+            archive.workflowEditor.workflow().hide();
+          },
+          Execute: function() {
+            var workflow = archive.workflowEditor.workflow(),
+              variableModule = workflow.getModuleByName('Variable'),
+              time = variableModule.getFunctionValue('time');
+            time = time == null ? -1 : parseInt(time);
+            //@todo: make right call to update layer rendering
+            archive.myMap.animateTimestep(time, [layer]);
           }
         }
       });
-    activeWorkflow = layer.workflow;
-    layer.workflow.show();
+    archive.workflowEditor.setWorkflow(layer.dataSource().workflow());
+    archive.workflowEditor.show();
   }
-}
+};
+
 
 archive.addLayer = function(target) {
   var timeval = target.timestep;
   var varval = target.parameter;
+  var algorithm = $('#algorithm-select').val();
 
   // If we already have this layer added just return
   if (ogs.ui.gis.hasLayer($('#table-layers'), target.dataset_id))
@@ -853,18 +915,19 @@ archive.addLayer = function(target) {
         var start = target.timeInfo.dateRange[0];
         var time = new Date(Date.UTC(start[0], start[1], start[2]));
         geoModule.time.incrementTime(time, target.timeInfo.nativeUnits,
-            target.timeInfo.nativeDelta*timeval);
-        archive.addLayerToMap(target.dataset_id, target.name, target.basename, varval, time.getTime());
-    }, archive.workflowLayer);
+          target.timeInfo.nativeDelta*timeval);
+        archive.addLayerToMap(target.dataset_id, target.name, target.basename,
+          varval, time.getTime(), algorithm);
+      }, archive.workflowLayer);
   }
   else {
     ogs.ui.gis.addLayer(archive, 'table-layers', target, archive.selectLayer,
       archive.toggleLayer, archive.removeLayer, function() {
-        archive.downloadESGF(target, archive.onDownloadComplete)
-    }, archive.workflowLayer, true);
+        archive.downloadESGF(target, archive.onDownloadComplete, algorithm)
+      }, archive.workflowLayer, true);
 
     $('tr#' + target.dataset_id).on('cancel-download-task', function() {
       archive.cancelESGFDownload(null, target.dataset_id);
     });
   }
-}
+};

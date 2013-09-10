@@ -5,12 +5,6 @@
 
   <script type="text/javascript" src="/common/js/jquery-1.9.1.js"></script>
   <script type="text/javascript" src="/common/js/jquery-ui.js"></script>
-
-  <script src="geowebRegistry.js"></script>
-  <script src="10yearAverage.js"></script>
-  <script src="workflowStyle.js"></script>
-  <script src="workflow.js"></script>
-
   <script type="text/javascript" src="/common/js/bootstrap.js"></script>
   <script type="text/javascript" src="/common/js/gl-matrix.js"></script>
   <script type="text/javascript" src="/common/js/select2.min.js"></script>
@@ -67,7 +61,6 @@
   <link href="/common/css/bootstrap.css" rel=stylesheet type=text/css>
   <link href="/common/css/select2.css" rel=stylesheet type=text/css>
   <link href="/common/css/geoweb.css" rel=stylesheet type=text/css>
-  <link rel='stylesheet' href='workflow.css' />
   <style>
     p {
      color:#FFA500;
@@ -137,7 +130,7 @@
       overflow: auto;
     }
 
-    .error-dialog .ui-dialog-titlebar {
+    .error-dialog .ui-dialog-titlebar #algorithm-dialog {
       display: none;
     }
 
@@ -152,7 +145,7 @@
         background-origin:content-box;
     }
 
-   .whatadrag {
+    .whatadrag {
       background:rgba(255,255,255,0.5);
       padding: 10px;
       border-radius: 15px;
@@ -276,7 +269,7 @@
                           <th class="size">Size</th>
                           <th class="tags">Tags</th>
                           <th class="timestep">Timestep</th>
-                          <th class="parameter">Parameters</th><tr>
+                          <th class="parameter">Parameters</th>
                         </thead>
                         <tbody id="document-table-body">
                         </tbody>
@@ -298,11 +291,17 @@
     </div>
 </div>
 </body>
-<div id="error-dialog">
-  <p id="text">
-    <span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>
-  </p>
-</div>
+  <div id="error-dialog">
+      <p id="text">
+          <span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>
+      </p>
+  </div>
+  <div id="workflow-dialog" style="display: none">
+      <div id="workflowEditor" style="height:100%"></select>
+  </div>
+  <div id="algorithm-dialog" style="display: none">
+      <select id="algorithm-select"></select>
+  </div>
 <div id='esgf-login' class="modal hide fade">
   <div class="modal-header">
     <h3>Please enter ESGF credentials for download.</h3>
@@ -317,13 +316,4 @@
     <button id=download class="btn btn-primary" data-dismiss="modal">Download</button>
   </div>
 </div>
-<div id="workflow-dialog" title="Workflow">
-    <table id="mainTable">
-        <tr>
-            <td><div id="modulediv"><table id="moduletable"><tbody></tbody></table></div></td>
-            <td id="canvasContainer"><canvas id="workspace"/></td>
-        </tr>
-    </table>
-</div>
-
 </html>
