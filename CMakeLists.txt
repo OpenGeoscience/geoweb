@@ -300,6 +300,10 @@ configure_file(${_geojs_cmake_dir}/geocelery_conf.py.in
   ${CMAKE_CURRENT_BINARY_DIR}/${_deploy_dir}/modules/geocelery_conf.py @ONLY
 )
 
+configure_file(${_geojs_cmake_dir}/run.sh.in
+  ${CMAKE_CURRENT_BINARY_DIR}/${_deploy_dir}/run.sh @ONLY
+)
+
 #/////////////////////////////////////////////////////////////////////////////
 #
 # Generate documentation
