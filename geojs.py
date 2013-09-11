@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 '''
   cherryd -i py -c py/app.conf
@@ -27,7 +27,6 @@ lookup = TemplateLookup(directories=[template_dir])
 #render demo
 from ogsvtk import VTKRoot
 
-
 #make sure WebSocketPlugin runs after daemonizer plugin (priority 65)
 #see cherrypy plugin documentation for default plugin priorities
 WebSocketPlugin.start.__func__.priority = 66
@@ -46,8 +45,6 @@ def empty_result():
     return {}
 
 services = dict()
-
-
 class Root(object):
     vtk = VTKRoot(host='127.0.0.1', port=8080, ssl=False)
 

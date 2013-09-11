@@ -12,4 +12,4 @@ git config rebase.stat true
 git config branch.master.rebase true
 
 echo 'Configuring push url...' &&
-git config remote.origin.pushurl git@public.kitware.com:OpenGeoscience/geoweb
+git config remote.origin.pushurl git@public.kitware.com:OpenGeoscience/geojs

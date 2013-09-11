@@ -25,7 +25,7 @@ debug('create new vistrail')
 vt.new_vistrail()
 
 debug('load vistrail package')
-vt.load_package('org.opengeoscience.geoweb.climate', 'Climate')
+vt.load_package('org.opengeoscience.geojs.climate', 'Climate')
 
 
 def run(func_name, **kwargs):
