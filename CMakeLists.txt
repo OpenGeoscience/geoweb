@@ -55,6 +55,12 @@ set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${_deploy_dir})
 #
 #/////////////////////////////////////////////////////////////////////////////
 
+# VTK is required
+find_package(VTK REQUIRED)
+
+# VisTrails is required
+find_package(VisTrails REQUIRED)
+
 # Find JSLint.
 find_package(JSLint)
 
@@ -282,12 +288,16 @@ endif()
 #
 #/////////////////////////////////////////////////////////////////////////////
 
+configure_file(${_geojs_cmake_dir}/setup-runtime.sh.in
+  ${CMAKE_CURRENT_BINARY_DIR}/${_deploy_dir}/setup-runtime.sh @ONLY
+)
+
 configure_file(${_geojs_cmake_dir}/configure_server.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/configure_server.cmake @ONLY
 )
 
 configure_file(${_geojs_cmake_dir}/geocelery_conf.py.in
-  ${CMAKE_CURRENT_BINARY_DIR}/deploy/modules/geocelery_conf.py @ONLY
+  ${CMAKE_CURRENT_BINARY_DIR}/${_deploy_dir}/modules/geocelery_conf.py @ONLY
 )
 
 #/////////////////////////////////////////////////////////////////////////////
