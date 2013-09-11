@@ -635,7 +635,7 @@ archive.toggleLayer = function(target, layerId) {
   var layer = archive.myMap.findLayerById(layerId);
   if (layer != null) {
     archive.myMap.toggleLayer(layer);
-    archive.myMap.redraw();
+    archive.myMap.draw();
     // @todo call ui toggle layer nows
     return true;
   }
