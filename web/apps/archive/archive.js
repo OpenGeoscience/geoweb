@@ -304,7 +304,7 @@ archive.queryDatabase = function(query) {
     success: function(response) {
       if (response.error !== null) {
         console.log("[error] " + response.error ? response.error : "no results returned from server");
-        $(archive).trigger('query-error');s
+        $(archive).trigger('query-error');
       } else {
 
         // Convert _id.$oid into id field, this transformation is do so the
