@@ -106,12 +106,14 @@ archive.initQueryInterface = function() {
   $('#glcanvas').droppable({
     drop: function(event, ui) {
       var target = $(ui.helper).data("dataset");
-      archive.promptAlgorithm(event, function() {
-        archive.addLayer(target);
+      if (target) {
+        archive.promptAlgorithm(event, function() {
+          archive.addLayer(target);
 
-        // The user now knows how to add layers to the map so remove tool tip
-        $('#document-table-body').tooltip('disable')
-      });
+          // The user now knows how to add layers to the map so remove tool tip
+          $('#document-table-body').tooltip('disable')
+        });
+      }
     }
   });
 }
@@ -302,7 +304,7 @@ archive.queryDatabase = function(query) {
     success: function(response) {
       if (response.error !== null) {
         console.log("[error] " + response.error ? response.error : "no results returned from server");
-        $(archive).trigger('query-error');s
+        $(archive).trigger('query-error');
       } else {
 
         // Convert _id.$oid into id field, this transformation is do so the
@@ -443,6 +445,8 @@ archive.queryESGF = function(query) {
  *
  */
 archive.main = function() {
+  init();
+
   $('#error-dialog').hide();
   archive.initQueryInterface();
 
@@ -521,20 +525,21 @@ archive.main = function() {
     // Ask for click events
     $(canvas).on("click", function(event) {
       var mousePos = canvas.relMouseCoords(event);
-      var infoBox = $("#map-info-box");
-      //infoBox.empty();
+      var extraInfoBox = $("#map-extra-info-box");
+      extraInfoBox.empty();
 
       var mapCoord = archive.myMap.displayToMap(mousePos.x, mousePos.y);
+      mapCoord.event = event;
       archive.myMap.queryLocation(mapCoord);
       return true;
     });
 
     // React to queryResultEvent
     $(archive.myMap).on(geoModule.command.queryResultEvent, function(event, queryResult) {
-      var infoBox = $("#map-info-box");
+      var extraInfoBox = $("#map-extra-info-box");
       var layer = queryResult.layer;
       if (layer && layer.name())
-        infoBox.append("<div style='font-weight:bold;'>" + layer.name() + "</div>");
+        extraInfoBox.append("<div style='font-weight:bold;'>" + layer.name() + "</div>");
       var queryData = queryResult.data;
       if (queryData) {
         var newResult = document.createElement("div");
@@ -542,7 +547,14 @@ archive.main = function() {
         for (var idx in queryData) {
           $(newResult).append(idx + " : " + queryData[idx] + "<br/>");
         }
-        infoBox.append(newResult);
+        extraInfoBox.append(newResult);
+
+        extraInfoBox.dialog({
+            hide: "fade",
+            position: { my : "left top",
+                        at : "right",
+                        of : event.srcEvent}
+        });
       }
       return true;
     });
