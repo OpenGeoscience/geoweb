@@ -11,7 +11,7 @@ set(STATICDIR_ROOT "geoweb.current_dir")
 
 option(DEV_BUILD "Allow running from source tree" OFF)
 if (DEV_BUILD)
-  set(STATICDIR_ROOT "\\\"${CMAKE_SOURCE_DIR}\\\"")
+  set(STATICDIR_ROOT "${CMAKE_SOURCE_DIR}")
 endif()
 
 # Extend cmake module path.
@@ -311,7 +311,7 @@ endif()
 
 add_custom_target(predeploy ALL
   COMMAND ${CMAKE_COMMAND}
-   -DSTATIC_ROOT=${STATIC_ROOT}
+   -DSTATICDIR_ROOT=${STATICDIR_ROOT}
    -DSRC_DIR=${SRC_DIR}
    -DBIN_DIR=${BIN_DIR}
    -DDEPLOY_DIR=${DEPLOY_DIR}
