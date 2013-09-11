@@ -194,17 +194,6 @@ add_custom_command(OUTPUT ${_lib_dir}
 #
 #/////////////////////////////////////////////////////////////////////////////
 
-set(_server_config "${_deploy_dir}/server.conf")
-add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${_deploy_dir}/server.conf
-  COMMAND ${CMAKE_COMMAND} -P
-    ${CMAKE_CURRENT_BINARY_DIR}/configure_server.cmake
-  DEPENDS
-    ${CMAKE_CURRENT_BINARY_DIR}/configure_server.cmake
-    ${_geoweb_cmake_dir}/server.conf.in
-  COMMENT "Configuring server configuration script"
-  VERBATIM
-)
-
 # Copy the files to the deployment directory.
 set(all_targets)
 foreach(m ${sources})
@@ -284,28 +273,6 @@ endif()
 
 #/////////////////////////////////////////////////////////////////////////////
 #
-# Setup config file
-#
-#/////////////////////////////////////////////////////////////////////////////
-
-configure_file(${_geoweb_cmake_dir}/setup-runtime.sh.in
-  ${CMAKE_CURRENT_BINARY_DIR}/${_deploy_dir}/setup-runtime.sh @ONLY
-)
-
-configure_file(${_geoweb_cmake_dir}/configure_server.cmake.in
-  ${CMAKE_CURRENT_BINARY_DIR}/configure_server.cmake @ONLY
-)
-
-configure_file(${_geoweb_cmake_dir}/geocelery_conf.py.in
-  ${CMAKE_CURRENT_BINARY_DIR}/${_deploy_dir}/modules/geocelery_conf.py @ONLY
-)
-
-configure_file(${_geoweb_cmake_dir}/run.sh.in
-  ${CMAKE_CURRENT_BINARY_DIR}/${_deploy_dir}/run.sh @ONLY
-)
-
-#/////////////////////////////////////////////////////////////////////////////
-#
 # Generate documentation
 #
 #/////////////////////////////////////////////////////////////////////////////
@@ -342,10 +309,42 @@ endif()
 #
 #/////////////////////////////////////////////////////////////////////////////
 
+add_custom_target(predeploy ALL
+  COMMAND ${CMAKE_COMMAND}
+   -DSTATIC_ROOT=${STATIC_ROOT}
+   -DSRC_DIR=${SRC_DIR}
+   -DBIN_DIR=${BIN_DIR}
+   -DDEPLOY_DIR=${DEPLOY_DIR}
+   -DDATA_ROOT=${DATA_ROOT}
+   -DLOG_ERROR_FILE=${LOG_ERROR_FILE}
+   -DLOG_ACCESS_FILE=${LOG_ACCESS_FILE}
+   -DGEOWEB_USER=${GEOWEB_USER}
+   -DGEOWEB_GROUP=${GEOWEB_GROUP}
+   -DVTK_ROOT=${VTK_ROOT}
+   -DVisTrails_ROOT=${VisTrails_ROOT}
+   -DGEOWEB_CMAKE_DIR=${_geoweb_cmake_dir}
+   -DGEOWEB_DEPLOY_DIR=${_deploy_dir}
+   -P ${_geoweb_cmake_dir}/configure.cmake
+)
+
+set(_server_config "${_deploy_dir}/server.conf")
+add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${_deploy_dir}/server.conf
+  COMMAND ${CMAKE_COMMAND} -P
+    ${CMAKE_CURRENT_BINARY_DIR}/configure_server.cmake
+  DEPENDS
+    ${CMAKE_CURRENT_BINARY_DIR}/configure_server.cmake
+    ${_geoweb_cmake_dir}/server.conf.in
+  COMMENT "Configuring server configuration script"
+  VERBATIM
+)
+
 add_custom_target(deploy ALL
-  DEPENDS ${_lib_dir} ${all_targets} ${_min_js_file} ${_server_config} ${_logs_dir}
+  DEPENDS ${_lib_dir} ${all_targets} ${_min_js_file} ${_server_config}
+          ${_logs_dir}
   ${documentation_stamp}
 )
+
+add_dependencies(deploy predeploy)
 
 #/////////////////////////////////////////////////////////////////////////////
 #
