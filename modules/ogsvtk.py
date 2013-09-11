@@ -181,7 +181,7 @@ class VTKRoot(object):
   <html>
     <head>
       <script type="text/javascript" src="/common/js/gl-matrix.js"></script>
-      <script type="text/javascript" src="/lib/geojs.min.js"></script>
+      <script type="text/javascript" src="/lib/geoweb.min.js"></script>
       <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
       <script type="text/javascript">
       function readVTKWebGL() {
@@ -282,7 +282,7 @@ class VTKRoot(object):
   <html>
     <head>
       <script type="text/javascript" src="/common/js/gl-matrix.js"></script>
-      <script type="text/javascript" src="/lib/geojs.min.js"></script>
+      <script type="text/javascript" src="/lib/geoweb.min.js"></script>
       <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
       <script type="text/javascript">
       function makedata() {
@@ -411,7 +411,7 @@ class VTKRoot(object):
   <html>
     <head>
       <script type="text/javascript" src="/common/js/gl-matrix.js"></script>
-      <script type="text/javascript" src="/lib/geojs.min.js"></script>
+      <script type="text/javascript" src="/lib/geoweb.min.js"></script>
       <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
       <script type="text/javascript">
       function makedata() {
@@ -472,7 +472,7 @@ class VTKRoot(object):
   <html>
     <head>
       <script type="text/javascript" src="/common/js/gl-matrix.js"></script>
-      <script type="text/javascript" src="/lib/geojs.min.js"></script>
+      <script type="text/javascript" src="/lib/geoweb.min.js"></script>
       <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
       <script type="text/javascript">
       function makedata() {
@@ -642,7 +642,7 @@ class VTKRoot(object):
   <html>
     <head>
       <script type="text/javascript" src="/common/js/gl-matrix.js"></script>
-      <script type="text/javascript" src="/lib/geojs.min.js"></script>
+      <script type="text/javascript" src="/lib/geoweb.min.js"></script>
       <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
       <script type="text/javascript">
       function makedata() {

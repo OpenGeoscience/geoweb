@@ -6,7 +6,7 @@ import sys
 import cherrypy
 
 # PyGeo imports
-import geojs
+import geoweb
 import mongoimp
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -14,7 +14,7 @@ sys.path.append(os.path.join(current_dir))
 
 def read(expr, vars, time):
     if expr is None:
-        return geojs.empty_result()
+        return geoweb.empty_result()
 
     # Check if the data exists in the database. If not then perform
     # a import to extract the metadata

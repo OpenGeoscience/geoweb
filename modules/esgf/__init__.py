@@ -3,7 +3,7 @@ import libxml2
 import uuid
 import json
 import cherrypy
-import geojs
+import geoweb
 import urlparse
 import requests
 import esgf.download
@@ -16,7 +16,7 @@ streams = dict()
 
 def run(method, url=None, size=None, checksum=None, userUrl=None, password=None,
         queryId=None, expr=None, vars=None,streamId=None, cancel=False, taskId=None):
-    response = geojs.empty_response();
+    response = geoweb.empty_response();
 
     if url:
         url = url.strip('"')

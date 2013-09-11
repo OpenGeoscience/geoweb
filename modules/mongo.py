@@ -2,7 +2,7 @@
 
 import bson.json_util
 import pymongo
-import geojs
+import geoweb
 import cherrypy
 
 def decode(s, argname, resp):
@@ -14,7 +14,7 @@ def decode(s, argname, resp):
 
 def run(server, db, coll, method='find', queryId=None, query=None, limit=1000, fields=None, sort=None, fill=None):
     # Create an empty response object.
-    response = geojs.empty_response()
+    response = geoweb.empty_response()
 
     # Check the requested method.
     if method not in ['find', 'insert']:

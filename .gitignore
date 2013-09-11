@@ -17,7 +17,7 @@
 .idea
 
 #autogen files
-geojs.min.js
+geoweb.min.js
 
 #other
 .settings

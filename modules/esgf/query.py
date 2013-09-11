@@ -3,7 +3,7 @@ import libxml2
 import uuid
 import json
 import cherrypy
-import geojs
+import geoweb
 import urlparse
 import requests
 

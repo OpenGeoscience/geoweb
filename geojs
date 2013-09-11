@@ -49,12 +49,12 @@ def start():
     run_path = os.path.dirname(os.path.abspath(sys.argv[0]))
     os.chdir(path)
 
-    # include the main module
-    import geojs
-
     # Load the configuration
     server_config = "%s/server.conf" % run_path
     cherrypy.config.update(server_config)
+
+    # include the main module
+    import geojs
 
     cherrypy.tree.apps[''].merge(server_config)
 

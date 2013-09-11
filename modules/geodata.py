@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import bson.json_util
-import geojs
+import geoweb
 
 def decode(s, argname, resp):
     try:
@@ -12,7 +12,7 @@ def decode(s, argname, resp):
 
 def run(method='read', expr=None, vars=None, time=None, fields=None, limit=1000, sort=None, fill=None):
     # Create an empty response object.
-    response = geojs.empty_response();
+    response = geoweb.empty_response();
 
     # Check the requested method.
     if method not in ['find', 'read']:

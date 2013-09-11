@@ -19,4 +19,4 @@ tools.staticdir.dir = "@DATA_ROOT@"
 
 [/ws]
 tools.websocket.on: True
-tools.websocket.handler_cls: modules.geowebsocket.WebSocketRouter
+tools.websocket.handler_cls: modules.geojssocket.WebSocketRouter
