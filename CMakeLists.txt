@@ -320,8 +320,8 @@ add_custom_target(predeploy ALL
    -DLOG_ACCESS_FILE=${LOG_ACCESS_FILE}
    -DGEOWEB_USER=${GEOWEB_USER}
    -DGEOWEB_GROUP=${GEOWEB_GROUP}
-   -DVTK_ROOT=${VTK_ROOT}
-   -DVisTrails_ROOT=${VisTrails_ROOT}
+   -DVTK_DIR=${VTK_DIR}
+   -DVisTrails_DIR=${VisTrails_DIR}
    -DGEOWEB_CMAKE_DIR=${_geoweb_cmake_dir}
    -DGEOWEB_DEPLOY_DIR=${_deploy_dir}
    -P ${_geoweb_cmake_dir}/configure.cmake
