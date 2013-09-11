@@ -523,7 +523,7 @@ archive.main = function() {
     });
 
     // Ask for click events
-    $(canvas).on("click", function(event) {
+    $(canvas).on("dblclick", function(event) {
       var mousePos = canvas.relMouseCoords(event);
       var extraInfoBox = $("#map-extra-info-box");
       extraInfoBox.empty();
