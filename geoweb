@@ -34,7 +34,7 @@ def start():
               sys.stderr.write("Failed (pidfile exists and contains bad pid)\n")
               return 1
 
-          # Check if the pid is live - if so, then geojs is already running; if
+          # Check if the pid is live - if so, then geoweb is already running; if
           # not, then remove the pidfile.
           if live_pid(pid):
               sys.stderr.write("Failed (already running)\n")
@@ -54,7 +54,7 @@ def start():
     cherrypy.config.update(server_config)
 
     # include the main module
-    import geojs
+    import geoweb
 
     cherrypy.tree.apps[''].merge(server_config)
 
@@ -75,12 +75,12 @@ def start():
         import grp
         import pwd
 
-        if 'geojs.user' not in cherrypy.config or 'geojs.group' not in cherrypy.config:
+        if 'geoweb.user' not in cherrypy.config or 'geoweb.group' not in cherrypy.config:
             cherrypy.log("No user or group configured for drop privilege", "ERROR")
             sys.exit(1)
 
-        user = cherrypy.config['geojs.user']
-        group = cherrypy.config['geojs.group']
+        user = cherrypy.config['geoweb.user']
+        group = cherrypy.config['geoweb.group']
 
         try:
             uid = pwd.getpwnam(user).pw_uid
@@ -162,7 +162,7 @@ def restart():
     return start()
 
 path = os.path.dirname(os.path.abspath(sys.argv[0]))
-parser = argparse.ArgumentParser(description='start/stop geojs')
+parser = argparse.ArgumentParser(description='start/stop geoweb')
 parser.add_argument('--path', dest='path', nargs=1,
                    help='the path to where the modules can be found')
 parser.add_argument('action', metavar='action',
@@ -182,7 +182,7 @@ if args.path:
 
 sys.path.insert(0, path)
 
-pidfile = os.path.dirname(os.path.abspath(sys.argv[0])) + "/geojs.pid"
+pidfile = os.path.dirname(os.path.abspath(sys.argv[0])) + "/geoweb.pid"
 
 # Dispatch on action argument.
 code = 1

@@ -5,9 +5,9 @@
 #/////////////////////////////////////////////////////////////////////////////
 
 cmake_minimum_required(VERSION 2.8)
-project(geojs)
+project(geoweb)
 
-set(STATICDIR_ROOT "geojs.current_dir")
+set(STATICDIR_ROOT "geoweb.current_dir")
 
 option(DEV_BUILD "Allow running from source tree" OFF)
 if (DEV_BUILD)
@@ -32,8 +32,8 @@ set(DOCUMENT OFF CACHE BOOL "Generate documentation for JavaScript files.")
 set(SERVER_LOGS ON CACHE BOOL "Write cherrypy server access and error logs in deploy/logs")
 set(SERVER_DEBUG ON CACHE BOOL "Write debug statements to error logs")
 set(DATA_ROOT "data" CACHE PATH "Root directory for the data")
-set(GEOJS_USER $ENV{USER} CACHE STRING "User to run geojs as when dropping privileges")
-set(GEOJS_GROUP $ENV{USER} CACHE STRING "Group to run geojs as when dropping privileges")
+set(GEOJS_USER $ENV{USER} CACHE STRING "User to run geoweb as when dropping privileges")
+set(GEOJS_GROUP $ENV{USER} CACHE STRING "Group to run geoweb as when dropping privileges")
 
 #/////////////////////////////////////////////////////////////////////////////
 #
@@ -43,7 +43,7 @@ set(GEOJS_GROUP $ENV{USER} CACHE STRING "Group to run geojs as when dropping pri
 
 set(_deploy_dir deploy)
 set(_deploy_depends)
-set(_geojs_cmake_dir "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+set(_geoweb_cmake_dir "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # These files should be validated with JSLint.
 set(_js_lint_files)
@@ -175,7 +175,7 @@ set(_js_document_files
 
 # These files should be copied to the deployment directory.
 set(sources
-    geojs geojs.py geocelery
+    geoweb geoweb.py geocelery
 )
 
 set(paths
@@ -200,7 +200,7 @@ add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${_deploy_dir}/server.conf
     ${CMAKE_CURRENT_BINARY_DIR}/configure_server.cmake
   DEPENDS
     ${CMAKE_CURRENT_BINARY_DIR}/configure_server.cmake
-    ${_geojs_cmake_dir}/server.conf.in
+    ${_geoweb_cmake_dir}/server.conf.in
   COMMENT "Configuring server configuration script"
   VERBATIM
 )
@@ -242,7 +242,7 @@ if(${MINIFY} AND ${MANGLE})
     set(MANGLE_FLAG "-m")
 endif()
 
-set(_min_js_file ${CMAKE_BINARY_DIR}/${_deploy_dir}/web/lib/geojs.min.js)
+set(_min_js_file ${CMAKE_BINARY_DIR}/${_deploy_dir}/web/lib/geoweb.min.js)
 
 if (UglifyJS_EXECUTABLE)
   add_custom_command(
@@ -288,19 +288,19 @@ endif()
 #
 #/////////////////////////////////////////////////////////////////////////////
 
-configure_file(${_geojs_cmake_dir}/setup-runtime.sh.in
+configure_file(${_geoweb_cmake_dir}/setup-runtime.sh.in
   ${CMAKE_CURRENT_BINARY_DIR}/${_deploy_dir}/setup-runtime.sh @ONLY
 )
 
-configure_file(${_geojs_cmake_dir}/configure_server.cmake.in
+configure_file(${_geoweb_cmake_dir}/configure_server.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/configure_server.cmake @ONLY
 )
 
-configure_file(${_geojs_cmake_dir}/geocelery_conf.py.in
+configure_file(${_geoweb_cmake_dir}/geocelery_conf.py.in
   ${CMAKE_CURRENT_BINARY_DIR}/${_deploy_dir}/modules/geocelery_conf.py @ONLY
 )
 
-configure_file(${_geojs_cmake_dir}/run.sh.in
+configure_file(${_geoweb_cmake_dir}/run.sh.in
   ${CMAKE_CURRENT_BINARY_DIR}/${_deploy_dir}/run.sh @ONLY
 )
 
@@ -371,14 +371,14 @@ endforeach()
 #/////////////////////////////////////////////////////////////////////////////
 
 if (DEV_BUILD)
-  configure_file(${_geojs_cmake_dir}/geojs_dev.in
-    ${CMAKE_BINARY_DIR}/CMakeFiles/geojs_dev)
-  file(COPY ${CMAKE_BINARY_DIR}/CMakeFiles/geojs_dev
+  configure_file(${_geoweb_cmake_dir}/geoweb_dev.in
+    ${CMAKE_BINARY_DIR}/CMakeFiles/geoweb_dev)
+  file(COPY ${CMAKE_BINARY_DIR}/CMakeFiles/geoweb_dev
     DESTINATION ${CMAKE_BINARY_DIR}/${_deploy_dir}
     FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)
   string(REPLACE ";" "','" DEV_SOURCE_FILES_JS "'${DEV_SOURCE_FILES}'")
-  configure_file(${_geojs_cmake_dir}/geojs.min.js.in
-    ${CMAKE_SOURCE_DIR}/web/lib/geojs.min.js)
+  configure_file(${_geoweb_cmake_dir}/geoweb.min.js.in
+    ${CMAKE_SOURCE_DIR}/web/lib/geoweb.min.js)
 endif()
 
 # Now include sub-directories

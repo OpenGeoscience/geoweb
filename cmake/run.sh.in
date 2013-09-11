@@ -7,4 +7,4 @@ CDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 . ${CDIR}/setup-runtime.sh
 
 # Run the program and pass the arguments
-${CDIR}/geojs $@
+${CDIR}/geoweb $@

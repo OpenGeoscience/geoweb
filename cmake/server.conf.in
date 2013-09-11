@@ -1,11 +1,11 @@
 [global]
-tree.py: cherrypy.Application(geojs.Root())
+tree.py: cherrypy.Application(geoweb.Root())
 log.error_file: '@LOG_ERROR_FILE@'
 log.access_file: '@LOG_ACCESS_FILE@'
 log.screen = True
 log.debug: True #@LOG_DEBUG@
-geojs.user: '@GEOJS_USER@'
-geojs.group: '@GEOJS_GROUP@'
+geoweb.user: '@GEOWEB_USER@'
+geoweb.group: '@GEOWEB_GROUP@'
 
 [/]
 tools.staticdir.root: @STATICDIR_ROOT@
@@ -19,4 +19,4 @@ tools.staticdir.dir = "@DATA_ROOT@"
 
 [/ws]
 tools.websocket.on: True
-tools.websocket.handler_cls: modules.geojssocket.WebSocketRouter
+tools.websocket.handler_cls: modules.geowebsocket.WebSocketRouter
