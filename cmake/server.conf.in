@@ -8,7 +8,7 @@ geoweb.user: '@GEOWEB_USER@'
 geoweb.group: '@GEOWEB_GROUP@'
 
 [/]
-tools.staticdir.root: @STATICDIR_ROOT@
+tools.staticdir.root: '@STATICDIR_ROOT@'
 tools.staticdir.on = True
 tools.staticdir.dir = "web"
 tools.staticdir.index: "index.html"

@@ -12,8 +12,6 @@ set(VisTrails_ROOT)
 set(GEOWEB_CMAKE_DIR)
 set(GEOWEB_DEPLOY_DIR)
 
-message("hey.....")
-
 configure_file(${GEOWEB_CMAKE_DIR}/setup-runtime.sh.in
   ${CMAKE_CURRENT_BINARY_DIR}/${GEOWEB_DEPLOY_DIR}/setup-runtime.sh @ONLY
 )
