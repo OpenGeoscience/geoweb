@@ -874,9 +874,10 @@ archive.workflowLayer = function(target, layerId) {
         modal: true,
         draggable: false,
         resizable: true,
+        resize: archive.workflowEditor.resize,
         minHeight: 300,
-        width: Math.floor(window.screen.width * 0.95),
-        height: Math.floor(window.screen.height * 0.95),
+        width: Math.floor(window.innerWidth * 0.95),
+        height: Math.floor(window.innerHeight * 0.95),
         buttons: {
           Close: function() {
             $(this).dialog("close");
