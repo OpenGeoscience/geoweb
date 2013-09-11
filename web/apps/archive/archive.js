@@ -443,6 +443,8 @@ archive.queryESGF = function(query) {
  *
  */
 archive.main = function() {
+  init();
+
   $('#error-dialog').hide();
   archive.initQueryInterface();
 
