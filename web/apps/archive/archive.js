@@ -1,10 +1,10 @@
-// Disable console log test
+// Disable console log
 // console.log = function() {}
 
 var archive = {};
 archive.myMap = null;
 
-archive.error = function(errorString) {
+archive.error = function(errorString, onClose) {
   $('#error-dialog > p').text(errorString);
   $('#error-dialog')
   .dialog({
@@ -15,6 +15,8 @@ archive.error = function(errorString) {
     minHeight: 15,
     buttons: { "Close": function() {
                  $(this).dialog("close");
+                 if (onClose)
+                   onClose();
                }
     }
     });
@@ -861,7 +863,13 @@ archive.addLayerToMap = function(id, name, filePath, parameter, timeval, algorit
       data: jQuery.extend(true, {}, algorithmData)
     }),
     source = ogs.wfl.layerSource(filePath, archive.getMongoConfig(),
-      [parameter], workflow, archive.error),
+      [parameter], workflow,  function(errorString) {
+        archive.error(errorString, function() {
+          layerRow = $('#table-layers #' + id);
+          if (layerRow)
+            layerRow.remove();
+        })
+      }),
     layer = ogs.geo.featureLayer();
 
   workflow.setDefaultWorkflowInputs(name, filePath, timeval);
