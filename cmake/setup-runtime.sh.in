@@ -1,0 +1,5 @@
+#!/bin/sh
+VTK_DIR=@VTK_DIR@
+VisTrails_DIR=@VisTrails_DIR@
+export PYTHONPATH=${VTK_DIR}/Wrapping/Python:${VTK_DIR}/bin:${VTK_DIR}/lib:${VisTrails_DIR}:${PYTHONPATH}
+echo 'Setting PYTHONPATH to' ${PYTHONPATH}

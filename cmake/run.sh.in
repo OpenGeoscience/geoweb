@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# Get script path
+CDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Source runtime
+. ${CDIR}/setup-runtime.sh
+
+# Run the program and pass the arguments
+${CDIR}/geoweb $@

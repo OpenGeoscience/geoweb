@@ -1,10 +1,10 @@
-// Disable console log test
+// Disable console log
 // console.log = function() {}
 
 var archive = {};
 archive.myMap = null;
 
-archive.error = function(errorString) {
+archive.error = function(errorString, onClose) {
   $('#error-dialog > p').text(errorString);
   $('#error-dialog')
   .dialog({
@@ -15,6 +15,8 @@ archive.error = function(errorString) {
     minHeight: 15,
     buttons: { "Close": function() {
                  $(this).dialog("close");
+                 if (onClose)
+                   onClose();
                }
     }
     });
@@ -106,12 +108,14 @@ archive.initQueryInterface = function() {
   $('#glcanvas').droppable({
     drop: function(event, ui) {
       var target = $(ui.helper).data("dataset");
-      archive.promptAlgorithm(event, function() {
-        archive.addLayer(target);
+      if (target) {
+        archive.promptAlgorithm(event, function() {
+          archive.addLayer(target);
 
-        // The user now knows how to add layers to the map so remove tool tip
-        $('#document-table-body').tooltip('disable')
-      });
+          // The user now knows how to add layers to the map so remove tool tip
+          $('#document-table-body').tooltip('disable')
+        });
+      }
     }
   });
 }
@@ -302,7 +306,7 @@ archive.queryDatabase = function(query) {
     success: function(response) {
       if (response.error !== null) {
         console.log("[error] " + response.error ? response.error : "no results returned from server");
-        $(archive).trigger('query-error');s
+        $(archive).trigger('query-error');
       } else {
 
         // Convert _id.$oid into id field, this transformation is do so the
@@ -443,6 +447,8 @@ archive.queryESGF = function(query) {
  *
  */
 archive.main = function() {
+  init();
+
   $('#error-dialog').hide();
   archive.initQueryInterface();
 
@@ -519,22 +525,23 @@ archive.main = function() {
     });
 
     // Ask for click events
-    $(canvas).on("click", function(event) {
+    $(canvas).on("dblclick", function(event) {
       var mousePos = canvas.relMouseCoords(event);
-      var infoBox = $("#map-info-box");
-      //infoBox.empty();
+      var extraInfoBox = $("#map-extra-info-box");
+      extraInfoBox.empty();
 
       var mapCoord = archive.myMap.displayToMap(mousePos.x, mousePos.y);
+      mapCoord.event = event;
       archive.myMap.queryLocation(mapCoord);
       return true;
     });
 
     // React to queryResultEvent
     $(archive.myMap).on(geoModule.command.queryResultEvent, function(event, queryResult) {
-      var infoBox = $("#map-info-box");
+      var extraInfoBox = $("#map-extra-info-box");
       var layer = queryResult.layer;
       if (layer && layer.name())
-        infoBox.append("<div style='font-weight:bold;'>" + layer.name() + "</div>");
+        extraInfoBox.append("<div style='font-weight:bold;'>" + layer.name() + "</div>");
       var queryData = queryResult.data;
       if (queryData) {
         var newResult = document.createElement("div");
@@ -542,7 +549,14 @@ archive.main = function() {
         for (var idx in queryData) {
           $(newResult).append(idx + " : " + queryData[idx] + "<br/>");
         }
-        infoBox.append(newResult);
+        extraInfoBox.append(newResult);
+
+        extraInfoBox.dialog({
+            hide: "fade",
+            position: { my : "left top",
+                        at : "right",
+                        of : event.srcEvent}
+        });
       }
       return true;
     });
@@ -621,7 +635,7 @@ archive.toggleLayer = function(target, layerId) {
   var layer = archive.myMap.findLayerById(layerId);
   if (layer != null) {
     archive.myMap.toggleLayer(layer);
-    archive.myMap.redraw();
+    archive.myMap.draw();
     // @todo call ui toggle layer nows
     return true;
   }
@@ -849,7 +863,13 @@ archive.addLayerToMap = function(id, name, filePath, parameter, timeval, algorit
       data: jQuery.extend(true, {}, algorithmData)
     }),
     source = ogs.wfl.layerSource(filePath, archive.getMongoConfig(),
-      [parameter], workflow, archive.error),
+      [parameter], workflow,  function(errorString) {
+        archive.error(errorString, function() {
+          layerRow = $('#table-layers #' + id);
+          if (layerRow)
+            layerRow.remove();
+        })
+      }),
     layer = ogs.geo.featureLayer();
 
   workflow.setDefaultWorkflowInputs(name, filePath, timeval);
