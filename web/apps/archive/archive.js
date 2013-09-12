@@ -877,7 +877,7 @@ archive.workflowLayer = function(target, layerId) {
         resize: archive.workflowEditor.resize,
         minHeight: 300,
         width: Math.floor(window.innerWidth * 0.95),
-        height: Math.floor(window.innerHeight * 0.95),
+        height: Math.floor(window.innerHeight * 0.95) - 20,
         buttons: {
           Close: function() {
             $(this).dialog("close");
@@ -890,6 +890,10 @@ archive.workflowLayer = function(target, layerId) {
             time = time == null ? -1 : parseInt(time);
             //@todo: make right call to update layer rendering
             archive.myMap.animateTimestep(time, [layer]);
+          },
+          'Delete': function() {
+            archive.workflowEditor.workflow().deleteSelectedModules();
+            archive.workflowEditor.drawWorkflow();
           }
         }
       });
