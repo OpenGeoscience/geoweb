@@ -216,10 +216,8 @@ endforeach()
 
 # Copy directories / files to the deployment directory
 foreach(m ${paths})
-    MESSAGE(${m})
     set(copy_command "copy")
     if (IS_DIRECTORY "${CMAKE_SOURCE_DIR}/${m}")
-	MESSAGE("IS DIR")
       set(copy_command "copy_directory")
     endif()
     set(outpath ${_deploy_dir}/${m})
