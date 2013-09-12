@@ -897,24 +897,47 @@ archive.workflowLayer = function(target, layerId) {
         resize: archive.workflowEditor.resize,
         minHeight: 300,
         width: Math.floor(window.innerWidth * 0.95),
-        height: Math.floor(window.innerHeight * 0.95),
+        height: Math.floor(window.innerHeight * 0.95) - 50,
         buttons: {
-          Close: function() {
-            $(this).dialog("close");
-            archive.workflowEditor.workflow().hide();
+          Delete: {
+            text: 'Delete',
+            click: function() {
+              archive.workflowEditor.workflow().deleteSelectedModules();
+              archive.workflowEditor.drawWorkflow();
+            },
+            class: 'btn btn-danger pull-left',
+            priority: 'primary'
           },
-          Execute: function() {
-            var workflow = archive.workflowEditor.workflow(),
-              variableModule = workflow.getModuleByName('Variable'),
-              time = variableModule.getFunctionValue('time');
-            time = time == null ? -1 : parseInt(time);
-            //@todo: make right call to update layer rendering
-            archive.myMap.animateTimestep(time, [layer]);
+          Close: {
+            text: 'Close',
+            click: function() {
+              $(this).dialog("close");
+              archive.workflowEditor.workflow().hide();
+            },
+            class: 'btn btn-warning pull-right',
+            priority: 'secondary'
+          },
+          Execute: {
+            text: 'Execute',
+            click: function() {
+              var workflow = archive.workflowEditor.workflow(),
+                variableModule = workflow.getModuleByName('Variable'),
+                time = variableModule.getFunctionValue('time');
+              time = time == null ? -1 : parseInt(time);
+              //@todo: make right call to update layer rendering
+              archive.myMap.animateTimestep(time, [layer]);
+            },
+            class: 'btn btn-success pull-right',
+            priority: 'secondary'
           }
         }
       });
     archive.workflowEditor.setWorkflow(layer.dataSource().workflow());
     archive.workflowEditor.show();
+
+    //make the button container wide so we can split the buttons apart
+    $('#workflow-dialog').siblings('.ui-dialog-buttonpane')
+      .find('.ui-dialog-buttonset').css('width','100%');
   }
 };
 
