@@ -493,6 +493,8 @@ archive.main = function() {
       var mapCoord = archive.myMap.displayToMap(mousePos.x, mousePos.y);
       infoBox.html(mapCoord.x.toFixed(2)+" , "+mapCoord.y.toFixed(2)+"<br/>");
 
+/*
+      // This version shows the info box near the mouse
       var x = event.pageX+24;
       var y = event.pageY+24;
       var w = infoBox.outerWidth();
@@ -504,6 +506,13 @@ archive.main = function() {
         x = event.pageX - 24 - w;
       if (y + h > ch)
         y = event.pageY - 24 - h;
+*/
+      // this version shows the info box in the lower left corner
+      var h = infoBox.outerHeight();
+      var cw = $(canvas).width();
+      var ch = $(canvas).height();
+      var x = 32;
+      var y = ch - h - 32
       infoBox.offset({left: x, top: y});
       return true;
     });
