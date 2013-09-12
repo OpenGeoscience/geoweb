@@ -877,7 +877,7 @@ archive.workflowLayer = function(target, layerId) {
         resize: archive.workflowEditor.resize,
         minHeight: 300,
         width: Math.floor(window.innerWidth * 0.95),
-        height: Math.floor(window.innerHeight * 0.95) - 20,
+        height: Math.floor(window.innerHeight * 0.95) - 50,
         buttons: {
           Delete: {
             text: 'Delete',
@@ -887,6 +887,15 @@ archive.workflowLayer = function(target, layerId) {
             },
             class: 'btn btn-danger pull-left',
             priority: 'primary'
+          },
+          Close: {
+            text: 'Close',
+            click: function() {
+              $(this).dialog("close");
+              archive.workflowEditor.workflow().hide();
+            },
+            class: 'btn btn-warning pull-right',
+            priority: 'secondary'
           },
           Execute: {
             text: 'Execute',
@@ -900,20 +909,13 @@ archive.workflowLayer = function(target, layerId) {
             },
             class: 'btn btn-success pull-right',
             priority: 'secondary'
-          },
-          Close: {
-            text: 'Close',
-            click: function() {
-              $(this).dialog("close");
-              archive.workflowEditor.workflow().hide();
-            },
-            class: 'btn btn-warning pull-right',
-            priority: 'secondary'
           }
         }
       });
     archive.workflowEditor.setWorkflow(layer.dataSource().workflow());
     archive.workflowEditor.show();
+
+    //make the button container wide so we can split the buttons apart
     $('#workflow-dialog').siblings('.ui-dialog-buttonpane')
       .find('.ui-dialog-buttonset').css('width','100%');
   }
