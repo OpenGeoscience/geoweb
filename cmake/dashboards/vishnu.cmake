@@ -22,7 +22,7 @@ file(
   BUILD_TESTING:BOOL=ON
   DART_TESTING_TIMEOUT:STRING=1500
   VTK_DIR=/home/kitware/tools/vtk/build
-  VISTRAILS_DIR=/home/kitware/tools/vistrails/src.git
+  VisTrails_DIR=/home/kitware/tools/vistrails/src.git
   UPDATE_TYPE:STRING=git
   ${PLATFORM_SPECIFIC_CACHE_DATA}"
 )
