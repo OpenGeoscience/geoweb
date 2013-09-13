@@ -20,9 +20,6 @@ configure_file(${GEOWEB_CMAKE_DIR}/configure_server.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/configure_server.cmake @ONLY
 )
 
-configure_file(${GEOWEB_CMAKE_DIR}/geocelery_conf.py.in
-  ${CMAKE_CURRENT_BINARY_DIR}/${GEOWEB_DEPLOY_DIR}/modules/geocelery_conf.py @ONLY
-)
 
 configure_file(${GEOWEB_CMAKE_DIR}/run.sh.in
   ${CMAKE_CURRENT_BINARY_DIR}/${GEOWEB_DEPLOY_DIR}/run.sh @ONLY
