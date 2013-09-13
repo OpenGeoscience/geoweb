@@ -333,6 +333,9 @@ add_custom_target(predeploy ALL
    -DGEOWEB_CMAKE_DIR=${_geoweb_cmake_dir}
    -DGEOWEB_DEPLOY_DIR=${_deploy_dir}
    -P ${_geoweb_cmake_dir}/configure.cmake
+  DEPENDS
+    ${_lib_dir} ${all_targets} ${_min_js_file} ${_logs_dir}
+    ${documentation_stamp}
 )
 
 set(_server_config "${_deploy_dir}/server.conf")
@@ -346,12 +349,7 @@ add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${_deploy_dir}/server.conf
   VERBATIM
 )
 
-add_custom_target(deploy ALL
-  DEPENDS ${_lib_dir} ${all_targets} ${_min_js_file} ${_server_config}
-          ${_logs_dir}
-  ${documentation_stamp}
-)
-
+add_custom_target(deploy ALL DEPENDS ${_server_config})
 add_dependencies(deploy predeploy)
 
 #/////////////////////////////////////////////////////////////////////////////
@@ -390,7 +388,3 @@ endif()
 
 # Now include sub-directories
 add_subdirectory(web)
-
-configure_file(${_geoweb_cmake_dir}/geocelery_conf.py.in
-  ${CMAKE_BINARY_DIR}/${_deploy_dir}/modules/geocelery_conf.py @ONLY
-)
