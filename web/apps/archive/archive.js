@@ -289,7 +289,8 @@ archive.queryDatabase = function(query) {
   });
 
   mongoQuery = {$and: [{$or: [{ $or: nameOr},{variables: {$elemMatch: { $or: variableOr}}}] },
-               {variables: {$not: {$size: 0}}}, {'timeInfo.rawTimes': {$ne: null}}]}
+               {variables: {$not: {$size: 0}}}, {'timeInfo.rawTimes': {$ne: null}},
+               {private: false}]}
 
   $(archive).trigger('query-started');
 
