@@ -22,7 +22,7 @@ archive.error = function(errorString, onClose) {
     });
 };
 
-archive.promptAlgorithm = function(event, callback) {
+archive.promptAlgorithm = function(callback) {
 
   function okClicked($dialog) {
     $dialog.dialog("close");
@@ -41,12 +41,7 @@ archive.promptAlgorithm = function(event, callback) {
       buttons: {
         "Ok": function() { okClicked($(this)); }
       }
-    }).dialog('option', {
-      position: [
-        event.pageX - $(document).scrollLeft(),
-        event.pageY - $(document).scrollTop()
-      ]
-    });
+    }).dialog();
 
     $('#algorithm-select').off('keypress').keypress(function(event) {
       if ( event.which == 13 ) {
@@ -109,12 +104,9 @@ archive.initQueryInterface = function() {
     drop: function(event, ui) {
       var target = $(ui.helper).data("dataset");
       if (target) {
-        archive.promptAlgorithm(event, function() {
-          archive.addLayer(target);
-
-          // The user now knows how to add layers to the map so remove tool tip
-          $('#document-table-body').tooltip('disable')
-        });
+        // The user now knows how to add layers to the map so remove tool tip
+        $('#document-table-body').tooltip('disable')
+        archive.addLayer(target);
       }
     }
   });
@@ -688,7 +680,7 @@ archive.timeRange = function(name, onComplete) {
   });
 }
 
-archive.monitorESGFDownload = function(target, taskId, onComplete, algorithm) {
+archive.monitorESGFDownload = function(target, taskId, onComplete) {
   var dataSetId = target.dataset_id;
 
   $.ajax({
@@ -714,11 +706,11 @@ archive.monitorESGFDownload = function(target, taskId, onComplete, algorithm) {
 
           // If we are done then we can load the file
           if (response.result.percentage == 100) {
-            onComplete(dataSetId, algorithm);
+            onComplete(dataSetId);
           }
           else {
             setTimeout(function() {
-              archive.monitorESGFDownload(target, taskId, onComplete, algorithm)
+              archive.monitorESGFDownload(target, taskId, onComplete)
             }, 1000);
           }
         }
@@ -734,7 +726,7 @@ archive.monitorESGFDownload = function(target, taskId, onComplete, algorithm) {
   });
 }
 
-archive.onDownloadComplete = function(dataSetId, algorithm) {
+archive.onDownloadComplete = function(dataSetId) {
   var layerRow = $('tr#' + dataSetId);
 
   // This sucks and is very fragile ... !
@@ -761,8 +753,11 @@ archive.onDownloadComplete = function(dataSetId, algorithm) {
         // Remove the progress bar
         $('tr#' + dataSetId + ' #progress').remove();
 
-        archive.addLayerToMap(dataSet.dataset_id, dataSet.name,
-          response.result.filepath, dataSet.parameter, null, algorithm);
+        archive.promptAlgorithm(function() {
+          var algorithm = $('#algorithm-select').val();
+          archive.addLayerToMap(dataSet.dataset_id, dataSet.name,
+            response.result.filepath, dataSet.parameter, null, algorithm);
+        });
       }
     }
   });
@@ -797,7 +792,7 @@ archive.cancelESGFDownload = function(taskId, dataSetId) {
   }
 }
 
-archive.downloadESGF = function(target, onComplete, message, algorithm) {
+archive.downloadESGF = function(target, onComplete, message) {
 
   $('#esgf-login').modal({backdrop: 'static'});
 
@@ -838,7 +833,7 @@ archive.downloadESGF = function(target, onComplete, message, algorithm) {
               });
 
               archive.monitorESGFDownload(target, response.result['taskId'],
-                onComplete, algorithm);
+                onComplete);
             }
             // The row has been removed so cancel the download
             else {
@@ -961,22 +956,24 @@ archive.addLayer = function(target) {
     return;
 
   if (target.source == 'Local') {
-    ogs.ui.gis.addLayer(archive, 'table-layers', target, archive.selectLayer,
-      archive.toggleLayer, archive.removeLayer, function() {
-        ogs.ui.gis.layerAdded(target);
-        // Calculate the timestep in UTC
-        var start = target.timeInfo.dateRange[0];
-        var time = new Date(Date.UTC(start[0], start[1], start[2]));
-        geoModule.time.incrementTime(time, target.timeInfo.nativeUnits,
-          target.timeInfo.nativeDelta*timeval);
-        archive.addLayerToMap(target.dataset_id, target.name, target.basename,
-          varval, time.getTime(), algorithm);
-      }, archive.workflowLayer);
+    archive.promptAlgorithm(function() {
+      ogs.ui.gis.addLayer(archive, 'table-layers', target, archive.selectLayer,
+          archive.toggleLayer, archive.removeLayer, function() {
+            ogs.ui.gis.layerAdded(target);
+            // Calculate the timestep in UTC
+            var start = target.timeInfo.dateRange[0];
+            var time = new Date(Date.UTC(start[0], start[1], start[2]));
+            geoModule.time.incrementTime(time, target.timeInfo.nativeUnits,
+              target.timeInfo.nativeDelta*timeval);
+            archive.addLayerToMap(target.dataset_id, target.name, target.basename,
+              varval, time.getTime(), algorithm);
+          }, archive.workflowLayer);
+    });
   }
   else {
     ogs.ui.gis.addLayer(archive, 'table-layers', target, archive.selectLayer,
       archive.toggleLayer, archive.removeLayer, function() {
-        archive.downloadESGF(target, archive.onDownloadComplete, algorithm)
+        archive.downloadESGF(target, archive.onDownloadComplete)
       }, archive.workflowLayer, true);
 
     $('tr#' + target.dataset_id).on('cancel-download-task', function() {
