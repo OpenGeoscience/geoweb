@@ -159,19 +159,27 @@ set(DEV_SOURCE_FILES
   /lib/wfl/style.js
 )
 
+set(_exclude_js_lint
+  /lib/wfl/registry.js
+  /lib/wfl/staticWorkflows.js
+)
+
+MACRO(LIST_CONTAINS var value)
+  SET(${var})
+  FOREACH (value2 ${ARGN})
+    IF (${value} STREQUAL ${value2})
+      SET(${var} TRUE)
+    ENDIF (${value} STREQUAL ${value2})
+  ENDFOREACH (value2)
+ENDMACRO(LIST_CONTAINS)
+
 foreach(d ${DEV_SOURCE_FILES})
-  set(_js_lint_files ${_js_lint_files} ${CMAKE_SOURCE_DIR}/web/${d})
+  LIST_CONTAINS(contains d ${_exclude_js_lint})
+  if(NOT contains)
+      set(_js_lint_files ${_js_lint_files} ${CMAKE_SOURCE_DIR}/web/${d})
+  endif()
+  set(_js_uglify_files ${_js_uglify_files} ${CMAKE_SOURCE_DIR}/web/${d})
 endforeach()
-
-# These files should be concatenated and uglified
-set(_js_uglify_files
-  ${_js_lint_files}
-)
-
-# These files should have documentation generated for them.
-set(_js_document_files
-  ${_js_uglify_files}
-)
 
 # These files should be copied to the deployment directory.
 set(sources
@@ -325,6 +333,9 @@ add_custom_target(predeploy ALL
    -DGEOWEB_CMAKE_DIR=${_geoweb_cmake_dir}
    -DGEOWEB_DEPLOY_DIR=${_deploy_dir}
    -P ${_geoweb_cmake_dir}/configure.cmake
+  DEPENDS
+    ${_lib_dir} ${all_targets} ${_min_js_file} ${_logs_dir}
+    ${documentation_stamp}
 )
 
 set(_server_config "${_deploy_dir}/server.conf")
@@ -338,12 +349,7 @@ add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${_deploy_dir}/server.conf
   VERBATIM
 )
 
-add_custom_target(deploy ALL
-  DEPENDS ${_lib_dir} ${all_targets} ${_min_js_file} ${_server_config}
-          ${_logs_dir}
-  ${documentation_stamp}
-)
-
+add_custom_target(deploy ALL DEPENDS ${_server_config})
 add_dependencies(deploy predeploy)
 
 #/////////////////////////////////////////////////////////////////////////////

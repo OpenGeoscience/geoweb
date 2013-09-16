@@ -16,21 +16,19 @@
  */
 //////////////////////////////////////////////////////////////////////////////
 geoModule.layerSource = function() {
-  "use strict";
+  'use strict';
 
-   /**
-    * @private
-    */
+   /** @private */
   var m_requestDataMTime = vglModule.timestamp();
 
   this.requestDataMTime = function() {
       return m_requestDataMTime;
-  }
+  };
 
   this.requestDataMTimeModified = function() {
       // TODO Check for caller here
       m_requestDataMTime.modified();
-  }
+  };
 
   ////////////////////////////////////////////////////////////////////////////
   /**
@@ -87,8 +85,6 @@ geoModule.layerSource = function() {
     ////////////////////////////////////////////////////////////////////////////
   this.getScalarRange = function(varname) {
   };
-
-
 };
 
-inherit(geoModule.layerSource, ogs.vgl.object);
+inherit(geoModule.layerSource, vglModule.object);

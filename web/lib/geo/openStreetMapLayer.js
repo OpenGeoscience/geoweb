@@ -357,19 +357,14 @@ geoModule.openStreetMapLayer = function() {
         "lon": location.x,
         "lat": location.y
       }
-    };
-    var revent = $.Event(geoModule.command.queryResultEvent);
+    },
+    revent = $.Event(geoModule.command.queryResultEvent);
+
     revent.srcEvent = location.event;
     $(this).trigger(revent, result);
-  }
-
+  };
 
   this.setBinNumber(ogs.vgl.material.RenderBin.Base);
 };
 
 inherit(geoModule.openStreetMapLayer, geoModule.featureLayer);
-
-/* Local Variables:   */
-/* mode: js           */
-/* js-indent-level: 2 */
-/* End:               */
