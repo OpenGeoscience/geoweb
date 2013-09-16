@@ -17,7 +17,7 @@ class mongo_import:
         self._connection = pymongo.Connection(server)
         self._db = self._connection[database]
 
-    def import_file(self, collection, filename):
+    def import_file(self, collection, filename, private=True):
         """Import metadata from a filename into the database
 
         This method reads a filename (fullpath) for its metadata
@@ -27,6 +27,8 @@ class mongo_import:
         :type collection: str.
         :param filename: Name of the file with fullpath (eg. /home/clt.nc).
         :type filename: str.
+        :param private: Should the entry be marked as private.
+        :type private: bool
         """
         if (not (os.path.isfile(filename) and os.path.exists(filename))):
             raise Exception("File " + filename + " does not exist")
@@ -147,7 +149,8 @@ class mongo_import:
             insertId = coll.insert({"name":fileprefix, "basename":filename,
                                    "variables":variables,
                                    "timeInfo":timeInfo,
-                                   "spatialInfo":bounds})
+                                   "spatialInfo":bounds,
+                                   "private":private})
         print 'Done importing %s into database' % filename
 
     def import_directory(self, collection, directory, drop_existing=False):
@@ -176,7 +179,7 @@ class mongo_import:
 
         # Add files to the database
         for filename in files:
-            self.import_file(collection, os.path.join(directory, filename))
+            self.import_file(collection, os.path.join(directory, filename), False)
 
     def is_exists(self, collection, basename):
         """Check if a basename exists in the given collection of the database.
