@@ -70,6 +70,9 @@ def download(url, size, checksum, user_url, password):
         request = requests.get(url,
                                cert=(cert_filepath, cert_filepath), verify=False, stream=True)
 
+        if request.status_code != 200:
+            raise Exception("HTTP status code: %s" % request.status)
+
         filepath = url_to_download_filepath(user_url, url)
         dir = os.path.dirname(filepath);
         if not os.path.exists(dir):
