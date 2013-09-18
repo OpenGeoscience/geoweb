@@ -191,6 +191,10 @@ set(paths
   nodes services temp
 )
 
+if(BUILD_TESTING)
+  set(paths ${paths} web/tests)
+endif()
+
 set(_lib_dir "${CMAKE_BINARY_DIR}/${_deploy_dir}/web/lib")
 add_custom_command(OUTPUT ${_lib_dir}
   COMMAND ${CMAKE_COMMAND} -E make_directory ${_lib_dir}
