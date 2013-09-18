@@ -13,7 +13,13 @@ def extract_variables(doc_node):
   return map(lambda x: x.get_content(), text_nodes)
 
 def _extract_url(doc_node):
-  return doc_node.xpathEval('./arr[@name="url"][1]/str/text()')[0].get_content()
+
+  nodeset = doc_node.xpathEval('./arr[@name="url"][1]/str/text()')
+
+  if len(nodeset) == 0:
+    return None
+  else:
+    return nodeset[0].get_content()
 
 streams = dict()
 
@@ -25,8 +31,12 @@ def query(site_url, query):
 
   doc = libxml2.parseDoc(r.text)
   for node in doc.xpathEval('/response/result/doc'):
-    #print node
     url = _extract_url(node);
+
+    # Dataset has no url so move on
+    if not url:
+      continue
+
     parts = urlparse.urlparse(url)
     server_url = "%s://%s" % (parts.scheme, parts.netloc)
 
