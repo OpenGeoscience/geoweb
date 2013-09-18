@@ -13,8 +13,22 @@
     <script type="text/javascript" src="/common/js/proj4.js"></script>
     <script type="text/javascript" src="/lib/geoweb.min.js"></script>
 
+    <link href="/common/css/jquery-ui.css" rel=stylesheet type=text/css>
+    <link href="/common/css/bootstrap.css" rel=stylesheet type=text/css>
+    <link href="/common/css/select2.css" rel=stylesheet type=text/css>
+    <link href="/common/css/geoweb.css" rel=stylesheet type=text/css>
+
+    <style>
+        html{
+            height: 100%;
+        }
+        body {
+            min-height: 100%;
+        }
+    </style>
+
 </head>
-<body>
+<body style="height: 100%;">
 <div id="editor" style="width: 100%; height: 100%;">&nbsp;</div>
 <script>
   var editor = ogs.wfl.editor({div: "editor"}),
