@@ -304,7 +304,6 @@ wflModule.editor = function(options) {
       draggingModule,
       hoverModule = null,
       hoverPort = null,
-      lastCursor = $(m_canvasContainer).css('cursor'),
       tempConnection = wflModule.connection();
 
     $canvas.mousedown(function (e) {
@@ -339,7 +338,6 @@ wflModule.editor = function(options) {
         hoverPort = hoverModule.portByPos(newPoint);
         if(hoverPort !== null) {
           hoverPort.setHover(true);
-          lastCursor = $(m_canvasContainer).css('cursor');
           $(m_canvasContainer).css('cursor', m_style.module.port.cursor);
         }
       }
@@ -348,7 +346,7 @@ wflModule.editor = function(options) {
         hoverModule = m_workflow.moduleByPos(newPoint);
         if(hoverModule !== null) {
           hoverModule.setHover(true);
-          lastCursor = $(m_canvasContainer).css('cursor');
+          m_that.drawWorkflow();
           $(m_canvasContainer).css('cursor', m_style.module.cursor);
         }
       }
@@ -385,7 +383,8 @@ wflModule.editor = function(options) {
         if(hoverModule !== null) {
           if(!hoverModule.contains(newPoint)) {
             hoverModule.setHover(false);
-            $(m_canvasContainer).css('cursor', lastCursor);
+            m_that.drawWorkflow();
+            $(m_canvasContainer).css('cursor', m_style.cursor);
             getNewHoverModule();
           }
         } else {
@@ -396,7 +395,7 @@ wflModule.editor = function(options) {
           if(hoverPort !== null) {
             if(!hoverPort.contains(newPoint)) {
               hoverPort.setHover(false);
-              $(m_canvasContainer).css('cursor', lastCursor);
+              $(m_canvasContainer).css('cursor', m_style.module.cursor);
               getNewHoverPort();
             }
           } else {
