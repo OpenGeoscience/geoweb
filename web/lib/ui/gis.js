@@ -90,7 +90,8 @@ uiModule.gis.createLayerList = function(map, rootId, heading, toggleFunct,
             show: 100,
             hide: 100
         }
-      }, KEYCODE_ESC, animationControls, timestepDisplay;
+      }, KEYCODE_ESC, animationControls, timestepDisplay, ensureTimeInfo,
+      hideTimeStepDisplay;
 
 
   controls.attr('id', 'layer-control-btns');
@@ -176,20 +177,19 @@ uiModule.gis.createLayerList = function(map, rootId, heading, toggleFunct,
   controls.append($(animationControls));
 
   // Before we animate we needt to make sure timeInfo has been loaded
-  var ensureTimeInfo = function(layerIds, onDone) {
+  ensureTimeInfo = function(layerIds, onDone) {
 
-    var datasets = [];
+    var datasets = [], numberOfRequests = datasets.length;
     $.each(layerIds, function(i, id) {
       var dataset = $('#'+id).data('dataset');
       if (!dataset.timeInfo) {
         datasets.push(dataset);
       }
-    })
-    var numberOfRequests = datasets.length;
+    });
 
-
-    if (numberOfRequests == 0)
+    if (numberOfRequests === 0) {
         onDone(layerIds);
+    }
 
 
     $.each(datasets, function(i, dataset) {
@@ -198,17 +198,17 @@ uiModule.gis.createLayerList = function(map, rootId, heading, toggleFunct,
 
           numberOfRequests--;
 
-          if (numberOfRequests == 0)
+          if (numberOfRequests === 0) {
             onDone(layerIds);
+          }
         });
     });
   };
 
-  var hideTimeStepDisplay = function() {
+  hideTimeStepDisplay = function() {
     $('#timestep-display').fadeOut('slow');
     $('#timestep-display h4').html("");
-  }
-
+  };
 
   $('#play', animationControls).click(function() {
     $(this).addClass('active');

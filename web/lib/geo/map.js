@@ -717,7 +717,7 @@ geoModule.map = function(node, options) {
     else {
       m_that.animateInternal();
     }
-  }
+  };
 
   ////////////////////////////////////////////////////////////////////////////
   /**
@@ -790,8 +790,9 @@ geoModule.map = function(node, options) {
   this.stopAnimation = function(cleanState) {
     $(this).trigger('animation-stop');
 
-    if (cleanState)
+    if (cleanState) {
       m_animationState = { range: null, currentTime: null, layers: null};
+    }
   };
 
   ////////////////////////////////////////////////////////////////////////////
@@ -821,7 +822,7 @@ geoModule.map = function(node, options) {
     else {
       m_that.stepAnimationForwardInternal();
     }
-  }
+  };
 
   ////////////////////////////////////////////////////////////////////////////
   /**
@@ -878,7 +879,7 @@ geoModule.map = function(node, options) {
     else {
       m_that.stepAnimationBackwardInternal();
     }
-  }
+  };
 
 
 
