@@ -1,6 +1,6 @@
 #/////////////////////////////////////////////////////////////////////////////
 #
-# GeoJS
+# GeoWeb
 #
 #/////////////////////////////////////////////////////////////////////////////
 
@@ -19,7 +19,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 #/////////////////////////////////////////////////////////////////////////////
 #
-# GeoJS options
+# GeoWeb options
 #
 #/////////////////////////////////////////////////////////////////////////////
 
@@ -41,13 +41,14 @@ set(GEOWEB_GROUP $ENV{USER} CACHE STRING "Group to run geoweb as when dropping p
 #
 #/////////////////////////////////////////////////////////////////////////////
 
-set(_deploy_dir deploy)
+set(DEPLOY_DIR deploy)
+set(DEPLOY_LIB_DIR "${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/web/lib")
 set(_deploy_depends)
 set(_geoweb_cmake_dir "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # These files should be validated with JSLint.
 set(_js_lint_files)
-set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${_deploy_dir})
+set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${DEPLOY_DIR})
 
 #/////////////////////////////////////////////////////////////////////////////
 #
@@ -84,103 +85,6 @@ find_package(PythonInterp 2.7)
 # Create a "stamps" directory for storing fake targets for custom commands.
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/stamps)
 
-set(DEV_SOURCE_FILES
-  /lib/vgl/init.js
-  /lib/vgl/timestamp.js
-  /lib/vgl/object.js
-  /lib/vgl/command.js
-  /lib/vgl/boundingObject.js
-  /lib/vgl/node.js
-  /lib/vgl/groupNode.js
-  /lib/vgl/actor.js
-  /lib/vgl/camera.js
-  /lib/vgl/freezeObject.js
-  /lib/vgl/defaultValue.js
-  /lib/vgl/geojsonReader.js
-  /lib/vgl/data.js
-  /lib/vgl/geomData.js
-  /lib/vgl/mapper.js
-  /lib/vgl/groupMapper.js
-  /lib/vgl/materialAttribute.js
-  /lib/vgl/blend.js
-  /lib/vgl/material.js
-  /lib/vgl/renderer.js
-  /lib/vgl/renderWindow.js
-  /lib/vgl/interactorStyle.js
-  /lib/vgl/trackballInteractorStyle.js
-  /lib/vgl/viewer.js
-  /lib/vgl/shader.js
-  /lib/vgl/shaderProgram.js
-  /lib/vgl/texture.js
-  /lib/vgl/uniform.js
-  /lib/vgl/vertexAttribute.js
-  /lib/vgl/source.js
-  /lib/vgl/planeSource.js
-  /lib/vgl/pointSource.js
-  /lib/vgl/lineSource.js
-  /lib/vgl/utils.js
-  /lib/geo/init.js
-  /lib/geo/ellipsoid.js
-  /lib/geo/mercator.js
-  /lib/geo/latlng.js
-  /lib/geo/layer.js
-  /lib/geo/featureLayer.js
-  /lib/geo/openStreetMapLayer.js
-  /lib/geo/featureCollection.js
-  /lib/geo/layerSource.js
-  /lib/geo/archiveLayerSource.js
-  /lib/geo/command.js
-  /lib/vgl/picker.js
-  /lib/geo/updateRequest.js
-  /lib/geo/prepareForRenderRequest.js
-  /lib/geo/mapInteractorStyle.js
-  /lib/geo/time.js
-  /lib/geo/map.js
-  /lib/geo/feature.js
-  /lib/geo/geoTransform.js
-  /lib/geo/data.js
-  /lib/ui/init.js
-  /lib/ui/gis.js
-  /lib/srv/init.js
-  /lib/srv/webSocket.js
-  /lib/wfl/init.js
-  /lib/wfl/utils.js
-  /lib/wfl/workflow.js
-  /lib/wfl/module.js
-  /lib/wfl/connection.js
-  /lib/wfl/port.js
-  /lib/wfl/registry.js
-  /lib/wfl/inputModule.js
-  /lib/wfl/outputPort.js
-  /lib/wfl/inputPort.js
-  /lib/wfl/layerSource.js
-  /lib/wfl/editor.js
-  /lib/wfl/staticWorkflows.js
-  /lib/wfl/style.js
-)
-
-set(_exclude_js_lint
-  /lib/wfl/registry.js
-  /lib/wfl/staticWorkflows.js
-)
-
-MACRO(LIST_CONTAINS var value)
-  SET(${var})
-  FOREACH (value2 ${ARGN})
-    IF (${value} STREQUAL ${value2})
-      SET(${var} TRUE)
-    ENDIF (${value} STREQUAL ${value2})
-  ENDFOREACH (value2)
-ENDMACRO(LIST_CONTAINS)
-
-foreach(d ${DEV_SOURCE_FILES})
-  LIST_CONTAINS(contains d ${_exclude_js_lint})
-  if(NOT contains)
-      set(_js_lint_files ${_js_lint_files} ${CMAKE_SOURCE_DIR}/web/${d})
-  endif()
-  set(_js_uglify_files ${_js_uglify_files} ${CMAKE_SOURCE_DIR}/web/${d})
-endforeach()
-
 # These files should be copied to the deployment directory.
 set(sources
     geoweb geoweb.py geocelery
@@ -191,7 +95,7 @@ set(paths
   nodes services temp
 )
 
-set(_lib_dir "${CMAKE_BINARY_DIR}/${_deploy_dir}/web/lib")
+set(_lib_dir "${DEPLOY_LIB_DIR}")
 add_custom_command(OUTPUT ${_lib_dir}
   COMMAND ${CMAKE_COMMAND} -E make_directory ${_lib_dir}
 )
@@ -205,7 +109,7 @@ add_custom_command(OUTPUT ${_lib_dir}
 # Copy the files to the deployment directory.
 set(all_targets)
 foreach(m ${sources})
-  set(outfile ${_deploy_dir}/${m})
+  set(outfile ${DEPLOY_DIR}/${m})
   add_custom_command(OUTPUT ${outfile}
     COMMAND ${CMAKE_COMMAND} -E copy
       ${CMAKE_SOURCE_DIR}/${m} ${CMAKE_BINARY_DIR}/${outfile}
@@ -220,7 +124,7 @@ foreach(m ${paths})
     if (IS_DIRECTORY "${CMAKE_SOURCE_DIR}/${m}")
       set(copy_command "copy_directory")
     endif()
-    set(outpath ${_deploy_dir}/${m})
+    set(outpath ${DEPLOY_DIR}/${m})
     add_custom_command(
         OUTPUT ${outpath}
         COMMAND ${CMAKE_COMMAND} -E ${copy_command}
@@ -239,33 +143,11 @@ if(${MINIFY} AND ${MANGLE})
     set(MANGLE_FLAG "-m")
 endif()
 
-set(_min_js_file ${CMAKE_BINARY_DIR}/${_deploy_dir}/web/lib/geoweb.min.js)
-
-if (UglifyJS_EXECUTABLE)
-  add_custom_command(
-    OUTPUT ${_min_js_file}
-    COMMAND ${UglifyJS_EXECUTABLE} -o ${_min_js_file} ${_js_uglify_files}
-            ${MINIFY_FLAG} ${MANGLE_FLAG}
-    DEPENDS ${_lib_dir} ${_js_uglify_files}
-  )
-else()
-  # Use custom command to call CMake script to cat files together
-  add_custom_command(
-    OUTPUT ${_min_js_file}
-    COMMAND ${CMAKE_COMMAND} -DCAT_OUTPUT_FILE=${_min_js_file}
-            # Note the quotes so we get the ; included
-            "-DCAT_FILES=${_js_uglify_files}"
-            -P ${CMAKE_SOURCE_DIR}/cmake/cat.cmake
-    DEPENDS ${_lib_dir} ${_js_uglify_files}
-    VERBATIM
-  )
-endif()
-
-set(_logs_dir ${CMAKE_BINARY_DIR}/${_deploy_dir}/logs)
+set(_logs_dir ${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/logs)
 add_custom_command(
   OUTPUT ${_logs_dir}
   COMMAND ${CMAKE_COMMAND} -E make_directory
-  ${CMAKE_BINARY_DIR}/${_deploy_dir}/logs
+  ${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/logs
 )
 
 if(SERVER_LOGS)
@@ -322,7 +204,7 @@ add_custom_target(predeploy ALL
    -DSTATICDIR_ROOT=${STATICDIR_ROOT}
    -DSRC_DIR=${SRC_DIR}
    -DBIN_DIR=${BIN_DIR}
-   -DDEPLOY_DIR=${DEPLOY_DIR}
+   -DGEOWEB_DEPLOY_DIR=${DEPLOY_DIR}
    -DDATA_ROOT=${DATA_ROOT}
    -DLOG_ERROR_FILE=${LOG_ERROR_FILE}
    -DLOG_ACCESS_FILE=${LOG_ACCESS_FILE}
@@ -331,15 +213,15 @@ add_custom_target(predeploy ALL
    -DVTK_DIR=${VTK_DIR}
    -DVisTrails_DIR=${VisTrails_DIR}
    -DGEOWEB_CMAKE_DIR=${_geoweb_cmake_dir}
-   -DGEOWEB_DEPLOY_DIR=${_deploy_dir}
+   -DGEOWEBDEPLOY_DIR=${DEPLOY_DIR}
    -P ${_geoweb_cmake_dir}/configure.cmake
   DEPENDS
-    ${_lib_dir} ${all_targets} ${_min_js_file} ${_logs_dir}
+    ${_lib_dir} ${all_targets} ${_logs_dir}
     ${documentation_stamp}
 )
 
-set(_server_config "${_deploy_dir}/server.conf")
-add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${_deploy_dir}/server.conf
+set(_server_config "${DEPLOY_DIR}/server.conf")
+add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/server.conf
   COMMAND ${CMAKE_COMMAND} -P
     ${CMAKE_CURRENT_BINARY_DIR}/configure_server.cmake
   DEPENDS
@@ -352,6 +234,9 @@ add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${_deploy_dir}/server.conf
 add_custom_target(deploy ALL DEPENDS ${_server_config})
 add_dependencies(deploy predeploy)
 
+# Now include sub-directories
+add_subdirectory(web)
+
 #/////////////////////////////////////////////////////////////////////////////
 #
 # Add pieces for testing if enabled
@@ -363,28 +248,3 @@ if (BUILD_TESTING)
   include(CTest)
   enable_testing()
 endif()
-
-# JSLint tests.
-foreach(f ${_js_lint_files})
-    add_test(jslint-${f} ${JSLint_EXECUTABLE} ${f})
-endforeach()
-
-#/////////////////////////////////////////////////////////////////////////////
-#
-# Handle development build
-#
-#/////////////////////////////////////////////////////////////////////////////
-
-if (DEV_BUILD)
-  configure_file(${_geoweb_cmake_dir}/geoweb_dev.in
-    ${CMAKE_BINARY_DIR}/CMakeFiles/geoweb_dev)
-  file(COPY ${CMAKE_BINARY_DIR}/CMakeFiles/geoweb_dev
-    DESTINATION ${CMAKE_BINARY_DIR}/${_deploy_dir}
-    FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)
-  string(REPLACE ";" "','" DEV_SOURCE_FILES_JS "'${DEV_SOURCE_FILES}'")
-  configure_file(${_geoweb_cmake_dir}/geoweb.min.js.in
-    ${CMAKE_SOURCE_DIR}/web/lib/geoweb.min.js)
-endif()
-
-# Now include sub-directories
-add_subdirectory(web)

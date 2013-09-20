@@ -1,0 +1,3 @@
+[submodule "web/lib/geojs"]
+	path = web/lib/geojs
+	url = git@github.com:OpenGeoscience/geojs.git
