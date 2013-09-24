@@ -783,7 +783,7 @@ geoModule.map = function(node, options) {
     // Iterate through the selected layers and calculate the range we are going
     // to animate over.
     $.each(selectedLayers, function(i, layer){
-      // TODO this data should be part of the later
+      // TODO this data should be part of the layer
       var dataset = $('#'+layer.id()).data('dataset');
 
       // Do we already have the range?

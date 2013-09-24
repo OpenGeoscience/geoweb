@@ -179,7 +179,7 @@ uiModule.gis.createLayerList = function(map, rootId, heading, toggleFunct,
   // Before we animate we needt to make sure timeInfo has been loaded
   ensureTimeInfo = function(layerIds, onDone) {
 
-    var datasets = [], numberOfRequests = datasets.length;
+    var datasets = [], numberOfRequests = layerIds.length;
     $.each(layerIds, function(i, id) {
       var dataset = $('#'+id).data('dataset');
       if (!dataset.timeInfo) {
