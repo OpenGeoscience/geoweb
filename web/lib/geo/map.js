@@ -775,7 +775,7 @@ geoModule.map = function(node, options) {
               console.log('Unable to calculate time range.');
               return;
             }
-            startDate = new Date(Date.UTC(start[0], start[1], start[2]));
+            startDate = new Date(Date.UTC(start[0], start[1]-1, start[2]));
             onRange({start: startDate, end: end, delta: delta, units: units});
           }
         };
