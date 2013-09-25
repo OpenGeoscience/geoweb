@@ -572,22 +572,30 @@ archive.main = function() {
     }
   }
 
-  $('#workflow-dialog').resizable();
+  $('#workflow-dialog').resizable().draggable();
 
   $('#workflow-dialog').on("resize", function(event, ui) {
+    var footerHeight = $('#workflow-dialog .modal-footer').outerHeight(),
+      headerHeight = $('#workflow-dialog .modal-header').outerHeight(),
+      height = ui.size.height - headerHeight - footerHeight;
     ui.element.css("margin-left", -ui.size.width/2);
     ui.element.css("margin-top", -ui.size.height/2);
     ui.element.css("top", "50%");
     ui.element.css("left", "50%");
-    ui.element.css("height", ui.size.height + $('.modal-footer').outerHeight() );
+    ui.element.css("height", ui.size.height + footerHeight );
 
     $(ui.element).find(".modal-body").each(function() {
-      $(this).css("max-height", ui.size.height - $('.modal-header').outerHeight() - $('.modal-footer').outerHeight() );
+      $(this).css("max-height", height);
     });
+
+    $('#workflowEditor').css('height', height);
+
     archive.workflowEditor.resize();
   });
 
-  $('#workflowEditor').css('margin-bottom', 0);
+  $('#workflow-dialog .modal-body').css('margin-bottom', 0);
+  $('.ui-resizeable-s').css('bottom', 0);
+  $('.ui-resizeable-e').css('right', 0);
 };
 
 archive.initWebSockets = function() {
@@ -907,16 +915,38 @@ archive.addLayerToMap = function(id, name, filePath, parameter, timeval, algorit
 
 archive.workflowLayer = function(target, layerId) {
   var layer = archive.myMap.findLayerById(layerId),
-    workflow;
+    workflow,
+    width = Math.floor(window.innerWidth * 0.95),
+    height = Math.floor(window.innerHeight * 0.95) - 150,
+    footerHeight = $('#workflow-dialog .modal-footer').outerHeight(),
+    headerHeight = $('#workflow-dialog .modal-header').outerHeight(),
+    modalHeight = height - headerHeight - footerHeight;
+
   if(layer != null) {
     workflow = layer.dataSource().workflow();
     $('#workflow-dialog').modal({backdrop: 'static'});
-//    $('#workflowEditor').css({
-//      width: Math.floor(window.innerWidth * 0.95),
-//      height: Math.floor(window.innerHeight * 0.95) - 150,
+
+    $('#workflow-dialog').css({
+      "margin-left": -width/2,
+      "margin-top": -height/2,
+      "top": "50%",
+      "left": "50%",
+      "height": height + footerHeight
+    });
+
+    $(ui.element).find(".modal-body").each(function() {
+      $(this).css("max-height", modalHeight);
+    });
+
+    $('#workflowEditor').css('height', modalHeight);
+//    $('#workflow-dialog .modal-body').css({
+//      width: width,
+//      height: height,
 //      "max-width": Math.floor(window.innerWidth * 0.95),
 //      "max-height": Math.floor(window.innerHeight * 0.95) - 150
 //    });
+
+    archive.workflowEditor.resize();
 
     $('#workflow-dialog #delete-modules').off().one('click', function() {
       archive.workflowEditor.workflow().deleteSelectedModules();
