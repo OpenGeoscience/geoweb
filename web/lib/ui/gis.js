@@ -179,13 +179,15 @@ uiModule.gis.createLayerList = function(map, rootId, heading, toggleFunct,
   // Before we animate we needt to make sure timeInfo has been loaded
   ensureTimeInfo = function(layerIds, onDone) {
 
-    var datasets = [], numberOfRequests = datasets.length;
+    var datasets = [], numberOfRequests;
     $.each(layerIds, function(i, id) {
       var dataset = $('#'+id).data('dataset');
       if (!dataset.timeInfo) {
         datasets.push(dataset);
       }
     });
+
+    numberOfRequests = datasets.length;
 
     if (numberOfRequests === 0) {
         onDone(layerIds);
@@ -281,7 +283,7 @@ uiModule.gis.createLayerList = function(map, rootId, heading, toggleFunct,
 
   heading = $('h4', timestepDisplay);
   $(map).on(geoModule.command.animateEvent, function(event) {
-    var format = d3.time.format("%Y-%m-%d");
+    var format = d3.time.format.utc("%Y-%m-%d");
     if (event.currentTime) {
       heading.html(format(event.currentTime));
     }

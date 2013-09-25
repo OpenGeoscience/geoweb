@@ -775,7 +775,7 @@ geoModule.map = function(node, options) {
               console.log('Unable to calculate time range.');
               return;
             }
-            startDate = new Date(Date.UTC(start[0], start[1], start[2]));
+            startDate = new Date(Date.UTC(start[0], start[1]-1, start[2]));
             onRange({start: startDate, end: end, delta: delta, units: units});
           }
         };
@@ -783,7 +783,7 @@ geoModule.map = function(node, options) {
     // Iterate through the selected layers and calculate the range we are going
     // to animate over.
     $.each(selectedLayers, function(i, layer){
-      // TODO this data should be part of the later
+      // TODO this data should be part of the layer
       var dataset = $('#'+layer.id()).data('dataset');
 
       // Do we already have the range?
