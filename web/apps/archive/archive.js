@@ -24,29 +24,28 @@ archive.error = function(errorString, onClose) {
 
 archive.promptAlgorithm = function(callback) {
 
-  function okClicked($dialog) {
-    $dialog.dialog("close");
-    callback.call(this);
-  }
-
-  $('#algorithm-dialog').append($('#algorithm-select'));
-  $('#algorithm-dialog')
-    .dialog({
-      title: "Select an algorithm:",
-      dialogClass: "algorithm-prompt",
-      modal: true,
-      draggable: false,
-      resizable: false,
-      minHeight: 15,
-      buttons: {
-        "Ok": function() { okClicked($(this)); }
-      }
-    }).dialog();
+  //$('#algorithm-dialog').append($('#algorithm-select'));
+  $('#algorithm-dialog').modal({backdrop: 'static'});
+  $('#algorithm-dialog #algorithm-ok').off().one('click', function(){
+    callback.call(archive);
+  })
+//  $('#algorithm-dialog')
+//    .dialog({
+//      title: "Select an algorithm:",
+//      dialogClass: "algorithm-prompt",
+//      modal: true,
+//      draggable: false,
+//      resizable: false,
+//      minHeight: 15,
+//      buttons: {
+//        "Ok": function() {  }
+//      }
+//    }).dialog();
 
     $('#algorithm-select').off('keypress').keypress(function(event) {
       if ( event.which == 13 ) {
         event.preventDefault();
-        okClicked($('#algorithm-dialog'));
+        $('#algorithm-dialog #algorithm-ok').click();
       }
     });
 
@@ -572,6 +571,23 @@ archive.main = function() {
       $('#algorithm-select').append($('<option>'+name+'</option>'));
     }
   }
+
+  $('#workflow-dialog').resizable();
+
+  $('#workflow-dialog').on("resize", function(event, ui) {
+    ui.element.css("margin-left", -ui.size.width/2);
+    ui.element.css("margin-top", -ui.size.height/2);
+    ui.element.css("top", "50%");
+    ui.element.css("left", "50%");
+    ui.element.css("height", ui.size.height + $('.modal-footer').outerHeight() );
+
+    $(ui.element).find(".modal-body").each(function() {
+      $(this).css("max-height", ui.size.height - $('.modal-header').outerHeight() - $('.modal-footer').outerHeight() );
+    });
+    archive.workflowEditor.resize();
+  });
+
+  $('#workflowEditor').css('margin-bottom', 0);
 };
 
 archive.initWebSockets = function() {
@@ -894,51 +910,79 @@ archive.workflowLayer = function(target, layerId) {
     workflow;
   if(layer != null) {
     workflow = layer.dataSource().workflow();
-    $('#workflow-dialog')
-      .dialog({
-        modal: true,
-        draggable: false,
-        resizable: true,
-        resize: archive.workflowEditor.resize,
-        minHeight: 300,
-        width: Math.floor(window.innerWidth * 0.95),
-        height: Math.floor(window.innerHeight * 0.95) - 50,
-        buttons: {
-          Delete: {
-            text: 'Delete',
-            click: function() {
-              archive.workflowEditor.workflow().deleteSelectedModules();
-              archive.workflowEditor.drawWorkflow();
-            },
-            class: 'btn btn-danger pull-left',
-            priority: 'primary'
-          },
-          Close: {
-            text: 'Close',
-            click: function() {
-              $(this).dialog("close");
-              archive.workflowEditor.workflow().hide();
-            },
-            class: 'btn btn-warning pull-right',
-            priority: 'secondary'
-          },
-          Execute: {
-            text: 'Execute',
-            click: function() {
-              var workflow = archive.workflowEditor.workflow(),
-                variableModule = workflow.getModuleByName('Variable'),
-                time = variableModule.getFunctionValue('time');
-              time = time == null ? -1 : parseInt(time);
-              //@todo: make right call to update layer rendering
-              archive.myMap.animateTimestep(time, [layer]);
-            },
-            class: 'btn btn-success pull-right',
-            priority: 'secondary'
-          }
-        }
-      });
+    $('#workflow-dialog').modal({backdrop: 'static'});
+//    $('#workflowEditor').css({
+//      width: Math.floor(window.innerWidth * 0.95),
+//      height: Math.floor(window.innerHeight * 0.95) - 150,
+//      "max-width": Math.floor(window.innerWidth * 0.95),
+//      "max-height": Math.floor(window.innerHeight * 0.95) - 150
+//    });
+
+    $('#workflow-dialog #delete-modules').off().one('click', function() {
+      archive.workflowEditor.workflow().deleteSelectedModules();
+      archive.workflowEditor.drawWorkflow();
+    });
+
+    $('#workflow-dialog #close-workflow').off().one('click', function() {
+      archive.workflowEditor.workflow().hide();
+    });
+
+    $('#workflow-dialog #execute').off().one('click', function() {
+      var workflow = archive.workflowEditor.workflow(),
+        variableModule = workflow.getModuleByName('Variable'),
+        time = variableModule.getFunctionValue('time');
+      time = time == null ? -1 : parseInt(time);
+      //@todo: make right call to update layer rendering
+      //archive.myMap.animateTimestep(time, [layer]);
+    });
+
+
+//    $('#workflow-dialog')
+//      .dialog({
+//        modal: true,
+//        draggable: false,
+//        resizable: true,
+//        resize: archive.workflowEditor.resize,
+//        minHeight: 300,
+//        width: Math.floor(window.innerWidth * 0.95),
+//        height: Math.floor(window.innerHeight * 0.95) - 50,
+//        buttons: {
+//          Delete: {
+//            text: 'Delete',
+//            click: function() {
+//              archive.workflowEditor.workflow().deleteSelectedModules();
+//              archive.workflowEditor.drawWorkflow();
+//            },
+//            class: 'btn btn-danger pull-left',
+//            priority: 'primary'
+//          },
+//          Close: {
+//            text: 'Close',
+//            click: function() {
+//              $(this).dialog("close");
+//              archive.workflowEditor.workflow().hide();
+//            },
+//            class: 'btn btn-warning pull-right',
+//            priority: 'secondary'
+//          },
+//          Execute: {
+//            text: 'Execute',
+//            click: function() {
+//              var workflow = archive.workflowEditor.workflow(),
+//                variableModule = workflow.getModuleByName('Variable'),
+//                time = variableModule.getFunctionValue('time');
+//              time = time == null ? -1 : parseInt(time);
+//              //@todo: make right call to update layer rendering
+//              archive.myMap.animateTimestep(time, [layer]);
+//            },
+//            class: 'btn btn-success pull-right',
+//            priority: 'secondary'
+//          }
+//        }
+//      });
     archive.workflowEditor.setWorkflow(layer.dataSource().workflow());
     archive.workflowEditor.show();
+    archive.workflowEditor.resize();
 
     //make the button container wide so we can split the buttons apart
     $('#workflow-dialog').siblings('.ui-dialog-buttonpane')

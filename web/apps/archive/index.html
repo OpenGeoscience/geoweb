@@ -166,11 +166,23 @@
           <span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>
       </p>
   </div>
-  <div id="workflow-dialog" style="display: none">
-      <div id="workflowEditor" style="height:100%"></select>
+  <div id="workflow-dialog" class="modal hide fade">
+    <div class="modal-header"><h3>Workflow Editor</h3></div>
+    <div class="modal-body" id="workflowEditor"></div>
+    <div class="modal-footer">
+      <button id="delete-modules" class="btn pull-left">Delete</button>
+      <button id="execute" class="btn btn-primary" data-dismiss="modal">Execute</button>
+      <button id="close-workflow" class="btn" data-dismiss="modal">Close</button>
+    </div>
   </div>
-  <div id="algorithm-dialog" style="display: none">
+  <div id="algorithm-dialog" class="modal hide fade">
+    <div class="modal-header"><h3>Select an algorithm.</h3></div>
+    <div class="modal-body">
       <select id="algorithm-select"></select>
+    </div>
+    <div class="modal-footer">
+      <button id="algorithm-ok" class="btn btn-primary" data-dismiss="modal">Ok</button>
+    </div>
   </div>
 
 </html>
