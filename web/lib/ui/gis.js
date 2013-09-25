@@ -283,7 +283,7 @@ uiModule.gis.createLayerList = function(map, rootId, heading, toggleFunct,
 
   heading = $('h4', timestepDisplay);
   $(map).on(geoModule.command.animateEvent, function(event) {
-    var format = d3.time.format("%Y-%m-%d");
+    var format = d3.time.format.utc("%Y-%m-%d");
     if (event.currentTime) {
       heading.html(format(event.currentTime));
     }
