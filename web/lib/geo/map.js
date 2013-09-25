@@ -760,7 +760,7 @@ geoModule.map = function(node, options) {
           if (!end || timeInfo.stdTimeRange[1] > stdEnd) {
             stdEnd = timeInfo.stdTimeRange[1];
             startDate = timeInfo.dateRange[0];
-            end = new Date(Date.UTC(startDate[0], startDate[1], startDate[2]));
+            end = new Date(Date.UTC(startDate[0], startDate[1]-1, startDate[2]));
             geoModule.time.incrementTime(end, timeInfo.nativeUnits,
                 timeInfo.nativeDelta * timeInfo.numSteps);
           }
