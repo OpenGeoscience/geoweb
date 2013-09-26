@@ -901,6 +901,8 @@ archive.workflowLayer = function(target, layerId) {
         resizable: true,
         resize: archive.workflowEditor.resize,
         minHeight: 300,
+        stack: false,
+        zIndex: 500,
         width: Math.floor(window.innerWidth * 0.95),
         height: Math.floor(window.innerHeight * 0.95) - 50,
         buttons: {
@@ -943,6 +945,8 @@ archive.workflowLayer = function(target, layerId) {
     //make the button container wide so we can split the buttons apart
     $('#workflow-dialog').siblings('.ui-dialog-buttonpane')
       .find('.ui-dialog-buttonset').css('width','100%');
+
+    $('#workflow-dialog').parent().css('z-index', 201);
   }
 };
 
