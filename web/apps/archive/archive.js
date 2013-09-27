@@ -514,22 +514,37 @@ archive.main = function() {
 
     // Ask for click events
     $(canvas).on("dblclick", function(event) {
-      var mousePos = canvas.relMouseCoords(event);
-      var extraInfoBox = $("#map-extra-info-box");
-      extraInfoBox.empty();
+      var mousePos = canvas.relMouseCoords(event),
+        extraInfoBox = $("#map-extra-info-box"),
+        extraInfoContent = $("#map-extra-info-content"),
+        mapCoord = archive.myMap.displayToMap(mousePos.x, mousePos.y);
 
-      var mapCoord = archive.myMap.displayToMap(mousePos.x, mousePos.y);
+      extraInfoContent.empty();
+
+      extraInfoBox.animate({
+        top: mousePos.y,
+        left: mousePos.x
+      }, {
+        duration: 200,
+        queue: false
+      }).fadeIn({duration: 200, queue: false});
+
       mapCoord.event = event;
       archive.myMap.queryLocation(mapCoord);
       return true;
     });
 
+    //hook up extra info close click
+    $('#close-extra-info').off('click').click(function() {
+      $("#map-extra-info-box").fadeOut({duration: 200, queue: false});
+    });
+
     // React to queryResultEvent
     $(archive.myMap).on(geoModule.command.queryResultEvent, function(event, queryResult) {
-      var extraInfoBox = $("#map-extra-info-box");
+      var extraInfoContent = $("#map-extra-info-content");
       var layer = queryResult.layer;
       if (layer && layer.name())
-        extraInfoBox.append("<div style='font-weight:bold;'>" + layer.name() + "</div>");
+        extraInfoContent.append("<div style='font-weight:bold;'>" + layer.name() + "</div>");
       var queryData = queryResult.data;
       if (queryData) {
         var newResult = document.createElement("div");
@@ -537,14 +552,7 @@ archive.main = function() {
         for (var idx in queryData) {
           $(newResult).append(idx + " : " + queryData[idx] + "<br/>");
         }
-        extraInfoBox.append(newResult);
-
-        extraInfoBox.dialog({
-            hide: "fade",
-            position: { my : "left top",
-                        at : "right",
-                        of : event.srcEvent}
-        });
+        extraInfoContent.append(newResult);
       }
       return true;
     });
