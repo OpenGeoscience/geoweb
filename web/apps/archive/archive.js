@@ -24,29 +24,15 @@ archive.error = function(errorString, onClose) {
 
 archive.promptAlgorithm = function(callback) {
 
-  function okClicked($dialog) {
-    $dialog.dialog("close");
-    callback.call(this);
-  }
-
-  $('#algorithm-dialog').append($('#algorithm-select'));
-  $('#algorithm-dialog')
-    .dialog({
-      title: "Select an algorithm:",
-      dialogClass: "algorithm-prompt",
-      modal: true,
-      draggable: false,
-      resizable: false,
-      minHeight: 15,
-      buttons: {
-        "Ok": function() { okClicked($(this)); }
-      }
-    }).dialog();
+  $('#algorithm-dialog').modal({backdrop: 'static'});
+  $('#algorithm-dialog #algorithm-ok').off().one('click', function(){
+    callback.call(archive);
+  })
 
     $('#algorithm-select').off('keypress').keypress(function(event) {
       if ( event.which == 13 ) {
         event.preventDefault();
-        okClicked($('#algorithm-dialog'));
+        $('#algorithm-dialog #algorithm-ok').click();
       }
     });
 
@@ -528,22 +514,37 @@ archive.main = function() {
 
     // Ask for click events
     $(canvas).on("dblclick", function(event) {
-      var mousePos = canvas.relMouseCoords(event);
-      var extraInfoBox = $("#map-extra-info-box");
-      extraInfoBox.empty();
+      var mousePos = canvas.relMouseCoords(event),
+        extraInfoBox = $("#map-extra-info-box"),
+        extraInfoContent = $("#map-extra-info-content"),
+        mapCoord = archive.myMap.displayToMap(mousePos.x, mousePos.y);
 
-      var mapCoord = archive.myMap.displayToMap(mousePos.x, mousePos.y);
+      extraInfoContent.empty();
+
+      extraInfoBox.animate({
+        top: mousePos.y,
+        left: mousePos.x
+      }, {
+        duration: 200,
+        queue: false
+      }).fadeIn({duration: 200, queue: false});
+
       mapCoord.event = event;
       archive.myMap.queryLocation(mapCoord);
       return true;
     });
 
+    //hook up extra info close click
+    $('#close-extra-info').off('click').click(function() {
+      $("#map-extra-info-box").fadeOut({duration: 200, queue: false});
+    });
+
     // React to queryResultEvent
     $(archive.myMap).on(geoModule.command.queryResultEvent, function(event, queryResult) {
-      var extraInfoBox = $("#map-extra-info-box");
+      var extraInfoContent = $("#map-extra-info-content");
       var layer = queryResult.layer;
       if (layer && layer.name())
-        extraInfoBox.append("<div style='font-weight:bold;'>" + layer.name() + "</div>");
+        extraInfoContent.append("<div style='font-weight:bold;'>" + layer.name() + "</div>");
       var queryData = queryResult.data;
       if (queryData) {
         var newResult = document.createElement("div");
@@ -551,20 +552,37 @@ archive.main = function() {
         for (var idx in queryData) {
           $(newResult).append(idx + " : " + queryData[idx] + "<br/>");
         }
-        extraInfoBox.append(newResult);
-
-        extraInfoBox.dialog({
-            hide: "fade",
-            position: { my : "left top",
-                        at : "right",
-                        of : event.srcEvent}
-        });
+        extraInfoContent.append(newResult);
       }
       return true;
     });
   });
 
+  /* set up workflow editor */
   archive.workflowEditor = ogs.wfl.editor({div: "workflowEditor"});
+
+  $('#workflow-dialog').resizable().draggable({ handle: ".modal-header" });
+
+  $('#workflow-dialog').on("resize", function(event, ui) {
+    var footerHeight = $('#workflow-dialog .modal-footer').outerHeight(),
+      headerHeight = $('#workflow-dialog .modal-header').outerHeight(),
+      $body = $('#workflow-dialog .modal-body'),
+      paddingTop = parseInt($body.css('padding-top'), 10),
+      paddingBottom = parseInt($body.css('padding-bottom'), 10),
+      height = ui.size.height - headerHeight - footerHeight - paddingTop - paddingBottom;
+
+    $(ui.element).find(".modal-body").each(function() {
+      $(this).css("max-height", height);
+    });
+
+    $('#workflowEditor').css('height', height);
+
+    archive.workflowEditor.resize();
+  });
+
+  $('#workflow-dialog .modal-body').css('margin-bottom', 0);
+  $('.ui-resizeable-s').css('bottom', 0);
+  $('.ui-resizeable-e').css('right', 0);
 
   // Populate the algorithm list
   for(var name in staticWorkflows) {
@@ -891,62 +909,56 @@ archive.addLayerToMap = function(id, name, filePath, parameter, timeval, algorit
 
 archive.workflowLayer = function(target, layerId) {
   var layer = archive.myMap.findLayerById(layerId),
-    workflow;
+    workflow,
+    width = Math.floor(window.innerWidth * 0.95),
+    height = Math.floor(window.innerHeight * 0.95) - 150,
+    modalHeight;
+
   if(layer != null) {
+
+    $('#workflow-dialog').width(width).height(height);
+    modalHeight = height - 140; //magic number for modal body height
+
     workflow = layer.dataSource().workflow();
-    $('#workflow-dialog')
-      .dialog({
-        modal: true,
-        draggable: false,
-        resizable: true,
-        resize: archive.workflowEditor.resize,
-        minHeight: 300,
-        stack: false,
-        zIndex: 500,
-        width: Math.floor(window.innerWidth * 0.95),
-        height: Math.floor(window.innerHeight * 0.95) - 50,
-        buttons: {
-          Delete: {
-            text: 'Delete',
-            click: function() {
-              archive.workflowEditor.workflow().deleteSelectedModules();
-              archive.workflowEditor.drawWorkflow();
-            },
-            class: 'btn btn-danger pull-left',
-            priority: 'primary'
-          },
-          Close: {
-            text: 'Close',
-            click: function() {
-              $(this).dialog("close");
-              archive.workflowEditor.workflow().hide();
-            },
-            class: 'btn btn-warning pull-right',
-            priority: 'secondary'
-          },
-          Execute: {
-            text: 'Execute',
-            click: function() {
-              var workflow = archive.workflowEditor.workflow(),
-                variableModule = workflow.getModuleByName('Variable'),
-                time = variableModule.getFunctionValue('time');
-              time = time == null ? -1 : parseInt(time);
-              //@todo: make right call to update layer rendering
-              archive.myMap.animateTimestep(time, [layer]);
-            },
-            class: 'btn btn-success pull-right',
-            priority: 'secondary'
-          }
-        }
-      });
-    archive.workflowEditor.setWorkflow(layer.dataSource().workflow());
-    archive.workflowEditor.show();
+    archive.workflowEditor.setWorkflow(workflow);
+    $('#workflow-dialog').modal({backdrop: 'static'});
 
-    //make the button container wide so we can split the buttons apart
-    $('#workflow-dialog').siblings('.ui-dialog-buttonpane')
-      .find('.ui-dialog-buttonset').css('width','100%');
+    $('#workflow-dialog').css({
+      "margin-left": -width/2,
+      "margin-top": -height/2,
+      "top": "50%",
+      "left": "50%"
+    });
 
-    $('#workflow-dialog').parent().css('z-index', 201);
+    $('#workflow-dialog').find(".modal-body").each(function() {
+      $(this).css("max-height", modalHeight);
+    });
+
+    $('#workflowEditor').css('height', modalHeight);
+
+    //give browser time to set sizes
+    setTimeout(function() {
+      archive.workflowEditor.resize();
+      archive.workflowEditor.show();
+    }, 500);
+
+    $('#workflow-dialog #delete-modules').off().one('click', function() {
+      archive.workflowEditor.workflow().deleteSelectedModules();
+      archive.workflowEditor.drawWorkflow();
+    });
+
+    $('#workflow-dialog #close-workflow').off().one('click', function() {
+      archive.workflowEditor.workflow().hide();
+    });
+
+    $('#workflow-dialog #execute').off().one('click', function() {
+      var workflow = archive.workflowEditor.workflow(),
+        variableModule = workflow.getModuleByName('Variable'),
+        time = variableModule.getFunctionValue('time');
+      time = time == null ? -1 : parseInt(time);
+      //@todo: make right call to update layer rendering
+      //archive.myMap.animateTimestep(time, [layer]);
+    });
   }
 };
 
