@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
 
   <script type="text/javascript" src="/common/js/jquery-1.9.1.js"></script>
-  <script type="text/javascript" src="/common/js/bootstrap.js"></script>
   <script type="text/javascript" src="/common/js/jquery-ui.js"></script>
+  <script type="text/javascript" src="/common/js/bootstrap.js"></script>
   <script type="text/javascript" src="/common/js/gl-matrix.js"></script>
   <script type="text/javascript" src="/common/js/select2.min.js"></script>
   <script type="text/javascript" src="/common/js/tween.min.js"></script>
@@ -14,6 +14,7 @@
   <script type="text/javascript" src="/lib/vgl.min.js"></script>
   <script type="text/javascript" src="/lib/geojs.min.js"></script>
   <script type="text/javascript" src="archive.js"></script>
+  <script type="text/javascript" src="mask.js"></script>
   <script>
     function animateControlPanel(drawer, icon, panel) {
       // Animate control panel
@@ -106,7 +107,9 @@
                       <span class="add-on"><i class="icon-search"></i></span>
                       </div>
                       <input class="input-large" id="query-input" type="text"
-                             placeholder="Query" style="width:90%;" />
+                             placeholder="Query" style="width:90%;"
+                             data-container="body"
+                             title="Enter search query to find data sets e.g. 'precipitation'"/>
                       <div>
                          <div style="display: inline; position: relative; left: 10px; top: 5px;">
                            <div class="input-prepend">
@@ -131,7 +134,9 @@
                           <th class="timestep">Timestep</th>
                           <th class="parameter">Parameters</th>
                         </thead>
-                        <tbody id="document-table-body">
+                        <tbody id="document-table-body"
+                               data-container="body"
+                               title="Drag and drop dataset onto map.">
                         </tbody>
                       </table>
                     </div>
@@ -143,7 +148,9 @@
           </div>
           <div class="span6">
             <div id="layers-container" class="row-fluid">
-              <div class="accordion" id="layers">
+              <div class="accordion" id="layers"
+                  data-container="body" data-placement="left"
+                  title="Select a layer to toggle, modify, remove, or animate">
               </div>
             </div>
           </div>

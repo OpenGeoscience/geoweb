@@ -63,13 +63,13 @@ archive.initQueryInterface = function() {
   $(archive).on('query-started', function() {
     archive.queriesInProgress++;
     $('#query-input').addClass("query-in-progress");
-  })
+  });
 
   $(archive).on('query-canceled query-finished query-error', function() {
     archive.queriesInProgress--;
     if (archive.queriesInProgress == 0)
       $('#query-input').removeClass("query-in-progress");
-  })
+  });
 
   $('#query-input').bind("keyup", function() {
     var query = $('#query-input').val();
@@ -83,8 +83,13 @@ archive.initQueryInterface = function() {
     else {
       archive.queryDatabase(query);
       archive.queryESGF(query);
+
+      if(archive.tutorialMask.isOff('dragAndDrop')) {
+        $('#document-table-body').tooltip('show');
+        archive.tutorialMask.turnOn('dragAndDrop');
+      }
     }
-  })
+  });
 
   $('#glcanvas').droppable({
     drop: function(event, ui) {
@@ -96,7 +101,7 @@ archive.initQueryInterface = function() {
       }
     }
   });
-}
+};
 
 /**
  * Process the result coming from mongo.
@@ -556,6 +561,24 @@ archive.main = function() {
       }
       return true;
     });
+
+
+    // Setup tutorial bitmask
+    archive.tutorialMask = new NamedBitMask();
+    archive.tutorialMask.add('query');
+    archive.tutorialMask.add('dragAndDrop');
+    archive.tutorialMask.add('layerOptions');
+
+    // setup tooltips
+    $('#query-input').tooltip();
+    $('#document-table-body').tooltip();
+    $('#layers').tooltip();
+
+    //@todo: check save/load tutorial mask to determine whether or not to show
+    if(archive.tutorialMask.isOff('query')) {
+      $('#query-input').tooltip('show');
+      archive.tutorialMask.turnOn('query');
+    }
   });
 
   /* set up workflow editor */
@@ -904,7 +927,11 @@ archive.addLayerToMap = function(id, name, filePath, parameter, timeval, algorit
 
   archive.myMap.addLayer(layer);
   archive.myMap.draw();
-}
+
+  if(archive.tutorialMask.isOff('layerOptions')) {
+    $('#layers').tooltip('show');
+  }
+};
 
 
 archive.workflowLayer = function(target, layerId) {
