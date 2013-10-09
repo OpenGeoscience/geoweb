@@ -41,18 +41,18 @@ set(GEOWEB_GROUP $ENV{USER} CACHE STRING "Group to run geoweb as when dropping p
 #
 #/////////////////////////////////////////////////////////////////////////////
 
-set(DEPLOY_DIR "${CMAKE_CURRENT_BINARY_DIR}/deploy"
+set(GEOWEB_DEPLOY_DIR "${CMAKE_CURRENT_BINARY_DIR}/deploy"
     CACHE PATH "PATH to deployment directory")
-set(DEPLOY_LIB_DIR "${DEPLOY_DIR}/web/lib")
-set(GEOJS_DEPLOY_DIR "${DEPLOY_DIR}")
-set(GEOJS_DEPLOY_LIB_DIR "${DEPLOY_LIB_DIR}")
+set(GEOWEB_DEPLOY_LIB_DIR "${GEOWEB_DEPLOY_DIR}/web/lib")
+set(GEOJS_DEPLOY_DIR "${GEOWEB_DEPLOY_DIR}")
+set(GEOJS_DEPLOY_LIB_DIR "${GEOWEB_DEPLOY_LIB_DIR}")
 
 set(_deploy_depends)
 set(_geoweb_cmake_dir "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # These files should be validated with JSLint.
 set(_js_lint_files)
-set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${DEPLOY_DIR})
+set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${GEOWEB_DEPLOY_DIR})
 
 #/////////////////////////////////////////////////////////////////////////////
 #
@@ -99,7 +99,7 @@ set(paths
   nodes services temp
 )
 
-set(_lib_dir "${DEPLOY_LIB_DIR}")
+set(_lib_dir "${GEOWEB_DEPLOY_LIB_DIR}")
 add_custom_command(OUTPUT ${_lib_dir}
   COMMAND ${CMAKE_COMMAND} -E make_directory ${_lib_dir}
 )
@@ -113,10 +113,10 @@ add_custom_command(OUTPUT ${_lib_dir}
 # Copy the files to the deployment directory.
 set(all_targets)
 foreach(m ${sources})
-  set(outfile ${DEPLOY_DIR}/${m})
+  set(outfile ${GEOWEB_DEPLOY_DIR}/${m})
   add_custom_command(OUTPUT ${outfile}
     COMMAND ${CMAKE_COMMAND} -E copy
-      ${CMAKE_SOURCE_DIR}/${m} ${CMAKE_BINARY_DIR}/${outfile}
+      ${CMAKE_SOURCE_DIR}/${m} ${outfile}
     DEPENDS ${m}
   )
   list(APPEND all_targets ${outfile})
@@ -128,11 +128,11 @@ foreach(m ${paths})
     if (IS_DIRECTORY "${CMAKE_SOURCE_DIR}/${m}")
       set(copy_command "copy_directory")
     endif()
-    set(outpath ${DEPLOY_DIR}/${m})
+    set(outpath ${GEOWEB_DEPLOY_DIR}/${m})
     add_custom_command(
         OUTPUT ${outpath}
         COMMAND ${CMAKE_COMMAND} -E ${copy_command}
-          ${CMAKE_SOURCE_DIR}/${m} ${CMAKE_BINARY_DIR}/${outpath}
+          ${CMAKE_SOURCE_DIR}/${m} ${outpath}
         DEPENDS ${m} ${_lib_dir}
     )
     list(APPEND all_targets ${outpath})
@@ -147,11 +147,11 @@ if(${MINIFY} AND ${MANGLE})
     set(MANGLE_FLAG "-m")
 endif()
 
-set(_logs_dir ${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/logs)
+set(_logs_dir ${GEOWEB_DEPLOY_DIR}/logs)
 add_custom_command(
   OUTPUT ${_logs_dir}
   COMMAND ${CMAKE_COMMAND} -E make_directory
-  ${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/logs
+    ${GEOWEB_DEPLOY_DIR}/logs
 )
 
 if(SERVER_LOGS)
@@ -208,7 +208,6 @@ add_custom_target(geoweb_pre_deploy ALL
    -DSTATICDIR_ROOT=${STATICDIR_ROOT}
    -DSRC_DIR=${SRC_DIR}
    -DBIN_DIR=${BIN_DIR}
-   -DGEOWEB_DEPLOY_DIR=${DEPLOY_DIR}
    -DDATA_ROOT=${DATA_ROOT}
    -DLOG_ERROR_FILE=${LOG_ERROR_FILE}
    -DLOG_ACCESS_FILE=${LOG_ACCESS_FILE}
@@ -217,15 +216,15 @@ add_custom_target(geoweb_pre_deploy ALL
    -DVTK_DIR=${VTK_DIR}
    -DVisTrails_DIR=${VisTrails_DIR}
    -DGEOWEB_CMAKE_DIR=${_geoweb_cmake_dir}
-   -DGEOWEB_DEPLOY_DIR=${DEPLOY_DIR}
+   -DGEOWEB_DEPLOY_DIR=${GEOWEB_DEPLOY_DIR}
    -P ${_geoweb_cmake_dir}/configure.cmake
   DEPENDS
     ${_lib_dir} ${all_targets} ${_logs_dir}
     ${documentation_stamp}
 )
 
-set(_server_config "${DEPLOY_DIR}/server.conf")
-add_custom_command(OUTPUT ${DEPLOY_DIR}/server.conf
+set(_server_config "${GEOWEB_DEPLOY_DIR}/server.conf")
+add_custom_command(OUTPUT ${GEOWEB_DEPLOY_DIR}/server.conf
   COMMAND ${CMAKE_COMMAND} -P
     ${CMAKE_CURRENT_BINARY_DIR}/configure_server.cmake
   DEPENDS
