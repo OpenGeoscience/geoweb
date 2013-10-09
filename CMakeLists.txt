@@ -41,8 +41,12 @@ set(GEOWEB_GROUP $ENV{USER} CACHE STRING "Group to run geoweb as when dropping p
 #
 #/////////////////////////////////////////////////////////////////////////////
 
-set(DEPLOY_DIR deploy)
-set(DEPLOY_LIB_DIR "${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/web/lib")
+set(DEPLOY_DIR "${CMAKE_CURRENT_BINARY_DIR}/deploy"
+    CACHE PATH "PATH to deployment directory")
+set(DEPLOY_LIB_DIR "${DEPLOY_DIR}/web/lib")
+set(GEOJS_DEPLOY_DIR "${DEPLOY_DIR}")
+set(GEOJS_DEPLOY_LIB_DIR "${DEPLOY_LIB_DIR}")
+
 set(_deploy_depends)
 set(_geoweb_cmake_dir "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
@@ -199,7 +203,7 @@ endif()
 #
 #/////////////////////////////////////////////////////////////////////////////
 
-add_custom_target(predeploy ALL
+add_custom_target(geoweb_pre_deploy ALL
   COMMAND ${CMAKE_COMMAND}
    -DSTATICDIR_ROOT=${STATICDIR_ROOT}
    -DSRC_DIR=${SRC_DIR}
@@ -213,7 +217,7 @@ add_custom_target(predeploy ALL
    -DVTK_DIR=${VTK_DIR}
    -DVisTrails_DIR=${VisTrails_DIR}
    -DGEOWEB_CMAKE_DIR=${_geoweb_cmake_dir}
-   -DGEOWEBDEPLOY_DIR=${DEPLOY_DIR}
+   -DGEOWEB_DEPLOY_DIR=${DEPLOY_DIR}
    -P ${_geoweb_cmake_dir}/configure.cmake
   DEPENDS
     ${_lib_dir} ${all_targets} ${_logs_dir}
@@ -221,7 +225,7 @@ add_custom_target(predeploy ALL
 )
 
 set(_server_config "${DEPLOY_DIR}/server.conf")
-add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/server.conf
+add_custom_command(OUTPUT ${DEPLOY_DIR}/server.conf
   COMMAND ${CMAKE_COMMAND} -P
     ${CMAKE_CURRENT_BINARY_DIR}/configure_server.cmake
   DEPENDS
@@ -231,11 +235,13 @@ add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/server.conf
   VERBATIM
 )
 
+
 add_custom_target(deploy ALL DEPENDS ${_server_config})
-add_dependencies(deploy predeploy)
+add_dependencies(deploy geoweb_pre_deploy)
 
 # Now include sub-directories
 add_subdirectory(web)
+add_dependencies(geojs geoweb_pre_deploy)
 
 #/////////////////////////////////////////////////////////////////////////////
 #
