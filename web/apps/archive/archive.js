@@ -110,142 +110,205 @@ archive.processLocalResults = function(results, remove) {
   }
 
   archive.processResults(results, removeFilter);
-}
+};
 
 archive.processESGFResults = function(results, remove) {
   remove = typeof remove !== 'undefined' ? remove : false;
 
-  removeFilter = function(d) {return false};
+  var removeFilter = function(d) {return false};
   if (remove) {
     removeFilter = function(d) {return d['source'] == 'ESGF'};
   }
 
   archive.processResults(results, removeFilter);
-}
+};
 
-/**
- * Use D3 to update document table with results.
- */
 archive.processResults = function(results, removeFilter) {
 
-  var tr = d3.select('#document-table-body').selectAll("tr")
-    .data(results, function(d) {
-      return d['id'];
-    });
-
-  var rows = tr.enter().append('tr');
-
-  $.each(tr.exit()[0], function(index, row) {
-    if (row) {
-      selection = d3.select(row);
-      if (removeFilter(selection.data()[0]))
-        selection.remove();
+  var toRemove = [];
+  $('#results-list div').each(function(index){
+    var dset = $(this).data('dataset');
+    if(dset && removeFilter(dset)) {
+      toRemove.push($(this));
     }
   });
 
-  var td = rows.selectAll('td')
-    .data(function(row) {
-      // Display the tags, we should probably truncate the list ...
-      var tags = []
-      $.each(row['variables'], function(index, variable) {
-        tags = tags.concat(variable['tags']);
-      });
+  $.each(toRemove, function(index, value) {
+    value.remove();
+  });
 
-      var size = row['size'];
+  function createResultListItem(dataset, variable, size, timeRange) {
+    var $li = $([
+      '<div class="variable-item"><div style="pointer-events: none;">',
+      '<i class="icon-th pull-left"></i> ',
+      '<div class="variable-name pull-left">',
+      variable['name'],
+      '</div>',
+      timeRange,
+      size,
+      '</div></div>'
+    ].join(''));
+    $li.data('dataset', dataset);
+    $li.data('variable', variable);
+    return $li;
+  }
 
-      if (size && size != 'N/A') {
-        size = Math.round(row['size']/1024/1024) + "M"
-      }
+  $.each(results, function(index, dataset) {
+    var size = dataset['size'],
+      timeRange = '',
+      start,
+      end;
 
-      return [ {column: 'name', data: row['name']},
-               {column: 'source', data: row['source']},
-               {column: 'size', data: size},
-               {column: 'tags', data: tags.join()}] ;
+    if (size && size != 'N/A') {
+      size = [
+        '<span class="badge pull-right">',
+        Math.round(dataset['size']/1024/1024),
+        'M</span>'
+      ].join('');
+    } else {
+      size = '';
+    }
+
+    if(dataset && 'timeInfo' in dataset && 'dateRange' in dataset['timeInfo']) {
+      start = dataset['timeInfo'].dateRange[0];
+      end =  dataset['timeInfo'].dateRange[1];
+      start = new Date(start[0], start[1], start[2], 0, 0, 0, 0);
+      end = new Date(end[0], end[1], end[2], 0, 0, 0, 0);
+      timeRange = [
+        [
+          start.getMonth()+1,
+          start.getDate(),
+          start.getYear()
+        ].join('/'),
+        [
+          end.getMonth()+1,
+          end.getDate(),
+          end.getYear()
+        ].join('/')
+      ].join(' - ')
+    }
+
+    $.each(dataset['variables'], function(_index, variable) {
+      $('#results-list').append(createResultListItem(dataset, variable, size,
+        timeRange));
     });
-
-    td = td.enter().append('td');
-    td.text(function(d) { return d['data']; });
-    td.each(function(d, i) { $(this).addClass(d['column']);});
-
-  // Populate the timesteps parameter list
-  var selectTimestep = rows.append('td');
-  selectTimestep.classed('timesteps', true);
-  selectTimestep = selectTimestep.append('select')
-  selectTimestep.classed('timestep-select', true);
-
-  selectTimestep = selectTimestep.selectAll('select').data(function(row) {
-
-    var timestep  = ['N/A'];
-
-    if (row && 'timeInfo' in row && row['timeInfo'].rawTimes)
-      timestep = row['timeInfo'].rawTimes;
-
-    return timestep;
   });
 
-  selectTimestep.enter().append('option').text(function(timestep) {
-    return timestep;
-  })
-  selectTimestep.exit().remove();
+//  var tr = d3.select('#results-list').selectAll("li")
+//    .data(results, function(d) {
+//      return d['id'];
+//    });
+//
+//  var rows = tr.enter().append('li');
+//
+//  $.each(tr.exit()[0], function(index, row) {
+//    if (row) {
+//      selection = d3.select(row);
+//      if (removeFilter(selection.data()[0]))
+//        selection.remove();
+//    }
+//  });
+//
+//  var content = rows.selectAll('div')
+//    .data(function(row) {
+//      // Display the tags, we should probably truncate the list ...
+//      var tags = [];
+//      $.each(row['variables'], function(index, variable) {
+//        tags = tags.concat(variable['tags']);
+//      });
+//
+//      var size = row['size'];
+//
+//      if (size && size != 'N/A') {
+//        size = Math.round(row['size']/1024/1024) + "M"
+//      }
+//
+//      return [ {column: 'name', data: row['name']},
+//               {column: 'source', data: row['source']},
+//               {column: 'size', data: size},
+//               {column: 'tags', data: tags.join()}] ;
+//    });
+//
+//  content = content.enter().append('div');
+//  content.text(function(d) { return d['data']; });
+//  content.each(function(d, i) { $(this).addClass(d['column']);});
+//
+//  // Populate the timesteps parameter list
+//  var selectTimestep = rows.append('td');
+//  selectTimestep.classed('timesteps', true);
+//  selectTimestep = selectTimestep.append('select');
+//  selectTimestep.classed('timestep-select', true);
+//
+//  selectTimestep = selectTimestep.selectAll('select').data(function(row) {
+//
+//    var timestep  = ['N/A'];
+//
+//    if (row && 'timeInfo' in row && row['timeInfo'].rawTimes)
+//      timestep = row['timeInfo'].rawTimes;
+//
+//    return timestep;
+//  });
+//
+//  selectTimestep.enter().append('option').text(function(timestep) {
+//    return timestep;
+//  });
+//  selectTimestep.exit().remove();
+//
+//  // Populate the parameter list
+//  var select = rows.append('td');
+//  select.classed('parameter', true);
+//  select = select.append('select');
+//  select.classed("parameter-select", true);
+//
+//  select = select.selectAll('select').data(function(row) {
+//    var variables = [];
+//    $.each(row['variables'], function(index, variable) {
+//      variables = variables.concat(variable['name']);
+//    });
+//
+//    return variables;
+//  });
+//
+//  select.enter().append('option').text(function(variable) {
+//    return variable;
+//  });
+//  select.exit().remove();
 
-  // Populate the parameter list
-  var select = rows.append('td');
-  select.classed('parameter', true);
-  select = select.append('select');
-  select.classed("parameter-select", true);
-
-  select = select.selectAll('select').data(function(row) {
-    var variables = [];
-    $.each(row['variables'], function(index, variable) {
-      variables = variables.concat(variable['name']);
-    });
-
-    return variables;
-  });
-
-  select.enter().append('option').text(function(variable) {
-    return variable;
-  });
-  select.exit().remove();
-
-  $('#document-table  tr').draggable( {
+  $('#results-list div').draggable( {
     cursor: 'move',
     containment: 'window',
     appendTo: 'body',
     helper: function(event) {
+      var $this = $(this),
+        dataset = $this.data('dataset'),
+        variable = $this.data('variable'),
+        timestep = null,
+        drag;
 
-    var parameter = $('.parameter-select', this).val();
-    var timestep = $('.timestep-select', this).val();
+    if (dataset && 'timeInfo' in dataset && 'rawTimes' in dataset['timeInfo']) {
+      timestep = dataset['timeInfo'].rawTimes[0];
+    }
 
-    var timesteps = [];
-    $('.timestep-select option', this).each(function() {
-      timesteps.push(parseInt($(this).val()));
-    });
-
-    if (timestep == 'N/A')
-      timestep = null;
-
-    var data = d3.select(this).data();
-
-    drag = $('<div id="parameter" class="whatadrag">' + parameter + '</div>');
+    drag = $('<div id="parameter" class="whatadrag">' + variable['name'] + '</div>');
 
     drag.data("dataset", {
-      name: data[0].name,
-      dataset_id: data[0].id,
-      source: data[0].source,
-      parameter: parameter,
+      name: dataset.name,
+      dataset_id: dataset.id,
+      source: dataset.source,
+      parameter: variable['name'],
       timestep: timestep,
-      timeInfo: data[0].timeInfo,
-      url: data[0].url,
-      size: data[0].size,
-      checksum: data[0].checksum,
-      basename: data[0].basename
+      timeInfo: dataset.timeInfo,
+      url: dataset.url,
+      size: dataset.size,
+      checksum: dataset.checksum,
+      basename: dataset.basename
     });
 
     return drag;
     }
   })
-}
+};
+
 archive.databaseQueryId = 0;
 archive.lastDatabaseQueryProcessed = -1;
 archive.queryDatabase = function(query) {
