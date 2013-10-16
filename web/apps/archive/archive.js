@@ -253,6 +253,7 @@ archive.processResults = function(results, removeFilter) {
 }
 archive.databaseQueryId = 0;
 archive.lastDatabaseQueryProcessed = -1;
+archive.milliseconds_per_year = 1000 * 60 * 60 * 24 * 365.25; //not "exact", I know, give me a break...
 archive.queryDatabase = function(query) {
 
   mongo = archive.getMongoConfig();
@@ -271,9 +272,50 @@ archive.queryDatabase = function(query) {
       nameOr[index] = {name: {$regex: '.*' + value +'.*', $options: 'i'}};
   });
 
-  mongoQuery = {$and: [{$or: [{ $or: nameOr},{variables: {$elemMatch: { $or: variableOr}}}] },
-               {variables: {$not: {$size: 0}}}, {'timeInfo.rawTimes': {$ne: null}},
-               {private: false}]}
+  mongoQuery = {
+    $and: [{
+      $or: [{
+        $or: nameOr
+      }, {
+        variables: {
+          $elemMatch: {
+            $or: variableOr
+          }
+        }
+      }]
+    }, {
+      variables: {
+        $not: {
+          $size: 0
+        }
+      }
+    }, {
+      'timeInfo.rawTimes': {
+        $ne: null
+      }
+    }, {
+      private: false
+    }]
+  };
+
+  //build time query restraints
+  function getYearDecimalFromDateString(str) {
+    return (new Date(str)).getTime()/archive.milliseconds_per_year + 1970;
+  }
+
+  var from = $('#from').val();
+  if(from) {
+    mongoQuery.$and.push({ $lte: {
+      'timeInfo.dateRange.1.0': getYearDecimalFromDateString(from)
+    }});
+  }
+
+  var to = $('#to').val();
+  if(to) {
+    mongoQuery.$and.push({ $gte: {
+      'timeInfo.dateRange.0.0': getYearDecimalFromDateString(to)
+    }});
+  }
 
   $(archive).trigger('query-started');
 
