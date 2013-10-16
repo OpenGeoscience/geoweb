@@ -138,11 +138,19 @@ archive.processResults = function(results, removeFilter) {
   });
 
   function createResultListItem(dataset, variable, size, timeRange) {
+
+    function getVariableTagsOrName() {
+      if('tags' in variable && variable['tags'].length > 0) {
+        return variable['tags'].slice(0,3).join(',');
+      }
+      return variable['name'];
+    }
+
     var $li = $([
       '<div class="variable-item"><div style="pointer-events: none;">',
       '<i class="icon-th pull-left"></i> ',
-      '<div class="variable-name pull-left">',
-      variable['name'],
+      '<div class="variable-name">',
+      getVariableTagsOrName(),
       '</div>',
       timeRange,
       size,
@@ -331,7 +339,7 @@ archive.queryDatabase = function(query) {
 
   mongoQuery = {$and: [{$or: [{ $or: nameOr},{variables: {$elemMatch: { $or: variableOr}}}] },
                {variables: {$not: {$size: 0}}}, {'timeInfo.rawTimes': {$ne: null}},
-               {private: false}]}
+               {private: false}]};
 
   $(archive).trigger('query-started');
 
