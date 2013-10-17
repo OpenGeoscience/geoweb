@@ -305,16 +305,20 @@ archive.queryDatabase = function(query) {
 
   var from = $('#from').val();
   if(from) {
-    mongoQuery.$and.push({ $lte: {
-      'timeInfo.dateRange.1.0': getYearDecimalFromDateString(from)
-    }});
+    mongoQuery.$and.push({
+      'timeInfo.dateRange.1.0': {
+        $gte: getYearDecimalFromDateString(from)
+      }
+    });
   }
 
   var to = $('#to').val();
   if(to) {
-    mongoQuery.$and.push({ $gte: {
-      'timeInfo.dateRange.0.0': getYearDecimalFromDateString(to)
-    }});
+    mongoQuery.$and.push({
+      'timeInfo.dateRange.0.0': {
+        $lte: getYearDecimalFromDateString(to)
+      }
+    });
   }
 
   $(archive).trigger('query-started');
