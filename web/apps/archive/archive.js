@@ -101,6 +101,11 @@ archive.initQueryInterface = function() {
       }
     }
   });
+
+  $('#drawRegion').off('click').click(function() {
+    var active = $(this).toggleClass('active').hasClass('active');
+    archive.myMap.viewer().interactorStyle().drawRegionMode(active);
+  });
 };
 
 /**
@@ -115,7 +120,7 @@ archive.processLocalResults = function(results, remove) {
   }
 
   archive.processResults(results, removeFilter);
-}
+};
 
 archive.processESGFResults = function(results, remove) {
   remove = typeof remove !== 'undefined' ? remove : false;
@@ -896,7 +901,7 @@ archive.cancelESGFDownload = function(taskId, dataSetId) {
       }
     });
   }
-}
+};
 
 archive.downloadESGF = function(target, onComplete, message) {
 
@@ -997,7 +1002,6 @@ archive.addLayerToMap = function(id, name, filePath, parameter, timeval, algorit
   }
 };
 
-
 archive.workflowLayer = function(target, layerId) {
   var layer = archive.myMap.findLayerById(layerId),
     workflow,
@@ -1053,7 +1057,6 @@ archive.workflowLayer = function(target, layerId) {
   }
 };
 
-
 archive.addLayer = function(target) {
   var timeval = target.timestep;
   var varval = target.parameter;
@@ -1089,3 +1092,76 @@ archive.addLayer = function(target) {
     });
   }
 };
+
+function DrawRegionInteractorStyle() {
+  "use strict";
+  if (!(this instanceof DrawRegionInteractorStyle)) {
+    return new DrawRegionInteractorStyle();
+  }
+  ogs.geo.mapInteractorStyle.call(this);
+
+  var m_mouseClickPosition = {
+      x: 0,
+      y: 0
+    },
+    m_baseHandleMouseDown = this.handleMouseDown,
+    m_baseHandleMouseMove = this.handleMouseMove,
+    m_rectangleFeature = {
+      type: 'Polygon',
+      attr: {},
+      geom: [[0, 0], [0, 0], [0, 0], [0, 0]]
+    },
+    m_renderWindow,
+    m_focusDisplayPoint,
+    m_clickWorldPoint,
+    m_mouseWorldPoint;
+
+  this.handleMouseDown = function(event) {
+    if(!m_baseHandleMouseDown(event)) {
+      m_mouseClickPosition = $.extend({}, this.lastMousePosition());
+
+      m_renderWindow = this.viewer().renderWindow();
+      m_focusDisplayPoint = m_renderWindow.focusDisplayPoint();
+      m_clickWorldPoint = m_renderWindow.displayToWorld(m_mouseClickPosition.x,
+        m_mouseClickPosition.y, m_focusDisplayPoint);
+      return false;
+    }
+    return true;
+  };
+
+  this.handleMouseMove = function(event) {
+    var baseLeftMouseDown = this.leftMouseDown();
+
+    if(baseLeftMouseDown) {
+      //prevent base handler from panning
+      this.leftMouseDown(false);
+      if(m_baseHandleMouseMove(event)) {
+        return true;
+      }
+      this.leftMouseDown(true);
+
+      //get current mouse world point
+      var mousePosition = this.lastMousePosition();
+      m_mouseWorldPoint = m_renderWindow.displayToWorld(mousePosition.x,
+        mousePosition.y, m_focusDisplayPoint);
+
+      //update rectangle feature
+      m_rectangleFeature[0][0] = m_clickWorldPoint[0];
+      m_rectangleFeature[0][1] = m_clickWorldPoint[1];
+      m_rectangleFeature[1][0] = m_clickWorldPoint[0];
+      m_rectangleFeature[1][1] = m_mouseWorldPoint[1];
+      m_rectangleFeature[1][0] = m_mouseWorldPoint[0];
+      m_rectangleFeature[1][1] = m_mouseWorldPoint[1];
+      m_rectangleFeature[1][0] = m_mouseWorldPoint[0];
+      m_rectangleFeature[1][1] = m_clickWorldPoint[1];
+
+      return false;
+    } else {
+      return m_baseHandleMouseMove(event);
+    }
+  };
+
+  return this;
+}
+
+inherit(DrawRegionInteractorStyle, ogs.geo.mapInteractorStyle);
