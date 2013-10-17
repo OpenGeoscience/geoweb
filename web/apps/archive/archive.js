@@ -57,8 +57,8 @@ archive.initQueryInterface = function() {
 
   $('#document-table-body').tooltip();
 
-  $('#from').datepicker();
-  $('#to').datepicker();
+  $('#dateFrom').datepicker();
+  $('#dateTo').datepicker();
 
   $(archive).on('query-started', function() {
     archive.queriesInProgress++;
@@ -298,28 +298,46 @@ archive.queryDatabase = function(query) {
     }]
   };
 
-  //build time query restraints
-  function getYearDecimalFromDateString(str) {
+  //build time and lat/lon query restraints
+
+  /**
+   * Converts a date string to a year decimal
+   * e.g. 'July 1, 2000' ~> 2000.5
+   *
+   * @param str {string}
+   * @returns {number}
+   */
+  function decimalYear(str) {
     return (new Date(str)).getTime()/archive.milliseconds_per_year + 1970;
   }
 
-  var from = $('#from').val();
-  if(from) {
-    mongoQuery.$and.push({
-      'timeInfo.dateRange.1.0': {
-        $gte: getYearDecimalFromDateString(from)
-      }
-    });
+  /**
+   * Creates a mongo statement and adds it to the mongoQuery.$and list
+   *
+   * @param mongoField {string}
+   * @param mongoOperator {string}
+   * @param selector {string}
+   * @param scrubber {function}
+   */
+  function addQueryRestraint(mongoField, mongoOperator, selector, scrubber) {
+    var value = $(selector).val().trim(' '),
+      statement = {};
+
+    if(value !== '') {
+      value = scrubber.call({}, value);
+      statement[mongoField] = {};
+      statement[mongoField][mongoOperator] = value;
+      mongoQuery.$and.push(statement);
+    }
   }
 
-  var to = $('#to').val();
-  if(to) {
-    mongoQuery.$and.push({
-      'timeInfo.dateRange.0.0': {
-        $lte: getYearDecimalFromDateString(to)
-      }
-    });
-  }
+  addQueryRestraint('timeInfo.dateRange.0.0', '$lte', '#dateTo', decimalYear);
+  addQueryRestraint('timeInfo.dateRange.1.0', '$gte', '#dateFrom', decimalYear);
+  addQueryRestraint('spatialInfo.0', '$lte', '#longitudeTo', parseFloat);
+  addQueryRestraint('spatialInfo.1', '$gte', '#longitudeFrom', parseFloat);
+  addQueryRestraint('spatialInfo.2', '$lte', '#latitudeTo', parseFloat);
+  addQueryRestraint('spatialInfo.3', '$gte', '#latitudeFrom', parseFloat);
+
 
   $(archive).trigger('query-started');
 

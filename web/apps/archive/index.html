@@ -112,26 +112,29 @@
                              title="Enter search query to find data sets e.g. 'precipitation'"/>
                       <div>
                         <div style="display: inline; position: relative; left: 10px; top: 5px;">
-                          <div class="input-prepend">
-                            <span class="add-on"><i class="icon-calendar"></i></span>
+                          <div class="pull-left" style="margin-right:15px">
+                            <div class="input-prepend">
+                              <span class="add-on"><i class="icon-calendar"></i></span>
+                            </div>
+                            <input class="input-small" type="text" id="dateFrom" placeholder="Date From"/>
+                            <input class="input-small" type="text" id="dateTo" placeholder="Date To"/>
                           </div>
-                          <input class="input-small" type="text" id="from" placeholder="From"/>
-                          <!--div class="input-prepend">
-                            <span class="add-on"><i class="icon-calendar"></i></span>
-                          </div-->
-                          <input class="input-small" type="text" id="to" placeholder="To"/>
-                        </div>
-                        <div style="display: inline; position: relative; left: 70px; top: 5px;">
-                          <div class="input-prepend">
-                            <span class="add-on"><i class="icon-map-marker"></i></span>
+                          <div class="pull-left" style="margin-right:15px">
+                            <div class="input-prepend">
+                              <span class="add-on"><i class="icon-map-marker"></i></span>
+                            </div>
+                            <input class="input-small" type="text" id="latitudeFrom" placeholder="Latitude From"/>
+                            <input class="input-small" type="text" id="latitudeTo" placeholder="Latitude To"/>
                           </div>
-                          <input class="input-small" type="text" id="latitude" placeholder="Latitude"/>
-                          <!--div class="input-prepend">
-                            <span class="add-on"><i class="icon-calendar"></i></span>
-                          </div-->
-                          <input class="input-small" type="text" id="longitude" placeholder="Longitude"/>
-                          <button type="button" class="btn btn-default btn-small" style="position: relative; bottom: 5px;">
-                            <i class="icon-edit"></i> Select
+                          <div class="pull-left" style="margin-right:15px">
+                            <div class="input-prepend">
+                              <span class="add-on"><i class="icon-map-marker"></i></span>
+                            </div>
+                            <input class="input-small" type="text" id="longitudeFrom" placeholder="Longitude From"/>
+                            <input class="input-small" type="text" id="longitudeTo" placeholder="Longitude To"/>
+                          </div>
+                          <button type="button" class="btn btn-default btn-small pull-right" style="position: relative; top: 4px;">
+                            <i class="icon-edit"></i> Draw Region
                           </button>
                         </div>
                       </div>
