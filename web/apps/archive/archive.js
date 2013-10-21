@@ -536,12 +536,22 @@ archive.main = function() {
 
       mapCoord.event = event;
       archive.myMap.queryLocation(mapCoord);
+
+      // Keep querying on this position at every animateEvent
+      $(archive.myMap).on(ogs.geo.command.animateEvent + ".extraInfoBox",
+                          function() {
+                            extraInfoContent.empty();
+                            archive.myMap.queryLocation(mapCoord);
+                          }
+                         );
+
       return true;
     });
 
     //hook up extra info close click
     $('#close-extra-info').off('click').click(function() {
       $("#map-extra-info-box").fadeOut({duration: 200, queue: false});
+      $(archive.myMap).off(ogs.geo.command.animateEvent + ".extraInfoBox"); // stop re-querying during animations
     });
 
     // React to queryResultEvent
