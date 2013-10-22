@@ -11,9 +11,6 @@ import re
 import sys
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(current_dir, "modules"))
-sys.path.append(os.path.join(current_dir, "modules", "thirdparty",
-    "MyProxyClient-1.3.0"))
 
 from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
 
@@ -71,6 +68,11 @@ class Root(object):
     def esgf(self, *args, **kwargs):
         import esgf
         return esgf.run(*args, **kwargs)
+
+    @cherrypy.expose
+    def session(self, *args, **kwargs):
+        import session
+        return session.run(*args, **kwargs)
 
     @cherrypy.expose
     def default(self, *args, **kwargs):

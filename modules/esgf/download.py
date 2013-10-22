@@ -7,52 +7,15 @@ import os.path
 from functools import partial
 import hashlib
 from urlparse import urlparse
-import geocelery_conf
+import cherrypy
+from bs4 import BeautifulSoup
+
+from esgf.auth import user_url_to_filepath
+from esgf.auth import user_cert_file
+from esgf.auth import download_dir
 
 mongo_url='mongodb://localhost/celery'
 celery = Celery('download', broker=mongo_url, backend=mongo_url)
-
-def download_dir():
-    return "%s/esgf" % geocelery_conf.DOWNLOAD_DIR
-
-def user_url_to_filepath(user_url):
-    user_url = user_url.replace('https://', '')
-    user_url = user_url.replace('http://', '')
-
-    return user_url
-
-def user_cert_file(user_url):
-    filepath = user_url_to_filepath(user_url)
-
-    return '%s/%s/cert.esgf' % (download_dir(), filepath)
-
-def aquire_certificate(user_url, password):
-    from myproxy.client import MyProxyClient
-
-    try:
-        filepath = user_url_to_filepath(user_url)
-        host = urlparse(user_url).netloc;
-        user = user_url.rsplit('/', 1)[1]
-    except IndexError:
-        raise Exception('Invalid OpenID identifier')
-
-    if not host or not user:
-        raise Exception('Invalid OpenID identifier')
-
-    myproxy = MyProxyClient(hostname=host)
-    credentials = myproxy.logon(user, password, bootstrap=True)
-
-    cert_filepath = user_cert_file(user_url)
-
-    dir = os.path.dirname(cert_filepath);
-    if not os.path.exists(dir):
-        os.makedirs(dir)
-
-    with open(cert_filepath, 'w') as fd:
-        fd.write(credentials[0])
-        fd.write(credentials[1])
-
-    return cert_filepath
 
 def url_to_download_filepath(user_url, url):
     user_filepath = user_url_to_filepath(user_url)
@@ -62,16 +25,21 @@ def url_to_download_filepath(user_url, url):
     return filepath
 
 @celery.task
-def download(url, size, checksum, user_url, password):
+def download(url, size, checksum, user_url):
+    url = url.strip('"')
     request = None
     filepath = None
     try:
-        cert_filepath = aquire_certificate(user_url, password)
+        cert_filepath = user_cert_file(user_url)
         request = requests.get(url,
                                cert=(cert_filepath, cert_filepath), verify=False, stream=True)
 
-        if request.status_code != 200:
-            raise Exception("HTTP status code: %s" % request.status)
+        # Registration is required
+        if request.status_code == 403:
+            # Update state response in meta data
+            return request.text
+        elif request.status_code != 200:
+            raise Exception("HTTP status code: %s" % request.status_code)
 
         filepath = url_to_download_filepath(user_url, url)
         dir = os.path.dirname(filepath);
@@ -80,8 +48,6 @@ def download(url, size, checksum, user_url, password):
 
         # Now we know the user is authorized, first check if they have already
         # downloaded this file.
-        filepath = url_to_download_filepath(user_url, url)
-
         if os.path.exists(filepath):
             md5 = hashlib.md5()
             with open(filepath) as fp:
@@ -115,13 +81,19 @@ def download(url, size, checksum, user_url, password):
 def status(taskId):
     task = AsyncResult(taskId, backend=celery.backend)
 
+    if not task:
+        cherrypy.log("Unable to load task for id: " + taskId)
+
     status = {'state': str(task.state) }
 
     percentage = 0
     if task.state == 'PROGRESS':
         status['percentage'] = task.result['percentage']
     elif task.state == 'SUCCESS':
-        status['percentage'] = 100
+        if task.result:
+            status['state'] = 'FORBIDDEN'
+        else:
+            status['percentage'] = 100
     elif task.state == 'FAILURE':
         status['message'] = str(task.result)
 

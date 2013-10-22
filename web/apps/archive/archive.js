@@ -613,6 +613,15 @@ archive.main = function() {
       $('#algorithm-select').append($('<option>'+name+'</option>'));
     }
   }
+
+  archive.userName(function(openIdUri) {
+    var parts = openIdUri.split('/');
+    $('#user-name').html(parts[parts.length-1]);
+  });
+
+  $('#logout').click(function(event) {
+    archive.logOut();
+  });
 };
 
 archive.initWebSockets = function() {
@@ -722,6 +731,106 @@ archive.timeRange = function(name, onComplete) {
   });
 }
 
+archive.registerWithGroup = function(target, registrationUrl, group, role) {
+  $.ajax({
+    type: 'POST',
+    url: '/esgf/register',
+    data: {
+      url: registrationUrl,
+      group: group,
+      role: role
+    },
+    dataType: 'json',
+    success: function(response) {
+      console.log(response);
+      if (response.error !== null) {
+          console.log("[error] " + response.error ? response.error : "no results returned from server");
+      } else {
+
+        if (response.result.success) {
+          // Try again ...
+          archive.downloadESGF(target, archive.onDownloadComplete)
+        }
+        // Redirect user to ESGF
+        else {
+          $('#esgf-register-redirect').modal();
+          $('tr#' + target.dataset_id).remove();
+          $('#esgf-register-redirect-button').off('click').on('click', function() {
+            window.open(target.url);
+            $('#esgf-register-redirect').modal('hide');
+          });
+        }
+      }
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+        console.log(errorThrown)
+    }
+  });
+}
+
+archive.register = function(target, taskId) {
+
+  $.ajax({
+    type: 'POST',
+    url: '/esgf/registerGroups',
+    data: {
+      taskId: taskId
+    },
+    dataType: 'json',
+    success: function(response) {
+      console.log(response);
+      if (response.error !== null) {
+          console.log("[error] " + response.error ? response.error : "no results returned from server");
+      } else {
+        $('#esgf-register-table-body').empty();
+        $.each(response.result.groups, function(i, details) {
+          entry = $('<tr>');
+          select = $('<input>');
+          select.attr('type', 'checkbox');
+          select.attr('role', details.role);
+          select.attr('group', details.group);
+          select.attr('url', details.url);
+          select.addClass('group-selection');
+          group = $('<td>');
+          group.html(details.group);
+          role = $('<td>');
+          role.html(details.role);
+          site = $('<td>');
+          var parser = document.createElement('a');
+          parser.href = details.url
+          site.html(parser.host);
+
+          entry.append($('<td>').append(select), group, role, site);
+          $('#esgf-register-table-body').append(entry);
+        });
+
+        $('#esgf-register-dialog').modal();
+
+        $('#esgf-register').attr('clicked', false);
+        $('#esgf-register').off('click').on('click', function(event) {
+          $('#esgf-register').attr('clicked', true );
+          $.each($('.group-selection'), function(i, selection) {
+
+            archive.registerWithGroup(target, $(selection).attr('url'),
+                $(selection).attr('group'), $(selection).attr('role'));
+          });
+        });
+
+        $('#esgf-register-dialog').off('hidden').on('hidden', function() {
+          if ($('#esgf-register').attr('clicked') == 'false') {
+            $('tr#' + target.dataset_id).remove();
+          }
+        })
+
+      }
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+        console.log(errorThrown)
+    }
+  });
+
+}
+
 archive.monitorESGFDownload = function(target, taskId, onComplete) {
   var dataSetId = target.dataset_id;
 
@@ -742,6 +851,11 @@ archive.monitorESGFDownload = function(target, taskId, onComplete) {
           // We are done just return
           return;
         }
+        // Does the user need to register?
+        else if (response.result.state == 'FORBIDDEN') {
+          archive.register(target, taskId);
+          return;
+        }
         else if (response.result.state != 'FAILURE') {
           var bar = $('tr#' + dataSetId + ' td:nth-child(4) div.bar');
           bar.width(response.result.percentage+'%');
@@ -757,8 +871,9 @@ archive.monitorESGFDownload = function(target, taskId, onComplete) {
           }
         }
         else {
-          // Try again?
-          archive.downloadESGF(target, onComplete, response.result.message);
+          archive.error(response.result.message, function() {
+            $('tr#' + dataSetId).remove();
+          });
         }
       }
     },
@@ -771,8 +886,6 @@ archive.monitorESGFDownload = function(target, taskId, onComplete) {
 archive.onDownloadComplete = function(dataSetId) {
   var layerRow = $('tr#' + dataSetId);
 
-  // This sucks and is very fragile ... !
-  var user = $('#user').val();
   var dataSet = layerRow.data("dataset");
 
   // The row has been removed so we are nolonger interesting in this download.
@@ -783,7 +896,6 @@ archive.onDownloadComplete = function(dataSetId) {
     type: 'POST',
     url: '/esgf/filepath',
     data: {
-      userUrl: user,
       url: dataSet.url
     },
     dataType: 'json',
@@ -836,70 +948,44 @@ archive.cancelESGFDownload = function(taskId, dataSetId) {
 
 archive.downloadESGF = function(target, onComplete, message) {
 
-  $('#esgf-login').modal({backdrop: 'static'});
+  $.ajax({
+    type: 'POST',
+    url: '/esgf/download',
+    data: {
+      url: target.url, // we could reused base name.
+      size: target.size,
+      checksum: target.checksum,
+    },
+    dataType: 'json',
+    success: function(response) {
+      if (response.error !== null) {
+          console.log("[error] " + response.error ? response.error : "no results returned from server");
+      } else {
+        if (response.result && 'taskId' in response.result) {
+          var taskId = response.result['taskId']
+          var dataSetId = target.dataset_id
 
-  message = typeof message !== 'undefined' ? message : '';
+          if ($('tr#' + dataSetId).length ) {
+            $('tr#' + dataSetId + ' td:nth-child(4) #progress');
 
-  $('#esgf-login #message').html(message);
-
-  $('#esgf-login #download').off();
-  $('#esgf-login #download').one('click', function() {
-    var user = $('#user').val();
-    var password = $('#password').val();
-
-    $.ajax({
-      type: 'POST',
-      url: '/esgf/download',
-      data: {
-        url: target.url, // we could reused base name.
-        size: target.size,
-        checksum: target.checksum,
-        userUrl: user,
-        password: password
-      },
-      dataType: 'json',
-      success: function(response) {
-        if (response.error !== null) {
-            console.log("[error] " + response.error ? response.error : "no results returned from server");
-        } else {
-          if (response.result && 'taskId' in response.result) {
-            var taskId = response.result['taskId']
-            var dataSetId = target.dataset_id
-
-            if ($('tr#' + dataSetId).length ) {
-              $('tr#' + dataSetId + ' td:nth-child(4) #progress');
-
-              // Add listener to cancel the download task if requested
-              $('tr#' + dataSetId).on('cancel-download-task', function() {
-                archive.cancelESGFDownload(taskId, dataSetId);
-              });
-
-              archive.monitorESGFDownload(target, response.result['taskId'],
-                onComplete);
-            }
-            // The row has been removed so cancel the download
-            else {
+            // Add listener to cancel the download task if requested
+            $('tr#' + dataSetId).on('cancel-download-task', function() {
               archive.cancelESGFDownload(taskId, dataSetId);
-            }
-          } else {
-            archive.error("No id return to monitor download");
+            });
+
+            archive.monitorESGFDownload(target, response.result['taskId'],
+              onComplete);
           }
+          // The row has been removed so cancel the download
+          else {
+            archive.cancelESGFDownload(taskId, dataSetId);
+          }
+        } else {
+          archive.error("No id return to monitor download");
         }
       }
-    });
-  });
-
-  $('#password').keypress(function(e) {
-    if (e.charCode == 13) {
-      $('#esgf-login #download').click();
     }
   });
-
-  $('#esgf-login #cancel').off();
-  $('#esgf-login #cancel').one('click', function() {
-    archive.removeLayer(this, target.dataset_id);
-  });
-
 };
 
 archive.addLayerToMap = function(id, name, filePath, parameter, timeval, algorithm) {
@@ -1025,3 +1111,46 @@ archive.addLayer = function(target) {
     });
   }
 };
+
+
+archive.userName = function(onUserName) {
+  $.ajax({
+    type: 'GET',
+    url: '/session',
+    data: {
+      parameter: 'username'
+    },
+    dataType: 'json',
+    success: function(response) {
+      if (response.error !== null) {
+        console.log("[error] " + response.error ? response.error : "no results returned from server");
+        $(archive).trigger('query-error');
+      } else {
+        onUserName(response.result.value);
+      }
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+      archive.error(errorThrown);
+    }
+  });
+}
+
+
+archive.logOut = function() {
+  $.ajax({
+    type: 'DELETE',
+    url: '/session',
+    dataType: 'json',
+    success: function(response) {
+      if (response.error !== null) {
+        console.log("[error] " + response.error ? response.error : "no results returned from server");
+        $(archive).trigger('query-error');
+      } else {
+        location.reload();
+      }
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+      archive.error(errorThrown);
+    }
+  });
+}

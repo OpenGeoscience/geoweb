@@ -91,7 +91,7 @@ file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/stamps)
 
 # These files should be copied to the deployment directory.
 set(sources
-    geoweb geoweb.py geocelery
+    geoweb geoweb.py geocelery login.html
 )
 
 set(paths
