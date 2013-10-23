@@ -80,3 +80,17 @@ def query(site_url, query):
           yield file
       except IndexError:
           pass
+
+def run(*pargs, **kwargs):
+    response = geoweb.empty_response();
+
+    streamId = str(uuid.uuid1())
+    expr = kwargs['expr']
+    base_url = cherrypy.session['ESGFBaseUrl']
+    streams[streamId] = query(base_url, expr)
+    response['result'] = {'hasNext': True, 'streamId': streamId}
+
+    if 'queryId' in kwargs:
+        response['result']['queryId'] = int(kwargs['queryId'])
+
+    return json.dumps(response)

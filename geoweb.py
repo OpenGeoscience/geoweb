@@ -45,34 +45,12 @@ def empty_result():
 services = dict()
 
 
-class Root(object):
+class Services(object):
     vtk = VTKRoot(host='127.0.0.1', port=8080, ssl=False)
-
-    @cherrypy.expose
-    def mongo(self, *args, **kwargs):
-        import mongo
-        pargs = list(args)
-        return mongo.run(*pargs, **kwargs)
-
-    @cherrypy.expose
-    def data(self, *args, **kwargs):
-        import geodata
-        pargs = list(args)
-        return geodata.run(*pargs, **kwargs);
 
     @cherrypy.expose
     def ws(self):
         cherrypy.log("Handler created: %s" % repr(cherrypy.request.ws_handler))
-
-    @cherrypy.expose
-    def esgf(self, *args, **kwargs):
-        import esgf
-        return esgf.run(*args, **kwargs)
-
-    @cherrypy.expose
-    def session(self, *args, **kwargs):
-        import session
-        return session.run(*args, **kwargs)
 
     @cherrypy.expose
     def default(self, *args, **kwargs):
@@ -105,7 +83,6 @@ class Root(object):
                                         runningPath + '.py')
                 except IOError as e:
                     error = "IOError: %s" % e
-                    cherrypy.log(error)
                     response['error'] = error
                     return json.dumps(response)
 
@@ -113,22 +90,25 @@ class Root(object):
                 if hasattr(service, 'run'):
                     pathArgs = path[i+1:]
                     try:
-                        response['result'] = service.run(*pathArgs, **kwargs)
-                        return json.dumps(response)
+                        response = service.run(*pathArgs, **kwargs)
+                        return response
                     except Exception, e:
                         error = str(e)
-                        cherrypy.log(error)
                         response['error'] = error
                         return json.dumps(response)
                 else:
                     error = "`run` not defined in service %s" % runningPath
-                    cherrypy.log(error)
                     response['error'] = error
                     return json.dumps(response)
 
         raise cherrypy.HTTPError(404)
 
-if __name__ == '__main__':
-    import os.path
-    cherrypy.engine.start()
-    cherrypy.engine.block()
+class Root(object):
+    pass
+
+import sys
+run_path = os.path.dirname(os.path.abspath(sys.argv[0]))
+# Load the configuration
+server_config = "%s/server.conf" % run_path
+
+cherrypy.tree.mount(Services(), '/', "%s/geoweb.conf" % run_path)

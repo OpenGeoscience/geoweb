@@ -3,21 +3,18 @@
 import bson.json_util
 import geoweb
 
-def decode(s, argname, resp):
+def decode(s, argname, response):
     try:
         return bson.json_util.loads(s)
     except ValueError as e:
-        resp['error'] = e.message + " (argument '%s' was '%s')" % (argname, s)
-        raise
+        response['error'] = e.message + " (argument '%s' was '%s')" % (argname, s)
 
 def run(method='read', expr=None, vars=None, time=None, fields=None, limit=1000, sort=None, fill=None):
-    # Create an empty response object.
-    response = geoweb.empty_response();
+    response = geoweb.empty_response()
 
     # Check the requested method.
     if method not in ['find', 'read']:
-        response['error'] = "Unsupported data operation '%s'" % (method)
-        return bson.json_util.dumps(response)
+        raise Exception("Unsupported data operation '%s'" % (method))
 
     # Decode the strings into Python objects.
     try:
@@ -31,14 +28,13 @@ def run(method='read', expr=None, vars=None, time=None, fields=None, limit=1000,
         else:
             fill = True
     except ValueError:
-        return bson.json_util.dumps(response)
+        return json.dumps(response)
 
     # Cast the limit value to an int
     try:
         limit = int(limit)
     except ValueError:
-        response['error'] = "Argument 'limit' ('%s') could not be converted to int." % (limit)
-        return bson.json_util.dumps(response)
+        response['error'] =  "Argument 'limit' ('%s') could not be converted to int." % (limit)
 
     # Perform the requested action.
     if method == 'find':
@@ -64,9 +60,9 @@ def run(method='read', expr=None, vars=None, time=None, fields=None, limit=1000,
             # Pack the results into the response object, and return it.
             response['result'] = retobj
         except IOError as io:
-            response['error'] = io.message
+            raise io
     else:
         raise RuntimeError("illegal method '%s' in module 'mongo'")
 
     # Return the response object.
-    return bson.json_util.dumps(response)
+    return  json.dumps(response)

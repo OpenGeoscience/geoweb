@@ -8,21 +8,10 @@ from functools import partial
 import hashlib
 from urlparse import urlparse
 import cherrypy
-from bs4 import BeautifulSoup
-
-from esgf.auth import user_url_to_filepath
-from esgf.auth import user_cert_file
-from esgf.auth import download_dir
+import utils
 
 mongo_url='mongodb://localhost/celery'
 celery = Celery('download', broker=mongo_url, backend=mongo_url)
-
-def url_to_download_filepath(user_url, url):
-    user_filepath = user_url_to_filepath(user_url)
-    filepath = '%s/%s' %(download_dir(), user_filepath)
-    filepath += url[6:]
-
-    return filepath
 
 @celery.task
 def download(url, size, checksum, user_url):
@@ -30,7 +19,7 @@ def download(url, size, checksum, user_url):
     request = None
     filepath = None
     try:
-        cert_filepath = user_cert_file(user_url)
+        cert_filepath = utils.user_cert_file(user_url)
         request = requests.get(url,
                                cert=(cert_filepath, cert_filepath), verify=False, stream=True)
 
@@ -41,7 +30,7 @@ def download(url, size, checksum, user_url):
         elif request.status_code != 200:
             raise Exception("HTTP status code: %s" % request.status_code)
 
-        filepath = url_to_download_filepath(user_url, url)
+        filepath = utils.url_to_download_filepath(user_url, url)
         dir = os.path.dirname(filepath);
         if not os.path.exists(dir):
             os.makedirs(dir)

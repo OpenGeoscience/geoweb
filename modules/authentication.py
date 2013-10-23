@@ -4,7 +4,7 @@ from mako.template import Template
 from mako.lookup import TemplateLookup
 import pymongo
 import os
-import esgf
+import esgf.authentication
 import traceback
 from urlparse import urlparse
 
@@ -18,7 +18,7 @@ class ESGFSessionAuth(cptools.SessionAuth):
 
     def check_username_and_password(self, username, password):
         try:
-            esgf.authenticate(username, password)
+            esgf.authentication.authenticate(username, password)
         except MyProxyClientError as myex:
             return "ESGF authentication error: %s" % myex.message
         except Exception as ex:

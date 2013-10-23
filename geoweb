@@ -62,10 +62,8 @@ def start():
     # include the main module
     import geoweb
 
-    cherrypy.tree.apps[''].merge(server_config)
-
-    error_file = cherrypy.tree.apps[''].config['global']['log.error_file']
-    access_file = cherrypy.tree.apps[''].config['global']['log.access_file']
+    error_file = cherrypy.config['log.error_file']
+    access_file = cherrypy.config['log.access_file']
 
     # ensure pidfile is created with correct owner
     with open(pidfile, "a"):

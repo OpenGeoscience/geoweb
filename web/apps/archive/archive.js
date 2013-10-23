@@ -279,7 +279,7 @@ archive.queryDatabase = function(query) {
 
   $.ajax({
     type: 'POST',
-    url: '/mongo/' + mongo.server + '/' + mongo.database + '/' + mongo.collection,
+    url: '/services/mongo/' + mongo.server + '/' + mongo.database + '/' + mongo.collection,
     data: {
       queryId: archive.databaseQueryId++,
       query: JSON.stringify(mongoQuery),
@@ -320,7 +320,7 @@ archive.nextResult = function (queryId, streamId, remove) {
 
   $.ajax({
     type: 'POST',
-    url: '/esgf/stream',
+    url: '/services/esgf/stream',
     data: {
       queryId: queryId,
       streamId: streamId
@@ -364,7 +364,7 @@ archive.cancelStream = function (streamId) {
 
   $.ajax({
     type: 'POST',
-    url: '/esgf/stream',
+    url: '/services/esgf/stream',
     data: {
       streamId: streamId,
       cancel: true
@@ -393,7 +393,7 @@ archive.queryESGF = function(query) {
 
   $.ajax({
     type: 'POST',
-    url: '/esgf/query',
+    url: '/services/esgf/query',
     data: {
       queryId: archive.esgfQueryId++,
       expr: JSON.stringify(query)
@@ -439,7 +439,7 @@ archive.main = function() {
   var mapOptions = {
     zoom : 6,
     center : ogs.geo.latlng(0.0, 0.0),
-    source: '/data/land_shallow_topo_2048.png',
+    source: '/services/data/land_shallow_topo_2048.png',
     country_boundaries: true
   };
 
@@ -714,7 +714,7 @@ archive.timeRange = function(name, onComplete) {
 
   $.ajax({
     type: 'POST',
-    url: '/mongo/' + mongo.server + '/' + mongo.database + '/' + mongo.collection,
+    url: '/services/mongo/' + mongo.server + '/' + mongo.database + '/' + mongo.collection,
     data: {
       query: JSON.stringify(query),
       limit:100,
@@ -734,7 +734,7 @@ archive.timeRange = function(name, onComplete) {
 archive.registerWithGroup = function(target, registrationUrl, group, role) {
   $.ajax({
     type: 'POST',
-    url: '/esgf/register',
+    url: '/services/esgf/register',
     data: {
       url: registrationUrl,
       group: group,
@@ -772,7 +772,7 @@ archive.register = function(target, taskId) {
 
   $.ajax({
     type: 'POST',
-    url: '/esgf/registerGroups',
+    url: '/services/esgf/registerGroups',
     data: {
       taskId: taskId
     },
@@ -836,7 +836,7 @@ archive.monitorESGFDownload = function(target, taskId, onComplete) {
 
   $.ajax({
     type: 'POST',
-    url: '/esgf/download_status',
+    url: '/services/esgf/download_status',
     data: {
       taskId: taskId
     },
@@ -894,7 +894,7 @@ archive.onDownloadComplete = function(dataSetId) {
 
   $.ajax({
     type: 'POST',
-    url: '/esgf/filepath',
+    url: '/services/esgf/filepath',
     data: {
       url: dataSet.url
     },
@@ -927,7 +927,7 @@ archive.cancelESGFDownload = function(taskId, dataSetId) {
   else {
     $.ajax({
       type: 'POST',
-      url: '/esgf/cancel_download',
+      url: '/services/esgf/cancel_download',
       data: {
         taskId: taskId
       },
@@ -950,7 +950,7 @@ archive.downloadESGF = function(target, onComplete, message) {
 
   $.ajax({
     type: 'POST',
-    url: '/esgf/download',
+    url: '/services/esgf/download',
     data: {
       url: target.url, // we could reused base name.
       size: target.size,
@@ -1116,7 +1116,7 @@ archive.addLayer = function(target) {
 archive.userName = function(onUserName) {
   $.ajax({
     type: 'GET',
-    url: '/session',
+    url: '/services/session',
     data: {
       parameter: 'username'
     },
@@ -1139,7 +1139,7 @@ archive.userName = function(onUserName) {
 archive.logOut = function() {
   $.ajax({
     type: 'DELETE',
-    url: '/session',
+    url: '/services/session',
     dataType: 'json',
     success: function(response) {
       if (response.error !== null) {
