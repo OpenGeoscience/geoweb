@@ -32,8 +32,11 @@ set(DOCUMENT OFF CACHE BOOL "Generate documentation for JavaScript files.")
 set(SERVER_LOGS ON CACHE BOOL "Write cherrypy server access and error logs in deploy/logs")
 set(SERVER_DEBUG ON CACHE BOOL "Write debug statements to error logs")
 set(DATA_DIR "data" CACHE PATH "Root directory for the data")
+set(BASELINE_DIR "" CACHE PATH "Path to directory containing baseline images for testing.")
 set(GEOWEB_USER $ENV{USER} CACHE STRING "User to run geoweb as when dropping privileges")
 set(GEOWEB_GROUP $ENV{USER} CACHE STRING "Group to run geoweb as when dropping privileges")
+set(BUILD_TESTING OFF CACHE BOOL "Enable testing")
+
 
 #/////////////////////////////////////////////////////////////////////////////
 #
@@ -250,6 +253,13 @@ if (BUILD_TESTING)
     set(GEOJS_DATA_DIR "${DATA_DIR}")
   else()
     message(FATAL_ERROR "GeoWeb testing requires valid data directory")
+  endif()
+
+  if(EXISTS "${BASELINE_DIR}" AND IS_DIRECTORY "${BASELINE_DIR}")
+    message("[info] GeoWeb baseline directory is set to ${BASELINE_DIR}")
+    set(GEOJS_BASELINE_DIR "${BASELINE_DIR}")
+  else()
+    message(FATAL_ERROR "GeoWeb testing requires valid baseline directory")
   endif()
 endif()
 
