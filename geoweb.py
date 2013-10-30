@@ -108,7 +108,6 @@ class Root(object):
 
 import sys
 run_path = os.path.dirname(os.path.abspath(sys.argv[0]))
-# Load the configuration
-server_config = "%s/server.conf" % run_path
 
+# Load the configuration
 cherrypy.tree.mount(Services(), '/', "%s/geoweb.conf" % run_path)
