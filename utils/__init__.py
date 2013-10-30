@@ -14,7 +14,7 @@ def debug(_str):
         #cherrypy probably not running
         debug = std_debug
         std_debug(_str)
-    elif cherrypy.tree.apps[''].config['global']['log.debug']:
+    elif cherrypy.config['log.debug']:
         debug = yes_debug
         yes_debug(_str)
     else:

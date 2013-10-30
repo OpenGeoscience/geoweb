@@ -8,6 +8,12 @@ import sys
 import argparse
 import platform
 
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(current_dir, "modules"))
+sys.path.append(os.path.join(current_dir, "modules", "thirdparty",
+    "MyProxyClient-1.3.0"))
+
+import authentication
 
 def read_pid(pidfile):
     # Open the file and convert the contents to an integer - if this fails for
@@ -56,10 +62,8 @@ def start():
     # include the main module
     import geoweb
 
-    cherrypy.tree.apps[''].merge(server_config)
-
-    error_file = cherrypy.tree.apps[''].config['global']['log.error_file']
-    access_file = cherrypy.tree.apps[''].config['global']['log.access_file']
+    error_file = cherrypy.config['log.error_file']
+    access_file = cherrypy.config['log.access_file']
 
     # ensure pidfile is created with correct owner
     with open(pidfile, "a"):
