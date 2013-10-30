@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv='cache-control' content='no-cache'>
+<meta http-equiv='expires' content='0'>
+<meta http-equiv='Pragma' content='no-cache'>
+<meta charset="UTF-8">
+<script type="text/javascript" src="/common/js/jquery-1.9.1.js"></script>
+<script type="text/javascript"
+ src="/common/bootstrap-3.0/js/bootstrap.js"></script>
+<link href="/common/css/bootstrap.css" rel=stylesheet type=text/css>
+<script type="text/javascript">
+  function load() {
+
+    console.log('loading ...')
+
+    $('#myModal').modal();
+
+    $('#register').click(function(event) {
+      console.log('register');
+
+      $('#esgf-registration-page-dialog').modal()
+      $('#myModal').modal('hide');
+    })
+
+    $('#esgf-register').click(function(event) {
+      window.open("https://pcmdi9.llnl.gov/esgf-web-fe/createAccount");
+      $('#esgf-registration-page-dialog').modal('hide');
+      $('#myModal').modal();
+    });
+
+    $('#esgf-reset').click(function(event) {
+      window.open("http://pcmdi9.llnl.gov/esgf-web-fe/login");
+      $('#esgf-reset-password-dialog').modal('hide');
+      $('#myModal').modal();
+    });
+
+    $('#forgot-password-link').click(function(event) {
+      $('#myModal').modal('hide');
+      $('#esgf-reset-password-dialog').modal();
+    });
+  };
+</script>
+</head>
+<body onload="load()">
+</body>
+
+<div class="modal hide" id="myModal">
+ <div class="modal-header">
+  <button type="button" class="close" data-dismiss="modal">x</button>
+  <h3>Login to ClimatePipes</h3>
+ </div>
+ <div class="modal-body">
+  <form method="post" action='do_login' name="login_form">
+   <p>
+    <input type="text" class="span3" name="username" id="openid"
+     value="${username}" placeholder="ESGF Open ID">
+   </p>
+   <p>
+    <input type="password" class="span3" name="password"
+     placeholder="Password">
+   </p>
+   <input type="hidden" name="from_page" value="${from_page}">
+   <p>
+    <button type="submit" class="btn btn-primary">Sign in</button>
+    <a id=forgot-password-link href="#">Forgot Password?</a>
+   </p>
+   <p id=error-message class=text-warning>${error_message}</p>
+  </form>
+ </div>
+ <div class="modal-footer">
+  <button id=register type=button class="btn btn-primary">Register</button>
+ </div>
+</div>
+
+<div id=esgf-registration-page-dialog class="modal hide">
+ <div class="modal-dialog">
+  <div class=modal-content>
+   <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">x</button>
+    <h3>Please register with ESGF</h3>
+   </div>
+   <div class="modal-body">
+     <p>You can login to ClimatePipes uses an ESGF OpenID accounts. Please click on the following link
+     to register for an account. The ESGF registration page will be opened in another window. Once
+     registration is complete you can use your credentials to login to ClimatePipes</p>
+     <button id=esgf-register type=button class="btn btn-primary">Open ESGF Registration page</button>
+<!--       <iframe src="https://pcmdi9.llnl.gov/esgf-web-fe/createAccount" -->
+<!--        seamless="seamless" style="width: 100%;"> </iframe> -->
+   </div>
+  </div>
+ </div>
+</div>
+
+<div id=esgf-reset-password-dialog class="modal hide">
+ <div class="modal-dialog">
+  <div class=modal-content>
+   <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">x</button>
+    <h3>Please reset your password with ESGF</h3>
+   </div>
+   <div class="modal-body">
+     <p>You must reset your password on the ESGF site page. Please click below to
+     open the reset page</p>
+     <button id=esgf-reset type=button class="btn btn-primary">Open ESGF reset password page</button>
+   </div>
+  </div>
+ </div>
+</div>
+
+
+
+</html>

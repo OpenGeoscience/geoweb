@@ -14,5 +14,7 @@ if (EXISTS "${STATICDIR_ROOT}" AND IS_DIRECTORY "${STATICDIR_ROOT}")
 endif()
 
 configure_file("${GEOWEB_CMAKE_DIR}/server.conf.in"
-  "${GEOWEB_DEPLOY_DIR}/server.conf" @ONLY
-)
+  "${GEOWEB_DEPLOY_DIR}/server.conf" @ONLY)
+
+configure_file("${GEOWEB_CMAKE_DIR}/geoweb.conf.in"
+  "${GEOWEB_DEPLOY_DIR}/geoweb.conf" @ONLY)

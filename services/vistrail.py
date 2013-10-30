@@ -1,5 +1,6 @@
 import os
 import tempfile
+import json
 
 import vistrails.core
 import vistrails.core.db.action
@@ -100,7 +101,7 @@ class functions(object):
 
             for id, module in modules.iteritems():
                 if isinstance(module, ToGeoJSON):
-                    return module.JSON
+                    return json.dumps({'result': module.JSON, 'error': None })
 
         finally:
             os.unlink(temp_wf)
