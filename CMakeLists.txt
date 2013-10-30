@@ -31,7 +31,7 @@ set(MANGLE ON CACHE BOOL "When minifying, also mangle non-public symbol names.")
 set(DOCUMENT OFF CACHE BOOL "Generate documentation for JavaScript files.")
 set(SERVER_LOGS ON CACHE BOOL "Write cherrypy server access and error logs in deploy/logs")
 set(SERVER_DEBUG ON CACHE BOOL "Write debug statements to error logs")
-set(DATA_ROOT "data" CACHE PATH "Root directory for the data")
+set(DATA_DIR "data" CACHE PATH "Root directory for the data")
 set(GEOWEB_USER $ENV{USER} CACHE STRING "User to run geoweb as when dropping privileges")
 set(GEOWEB_GROUP $ENV{USER} CACHE STRING "Group to run geoweb as when dropping privileges")
 
@@ -208,7 +208,7 @@ add_custom_target(geoweb_pre_deploy ALL
    -DSTATICDIR_ROOT=${STATICDIR_ROOT}
    -DSRC_DIR=${SRC_DIR}
    -DBIN_DIR=${BIN_DIR}
-   -DDATA_ROOT=${DATA_ROOT}
+   -DDATA_DIR=${DATA_DIR}
    -DLOG_ERROR_FILE=${LOG_ERROR_FILE}
    -DLOG_ACCESS_FILE=${LOG_ACCESS_FILE}
    -DGEOWEB_USER=${GEOWEB_USER}
