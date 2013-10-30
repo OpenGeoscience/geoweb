@@ -133,10 +133,11 @@ foreach(m ${paths})
         OUTPUT ${outpath}
         COMMAND ${CMAKE_COMMAND} -E ${copy_command}
           ${CMAKE_SOURCE_DIR}/${m} ${outpath}
-        DEPENDS ${m} ${_lib_dir}
+        DEPENDS ${m}
     )
     list(APPEND all_targets ${outpath})
 endforeach()
+add_custom_target(bar ALL DEPENDS ${all_targets})
 
 # Uglify and concatenate the library js files.
 if(NOT ${MINIFY})
@@ -237,10 +238,25 @@ add_custom_command(OUTPUT ${GEOWEB_DEPLOY_DIR}/server.conf
 
 add_custom_target(deploy ALL DEPENDS ${_server_config})
 add_dependencies(deploy geoweb_pre_deploy)
+add_dependencies(deploy bar)
+
+# Testing
+if (BUILD_TESTING)
+  include(CTest)
+  enable_testing()
+
+  if(EXISTS "${DATA_DIR}" AND IS_DIRECTORY "${DATA_DIR}")
+    message("[info] GeoWeb data directory is set to ${DATA_DIR}")
+    set(GEOJS_DATA_DIR "${DATA_DIR}")
+  else()
+    message(FATAL_ERROR "GeoWeb testing requires valid data directory")
+  endif()
+endif()
 
 # Now include sub-directories
 add_subdirectory(web)
 add_dependencies(geojs geoweb_pre_deploy)
+
 
 #/////////////////////////////////////////////////////////////////////////////
 #
