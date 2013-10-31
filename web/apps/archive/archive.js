@@ -614,8 +614,13 @@ archive.main = function() {
     $(archive.myMap).on(geoModule.command.queryResultEvent, function(event, queryResult) {
       var extraInfoContent = $("#map-extra-info-content");
       var layer = queryResult.layer;
-      if (layer && layer.name())
+      var layerSource = layer.dataSource();
+      var path = null;
+
+      if (layer && layer.name()) {
         extraInfoContent.append("<div style='font-weight:bold;'>" + layer.name() + "</div>");
+      }
+
       var queryData = queryResult.data;
       if (queryData) {
         var newResult = document.createElement("div");
@@ -625,27 +630,32 @@ archive.main = function() {
         }
         extraInfoContent.append(newResult);
 
-        $.ajax({
-          url: ['/services/cdms/get_time_series?filepath=',filePath].join(''),
-          success: function(data) {
-	          var response = JSON.parse(data),
-	              result = response['result']
-            console.log(result);
-          },
-          error: function() {
-	          output("Failed to get time series plot");
-          }
-        });
-
         // Initialize the time-series plot here
         $("#map-timeseries").empty();
 
-        var lineplot = new linePlot("#map-timeseries");
-        lineplot.read(lineplot.dataset);
+        console.log(layerSource);
+
+        if (typeof layerSource !== 'undefined' && layerSource !== null) {
+          path = layerSource.path();
+
+          $.ajax({
+            url: ['/services/cdms/get_time_series?filepath=',path].join(''),
+            success: function(data) {
+              var response = JSON.parse(data),
+                  result = response['result']
+              console.log(result);
+
+              var lineplot = new linePlot("#map-timeseries");
+              lineplot.read(lineplot.dataset);
+            },
+            error: function() {
+              console.log("Failed to get time series plot");
+            }
+          });
+        }
       }
       return true;
     });
-
 
     // Setup tutorial bitmask
     archive.tutorialMask = new NamedBitMask();
@@ -1183,7 +1193,7 @@ archive.addLayerToMap = function(id, name, filePath, parameter, timeval, algorit
     workflow = ogs.wfl.workflow({
       data: jQuery.extend(true, {}, algorithmData)
     }),
-    source = ogs.wfl.layerSource(filePath, archive.getMongoConfig(),
+    source = ogs.wfl.layerSource(id, filePath, filePath, archive.getMongoConfig(),
       [parameter], workflow,  function(errorString) {
         archive.error(errorString, function() {
           layerRow = $('#table-layers #' + id);
