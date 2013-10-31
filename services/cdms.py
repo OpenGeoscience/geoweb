@@ -4,7 +4,6 @@ from cdms2 import CDMSError
 
 import json
 
-
 class functions(object):
 
     @staticmethod
