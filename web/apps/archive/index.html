@@ -16,6 +16,7 @@
   <script type="text/javascript" src="/common/js/proj4.js"></script>
   <script type="text/javascript" src="/lib/vgl.min.js"></script>
   <script type="text/javascript" src="/lib/geojs.min.js"></script>
+      <script type="text/javascript" src="linePlot.js"></script>
   <script type="text/javascript" src="archive.js"></script>
   <script type="text/javascript" src="mask.js"></script>
   <script>
@@ -94,6 +95,7 @@
   <div id="map-extra-info-box" class="extra-info">
     <button id="close-extra-info" class="close">&times;</button>
     <div id="map-extra-info-content"></div>
+    <div id="map-timeseries" style="width: 100px; height: 100px;"></div>
   </div>
 
   <div id=control-panel style="position:fixed; bottom:0px; width:100%; height: 400px; background:rgba(255,255,255,0.5);">
@@ -177,6 +179,7 @@
     <h3>Please enter ESGF credentials for download.</h3>
   </div>
   <div class="modal-body">
+    <input id="user" type="text" style="width: 350px;" placeholder="OpenID identifier" required>
     <input id="user" type="text" style="width: 350px;" placeholder="OpenID identifier" required>
     <input id="password" type="password" class="input-small" placeholder="Password" required>
     <div id=message class=text-warning></div>

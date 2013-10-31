@@ -624,6 +624,12 @@ archive.main = function() {
           $(newResult).append(idx + " : " + queryData[idx] + "<br/>");
         }
         extraInfoContent.append(newResult);
+
+
+        // Initialize the time-series plot here
+        $("#map-timeseries").empty();
+        var lineplot = new linePlot("#map-timeseries");
+        lineplot.read(lineplot.dataset);
       }
       return true;
     });
