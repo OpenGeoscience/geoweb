@@ -7,7 +7,7 @@ import json
 class functions(object):
 
     @staticmethod
-    def getVars(filepath):
+    def get_vars(filepath):
         cdmsFile = cdms2.open(filepath)
 
         result = []
@@ -27,7 +27,8 @@ class functions(object):
 
         return result
 
-    def get_time_series(variable_name, lat, lon):
+    def get_time_series(filepath, lat, lon):
+        f = cdms2.open(filePath)
         myvariable = f[variable_name]
 
         '''Return nothing if the variable does not contain time, longitude & latitude condition at all'''

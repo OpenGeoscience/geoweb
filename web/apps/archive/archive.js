@@ -625,9 +625,21 @@ archive.main = function() {
         }
         extraInfoContent.append(newResult);
 
+        $.ajax({
+          url: ['/services/cdms/get_time_series?filepath=',filePath].join(''),
+          success: function(data) {
+	          var response = JSON.parse(data),
+	              result = response['result']
+            console.log(result);
+          },
+          error: function() {
+	          output("Failed to get time series plot");
+          }
+        });
 
         // Initialize the time-series plot here
         $("#map-timeseries").empty();
+
         var lineplot = new linePlot("#map-timeseries");
         lineplot.read(lineplot.dataset);
       }
