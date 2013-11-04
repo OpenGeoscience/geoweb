@@ -5,21 +5,11 @@ var archive = {};
 archive.myMap = null;
 
 archive.error = function(errorString, onClose) {
-  $('#error-dialog > p').text(errorString);
-  $('#error-dialog')
-  .dialog({
-    dialogClass: "error-dialog",
-    modal: true,
-    draggable: false,
-    resizable: false,
-    minHeight: 15,
-    buttons: { "Close": function() {
-                 $(this).dialog("close");
-                 if (onClose)
-                   onClose();
-               }
-    }
-    });
+
+  $('#error-modal-text').html(errorString);
+  $('#error-modal').modal();
+  if (onClose)
+    $('#error-modal').off('hidden.bs.modal').one('hidden.bs.modal', onClose)
 };
 
 archive.promptAlgorithm = function(callback) {
