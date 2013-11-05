@@ -176,7 +176,7 @@ body {
 }
 
 .variable-name {
-  width: 80px;
+  width: 180px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
