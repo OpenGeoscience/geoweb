@@ -142,8 +142,16 @@ archive.processResults = function(results, removeFilter) {
     function getVariableTagsOrName() {
       if('tags' in variable && variable['tags'].length > 0) {
         return variable['tags'].slice(0,3).join(',');
-      } else if ('long_name' in variable) {
+      } else if('long_name' in variable) {
         return variable['long_name'];
+      } else {
+        var long_name_map = {
+          'clt': 'Total Cloudiness',
+          'tas': 'Surface Air Temperature'
+        };
+        if(variable['name'] in long_name_map) {
+          return long_name_map[variable['name']];
+        }
       }
       return variable['name'];
     }
