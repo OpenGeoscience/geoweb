@@ -55,7 +55,7 @@ archive.queriesInProgress = 0;
  */
 archive.initQueryInterface = function() {
 
-  $('#document-table-body').tooltip();
+  $('#results-list').tooltip();
 
   $('#from').datepicker();
   $('#to').datepicker();
@@ -75,7 +75,7 @@ archive.initQueryInterface = function() {
     var query = $('#query-input').val();
     if (query.length == 0) {
       $('#query-input').removeClass("query-in-progress");
-      $('#document-table-body').empty();
+      $('#results-list').empty();
       // Stop the processing of any pending queries
       archive.lastDatabaseQueryProcessed = archive.databaseQueryId++
       archive.lastEsgfQueryProcessed = archive.esgfQueryId++
@@ -91,7 +91,7 @@ archive.initQueryInterface = function() {
       var target = $(ui.helper).data("dataset");
       if (target) {
         // The user now knows how to add layers to the map so remove tool tip
-        $('#document-table-body').tooltip('disable')
+        $('#results-list').tooltip('disable');
         archive.addLayer(target);
       }
     }
