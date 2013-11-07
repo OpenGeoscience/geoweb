@@ -8,6 +8,10 @@ archive.databaseQueryId = 0;
 archive.lastDatabaseQueryProcessed = -1;
 archive.esgfQueryId = 0;
 archive.lastEsgfQueryProcessed = -1;
+archive.queryCachedLat = null;
+archive.queryCachedLon = null;
+archive.queryCachedVarname = null;
+archive.lineplot = null;
 
 //////////////////////////////////////////////////////////////////////////////
 /**
@@ -23,6 +27,20 @@ archive.error = function(errorString, onClose) {
   $('#error-modal').modal();
   if (onClose)
     $('#error-modal').off('hidden.bs.modal').one('hidden.bs.modal', onClose)
+};
+
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Invalid query cache
+ *
+ * @param callback
+ */
+//////////////////////////////////////////////////////////////////////////////
+archive.resetQueryCache = function() {
+  archive.queryCachedLat = null;
+  archive.queryCachedLon = null;
+  archive.queryCachedVarname = null;
+  archive.lineplot = null;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -594,7 +612,8 @@ archive.main = function() {
       archive.myMap.queryLocation(mapCoord);
 
       // Keep querying on this position at every animateEvent
-      $(archive.myMap).on(ogs.geo.command.animateEvent + ".extraInfoBox",
+      $(archive.myMap).off(geoModule.command.animateEvent + ".extraInfoBox");
+      $(archive.myMap).on(geoModule.command.animateEvent + ".extraInfoBox",
                           function() {
                             extraInfoContent.empty();
                             archive.myMap.queryLocation(mapCoord);
@@ -630,30 +649,55 @@ archive.main = function() {
         }
         extraInfoContent.append(newResult);
 
-        // Initialize the time-series plot here
-        $("#map-timeseries").empty();
+//        console.log(layerSource);
+//        console.log(event.location);
 
-        console.log(layerSource);
-        //console.log(event.location);
+
+        // Layer source is a must for query
+        if (typeof layerSource === 'undefined') {
+          return true;
+        }
 
         if (typeof layerSource !== 'undefined' && layerSource !== null) {
           path = layerSource.path();
 
-          $.ajax({
-            url: '/services/cdms/get_time_series?varname='+layerSource.variableNames()[0]+'&filepath='+path+'&lat='
-                 +event.location.y+'&lon='+event.location.x,
-            success: function(data) {
-              var response = JSON.parse(data),
-                  result = response['result']
-              console.log(result);
+          if (!archive.lineplot) {
+            // Initialize the time-series plot here
+            $("#map-timeseries").empty();
+            archive.resetQueryCache();
+            archive.lineplot = new linePlot("#map-timeseries", 500, 200);
+          }
 
-              var lineplot = new linePlot("#map-timeseries");
-              lineplot.read(lineplot.dataset);
-            },
-            error: function() {
-              console.log("Failed to get time series plot");
-            }
-          });
+          // TOOD: Currently we don't have the API to get the active variable from a layer.
+          if (archive.queryCachedLat === event.location.y &&
+              archive.queryCachedLon === event.location.x &&
+              archive.queryCachedVarname === layerSource.variableNames()[0] &&
+              archive.lineplot) {
+              // Just update the current time pointer
+          } else {
+            $.ajax({
+              url: '/services/cdms/get_time_series?varname='+layerSource.variableNames()[0]+'&filepath='+path+'&lat='
+                   +event.location.y+'&lon='+event.location.x,
+              success: function(data) {
+                var response = JSON.parse(data),
+                    result = response['result'];
+
+                console.log('archive.queryCachedLat ' + archive.queryCachedLat);
+                console.log('archive.queryCachedLon ' + archive.queryCachedLon);
+                console.log('archive.queryCachedVarname ' + archive.queryCachedVarname);
+                console.log('event.location.y ' + event.location.y);
+                console.log('event.location.x ' + event.location.x);
+
+                archive.queryCachedLat = event.location.y;
+                archive.queryCachedLon = event.location.x;
+                archive.queryCachedVarname = layerSource.variableNames()[0];
+                archive.lineplot.read(response);
+              },
+              error: function() {
+                console.log("Failed to get time series plot");
+              }
+            });
+          }
         }
       }
       return true;

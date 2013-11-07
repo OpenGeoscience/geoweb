@@ -1,10 +1,9 @@
 # various cdms operations
 import cdms2
 from cdms2 import CDMSError
-
 import json
-
 import cherrypy
+import numpy as np
 
 class functions(object):
 
