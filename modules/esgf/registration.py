@@ -44,7 +44,8 @@ def register_with_group(url, group, role):
     post_data = {'xml': xml % (group if group else "",
                                role if role else "", user_url)}
 
-    r = requests.post(url, data=post_data, verify=False)
+    r = requests.post(url, data=post_data,
+                      cert=(cert_filepath, cert_filepath), verify=False)
 
     result = True
 
