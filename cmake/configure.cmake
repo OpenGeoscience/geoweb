@@ -2,7 +2,7 @@ set(STATICDIR_ROOT)
 set(SRC_DIR)
 set(BIN_DIR)
 set(DEPLOY_DIR)
-set(DATA_ROOT)
+set(DATA_DIR)
 set(LOG_ERROR_FILE)
 set(LOG_ACCESS_FILE)
 set(GEOWEB_USER)
@@ -13,7 +13,7 @@ set(GEOWEB_CMAKE_DIR)
 set(GEOWEB_DEPLOY_DIR)
 
 configure_file(${GEOWEB_CMAKE_DIR}/setup-runtime.sh.in
-  ${CMAKE_CURRENT_BINARY_DIR}/${GEOWEB_DEPLOY_DIR}/setup-runtime.sh @ONLY
+  ${GEOWEB_DEPLOY_DIR}/setup-runtime.sh @ONLY
 )
 
 configure_file(${GEOWEB_CMAKE_DIR}/configure_server.cmake.in
@@ -21,9 +21,9 @@ configure_file(${GEOWEB_CMAKE_DIR}/configure_server.cmake.in
 )
 
 configure_file(${GEOWEB_CMAKE_DIR}/run.sh.in
-  ${CMAKE_CURRENT_BINARY_DIR}/${GEOWEB_DEPLOY_DIR}/run.sh @ONLY
+  ${GEOWEB_DEPLOY_DIR}/run.sh @ONLY
 )
 
 configure_file(${GEOWEB_CMAKE_DIR}/geocelery_conf.py.in
-  ${CMAKE_BINARY_DIR}/${GEOWEB_DEPLOY_DIR}/modules/geocelery_conf.py @ONLY
+  ${GEOWEB_DEPLOY_DIR}/modules/geocelery_conf.py @ONLY
 )

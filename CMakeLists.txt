@@ -31,9 +31,12 @@ set(MANGLE ON CACHE BOOL "When minifying, also mangle non-public symbol names.")
 set(DOCUMENT OFF CACHE BOOL "Generate documentation for JavaScript files.")
 set(SERVER_LOGS ON CACHE BOOL "Write cherrypy server access and error logs in deploy/logs")
 set(SERVER_DEBUG ON CACHE BOOL "Write debug statements to error logs")
-set(DATA_ROOT "data" CACHE PATH "Root directory for the data")
+set(DATA_DIR "data" CACHE PATH "Root directory for the data")
+set(BASELINE_DIR "" CACHE PATH "Path to directory containing baseline images for testing.")
 set(GEOWEB_USER $ENV{USER} CACHE STRING "User to run geoweb as when dropping privileges")
 set(GEOWEB_GROUP $ENV{USER} CACHE STRING "Group to run geoweb as when dropping privileges")
+set(BUILD_TESTING OFF CACHE BOOL "Enable testing")
+
 
 #/////////////////////////////////////////////////////////////////////////////
 #
@@ -41,14 +44,18 @@ set(GEOWEB_GROUP $ENV{USER} CACHE STRING "Group to run geoweb as when dropping p
 #
 #/////////////////////////////////////////////////////////////////////////////
 
-set(DEPLOY_DIR deploy)
-set(DEPLOY_LIB_DIR "${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/web/lib")
+set(GEOWEB_DEPLOY_DIR "${CMAKE_CURRENT_BINARY_DIR}/deploy"
+    CACHE PATH "PATH to deployment directory")
+set(GEOWEB_DEPLOY_LIB_DIR "${GEOWEB_DEPLOY_DIR}/web/lib")
+set(GEOJS_DEPLOY_DIR "${GEOWEB_DEPLOY_DIR}")
+set(GEOJS_DEPLOY_LIB_DIR "${GEOWEB_DEPLOY_LIB_DIR}")
+
 set(_deploy_depends)
 set(_geoweb_cmake_dir "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # These files should be validated with JSLint.
 set(_js_lint_files)
-set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${DEPLOY_DIR})
+set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${GEOWEB_DEPLOY_DIR})
 
 #/////////////////////////////////////////////////////////////////////////////
 #
@@ -87,7 +94,7 @@ file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/stamps)
 
 # These files should be copied to the deployment directory.
 set(sources
-    geoweb geoweb.py geocelery
+    geoweb geoweb.py geocelery login.html
 )
 
 set(paths
@@ -95,7 +102,7 @@ set(paths
   nodes services temp
 )
 
-set(_lib_dir "${DEPLOY_LIB_DIR}")
+set(_lib_dir "${GEOWEB_DEPLOY_LIB_DIR}")
 add_custom_command(OUTPUT ${_lib_dir}
   COMMAND ${CMAKE_COMMAND} -E make_directory ${_lib_dir}
 )
@@ -109,10 +116,10 @@ add_custom_command(OUTPUT ${_lib_dir}
 # Copy the files to the deployment directory.
 set(all_targets)
 foreach(m ${sources})
-  set(outfile ${DEPLOY_DIR}/${m})
+  set(outfile ${GEOWEB_DEPLOY_DIR}/${m})
   add_custom_command(OUTPUT ${outfile}
     COMMAND ${CMAKE_COMMAND} -E copy
-      ${CMAKE_SOURCE_DIR}/${m} ${CMAKE_BINARY_DIR}/${outfile}
+      ${CMAKE_SOURCE_DIR}/${m} ${outfile}
     DEPENDS ${m}
   )
   list(APPEND all_targets ${outfile})
@@ -124,15 +131,16 @@ foreach(m ${paths})
     if (IS_DIRECTORY "${CMAKE_SOURCE_DIR}/${m}")
       set(copy_command "copy_directory")
     endif()
-    set(outpath ${DEPLOY_DIR}/${m})
+    set(outpath ${GEOWEB_DEPLOY_DIR}/${m})
     add_custom_command(
         OUTPUT ${outpath}
         COMMAND ${CMAKE_COMMAND} -E ${copy_command}
-          ${CMAKE_SOURCE_DIR}/${m} ${CMAKE_BINARY_DIR}/${outpath}
-        DEPENDS ${m} ${_lib_dir}
+          ${CMAKE_SOURCE_DIR}/${m} ${outpath}
+        DEPENDS ${m}
     )
     list(APPEND all_targets ${outpath})
 endforeach()
+add_custom_target(bar ALL DEPENDS ${all_targets})
 
 # Uglify and concatenate the library js files.
 if(NOT ${MINIFY})
@@ -143,11 +151,11 @@ if(${MINIFY} AND ${MANGLE})
     set(MANGLE_FLAG "-m")
 endif()
 
-set(_logs_dir ${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/logs)
+set(_logs_dir ${GEOWEB_DEPLOY_DIR}/logs)
 add_custom_command(
   OUTPUT ${_logs_dir}
   COMMAND ${CMAKE_COMMAND} -E make_directory
-  ${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/logs
+    ${GEOWEB_DEPLOY_DIR}/logs
 )
 
 if(SERVER_LOGS)
@@ -199,13 +207,12 @@ endif()
 #
 #/////////////////////////////////////////////////////////////////////////////
 
-add_custom_target(predeploy ALL
+add_custom_target(geoweb_pre_deploy ALL
   COMMAND ${CMAKE_COMMAND}
    -DSTATICDIR_ROOT=${STATICDIR_ROOT}
    -DSRC_DIR=${SRC_DIR}
    -DBIN_DIR=${BIN_DIR}
-   -DGEOWEB_DEPLOY_DIR=${DEPLOY_DIR}
-   -DDATA_ROOT=${DATA_ROOT}
+   -DDATA_DIR=${DATA_DIR}
    -DLOG_ERROR_FILE=${LOG_ERROR_FILE}
    -DLOG_ACCESS_FILE=${LOG_ACCESS_FILE}
    -DGEOWEB_USER=${GEOWEB_USER}
@@ -213,15 +220,15 @@ add_custom_target(predeploy ALL
    -DVTK_DIR=${VTK_DIR}
    -DVisTrails_DIR=${VisTrails_DIR}
    -DGEOWEB_CMAKE_DIR=${_geoweb_cmake_dir}
-   -DGEOWEBDEPLOY_DIR=${DEPLOY_DIR}
+   -DGEOWEB_DEPLOY_DIR=${GEOWEB_DEPLOY_DIR}
    -P ${_geoweb_cmake_dir}/configure.cmake
   DEPENDS
     ${_lib_dir} ${all_targets} ${_logs_dir}
     ${documentation_stamp}
 )
 
-set(_server_config "${DEPLOY_DIR}/server.conf")
-add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/server.conf
+set(_server_config "${GEOWEB_DEPLOY_DIR}/server.conf")
+add_custom_command(OUTPUT ${GEOWEB_DEPLOY_DIR}/server.conf
   COMMAND ${CMAKE_COMMAND} -P
     ${CMAKE_CURRENT_BINARY_DIR}/configure_server.cmake
   DEPENDS
@@ -231,11 +238,35 @@ add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${DEPLOY_DIR}/server.conf
   VERBATIM
 )
 
+
 add_custom_target(deploy ALL DEPENDS ${_server_config})
-add_dependencies(deploy predeploy)
+add_dependencies(deploy geoweb_pre_deploy)
+add_dependencies(deploy bar)
+
+# Testing
+if (BUILD_TESTING)
+  include(CTest)
+  enable_testing()
+
+  if(EXISTS "${DATA_DIR}" AND IS_DIRECTORY "${DATA_DIR}")
+    message("[info] GeoWeb data directory is set to ${DATA_DIR}")
+    set(GEOJS_DATA_DIR "${DATA_DIR}")
+  else()
+    message(FATAL_ERROR "GeoWeb testing requires valid data directory")
+  endif()
+
+  if(EXISTS "${BASELINE_DIR}" AND IS_DIRECTORY "${BASELINE_DIR}")
+    message("[info] GeoWeb baseline directory is set to ${BASELINE_DIR}")
+    set(GEOJS_BASELINE_DIR "${BASELINE_DIR}")
+  else()
+    message(FATAL_ERROR "GeoWeb testing requires valid baseline directory")
+  endif()
+endif()
 
 # Now include sub-directories
 add_subdirectory(web)
+add_dependencies(geojs geoweb_pre_deploy)
+
 
 #/////////////////////////////////////////////////////////////////////////////
 #

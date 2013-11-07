@@ -18,7 +18,7 @@
 }
 
 ::-webkit-scrollbar-thumb:window-inactive {
-	background: rgba(255,0,0,0.2);
+  background: rgba(255,0,0,0.2);
 }
 
 p {
@@ -182,4 +182,14 @@ body {
   text-overflow: ellipsis;
   padding-left: 8px;
   padding-right: 8px;
+}
+
+.table-heading-left {
+  text-align: left;
+}
+
+input[type="checkbox"][class="group-selection"] {
+  margin-top: 0;
+  margin-bottom: 2px;
+  vertical-align: middle;
 }

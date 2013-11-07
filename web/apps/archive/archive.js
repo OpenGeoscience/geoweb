@@ -5,21 +5,11 @@ var archive = {};
 archive.myMap = null;
 
 archive.error = function(errorString, onClose) {
-  $('#error-dialog > p').text(errorString);
-  $('#error-dialog')
-  .dialog({
-    dialogClass: "error-dialog",
-    modal: true,
-    draggable: false,
-    resizable: false,
-    minHeight: 15,
-    buttons: { "Close": function() {
-                 $(this).dialog("close");
-                 if (onClose)
-                   onClose();
-               }
-    }
-    });
+
+  $('#error-modal-text').html(errorString);
+  $('#error-modal').modal();
+  if (onClose)
+    $('#error-modal').off('hidden.bs.modal').one('hidden.bs.modal', onClose)
 };
 
 archive.promptAlgorithm = function(callback) {
@@ -63,13 +53,13 @@ archive.initQueryInterface = function() {
   $(archive).on('query-started', function() {
     archive.queriesInProgress++;
     $('#query-input').addClass("query-in-progress");
-  })
+  });
 
   $(archive).on('query-canceled query-finished query-error', function() {
     archive.queriesInProgress--;
     if (archive.queriesInProgress == 0)
       $('#query-input').removeClass("query-in-progress");
-  })
+  });
 
   $('#query-input').bind("keyup", function() {
     var query = $('#query-input').val();
@@ -83,8 +73,13 @@ archive.initQueryInterface = function() {
     else {
       archive.queryDatabase(query);
       archive.queryESGF(query);
+
+      if(archive.tutorialMask.isOff('dragAndDrop')) {
+        $('#document-table-body').tooltip('show');
+        archive.tutorialMask.turnOn('dragAndDrop');
+      }
     }
-  })
+  });
 
   $('#glcanvas').droppable({
     drop: function(event, ui) {
@@ -96,7 +91,7 @@ archive.initQueryInterface = function() {
       }
     }
   });
-}
+};
 
 /**
  * Process the result coming from mongo.
@@ -355,7 +350,7 @@ archive.queryDatabase = function(query) {
 
   $.ajax({
     type: 'POST',
-    url: '/mongo/' + mongo.server + '/' + mongo.database + '/' + mongo.collection,
+    url: '/services/mongo/' + mongo.server + '/' + mongo.database + '/' + mongo.collection,
     data: {
       queryId: archive.databaseQueryId++,
       query: JSON.stringify(mongoQuery),
@@ -396,7 +391,7 @@ archive.nextResult = function (queryId, streamId, remove) {
 
   $.ajax({
     type: 'POST',
-    url: '/esgf/stream',
+    url: '/services/esgf/stream',
     data: {
       queryId: queryId,
       streamId: streamId
@@ -440,7 +435,7 @@ archive.cancelStream = function (streamId) {
 
   $.ajax({
     type: 'POST',
-    url: '/esgf/stream',
+    url: '/services/esgf/stream',
     data: {
       streamId: streamId,
       cancel: true
@@ -469,7 +464,7 @@ archive.queryESGF = function(query) {
 
   $.ajax({
     type: 'POST',
-    url: '/esgf/query',
+    url: '/services/esgf/query',
     data: {
       queryId: archive.esgfQueryId++,
       expr: JSON.stringify(query)
@@ -515,7 +510,7 @@ archive.main = function() {
   var mapOptions = {
     zoom : 6,
     center : ogs.geo.latlng(0.0, 0.0),
-    source: '/data/land_shallow_topo_2048.png',
+    source: '/services/data/land_shallow_topo_2048.png',
     country_boundaries: true
   };
 
@@ -612,12 +607,22 @@ archive.main = function() {
 
       mapCoord.event = event;
       archive.myMap.queryLocation(mapCoord);
+
+      // Keep querying on this position at every animateEvent
+      $(archive.myMap).on(ogs.geo.command.animateEvent + ".extraInfoBox",
+                          function() {
+                            extraInfoContent.empty();
+                            archive.myMap.queryLocation(mapCoord);
+                          }
+                         );
+
       return true;
     });
 
     //hook up extra info close click
     $('#close-extra-info').off('click').click(function() {
       $("#map-extra-info-box").fadeOut({duration: 200, queue: false});
+      $(archive.myMap).off(ogs.geo.command.animateEvent + ".extraInfoBox"); // stop re-querying during animations
     });
 
     // React to queryResultEvent
@@ -637,6 +642,24 @@ archive.main = function() {
       }
       return true;
     });
+
+
+    // Setup tutorial bitmask
+    archive.tutorialMask = new NamedBitMask();
+    archive.tutorialMask.add('query');
+    archive.tutorialMask.add('dragAndDrop');
+    archive.tutorialMask.add('layerOptions');
+
+    // setup tooltips
+    $('#query-input').tooltip();
+    $('#document-table-body').tooltip();
+    $('#layers').tooltip();
+
+    //@todo: check save/load tutorial mask to determine whether or not to show
+    if(archive.tutorialMask.isOff('query')) {
+      $('#query-input').tooltip('show');
+      archive.tutorialMask.turnOn('query');
+    }
   });
 
   /* set up workflow editor */
@@ -671,6 +694,15 @@ archive.main = function() {
       $('#algorithm-select').append($('<option>'+name+'</option>'));
     }
   }
+
+  archive.userName(function(openIdUri) {
+    var parts = openIdUri.split('/');
+    $('#user-name').html(parts[parts.length-1]);
+  });
+
+  $('#logout').click(function(event) {
+    archive.logOut();
+  });
 };
 
 archive.initWebSockets = function() {
@@ -763,7 +795,7 @@ archive.timeRange = function(name, onComplete) {
 
   $.ajax({
     type: 'POST',
-    url: '/mongo/' + mongo.server + '/' + mongo.database + '/' + mongo.collection,
+    url: '/services/mongo/' + mongo.server + '/' + mongo.database + '/' + mongo.collection,
     data: {
       query: JSON.stringify(query),
       limit:100,
@@ -780,12 +812,112 @@ archive.timeRange = function(name, onComplete) {
   });
 }
 
+archive.registerWithGroup = function(target, registrationUrl, group, role) {
+  $.ajax({
+    type: 'POST',
+    url: '/services/esgf/register',
+    data: {
+      url: registrationUrl,
+      group: group,
+      role: role
+    },
+    dataType: 'json',
+    success: function(response) {
+      console.log(response);
+      if (response.error !== null) {
+          console.log("[error] " + response.error ? response.error : "no results returned from server");
+      } else {
+
+        if (response.result.success) {
+          // Try again ...
+          archive.downloadESGF(target, archive.onDownloadComplete)
+        }
+        // Redirect user to ESGF
+        else {
+          $('#esgf-register-redirect').modal();
+          $('tr#' + target.dataset_id).remove();
+          $('#esgf-register-redirect-button').off('click').on('click', function() {
+            window.open(target.url);
+            $('#esgf-register-redirect').modal('hide');
+          });
+        }
+      }
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+        console.log(errorThrown)
+    }
+  });
+}
+
+archive.register = function(target, taskId) {
+
+  $.ajax({
+    type: 'POST',
+    url: '/services/esgf/registerGroups',
+    data: {
+      taskId: taskId
+    },
+    dataType: 'json',
+    success: function(response) {
+      console.log(response);
+      if (response.error !== null) {
+          console.log("[error] " + response.error ? response.error : "no results returned from server");
+      } else {
+        $('#esgf-register-table-body').empty();
+        $.each(response.result.groups, function(i, details) {
+          entry = $('<tr>');
+          select = $('<input>');
+          select.attr('type', 'checkbox');
+          select.attr('role', details.role);
+          select.attr('group', details.group);
+          select.attr('url', details.url);
+          select.addClass('group-selection');
+          group = $('<td>');
+          group.html(details.group);
+          role = $('<td>');
+          role.html(details.role);
+          site = $('<td>');
+          var parser = document.createElement('a');
+          parser.href = details.url
+          site.html(parser.host);
+
+          entry.append($('<td>').append(select), group, role, site);
+          $('#esgf-register-table-body').append(entry);
+        });
+
+        $('#esgf-register-dialog').modal();
+
+        $('#esgf-register').attr('clicked', false);
+        $('#esgf-register').off('click').on('click', function(event) {
+          $('#esgf-register').attr('clicked', true );
+          $.each($('.group-selection'), function(i, selection) {
+
+            archive.registerWithGroup(target, $(selection).attr('url'),
+                $(selection).attr('group'), $(selection).attr('role'));
+          });
+        });
+
+        $('#esgf-register-dialog').off('hidden').on('hidden', function() {
+          if ($('#esgf-register').attr('clicked') == 'false') {
+            $('tr#' + target.dataset_id).remove();
+          }
+        })
+
+      }
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+        console.log(errorThrown)
+    }
+  });
+
+}
+
 archive.monitorESGFDownload = function(target, taskId, onComplete) {
   var dataSetId = target.dataset_id;
 
   $.ajax({
     type: 'POST',
-    url: '/esgf/download_status',
+    url: '/services/esgf/download_status',
     data: {
       taskId: taskId
     },
@@ -798,6 +930,11 @@ archive.monitorESGFDownload = function(target, taskId, onComplete) {
         if (response.result.state == 'CANCELED')
         {
           // We are done just return
+          return;
+        }
+        // Does the user need to register?
+        else if (response.result.state == 'FORBIDDEN') {
+          archive.register(target, taskId);
           return;
         }
         else if (response.result.state != 'FAILURE') {
@@ -815,8 +952,9 @@ archive.monitorESGFDownload = function(target, taskId, onComplete) {
           }
         }
         else {
-          // Try again?
-          archive.downloadESGF(target, onComplete, response.result.message);
+          archive.error(response.result.message, function() {
+            $('tr#' + dataSetId).remove();
+          });
         }
       }
     },
@@ -829,8 +967,6 @@ archive.monitorESGFDownload = function(target, taskId, onComplete) {
 archive.onDownloadComplete = function(dataSetId) {
   var layerRow = $('tr#' + dataSetId);
 
-  // This sucks and is very fragile ... !
-  var user = $('#user').val();
   var dataSet = layerRow.data("dataset");
 
   // The row has been removed so we are nolonger interesting in this download.
@@ -839,9 +975,8 @@ archive.onDownloadComplete = function(dataSetId) {
 
   $.ajax({
     type: 'POST',
-    url: '/esgf/filepath',
+    url: '/services/esgf/filepath',
     data: {
-      userUrl: user,
       url: dataSet.url
     },
     dataType: 'json',
@@ -873,7 +1008,7 @@ archive.cancelESGFDownload = function(taskId, dataSetId) {
   else {
     $.ajax({
       type: 'POST',
-      url: '/esgf/cancel_download',
+      url: '/services/esgf/cancel_download',
       data: {
         taskId: taskId
       },
@@ -894,70 +1029,44 @@ archive.cancelESGFDownload = function(taskId, dataSetId) {
 
 archive.downloadESGF = function(target, onComplete, message) {
 
-  $('#esgf-login').modal({backdrop: 'static'});
+  $.ajax({
+    type: 'POST',
+    url: '/services/esgf/download',
+    data: {
+      url: target.url, // we could reused base name.
+      size: target.size,
+      checksum: target.checksum,
+    },
+    dataType: 'json',
+    success: function(response) {
+      if (response.error !== null) {
+          console.log("[error] " + response.error ? response.error : "no results returned from server");
+      } else {
+        if (response.result && 'taskId' in response.result) {
+          var taskId = response.result['taskId']
+          var dataSetId = target.dataset_id
 
-  message = typeof message !== 'undefined' ? message : '';
+          if ($('tr#' + dataSetId).length ) {
+            $('tr#' + dataSetId + ' td:nth-child(4) #progress');
 
-  $('#esgf-login #message').html(message);
-
-  $('#esgf-login #download').off();
-  $('#esgf-login #download').one('click', function() {
-    var user = $('#user').val();
-    var password = $('#password').val();
-
-    $.ajax({
-      type: 'POST',
-      url: '/esgf/download',
-      data: {
-        url: target.url, // we could reused base name.
-        size: target.size,
-        checksum: target.checksum,
-        userUrl: user,
-        password: password
-      },
-      dataType: 'json',
-      success: function(response) {
-        if (response.error !== null) {
-            console.log("[error] " + response.error ? response.error : "no results returned from server");
-        } else {
-          if (response.result && 'taskId' in response.result) {
-            var taskId = response.result['taskId']
-            var dataSetId = target.dataset_id
-
-            if ($('tr#' + dataSetId).length ) {
-              $('tr#' + dataSetId + ' td:nth-child(4) #progress');
-
-              // Add listener to cancel the download task if requested
-              $('tr#' + dataSetId).on('cancel-download-task', function() {
-                archive.cancelESGFDownload(taskId, dataSetId);
-              });
-
-              archive.monitorESGFDownload(target, response.result['taskId'],
-                onComplete);
-            }
-            // The row has been removed so cancel the download
-            else {
+            // Add listener to cancel the download task if requested
+            $('tr#' + dataSetId).on('cancel-download-task', function() {
               archive.cancelESGFDownload(taskId, dataSetId);
-            }
-          } else {
-            archive.error("No id return to monitor download");
+            });
+
+            archive.monitorESGFDownload(target, response.result['taskId'],
+              onComplete);
           }
+          // The row has been removed so cancel the download
+          else {
+            archive.cancelESGFDownload(taskId, dataSetId);
+          }
+        } else {
+          archive.error("No id return to monitor download");
         }
       }
-    });
-  });
-
-  $('#password').keypress(function(e) {
-    if (e.charCode == 13) {
-      $('#esgf-login #download').click();
     }
   });
-
-  $('#esgf-login #cancel').off();
-  $('#esgf-login #cancel').one('click', function() {
-    archive.removeLayer(this, target.dataset_id);
-  });
-
 };
 
 archive.addLayerToMap = function(id, name, filePath, parameter, timeval, algorithm) {
@@ -985,7 +1094,11 @@ archive.addLayerToMap = function(id, name, filePath, parameter, timeval, algorit
 
   archive.myMap.addLayer(layer);
   archive.myMap.draw();
-}
+
+  if(archive.tutorialMask.isOff('layerOptions')) {
+    $('#layers').tooltip('show');
+  }
+};
 
 
 archive.workflowLayer = function(target, layerId) {
@@ -1079,3 +1192,46 @@ archive.addLayer = function(target) {
     });
   }
 };
+
+
+archive.userName = function(onUserName) {
+  $.ajax({
+    type: 'GET',
+    url: '/services/session',
+    data: {
+      parameter: 'username'
+    },
+    dataType: 'json',
+    success: function(response) {
+      if (response.error !== null) {
+        console.log("[error] " + response.error ? response.error : "no results returned from server");
+        $(archive).trigger('query-error');
+      } else {
+        onUserName(response.result.value);
+      }
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+      archive.error(errorThrown);
+    }
+  });
+}
+
+
+archive.logOut = function() {
+  $.ajax({
+    type: 'DELETE',
+    url: '/services/session',
+    dataType: 'json',
+    success: function(response) {
+      if (response.error !== null) {
+        console.log("[error] " + response.error ? response.error : "no results returned from server");
+        $(archive).trigger('query-error');
+      } else {
+        location.reload();
+      }
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+      archive.error(errorThrown);
+    }
+  });
+}

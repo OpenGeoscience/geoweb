@@ -24,10 +24,14 @@ def _extract_url(doc_node):
 streams = dict()
 
 def query(site_url, query):
-  r = requests.get("%s/esg-search/search?query=%s" % ( site_url, query))
-  xml = r.text
-
   files = []
+
+  r = requests.get("%s/esg-search/search?query=%s" % ( site_url, query), verify=False)
+
+  if r.status_code != 200:
+      cherrypy.log('Unable to access ESGF node to perform search: %d' % r.status_code)
+
+  xml = r.text
 
   doc = libxml2.parseDoc(r.text)
   for node in doc.xpathEval('/response/result/doc'):
@@ -43,8 +47,8 @@ def query(site_url, query):
     r = requests.get(url)
 
     if r.status_code != 200:
-      print "error getting catalogue"
-      return
+      cherrypy.log( "Error getting catalogue: "+url)
+      continue
 
     #print r.text
     context = libxml2.parseDoc(r.text).xpathNewContext()
@@ -80,3 +84,17 @@ def query(site_url, query):
           yield file
       except IndexError:
           pass
+
+def run(*pargs, **kwargs):
+    response = geoweb.empty_response();
+
+    streamId = str(uuid.uuid1())
+    expr = kwargs['expr']
+    base_url = cherrypy.session['ESGFBaseUrl']
+    streams[streamId] = query(base_url, expr)
+    response['result'] = {'hasNext': True, 'streamId': streamId}
+
+    if 'queryId' in kwargs:
+        response['result']['queryId'] = int(kwargs['queryId'])
+
+    return json.dumps(response)

@@ -3,7 +3,7 @@ set(SRC_DIR "@CMAKE_CURRENT_SOURCE_DIR@")
 set(BIN_DIR "@CMAKE_CURRENT_BINARY_DIR@")
 set(GEOWEB_DEPLOY_DIR "@GEOWEB_DEPLOY_DIR@")
 set(GEOWEB_CMAKE_DIR "@GEOWEB_CMAKE_DIR@")
-set(DATA_ROOT "@DATA_ROOT@")
+set(DATA_DIR "@DATA_DIR@")
 set(LOG_ERROR_FILE "@LOG_ERROR_FILE@")
 set(LOG_ACCESS_FILE "@LOG_ACCESS_FILE@")
 set(GEOWEB_USER "@GEOWEB_USER@")
@@ -14,5 +14,7 @@ if (EXISTS "${STATICDIR_ROOT}" AND IS_DIRECTORY "${STATICDIR_ROOT}")
 endif()
 
 configure_file("${GEOWEB_CMAKE_DIR}/server.conf.in"
-  "${BIN_DIR}/${GEOWEB_DEPLOY_DIR}/server.conf" @ONLY
-)
+  "${GEOWEB_DEPLOY_DIR}/server.conf" @ONLY)
+
+configure_file("${GEOWEB_CMAKE_DIR}/geoweb.conf.in"
+  "${GEOWEB_DEPLOY_DIR}/geoweb.conf" @ONLY)
