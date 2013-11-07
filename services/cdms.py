@@ -4,6 +4,8 @@ from cdms2 import CDMSError
 
 import json
 
+import cherrypy
+
 class functions(object):
 
     @staticmethod
@@ -27,9 +29,17 @@ class functions(object):
 
         return result
 
-    def get_time_series(filepath, lat, lon):
-        f = cdms2.open(filePath)
-        myvariable = f[variable_name]
+    @staticmethod
+    def get_time_series(varname, filepath, lat, lon):
+        cherrypy.log('opening ', filepath)
+
+        # CDAT does not handle numpy dataypes and unicode string
+        filepath = str(filepath)
+        lat=np.asscalar(np.float64(lat))
+        lon=np.asscalar(np.float64(lon))
+
+        f = cdms2.open(filepath)
+        myvariable = f[varname]
 
         '''Return nothing if the variable does not contain time, longitude & latitude condition at all'''
         order = myvariable.getOrder()

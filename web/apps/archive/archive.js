@@ -621,7 +621,7 @@ archive.main = function() {
         extraInfoContent.append("<div style='font-weight:bold;'>" + layer.name() + "</div>");
       }
 
-      var queryData = queryResult.data;
+      var queryData = queryResult. data;
       if (queryData) {
         var newResult = document.createElement("div");
         newResult.style.paddingLeft = "12px";
@@ -634,12 +634,14 @@ archive.main = function() {
         $("#map-timeseries").empty();
 
         console.log(layerSource);
+        //console.log(event.location);
 
         if (typeof layerSource !== 'undefined' && layerSource !== null) {
           path = layerSource.path();
 
           $.ajax({
-            url: ['/services/cdms/get_time_series?filepath=',path].join(''),
+            url: '/services/cdms/get_time_series?varname='+layerSource.variableNames()[0]+'&filepath='+path+'&lat='
+                 +event.location.y+'&lon='+event.location.x,
             success: function(data) {
               var response = JSON.parse(data),
                   result = response['result']
