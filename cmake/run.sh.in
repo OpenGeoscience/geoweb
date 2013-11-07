@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Get script path
 CDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
