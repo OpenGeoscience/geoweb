@@ -11,7 +11,7 @@ archive.lastEsgfQueryProcessed = -1;
 archive.queryCachedLat = null;
 archive.queryCachedLon = null;
 archive.queryCachedVarname = null;
-archive.lineplot = null;
+archive.timeseriesPlot = null;
 
 //////////////////////////////////////////////////////////////////////////////
 /**
@@ -40,7 +40,7 @@ archive.resetQueryCache = function() {
   archive.queryCachedLat = null;
   archive.queryCachedLon = null;
   archive.queryCachedVarname = null;
-  archive.lineplot = null;
+  archive.timeseriesPlot = null;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -661,18 +661,18 @@ archive.main = function() {
         if (typeof layerSource !== 'undefined' && layerSource !== null) {
           path = layerSource.path();
 
-          if (!archive.lineplot) {
+          if (!archive.timeseriesPlot) {
             // Initialize the time-series plot here
             $("#map-timeseries").empty();
             archive.resetQueryCache();
-            archive.lineplot = new linePlot("#map-timeseries", 500, 200);
+            archive.timeseriesPlot = new timeseriesPlot("#map-timeseries", 500, 200);
           }
 
           // TOOD: Currently we don't have the API to get the active variable from a layer.
           if (archive.queryCachedLat === event.location.y &&
               archive.queryCachedLon === event.location.x &&
               archive.queryCachedVarname === layerSource.variableNames()[0] &&
-              archive.lineplot) {
+              archive.timeseriesPlot) {
               // Just update the current time pointer
           } else {
             $.ajax({
@@ -691,7 +691,7 @@ archive.main = function() {
                 archive.queryCachedLat = event.location.y;
                 archive.queryCachedLon = event.location.x;
                 archive.queryCachedVarname = layerSource.variableNames()[0];
-                archive.lineplot.read(response);
+                archive.timeseriesPlot.read(response);
               },
               error: function() {
                 console.log("Failed to get time series plot");

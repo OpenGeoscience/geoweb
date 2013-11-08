@@ -1,4 +1,4 @@
-var linePlot = function(nodeId, width, height) {
+var timeseriesPlot = function(nodeId, width, height) {
   var margin = {top: 20, right: 20, bottom: 60, left: 50},
       width = width || $(nodeId).width(),
       height = height || $(nodeId).height();
