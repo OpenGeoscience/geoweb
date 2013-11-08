@@ -2,6 +2,9 @@
 <html lang="en">
   <head>
   <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
 
   <script type="text/javascript" src="/common/js/jquery-1.9.1.js"></script>
   <script type="text/javascript" src="/common/js/jquery-ui.js"></script>
@@ -13,6 +16,7 @@
   <script type="text/javascript" src="/common/js/proj4.js"></script>
   <script type="text/javascript" src="/lib/vgl.min.js"></script>
   <script type="text/javascript" src="/lib/geojs.min.js"></script>
+  <script type="text/javascript" src="timeseriesPlot.js"></script>
   <script type="text/javascript" src="archive.js"></script>
   <script type="text/javascript" src="mask.js"></script>
   <script>
@@ -51,12 +55,12 @@
       });
     }
 
-
     function init() {
       animateControlPanel($('#drawer'), $('#collapse-icon'), $('#control-panel'))
       animateControlPanel($('#map-control-drawer'),
           $('map-control-collapse-icon'), $('#map-control-panel'))
     }
+
   </script>
   <link href="/common/css/jquery-ui.css" rel=stylesheet type=text/css>
   <link href="/common/css/bootstrap.css" rel=stylesheet type=text/css>
@@ -70,8 +74,19 @@
       <a class="brand" href="/">ClimatePipes</a>
       <ul class="nav">
       <li class="active"><a href="#">ClimatePipes Archive</a></li>
-    </ul>
-    </div>
+      </ul>
+     <div class="nav pull-right" style="padding-top:10px; padding-right: 5px;">
+      <a id=user-name class="dropdown-toggle" data-toggle="dropdown" href="#">
+        <span class="caret"></span>
+      </a>
+      <ul class="dropdown-menu" style='min-width: 0;'>
+       <li>
+         <a id=logout href="#">Logout</a>
+       </li>
+      </ul>
+     </div>
+  </div>
+
   </div>
   <div id=map style="width:100%; height:100%;">
     <canvas id="glcanvas" style="width:100%; height:100%;" ></canvas>
@@ -80,6 +95,7 @@
   <div id="map-extra-info-box" class="extra-info">
     <button id="close-extra-info" class="close">&times;</button>
     <div id="map-extra-info-content"></div>
+    <div id="map-timeseries"></div>
   </div>
 
   <div id=control-panel style="position:fixed; bottom:0px; width:100%; height: 400px; background:rgba(255,255,255,0.5);">
@@ -180,6 +196,7 @@
   </div>
   <div class="modal-body">
     <input id="user" type="text" style="width: 350px;" placeholder="OpenID identifier" required>
+    <input id="user" type="text" style="width: 350px;" placeholder="OpenID identifier" required>
     <input id="password" type="password" class="input-small" placeholder="Password" required>
     <div id=message class=text-warning></div>
   </div>
@@ -213,5 +230,56 @@
       <button id="algorithm-ok" class="btn btn-primary" data-dismiss="modal">Ok</button>
     </div>
   </div>
+  <div id="esgf-register-dialog" class="modal hide fade">
+    <div class="modal-header"><h3>Please register for ESGF dataset</h3></div>
+    <div class="modal-body">
+    <div class=row-fluid>
+    To obtain access to these data, please register with one of the following groups:
+    </div>
+   <div class=row-fluid>
+    <table id="esgf-register-table" class="table-hover">
+     <thead>
+      <tr>
+       <th></th>
+       <th class=table-heading-left>Group</th>
+       <th class=table-heading-left>Role</th>
+       <th class=table-heading-left>Site</th>
+     </thead>
+     <tbody id="esgf-register-table-body" data-container="body">
+     </tbody>
+    </table>
+   </div>
+  </div>
+    <div class="modal-footer">
+      <button id="esgf-register" class="btn btn-primary" data-dismiss="modal">Register</button>
+    </div>
+  </div>
+ <div id=esgf-register-redirect class="modal hide">
+ <div class="modal-dialog">
+   <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">x</button>
+    <h3>Please register directly with ESGF</h3>
+   </div>
+   <div class="modal-body">
+     We where unable to register you with the selected groups. Please click below to
+     open the ESGF registration page. Once registered please try the dataset again.
+   </div>
+   <div class="modal-footer">
+     <button id=esgf-register-redirect-button type=button class="btn btn-primary">Open ESGF registration page</button>
+   </div>
+ </div>
+ </div>
+ <div id=error-modal class="modal hide">
+  <div class="modal-dialog">
+   <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">x</button>
+    <h3>Internal Application Error</h3>
+   </div>
+   <div id=error-modal-body class="modal-body">
+   <p id=error-modal-text class="text-warning"></p>
+   </div>
+
+  </div>
+ </div>
 
 </html>
