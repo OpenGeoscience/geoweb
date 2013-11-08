@@ -139,6 +139,19 @@ archive.initQueryInterface = function() {
   $('#drawRegion').off('click').click(function() {
     var active = $(this).toggleClass('active').hasClass('active');
     archive.myMap.viewer().interactorStyle().drawRegionMode(active);
+    if(active &&
+      $.trim($('#longitudeFrom').val()).length > 0 &&
+      $.trim($('#longitudeTo').val()).length > 0 &&
+      $.trim($('#latitudeFrom').val()).length > 0 &&
+      $.trim($('#latitudeTo').val()).length > 0
+    ) {
+      archive.myMap.getInteractorStyle().setDrawRegion(
+        parseFloat($('#latitudeFrom').val()),
+        parseFloat($('#longitudeFrom').val()),
+        parseFloat($('#latitudeTo').val()),
+        parseFloat($('#longitudeTo').val())
+      );
+    }
   });
 };
 
@@ -791,6 +804,22 @@ archive.main = function() {
       $('#query-input').tooltip('show');
       archive.tutorialMask.turnOn('query');
     }
+
+    //setup map draw region listener
+    $(archive.myMap.getInteractorStyle()).on(
+      ogs.geo.command.updateDrawRegionEvent,
+      function() {
+        var coords = archive.myMap.getInteractorStyle().getDrawRegion();
+
+        $('#latitudeFrom').val(coords[0]);
+        $('#longitudeFrom').val(coords[1]);
+        $('#latitudeTo').val(coords[2]);
+        $('#longitudeTo').val(coords[3]);
+      }
+    );
+
+    //init tooltips on time and space inputs
+    $('#collapse-documents').find('.input-small').tooltip();
   });
 
   /* set up workflow editor */
