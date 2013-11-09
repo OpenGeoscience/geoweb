@@ -3,7 +3,24 @@
 
 var archive = {};
 archive.myMap = null;
+archive.queriesInProgress = 0;
+archive.databaseQueryId = 0;
+archive.lastDatabaseQueryProcessed = -1;
+archive.esgfQueryId = 0;
+archive.lastEsgfQueryProcessed = -1;
+archive.queryCachedLat = null;
+archive.queryCachedLon = null;
+archive.queryCachedVarname = null;
+archive.timeseriesPlot = null;
 
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Display error message
+ *
+ * @param errorString
+ * @param onClose
+ */
+//////////////////////////////////////////////////////////////////////////////
 archive.error = function(errorString, onClose) {
 
   $('#error-modal-text').html(errorString);
@@ -12,8 +29,28 @@ archive.error = function(errorString, onClose) {
     $('#error-modal').off('hidden.bs.modal').one('hidden.bs.modal', onClose)
 };
 
-archive.promptAlgorithm = function(callback) {
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Invalid query cache
+ *
+ * @param callback
+ */
+//////////////////////////////////////////////////////////////////////////////
+archive.resetQueryCache = function() {
+  archive.queryCachedLat = null;
+  archive.queryCachedLon = null;
+  archive.queryCachedVarname = null;
+  archive.timeseriesPlot = null;
+};
 
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Display algorithm options
+ *
+ * @param callback
+ */
+//////////////////////////////////////////////////////////////////////////////
+archive.promptAlgorithm = function(callback) {
   $('#algorithm-dialog').modal({backdrop: 'static'});
   $('#algorithm-dialog #algorithm-ok').off().one('click', function(){
     callback.call(archive);
@@ -29,20 +66,27 @@ archive.promptAlgorithm = function(callback) {
     $('#algorithm-select').show();
 };
 
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Get mongo default configuration
+ *
+ * @returns {{server: (*|string), database: (*|string), collection: (*|string)}}
+ */
+//////////////////////////////////////////////////////////////////////////////
 archive.getMongoConfig = function() {
   "use strict";
-    return {
-      server:localStorage.getItem('archive:mongodb-server') || 'localhost',
-      database:localStorage.getItem('archive:mongodb-database') || 'documents',
-      collection:localStorage.getItem('archive:mongodb-collection') || 'files'
-    }
+  return {
+    server:localStorage.getItem('archive:mongodb-server') || 'localhost',
+    database:localStorage.getItem('archive:mongodb-database') || 'documents',
+    collection:localStorage.getItem('archive:mongodb-collection') || 'files'
+  }
 };
 
-archive.queriesInProgress = 0;
-
+//////////////////////////////////////////////////////////////////////////////
 /**
  * Setup the basic query components and bindings.
  */
+//////////////////////////////////////////////////////////////////////////////
 archive.initQueryInterface = function() {
 
   $('#document-table-body').tooltip();
@@ -93,9 +137,11 @@ archive.initQueryInterface = function() {
   });
 };
 
+//////////////////////////////////////////////////////////////////////////////
 /**
  * Process the result coming from mongo.
  */
+//////////////////////////////////////////////////////////////////////////////
 archive.processLocalResults = function(results, remove) {
   remove = typeof remove !== 'undefined' ? remove : false;
 
@@ -107,6 +153,14 @@ archive.processLocalResults = function(results, remove) {
   archive.processResults(results, removeFilter);
 }
 
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Process ESGF results
+ *
+ * @param results
+ * @param remove
+ */
+//////////////////////////////////////////////////////////////////////////////
 archive.processESGFResults = function(results, remove) {
   remove = typeof remove !== 'undefined' ? remove : false;
 
@@ -118,9 +172,11 @@ archive.processESGFResults = function(results, remove) {
   archive.processResults(results, removeFilter);
 }
 
+//////////////////////////////////////////////////////////////////////////////
 /**
  * Use D3 to update document table with results.
  */
+//////////////////////////////////////////////////////////////////////////////
 archive.processResults = function(results, removeFilter) {
 
   var tr = d3.select('#document-table-body').selectAll("tr")
@@ -241,8 +297,14 @@ archive.processResults = function(results, removeFilter) {
     }
   })
 }
-archive.databaseQueryId = 0;
-archive.lastDatabaseQueryProcessed = -1;
+
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Initialize a database query
+ *
+ * @param query
+ */
+//////////////////////////////////////////////////////////////////////////////
 archive.queryDatabase = function(query) {
 
   mongo = archive.getMongoConfig();
@@ -305,6 +367,15 @@ archive.queryDatabase = function(query) {
   });
 }
 
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Get next result set
+ *
+ * @param queryId
+ * @param streamId
+ * @param remove
+ */
+//////////////////////////////////////////////////////////////////////////////
 archive.nextResult = function (queryId, streamId, remove) {
   remove = typeof remove !== 'undefined' ? remove : false;
 
@@ -350,6 +421,13 @@ archive.nextResult = function (queryId, streamId, remove) {
   });
 }
 
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Cancel data stream
+ *
+ * @param streamId
+ */
+//////////////////////////////////////////////////////////////////////////////
 archive.cancelStream = function (streamId) {
 
   $.ajax({
@@ -375,8 +453,13 @@ archive.cancelStream = function (streamId) {
   });
 };
 
-archive.esgfQueryId = 0;
-archive.lastEsgfQueryProcessed = -1;
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Initialize a ESGF query
+ *
+ * @param query
+ */
+//////////////////////////////////////////////////////////////////////////////
 archive.queryESGF = function(query) {
 
   $(archive).trigger('query-started');
@@ -415,11 +498,12 @@ archive.queryESGF = function(query) {
   });
 };
 
-
+//////////////////////////////////////////////////////////////////////////////
 /**
  * Main program
  *
  */
+//////////////////////////////////////////////////////////////////////////////
 archive.main = function() {
   init();
 
@@ -528,7 +612,8 @@ archive.main = function() {
       archive.myMap.queryLocation(mapCoord);
 
       // Keep querying on this position at every animateEvent
-      $(archive.myMap).on(ogs.geo.command.animateEvent + ".extraInfoBox",
+      $(archive.myMap).off(geoModule.command.animateEvent + ".extraInfoBox");
+      $(archive.myMap).on(geoModule.command.animateEvent + ".extraInfoBox",
                           function() {
                             extraInfoContent.empty();
                             archive.myMap.queryLocation(mapCoord);
@@ -548,9 +633,14 @@ archive.main = function() {
     $(archive.myMap).on(geoModule.command.queryResultEvent, function(event, queryResult) {
       var extraInfoContent = $("#map-extra-info-content");
       var layer = queryResult.layer;
-      if (layer && layer.name())
+      var layerSource = layer.dataSource();
+      var path = null;
+
+      if (layer && layer.name()) {
         extraInfoContent.append("<div style='font-weight:bold;'>" + layer.name() + "</div>");
-      var queryData = queryResult.data;
+      }
+
+      var queryData = queryResult. data;
       if (queryData) {
         var newResult = document.createElement("div");
         newResult.style.paddingLeft = "12px";
@@ -558,10 +648,60 @@ archive.main = function() {
           $(newResult).append(idx + " : " + queryData[idx] + "<br/>");
         }
         extraInfoContent.append(newResult);
+
+//        console.log(layerSource);
+//        console.log(event.location);
+
+
+        // Layer source is a must for query
+        if (typeof layerSource === 'undefined') {
+          return true;
+        }
+
+        if (typeof layerSource !== 'undefined' && layerSource !== null) {
+          path = layerSource.path();
+
+          if (!archive.timeseriesPlot) {
+            // Initialize the time-series plot here
+            $("#map-timeseries").empty();
+            archive.resetQueryCache();
+            archive.timeseriesPlot = new timeseriesPlot("#map-timeseries", 500, 200);
+          }
+
+          // TOOD: Currently we don't have the API to get the active variable from a layer.
+          if (archive.queryCachedLat === event.location.y &&
+              archive.queryCachedLon === event.location.x &&
+              archive.queryCachedVarname === layerSource.variableNames()[0] &&
+              archive.timeseriesPlot) {
+              // Just update the current time pointer
+          } else {
+            $.ajax({
+              url: '/services/cdms/get_time_series?varname='+layerSource.variableNames()[0]+'&filepath='+path+'&lat='
+                   +event.location.y+'&lon='+event.location.x,
+              success: function(data) {
+                var response = JSON.parse(data),
+                    result = response['result'];
+
+                console.log('archive.queryCachedLat ' + archive.queryCachedLat);
+                console.log('archive.queryCachedLon ' + archive.queryCachedLon);
+                console.log('archive.queryCachedVarname ' + archive.queryCachedVarname);
+                console.log('event.location.y ' + event.location.y);
+                console.log('event.location.x ' + event.location.x);
+
+                archive.queryCachedLat = event.location.y;
+                archive.queryCachedLon = event.location.x;
+                archive.queryCachedVarname = layerSource.variableNames()[0];
+                archive.timeseriesPlot.read(response);
+              },
+              error: function() {
+                console.log("Failed to get time series plot");
+              }
+            });
+          }
+        }
       }
       return true;
     });
-
 
     // Setup tutorial bitmask
     archive.tutorialMask = new NamedBitMask();
@@ -624,6 +764,11 @@ archive.main = function() {
   });
 };
 
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Initialize web sockets
+ */
+//////////////////////////////////////////////////////////////////////////////
 archive.initWebSockets = function() {
   var ws = srvModule.webSocket({nodes: ['streammaster','streamworker']}),
     streaming = false;
@@ -643,6 +788,14 @@ archive.initWebSockets = function() {
   });
 };
 
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Process CSV datasets
+ *
+ * @param csvdata
+ * @returns {Array}
+ */
+//////////////////////////////////////////////////////////////////////////////
 archive.processCSVData = function(csvdata) {
   var table = [];
   var lines = csvdata.split(/\r\n|\n/);
@@ -654,6 +807,15 @@ archive.processCSVData = function(csvdata) {
   return table;
 };
 
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Select a layer
+ *
+ * @param target
+ * @param layerId
+ * @returns {boolean}
+ */
+//////////////////////////////////////////////////////////////////////////////
 archive.selectLayer = function(target, layerId) {
   var layer = archive. myMap.findLayerById(layerId);
 
@@ -682,7 +844,15 @@ archive.selectLayer = function(target, layerId) {
   return false;
 }
 
-
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Toggle layer
+ *
+ * @param target
+ * @param layerId
+ * @returns {boolean}
+ */
+//////////////////////////////////////////////////////////////////////////////
 archive.toggleLayer = function(target, layerId) {
   var layer = archive.myMap.findLayerById(layerId);
   if (layer != null) {
@@ -695,7 +865,15 @@ archive.toggleLayer = function(target, layerId) {
   return false;
 };
 
-
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Remove a layer from the map
+ *
+ * @param target
+ * @param layerId
+ * @returns {boolean}
+ */
+//////////////////////////////////////////////////////////////////////////////
 archive.removeLayer = function(target, layerId) {
   ogs.ui.gis.removeLayer(target, layerId);
   var layer = archive.myMap.findLayerById(layerId);
@@ -708,8 +886,15 @@ archive.removeLayer = function(target, layerId) {
   return false;
 };
 
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Compute temporal range for a dataset
+ *
+ * @param name
+ * @param onComplete
+ */
+//////////////////////////////////////////////////////////////////////////////
 archive.timeRange = function(name, onComplete) {
-
   var query = {name: name};
 
   $.ajax({
@@ -731,6 +916,16 @@ archive.timeRange = function(name, onComplete) {
   });
 }
 
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Perform ESGF registration for an individual group
+ *
+ * @param target
+ * @param registrationUrl
+ * @param group
+ * @param role
+ */
+//////////////////////////////////////////////////////////////////////////////
 archive.registerWithGroup = function(target, registrationUrl, group, role) {
   $.ajax({
     type: 'POST',
@@ -768,8 +963,15 @@ archive.registerWithGroup = function(target, registrationUrl, group, role) {
   });
 }
 
+//////////////////////////////////////////////////////////////////////////////
+/**
+ *  Register with ESGF
+ *
+ * @param target
+ * @param taskId
+ */
+//////////////////////////////////////////////////////////////////////////////
 archive.register = function(target, taskId) {
-
   $.ajax({
     type: 'POST',
     url: '/services/esgf/registerGroups',
@@ -828,9 +1030,17 @@ archive.register = function(target, taskId) {
         console.log(errorThrown)
     }
   });
-
 }
 
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Moniror ESGF download
+ *
+ * @param target
+ * @param taskId
+ * @param onComplete
+ */
+//////////////////////////////////////////////////////////////////////////////
 archive.monitorESGFDownload = function(target, taskId, onComplete) {
   var dataSetId = target.dataset_id;
 
@@ -883,6 +1093,14 @@ archive.monitorESGFDownload = function(target, taskId, onComplete) {
   });
 }
 
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Handle download complete
+ *
+ * @param dataSetId
+ */
+//////////////////////////////////////////////////////////////////////////////
+
 archive.onDownloadComplete = function(dataSetId) {
   var layerRow = $('tr#' + dataSetId);
 
@@ -917,8 +1135,15 @@ archive.onDownloadComplete = function(dataSetId) {
   });
 };
 
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Cancel ESGF download
+ *
+ * @param taskId
+ * @param dataSetId
+ */
+//////////////////////////////////////////////////////////////////////////////
 archive.cancelESGFDownload = function(taskId, dataSetId) {
-
   // If download hasn't started
   if (taskId == null) {
     var row = $('tr#' + dataSetId);
@@ -946,8 +1171,16 @@ archive.cancelESGFDownload = function(taskId, dataSetId) {
   }
 }
 
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Download ESGF dataset
+ *
+ * @param target
+ * @param onComplete
+ * @param message
+ */
+//////////////////////////////////////////////////////////////////////////////
 archive.downloadESGF = function(target, onComplete, message) {
-
   $.ajax({
     type: 'POST',
     url: '/services/esgf/download',
@@ -988,13 +1221,25 @@ archive.downloadESGF = function(target, onComplete, message) {
   });
 };
 
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Add a new layer to the map
+ *
+ * @param id
+ * @param name
+ * @param filePath
+ * @param parameter
+ * @param timeval
+ * @param algorithm
+ */
+//////////////////////////////////////////////////////////////////////////////
 archive.addLayerToMap = function(id, name, filePath, parameter, timeval, algorithm) {
 
   var algorithmData = staticWorkflows[algorithm],
     workflow = ogs.wfl.workflow({
       data: jQuery.extend(true, {}, algorithmData)
     }),
-    source = ogs.wfl.layerSource(filePath, archive.getMongoConfig(),
+    source = ogs.wfl.layerSource(id, filePath, filePath, archive.getMongoConfig(),
       [parameter], workflow,  function(errorString) {
         archive.error(errorString, function() {
           layerRow = $('#table-layers #' + id);
@@ -1019,7 +1264,14 @@ archive.addLayerToMap = function(id, name, filePath, parameter, timeval, algorit
   }
 };
 
-
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Create workflow layer
+ *
+ * @param target
+ * @param layerId
+ */
+//////////////////////////////////////////////////////////////////////////////
 archive.workflowLayer = function(target, layerId) {
   var layer = archive.myMap.findLayerById(layerId),
     workflow,
@@ -1075,7 +1327,13 @@ archive.workflowLayer = function(target, layerId) {
   }
 };
 
-
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Add new layer
+ *
+ * @param target
+ */
+//////////////////////////////////////////////////////////////////////////////
 archive.addLayer = function(target) {
   var timeval = target.timestep;
   var varval = target.parameter;
@@ -1112,6 +1370,13 @@ archive.addLayer = function(target) {
   }
 };
 
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * Get username
+ *
+ * @param onUserName
+ */
+//////////////////////////////////////////////////////////////////////////////
 
 archive.userName = function(onUserName) {
   $.ajax({
@@ -1135,7 +1400,11 @@ archive.userName = function(onUserName) {
   });
 }
 
-
+//////////////////////////////////////////////////////////////////////////////
+/**
+ * End the session
+ */
+//////////////////////////////////////////////////////////////////////////////
 archive.logOut = function() {
   $.ajax({
     type: 'DELETE',
