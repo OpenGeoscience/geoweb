@@ -175,6 +175,26 @@ body {
   padding-right: 4px;
 }
 
+.variable-item {
+  width: 290px;
+  padding: 4px;
+  margin: 4px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  background: #fff;
+  float: left;
+}
+
+.variable-name {
+  width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
 .table-heading-left {
   text-align: left;
 }

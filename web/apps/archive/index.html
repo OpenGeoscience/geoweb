@@ -64,6 +64,7 @@
   </script>
   <link href="/common/css/jquery-ui.css" rel=stylesheet type=text/css>
   <link href="/common/css/bootstrap.css" rel=stylesheet type=text/css>
+  <!-link href="/common/css/bootstrap-glyphicons.css" rel=stylesheet type=text/css-->
   <link href="/common/css/select2.css" rel=stylesheet type=text/css>
   <link href="/common/css/geoweb.css" rel=stylesheet type=text/css>
   <link href="archive.css" rel=stylesheet type=text/css>
@@ -113,7 +114,7 @@
                   <div class="accordion-heading">
                     <a class="accordion-toggle" data-toggle="collapse"
                       data-parent="#documents"
-                      href="#collapse-documents">Documents</a>
+                      href="#collapse-documents">Search</a>
                   </div>
                   <div class="accordion-body collapse in"
                     id="collapse-documents">
@@ -139,7 +140,7 @@
                         </div>
                       </div>
 
-                      <table id="document-table" class="table-hover"
+                      <!--table id="document-table" class="table-hover"
                          title="Drag row onto map to add layer">
                         <thead>
                         <tr>
@@ -154,7 +155,16 @@
                                data-container="body"
                                title="Drag and drop dataset onto map.">
                         </tbody>
-                      </table>
+                      </table-->
+
+                      <h4>Results</h4>
+                      <div id="search-results"
+                           data-container="body"
+                           title="Drag items onto map to visualize.">
+                        <div class="list-group" id="results-list">
+                        </div>
+                      </div>
+
                     </div>
                   </div>
                   </div>
