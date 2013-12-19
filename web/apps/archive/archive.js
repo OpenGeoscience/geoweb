@@ -91,8 +91,8 @@ archive.initQueryInterface = function() {
 
   $('#document-table-body').tooltip();
 
-  $('#from').datepicker();
-  $('#to').datepicker();
+  $('#dateFrom').datepicker();
+  $('#dateTo').datepicker();
 
   $(archive).on('query-started', function() {
     archive.queriesInProgress++;
@@ -135,6 +135,24 @@ archive.initQueryInterface = function() {
       }
     }
   });
+
+  $('#drawRegion').off('click').click(function() {
+    var active = $(this).toggleClass('active').hasClass('active');
+    archive.myMap.viewer().interactorStyle().drawRegionMode(active);
+    if(active &&
+      $.trim($('#longitudeFrom').val()).length > 0 &&
+      $.trim($('#longitudeTo').val()).length > 0 &&
+      $.trim($('#latitudeFrom').val()).length > 0 &&
+      $.trim($('#latitudeTo').val()).length > 0
+    ) {
+      archive.myMap.getInteractorStyle().setDrawRegion(
+        parseFloat($('#latitudeFrom').val()),
+        parseFloat($('#longitudeFrom').val()),
+        parseFloat($('#latitudeTo').val()),
+        parseFloat($('#longitudeTo').val())
+      );
+    }
+  });
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -151,7 +169,7 @@ archive.processLocalResults = function(results, remove) {
   }
 
   archive.processResults(results, removeFilter);
-}
+};
 
 //////////////////////////////////////////////////////////////////////////////
 /**
@@ -296,7 +314,11 @@ archive.processResults = function(results, removeFilter) {
     return drag;
     }
   })
-}
+};
+
+archive.databaseQueryId = 0;
+archive.lastDatabaseQueryProcessed = -1;
+archive.milliseconds_per_year = 1000 * 60 * 60 * 24 * 365.25; //not "exact", I know, give me a break...
 
 //////////////////////////////////////////////////////////////////////////////
 /**
@@ -323,9 +345,72 @@ archive.queryDatabase = function(query) {
       nameOr[index] = {name: {$regex: '.*' + value +'.*', $options: 'i'}};
   });
 
-  mongoQuery = {$and: [{$or: [{ $or: nameOr},{variables: {$elemMatch: { $or: variableOr}}}] },
-               {variables: {$not: {$size: 0}}}, {'timeInfo.rawTimes': {$ne: null}},
-               {private: false}]}
+  mongoQuery = {
+    $and: [{
+      $or: [{
+        $or: nameOr
+      }, {
+        variables: {
+          $elemMatch: {
+            $or: variableOr
+          }
+        }
+      }]
+    }, {
+      variables: {
+        $not: {
+          $size: 0
+        }
+      }
+    }, {
+      'timeInfo.rawTimes': {
+        $ne: null
+      }
+    }, {
+      private: false
+    }]
+  };
+
+  //build time and lat/lon query restraints
+
+  /**
+   * Converts a date string to a year decimal
+   * e.g. 'July 1, 2000' ~> 2000.5
+   *
+   * @param str {string}
+   * @returns {number}
+   */
+  function decimalYear(str) {
+    return (new Date(str)).getTime()/archive.milliseconds_per_year + 1970;
+  }
+
+  /**
+   * Creates a mongo statement and adds it to the mongoQuery.$and list
+   *
+   * @param mongoField {string}
+   * @param mongoOperator {string}
+   * @param selector {string}
+   * @param scrubber {function}
+   */
+  function addQueryRestraint(mongoField, mongoOperator, selector, scrubber) {
+    var value = $(selector).val().trim(' '),
+      statement = {};
+
+    if(value !== '') {
+      value = scrubber.call({}, value);
+      statement[mongoField] = {};
+      statement[mongoField][mongoOperator] = value;
+      mongoQuery.$and.push(statement);
+    }
+  }
+
+  addQueryRestraint('timeInfo.dateRange.0.0', '$lte', '#dateTo', decimalYear);
+  addQueryRestraint('timeInfo.dateRange.1.0', '$gte', '#dateFrom', decimalYear);
+  addQueryRestraint('spatialInfo.0', '$lte', '#longitudeTo', parseFloat);
+  addQueryRestraint('spatialInfo.1', '$gte', '#longitudeFrom', parseFloat);
+  addQueryRestraint('spatialInfo.2', '$lte', '#latitudeTo', parseFloat);
+  addQueryRestraint('spatialInfo.3', '$gte', '#latitudeFrom', parseFloat);
+
 
   $(archive).trigger('query-started');
 
@@ -365,7 +450,7 @@ archive.queryDatabase = function(query) {
       $(archive).trigger('query-error');
     }
   });
-}
+};
 
 //////////////////////////////////////////////////////////////////////////////
 /**
@@ -419,7 +504,7 @@ archive.nextResult = function (queryId, streamId, remove) {
       $(archive).trigger('query-error');
     }
   });
-}
+};
 
 //////////////////////////////////////////////////////////////////////////////
 /**
@@ -719,6 +804,22 @@ archive.main = function() {
       $('#query-input').tooltip('show');
       archive.tutorialMask.turnOn('query');
     }
+
+    //setup map draw region listener
+    $(archive.myMap.getInteractorStyle()).on(
+      ogs.geo.command.updateDrawRegionEvent,
+      function() {
+        var coords = archive.myMap.getInteractorStyle().getDrawRegion();
+
+        $('#latitudeFrom').val(coords[0]);
+        $('#longitudeFrom').val(coords[1]);
+        $('#latitudeTo').val(coords[2]);
+        $('#longitudeTo').val(coords[3]);
+      }
+    );
+
+    //init tooltips on time and space inputs
+    $('#collapse-documents').find('.input-small').tooltip();
   });
 
   /* set up workflow editor */
@@ -914,7 +1015,7 @@ archive.timeRange = function(name, onComplete) {
       }
     }
   });
-}
+};
 
 //////////////////////////////////////////////////////////////////////////////
 /**
@@ -1169,7 +1270,7 @@ archive.cancelESGFDownload = function(taskId, dataSetId) {
       }
     });
   }
-}
+};
 
 //////////////////////////////////////////////////////////////////////////////
 /**
@@ -1398,7 +1499,7 @@ archive.userName = function(onUserName) {
       archive.error(errorThrown);
     }
   });
-}
+};
 
 //////////////////////////////////////////////////////////////////////////////
 /**
@@ -1422,4 +1523,4 @@ archive.logOut = function() {
       archive.error(errorThrown);
     }
   });
-}
+};

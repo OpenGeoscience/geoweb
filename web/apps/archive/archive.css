@@ -143,8 +143,7 @@ body {
   border-radius: 6px;
 }
 
-#map-extra-info-box
-{
+#map-extra-info-box {
   z-index:200;
   background: rgba(255,255,255,0.5);
   -webkit-border-radius: 4px;
