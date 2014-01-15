@@ -2,6 +2,7 @@
 
 import bson.json_util
 import geoweb
+import json
 
 def decode(s, argname, response):
     try:
@@ -9,11 +10,11 @@ def decode(s, argname, response):
     except ValueError as e:
         response['error'] = e.message + " (argument '%s' was '%s')" % (argname, s)
 
-def run(method='read', expr=None, vars=None, time=None, fields=None, limit=1000, sort=None, fill=None):
+def run(method='read', sub_method=None, expr=None, vars=None, time=None, fields=None, limit=1000, sort=None, fill=None, bb=None, seaLevelRise=None):
     response = geoweb.empty_response()
 
     # Check the requested method.
-    if method not in ['find', 'read']:
+    if method not in ['find', 'read', 'calculate']:
         raise Exception("Unsupported data operation '%s'" % (method))
 
     # Decode the strings into Python objects.
@@ -61,6 +62,10 @@ def run(method='read', expr=None, vars=None, time=None, fields=None, limit=1000,
             response['result'] = retobj
         except IOError as io:
             raise io
+    elif method == 'calculate':
+        import floodmap
+        response['result']  = {'data': floodmap.calculate(bb, seaLevelRise)}
+        import cherrypy
     else:
         raise RuntimeError("illegal method '%s' in module 'mongo'")
 
