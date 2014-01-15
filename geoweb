@@ -13,7 +13,7 @@ sys.path.append(os.path.join(current_dir, "modules"))
 sys.path.append(os.path.join(current_dir, "modules", "thirdparty",
     "MyProxyClient-1.3.0"))
 
-import authentication
+#import authentication
 
 def read_pid(pidfile):
     # Open the file and convert the contents to an integer - if this fails for
