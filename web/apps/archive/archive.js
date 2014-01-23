@@ -231,7 +231,7 @@ archive.processResults = function(results, removeFilter) {
     }
 
     var $li = $([
-      '<li class="variable-item"><div style="pointer-events: none;">',
+      '<div class="variable-item"><div style="pointer-events: none;">',
       '<i class="icon-th pull-left"></i> ',
       '<div class="variable-name">',
       getVariableTagsOrName(),
@@ -239,7 +239,7 @@ archive.processResults = function(results, removeFilter) {
       timeRange,
       source,
       size,
-      '</div></li>'
+      '</div></div>'
     ].join(''));
     $li.data('dataset', dataset);
     $li.data('variable', variable);
