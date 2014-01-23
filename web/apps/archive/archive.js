@@ -211,7 +211,7 @@ archive.processResults = function(results, removeFilter) {
     value.remove();
   });
 
-  function createResultListItem(dataset, variable, size, timeRange) {
+  function createResultListItem(dataset, variable, size, source, timeRange) {
 
     function getVariableTagsOrName() {
       if('tags' in variable && variable['tags'].length > 0) {
@@ -231,14 +231,15 @@ archive.processResults = function(results, removeFilter) {
     }
 
     var $li = $([
-      '<div class="variable-item"><div style="pointer-events: none;">',
+      '<li class="variable-item"><div style="pointer-events: none;">',
       '<i class="icon-th pull-left"></i> ',
       '<div class="variable-name">',
       getVariableTagsOrName(),
       '</div>',
       timeRange,
+      source,
       size,
-      '</div></div>'
+      '</div></li>'
     ].join(''));
     $li.data('dataset', dataset);
     $li.data('variable', variable);
@@ -247,7 +248,8 @@ archive.processResults = function(results, removeFilter) {
 
   $.each(results, function(index, dataset) {
     var size = dataset['size'],
-      timeRange = '',
+      source = ['<span class="badge badge-success pull-right">', dataset['source'], '</span>'].join(''),
+      timeRange = '&nbsp;',//some text is needed, else the layout may get messed up
       start,
       end;
 
@@ -281,7 +283,7 @@ archive.processResults = function(results, removeFilter) {
     }
 
     $.each(dataset['variables'], function(_index, variable) {
-      $('#results-list').append(createResultListItem(dataset, variable, size,
+      $('#results-list').append(createResultListItem(dataset, variable, size, source,
         timeRange));
     });
   });
