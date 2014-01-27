@@ -20,12 +20,26 @@ streams = dict()
 def run(method, **kwargs):
 
     response = geoweb.empty_response();
+    start = None
+    end = None
+    bbox = None
 
     if method == 'query':
         streamId = str(uuid.uuid1())
         expr = kwargs['expr']
+
+        if 'start' in kwargs:
+          start = kwargs['start']
+
+        if 'end' in kwargs:
+          end = kwargs['end']
+
+        if 'bbox' in kwargs:
+          bbox = kwargs['bbox']
+
+
         base_url = cherrypy.session['ESGFBaseUrl']
-        streams[streamId] = query(base_url, expr)
+        streams[streamId] = query(base_url, expr, start, end, bbox)
         response['result'] = {'hasNext': True, 'streamId': streamId}
 
         if 'queryId' in kwargs:
