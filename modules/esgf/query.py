@@ -23,10 +23,24 @@ def _extract_url(doc_node):
 
 streams = dict()
 
-def query(site_url, query):
-  files = []
+def query(site_url, query, start=None, end=None, bbox=None):
 
-  r = requests.get("%s/esg-search/search?query=%s" % ( site_url, query), verify=False)
+  files = []
+  query_parameters = {'query': query}
+
+  if start:
+    query_parameters['start'] = start
+
+  if end:
+    query_parameters['end'] = end
+
+  if bbox:
+    # Need to remove the " added by JSON.stringify(...)
+    query_parameters['bbox'] = bbox.replace('"', '')
+
+  query_url = "%s/esg-search/search" % site_url
+
+  r = requests.get(query_url, params=query_parameters, verify=False)
 
   if r.status_code != 200:
       cherrypy.log('Unable to access ESGF node to perform search: %d' % r.status_code)
