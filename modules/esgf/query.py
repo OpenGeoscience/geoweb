@@ -63,7 +63,11 @@ def query(site_url, query):
           name = node.xpathEval('./@name')[0].get_content()
           id = node.xpathEval('./@ID')[0].get_content()
           context.setContextNode(node)
-          variables = map(lambda x : {'name': x.get_content()}, context.xpathEval('./ns:variables/ns:variable/@name'))
+
+          variables = [{'long_name': x.get_content(),
+                        'name': x.xpathEval('./@name')[0].get_content() }
+                       for x in context.xpathEval('./ns:variables/ns:variable[@name]')]
+
           size = context.xpathEval('./ns:property[@name="size"]/@value')[0].get_content()
           checksum = context.xpathEval('./ns:property[@name="checksum"]/@value')[0].get_content()
 
