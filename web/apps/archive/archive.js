@@ -631,13 +631,41 @@ archive.queryESGF = function(query) {
 
   $(archive).trigger('query-started');
 
+  var start, end, bbox;
+
+  if ($('#dateFrom').val()) {
+    // We add the time zone postfix so we get Date object in the correct time
+    // zone.
+    start = new Date($('#dateFrom').val() + ' 00:00:00 GMT').toISOString()
+  }
+
+
+  if ($('#dateTo').val()) {
+    // We add the time zone postfix so we get Date object in the correct time
+    // zone.
+    end = new Date($('#dateTo').val() + ' 00:00:00 GMT').toISOString()
+  }
+
+
+  // If one of lat/long fields have been filled in we know a bounding box has
+  // been selected so include it in our query. The bounding box needs to be of
+  // the following form: [west, south, east, north]
+  if ($('#longitudeFrom').val()) {
+    bbox = [$('#longitudeFrom').val(), $('#latitudeFrom').val(),
+            $('#longitudeTo').val(), $('#latitudeTo').val()]
+  }
+
+  data =  { queryId: archive.esgfQueryId++,
+            expr: JSON.stringify(query),
+            'start': start,
+            'end': end,
+            bbox: JSON.stringify(bbox)
+          }
+
   $.ajax({
     type: 'POST',
     url: '/services/esgf/query',
-    data: {
-      queryId: archive.esgfQueryId++,
-      expr: JSON.stringify(query)
-    },
+    data: data,
     dataType: 'json',
     success: function(response) {
       if (response.error !== null) {
