@@ -142,6 +142,17 @@ foreach(m ${paths})
 endforeach()
 add_custom_target(bar ALL DEPENDS ${all_targets})
 
+# Install OCGIS
+add_custom_command(
+  OUTPUT ${GEOWEB_DEPLOY_DIR}/modules/lib/python2.7/site-packages/ocgis
+  COMMAND "${PYTHON_EXECUTABLE}" setup.py install
+          --prefix="${GEOWEB_DEPLOY_DIR}/modules"
+  WORKING_DIRECTORY "${geoweb_SOURCE_DIR}/modules/ocgis"
+)
+add_custom_target(ocgis ALL DEPENDS
+  ${GEOWEB_DEPLOY_DIR}/modules/lib/python2.7/site-packages/ocgis)
+
+
 # Uglify and concatenate the library js files.
 if(NOT ${MINIFY})
     set(MINIFY_FLAG "-b")
@@ -238,8 +249,8 @@ add_custom_command(OUTPUT ${GEOWEB_DEPLOY_DIR}/server.conf
   VERBATIM
 )
 
-
 add_custom_target(deploy ALL DEPENDS ${_server_config})
+add_dependencies(ocgis geoweb_pre_deploy)
 add_dependencies(deploy geoweb_pre_deploy)
 add_dependencies(deploy bar)
 
