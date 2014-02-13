@@ -144,13 +144,13 @@ add_custom_target(bar ALL DEPENDS ${all_targets})
 
 # Install OCGIS
 add_custom_command(
-  OUTPUT ${GEOWEB_DEPLOY_DIR}/modules/lib/python2.7/site-packages/ocgis
+  OUTPUT "${GEOWEB_DEPLOY_DIR}/modules/lib/python${PYVER}/site-packages/ocgis"
   COMMAND "${PYTHON_EXECUTABLE}" setup.py install
           --prefix="${GEOWEB_DEPLOY_DIR}/modules"
-  WORKING_DIRECTORY "${geoweb_SOURCE_DIR}/modules/ocgis"
+  WORKING_DIRECTORY "${geoweb_SOURCE_DIR}/ocgis"
 )
 add_custom_target(ocgis ALL DEPENDS
-  ${GEOWEB_DEPLOY_DIR}/modules/lib/python2.7/site-packages/ocgis)
+  "${GEOWEB_DEPLOY_DIR}/modules/lib/python${PYVER}/site-packages/ocgis")
 
 
 # Uglify and concatenate the library js files.
@@ -251,7 +251,7 @@ add_custom_command(OUTPUT ${GEOWEB_DEPLOY_DIR}/server.conf
 
 add_custom_target(deploy ALL DEPENDS ${_server_config})
 add_dependencies(ocgis geoweb_pre_deploy)
-add_dependencies(deploy geoweb_pre_deploy)
+add_dependencies(deploy ocgis)
 add_dependencies(deploy bar)
 
 # Testing
