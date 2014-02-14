@@ -16,7 +16,7 @@ except:
     cherrypy.log(traceback.format_exc())
 
 db = connect_to_mongo()
-
+#[[-80.4845, 34.9813], [-80.4845,] ,-65.4894,48.7153
 bb = [[-75.0, 40.5], [-75.0, 41.5], [-73.0, 41.5], [-73.0, 40.5], [-75.0, 40.5]]
 
 def find_tiles():
@@ -29,7 +29,10 @@ def find_tiles():
     return results
 
 def to_geojson(points):
-    geojson = {"type": "FeatureCollection", "features": points}
+    geojson = {"type": "FeatureCollection", "features": [{
+                 "type": "MultiPoint",
+                 "coordinates": points
+              }]}
 
     return geojson
 
@@ -78,32 +81,33 @@ def points(id):
         ids_to_delete = []
         result_count = 0
         for tile_result in results:
-            result_count += 1
-            tile_points = tile_result['points']
-            for point in tile_points:
-                ids_to_delete.append(tile_result['_id'])
+          ids_to_delete.append(tile_result['_id'])
+          points = points + tile_result['points']
+          result_count += 1
 
-            points = points + tile_points
 
-        #db[FLOODMAP_RESULT_COLLECTION].remove({'group_id': {'$in': ids_to_delete}})
+        cherrypy.log("Removing: " + str(ids_to_delete))
+
+        db[FLOODMAP_RESULT_COLLECTION].remove({'_id': {'$in': ids_to_delete}})
 
         response = geoweb.empty_response();
 
         geoJson = None
-        cherrypy.log("Resultcoutn: %d" % result_count)
         cherrypy.log("Got %d point" % len(points))
 
         if len(points) > 0:
             geoJson = to_geojson(points)
 
-        cherrypy.log("Features: %d" % len(geoJson['features']))
-
         group_result = GroupResult.restore(id, backend=celery.backend)
+
+        cherrypy.log("group_result: " + group_result.id)
+
         hasMore = True
 
         if result_count < FLOODMAP_POINT_QUERY_LIMIT and group_result.ready():
             hadMore = False
-            group_group.delete()
+            cherrypy.log("deleting group")
+            group_result.delete()
 
         response['result'] = {'id': id,
                               'hasMore': hasMore,
@@ -111,14 +115,14 @@ def points(id):
     except:
         import traceback
         cherrypy.log(traceback.format_exc())
-    global count
-    try:
-        with open('/tmp/points%d.json' % count, 'w') as fp:
-            fp.write(json.dumps(geoJson))
-        count += 1
-    except:
-        import traceback
-        cherrypy.log(traceback.format_exc())
+#     global count
+#     try:
+#         with open('/tmp/points%d.json' % count, 'w') as fp:
+#             fp.write(json.dumps(geoJson))
+#         count += 1
+#     except:
+#         import traceback
+#         cherrypy.log(traceback.format_exc())
 
     return response
 
