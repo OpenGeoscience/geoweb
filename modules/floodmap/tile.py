@@ -38,11 +38,13 @@ def connect_to_mongo():
 db = connect_to_mongo()
 
 @celery.task
-def process_tile(bb, tile):
+def process_tile(bb, tile_id):
     flood_points = []
 
     import sys
     print >> sys.stderr, "process_tile"
+
+    tile = db.hgt.find_one({'_id': ObjectId(tile_id)})
 
     # If the min elevation is greater than the change we can skip this tile
     if tile['properties']['minElevation'] > increase:

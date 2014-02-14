@@ -16,13 +16,14 @@ except:
     cherrypy.log(traceback.format_exc())
 
 db = connect_to_mongo()
-#[[-80.4845, 34.9813], [-80.4845,] ,-65.4894,48.7153
-bb = [[-75.0, 40.5], [-75.0, 41.5], [-73.0, 41.5], [-73.0, 40.5], [-75.0, 40.5]]
+
+bb = [[-80.4845, 34.9813], [-80.4845, 48.7153], [-65.4894, 48.7153],[-65.4894, 34.9813],[-80.4845, 34.9813]]
+#bb = [[-75.0, 40.5], [-75.0, 41.5], [-73.0, 41.5], [-73.0, 40.5], [-75.0, 40.5]]
 
 def find_tiles():
     cherrypy.log("Finding tiles")
     results = db.hgt.find({"tile": {"$geoIntersects": { "$geometry": { "type": "Polygon",
-                                                                       "coordinates": [bb]}}}})
+                                                                       "coordinates": [bb]}}}}, {'_id': 1})
 
     cherrypy.log("Got tiles:")
 
@@ -46,7 +47,7 @@ def generate(bbox, rise):
 
     try:
         cherrypy.log("Creating group")
-        group_result = group(floodmap.tile.process_tile.s(bb, doc['tile']) for doc in find_tiles()).apply_async()
+        group_result = group(floodmap.tile.process_tile.s(bb, str(doc['_id'])) for doc in find_tiles()).apply_async()
         group_result.save(backend=celery.backend)
         cherrypy.log("Done")
         response = geoweb.empty_response();
