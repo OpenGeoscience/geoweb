@@ -142,6 +142,8 @@ foreach(m ${paths})
 endforeach()
 add_custom_target(bar ALL DEPENDS ${all_targets})
 
+message(STATUS "${geoweb_SOURCE_DIR}/ocgis")
+
 # Install OCGIS
 add_custom_command(
   OUTPUT "${GEOWEB_DEPLOY_DIR}/modules/lib/python${PYVER}/site-packages/ocgis"
