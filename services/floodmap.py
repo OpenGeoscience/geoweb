@@ -47,7 +47,7 @@ def generate(bbox, rise):
 
     try:
         cherrypy.log("Creating group")
-        group_result = group(floodmap.tile.process_tile.s(bb, str(doc['_id'])) for doc in find_tiles()).apply_async()
+        group_result = group(floodmap.tile.process_tile.s(bb, rise, str(doc['_id'])) for doc in find_tiles()).apply_async()
         group_result.save(backend=celery.backend)
         cherrypy.log("Done")
         response = geoweb.empty_response();

@@ -38,17 +38,20 @@ def connect_to_mongo():
 db = connect_to_mongo()
 
 @celery.task
-def process_tile(bb, tile_id):
+def process_tile(bb, increase, tile_id):
     flood_points = []
 
     import sys
-    print >> sys.stderr, "process_tile"
+    print >> sys.stderr, "process_tile %s" % tile_id
 
-    tile = db.hgt.find_one({'_id': ObjectId(tile_id)})
+    tile = db.hgt.find_one({'_id': ObjectId(tile_id)})['tile']
 
-    # If the min elevation is greater than the change we can skip this tile
-    if tile['properties']['minElevation'] > increase:
-        return flood_points
+    try:
+        # If the min elevation is greater than the change we can skip this tile
+        if tile['properties']['minElevation'] > increase:
+            return flood_points
+    except KeyError:
+        print >> sys.stderr, "tile: %s" % str(tile)
 
     poly = Polygon(bb)
     elevations = cPickle.loads(tile['properties']['elevations'])
