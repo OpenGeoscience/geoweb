@@ -23,10 +23,24 @@ def _extract_url(doc_node):
 
 streams = dict()
 
-def query(site_url, query):
-  files = []
+def query(site_url, query, start=None, end=None, bbox=None):
 
-  r = requests.get("%s/esg-search/search?query=%s" % ( site_url, query), verify=False)
+  files = []
+  query_parameters = {'query': query}
+
+  if start:
+    query_parameters['start'] = start
+
+  if end:
+    query_parameters['end'] = end
+
+  if bbox:
+    # Need to remove the " added by JSON.stringify(...)
+    query_parameters['bbox'] = bbox.replace('"', '')
+
+  query_url = "%s/esg-search/search" % site_url
+
+  r = requests.get(query_url, params=query_parameters, verify=False)
 
   if r.status_code != 200:
       cherrypy.log('Unable to access ESGF node to perform search: %d' % r.status_code)
@@ -63,7 +77,11 @@ def query(site_url, query):
           name = node.xpathEval('./@name')[0].get_content()
           id = node.xpathEval('./@ID')[0].get_content()
           context.setContextNode(node)
-          variables = map(lambda x : {'name': x.get_content()}, context.xpathEval('./ns:variables/ns:variable/@name'))
+
+          variables = [{'long_name': x.get_content(),
+                        'name': x.xpathEval('./@name')[0].get_content() }
+                       for x in context.xpathEval('./ns:variables/ns:variable[@name]')]
+
           size = context.xpathEval('./ns:property[@name="size"]/@value')[0].get_content()
           checksum = context.xpathEval('./ns:property[@name="checksum"]/@value')[0].get_content()
 

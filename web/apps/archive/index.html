@@ -64,6 +64,7 @@
   </script>
   <link href="/common/css/jquery-ui.css" rel=stylesheet type=text/css>
   <link href="/common/css/bootstrap.css" rel=stylesheet type=text/css>
+  <!-link href="/common/css/bootstrap-glyphicons.css" rel=stylesheet type=text/css-->
   <link href="/common/css/select2.css" rel=stylesheet type=text/css>
   <link href="/common/css/geoweb.css" rel=stylesheet type=text/css>
   <link href="archive.css" rel=stylesheet type=text/css>
@@ -113,7 +114,7 @@
                   <div class="accordion-heading">
                     <a class="accordion-toggle" data-toggle="collapse"
                       data-parent="#documents"
-                      href="#collapse-documents">Documents</a>
+                      href="#collapse-documents">Search</a>
                   </div>
                   <div class="accordion-body collapse in"
                     id="collapse-documents">
@@ -126,8 +127,8 @@
                              placeholder="Query" style="width:90%;"
                              data-container="body"
                              title="Enter search query to find data sets e.g. 'precipitation'"/>
-                      <div>
-                        <div style="display: inline; position: relative; left: 10px; top: 5px;">
+                      <div style="overflow: hidden">
+                        <div style="display: inline; position: relative; left: 10px; top: 5px">
                           <div class="pull-left" style="margin-right:15px">
                             <div class="input-prepend">
                               <span class="add-on"><i class="icon-calendar"></i></span>
@@ -149,13 +150,15 @@
                             <input class="input-small" type="text" id="longitudeFrom" placeholder="Longitude From" title="Longitude From" data-container="body"/>
                             <input class="input-small" type="text" id="longitudeTo" placeholder="Longitude To" title="Longitude To" data-container="body"/>
                           </div>
-                          <button id="drawRegion" type="button" class="btn btn-default btn-small pull-right" style="position: relative; top: 4px;">
-                            <i class="icon-pencil"></i> Draw Region
-                          </button>
+                          <div class="pull-left" style="margin-right:15px">
+                            <button id="drawRegion" type="button" class="btn btn-default btn-small pull-right" style="margin: 4px;">
+                              <i class="icon-pencil"></i> Draw Region
+                            </button>
+                          </div>
                         </div>
                       </div>
 
-                      <table id="document-table" class="table-hover"
+                      <!--table id="document-table" class="table-hover"
                          title="Drag row onto map to add layer">
                         <thead>
                         <tr>
@@ -170,7 +173,16 @@
                                data-container="body"
                                title="Drag and drop dataset onto map.">
                         </tbody>
-                      </table>
+                      </table-->
+                      <br />
+                      <h4>Results</h4>
+                      <div id="search-results"
+                           data-container="body"
+                           title="Drag items onto map to visualize.">
+                        <div class="list-group" id="results-list">
+                        </div>
+                      </div>
+
                     </div>
                   </div>
                   </div>
