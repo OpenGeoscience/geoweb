@@ -17,8 +17,8 @@ except:
 
 db = connect_to_mongo()
 
-bb = [[-80.4845, 34.9813], [-80.4845, 48.7153], [-65.4894, 48.7153],[-65.4894, 34.9813],[-80.4845, 34.9813]]
-#bb = [[-75.0, 40.5], [-75.0, 41.5], [-73.0, 41.5], [-73.0, 40.5], [-75.0, 40.5]]
+#bb = [[-80.4845, 34.9813], [-80.4845, 48.7153], [-65.4894, 48.7153],[-65.4894, 34.9813],[-80.4845, 34.9813]]
+bb = [[-75.0, 40.5], [-75.0, 41.5], [-73.0, 41.5], [-73.0, 40.5], [-75.0, 40.5]]
 
 def find_tiles():
     cherrypy.log("Finding tiles")
@@ -101,14 +101,15 @@ def points(id):
 
         group_result = GroupResult.restore(id, backend=celery.backend)
 
-        cherrypy.log("group_result: " + group_result.id)
-
         hasMore = True
 
-        if result_count < FLOODMAP_POINT_QUERY_LIMIT and group_result.ready():
-            hadMore = False
+        if result_count < FLOODMAP_POINT_QUERY_LIMIT and \
+           (not group_result or (group_result and group_result.ready())):
+            hasMore = False
             cherrypy.log("deleting group")
-            group_result.delete()
+
+            if group_result:
+                group_result.delete()
 
         response['result'] = {'id': id,
                               'hasMore': hasMore,
