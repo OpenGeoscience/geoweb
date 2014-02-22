@@ -81,7 +81,11 @@ if (DOCUMENT)
 endif()
 
 # Find a Python2 interpreter.
+include(FindPythonInterp)
 find_package(PythonInterp 2.7)
+set(PYVER ${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR})
+
+message(STATUS "Python version is ", ${PYVER})
 
 #/////////////////////////////////////////////////////////////////////////////
 #
@@ -234,6 +238,7 @@ add_custom_target(geoweb_pre_deploy ALL
    -DVisTrails_DIR=${VisTrails_DIR}
    -DGEOWEB_CMAKE_DIR=${_geoweb_cmake_dir}
    -DGEOWEB_DEPLOY_DIR=${GEOWEB_DEPLOY_DIR}
+   -DPYVER=${PYVER}
    -P ${_geoweb_cmake_dir}/configure.cmake
   DEPENDS
     ${_lib_dir} ${all_targets} ${_logs_dir}
