@@ -25,5 +25,5 @@ configure_file(${GEOWEB_CMAKE_DIR}/run.sh.in
 )
 
 configure_file(${GEOWEB_CMAKE_DIR}/geocelery_conf.py.in
-  ${GEOWEB_DEPLOY_DIR}/modules/geocelery_conf.py @ONLY
+  ${GEOWEB_DEPLOY_DIR}/pygeo/geocelery_conf.py @ONLY
 )

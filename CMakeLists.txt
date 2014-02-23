@@ -102,7 +102,7 @@ set(sources
 )
 
 set(paths
-  web/apps web/common web/index.html modules utils
+  web/apps web/common web/index.html pygeo utils
   nodes services temp
 )
 
@@ -150,13 +150,13 @@ message(STATUS "${geoweb_SOURCE_DIR}/ocgis")
 
 # Install OCGIS
 add_custom_command(
-  OUTPUT "${GEOWEB_DEPLOY_DIR}/modules/lib/python${PYVER}/site-packages/ocgis"
+  OUTPUT "${GEOWEB_DEPLOY_DIR}/pygeo/lib/python${PYVER}/site-packages/ocgis"
   COMMAND "${PYTHON_EXECUTABLE}" setup.py install
-          --prefix="${GEOWEB_DEPLOY_DIR}/modules"
+          --prefix="${GEOWEB_DEPLOY_DIR}/pygeo"
   WORKING_DIRECTORY "${geoweb_SOURCE_DIR}/ocgis"
 )
 add_custom_target(ocgis ALL DEPENDS
-  "${GEOWEB_DEPLOY_DIR}/modules/lib/python${PYVER}/site-packages/ocgis")
+  "${GEOWEB_DEPLOY_DIR}/pygeo/lib/python${PYVER}/site-packages/ocgis")
 
 
 # Uglify and concatenate the library js files.

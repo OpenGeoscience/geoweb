@@ -19,8 +19,8 @@ else:
 # Determine the path to this script.
 dir = os.path.dirname(os.path.abspath(__file__))
 
-new_python_path = [os.path.join(dir, "modules", "thirdparty", "MyProxyClient-1.3.0"),
-                   os.path.join(dir, "modules")]
+new_python_path = [os.path.join(dir, "pygeo", "thirdparty", "MyProxyClient-1.3.0"),
+                   os.path.join(dir, "pygeo")]
 
 python_path = os.getenv('PYTHONPATH')
 
