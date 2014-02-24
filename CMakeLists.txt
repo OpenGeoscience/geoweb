@@ -102,7 +102,7 @@ set(sources
 )
 
 set(paths
-  web/apps web/common web/index.html pygeo utils
+  web/apps web/common web/index.html utils
   nodes services temp
 )
 
@@ -148,15 +148,25 @@ add_custom_target(bar ALL DEPENDS ${all_targets})
 
 message(STATUS "${geoweb_SOURCE_DIR}/ocgis")
 
+# Install PyGeo
+add_custom_command(
+  OUTPUT "${GEOWEB_DEPLOY_DIR}/lib/python${PYVER}/site-packages/pygeo"
+  COMMAND "${PYTHON_EXECUTABLE}" setup.py install
+          --prefix="${GEOWEB_DEPLOY_DIR}"
+  WORKING_DIRECTORY "${geoweb_SOURCE_DIR}/pygeo"
+)
+add_custom_target(pygeo ALL DEPENDS
+  "${GEOWEB_DEPLOY_DIR}/lib/python${PYVER}/site-packages/pygeo")
+
 # Install OCGIS
 add_custom_command(
-  OUTPUT "${GEOWEB_DEPLOY_DIR}/pygeo/lib/python${PYVER}/site-packages/ocgis"
+  OUTPUT "${GEOWEB_DEPLOY_DIR}/lib/python${PYVER}/site-packages/ocgis"
   COMMAND "${PYTHON_EXECUTABLE}" setup.py install
-          --prefix="${GEOWEB_DEPLOY_DIR}/pygeo"
+          --prefix="${GEOWEB_DEPLOY_DIR}"
   WORKING_DIRECTORY "${geoweb_SOURCE_DIR}/ocgis"
 )
 add_custom_target(ocgis ALL DEPENDS
-  "${GEOWEB_DEPLOY_DIR}/pygeo/lib/python${PYVER}/site-packages/ocgis")
+  "${GEOWEB_DEPLOY_DIR}/lib/python${PYVER}/site-packages/ocgis")
 
 
 # Uglify and concatenate the library js files.
@@ -257,6 +267,8 @@ add_custom_command(OUTPUT ${GEOWEB_DEPLOY_DIR}/server.conf
 )
 
 add_custom_target(deploy ALL DEPENDS ${_server_config})
+add_dependencies(pygeo geoweb_pre_deploy)
+add_dependencies(deploy pygeo)
 add_dependencies(ocgis geoweb_pre_deploy)
 add_dependencies(deploy ocgis)
 add_dependencies(deploy bar)
