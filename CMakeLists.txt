@@ -151,8 +151,8 @@ message(STATUS "${geoweb_SOURCE_DIR}/ocgis")
 # Install PyGeo
 add_custom_command(
   OUTPUT "${GEOWEB_DEPLOY_DIR}/lib/python${PYVER}/site-packages/pygeo"
-  COMMAND "${PYTHON_EXECUTABLE}" setup.py install
-          --prefix="${GEOWEB_DEPLOY_DIR}"
+  COMMAND "${PYTHON_EXECUTABLE}" setup.py build --build-base "${${PROJECT_NAME}_BINARY_DIR}"
+  COMMAND "${PYTHON_EXECUTABLE}" setup.py install --prefix="${GEOWEB_DEPLOY_DIR}"
   WORKING_DIRECTORY "${geoweb_SOURCE_DIR}/pygeo"
 )
 add_custom_target(pygeo ALL DEPENDS
@@ -161,8 +161,8 @@ add_custom_target(pygeo ALL DEPENDS
 # Install OCGIS
 add_custom_command(
   OUTPUT "${GEOWEB_DEPLOY_DIR}/lib/python${PYVER}/site-packages/ocgis"
-  COMMAND "${PYTHON_EXECUTABLE}" setup.py install
-          --prefix="${GEOWEB_DEPLOY_DIR}"
+  COMMAND "${PYTHON_EXECUTABLE}" setup.py build --build-base "${${PROJECT_NAME}_BINARY_DIR}"
+  COMMAND "${PYTHON_EXECUTABLE}" setup.py install --prefix="${GEOWEB_DEPLOY_DIR}"
   WORKING_DIRECTORY "${geoweb_SOURCE_DIR}/ocgis"
 )
 add_custom_target(ocgis ALL DEPENDS
