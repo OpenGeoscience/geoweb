@@ -42,7 +42,7 @@ def run(method='read', expr=None, vars=None, time=None, fields=None, limit=1000,
         pass
     elif method == 'read':
         # Load reader module
-        import reader
+        import io.reader as reader
         try:
             it = reader.read(expr, vars, time)
 

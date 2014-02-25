@@ -81,7 +81,11 @@ if (DOCUMENT)
 endif()
 
 # Find a Python2 interpreter.
+include(FindPythonInterp)
 find_package(PythonInterp 2.7)
+set(PYVER ${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR})
+
+message(STATUS "Python version is ", ${PYVER})
 
 #/////////////////////////////////////////////////////////////////////////////
 #
@@ -98,7 +102,7 @@ set(sources
 )
 
 set(paths
-  web/apps web/common web/index.html modules utils
+  web/apps web/common web/index.html utils
   nodes services temp
 )
 
@@ -141,6 +145,29 @@ foreach(m ${paths})
     list(APPEND all_targets ${outpath})
 endforeach()
 add_custom_target(bar ALL DEPENDS ${all_targets})
+
+message(STATUS "${geoweb_SOURCE_DIR}/ocgis")
+
+# Install PyGeo
+add_custom_command(
+  OUTPUT "${GEOWEB_DEPLOY_DIR}/lib/python${PYVER}/site-packages/pygeo"
+  COMMAND "${PYTHON_EXECUTABLE}" setup.py build --build-base "${${PROJECT_NAME}_BINARY_DIR}" install
+          --prefix="${GEOWEB_DEPLOY_DIR}"
+  WORKING_DIRECTORY "${geoweb_SOURCE_DIR}/pygeo"
+)
+add_custom_target(pygeo ALL DEPENDS
+  "${GEOWEB_DEPLOY_DIR}/lib/python${PYVER}/site-packages/pygeo")
+
+# Install OCGIS
+add_custom_command(
+  OUTPUT "${GEOWEB_DEPLOY_DIR}/lib/python${PYVER}/site-packages/ocgis"
+  COMMAND "${PYTHON_EXECUTABLE}" setup.py build --build-base "${${PROJECT_NAME}_BINARY_DIR}" install
+          --prefix="${GEOWEB_DEPLOY_DIR}"
+  WORKING_DIRECTORY "${geoweb_SOURCE_DIR}/ocgis"
+)
+add_custom_target(ocgis ALL DEPENDS
+  "${GEOWEB_DEPLOY_DIR}/lib/python${PYVER}/site-packages/ocgis")
+
 
 # Uglify and concatenate the library js files.
 if(NOT ${MINIFY})
@@ -221,6 +248,7 @@ add_custom_target(geoweb_pre_deploy ALL
    -DVisTrails_DIR=${VisTrails_DIR}
    -DGEOWEB_CMAKE_DIR=${_geoweb_cmake_dir}
    -DGEOWEB_DEPLOY_DIR=${GEOWEB_DEPLOY_DIR}
+   -DPYVER=${PYVER}
    -P ${_geoweb_cmake_dir}/configure.cmake
   DEPENDS
     ${_lib_dir} ${all_targets} ${_logs_dir}
@@ -238,9 +266,10 @@ add_custom_command(OUTPUT ${GEOWEB_DEPLOY_DIR}/server.conf
   VERBATIM
 )
 
-
 add_custom_target(deploy ALL DEPENDS ${_server_config})
-add_dependencies(deploy geoweb_pre_deploy)
+add_dependencies(geoweb_pre_deploy pygeo)
+add_dependencies(geoweb_pre_deploy ocgis)
+add_dependencies(deploy ocgis)
 add_dependencies(deploy bar)
 
 # Testing
