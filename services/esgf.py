@@ -9,11 +9,11 @@ import geoweb
 from urlparse import urlparse
 import requests
 
-from esgf.utils import url_to_download_filepath
-from esgf.utils import user_cert_file
-import esgf.download
-import esgf.registration
-from esgf.query import query
+from pygeo.esgf.utils import url_to_download_filepath
+from pygeo.esgf.utils import user_cert_file
+import pygeo.esgf.download
+import pygeo.esgf.registration
+from pygeo.esgf.query import query
 
 streams = dict()
 
