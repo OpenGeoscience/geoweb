@@ -16,9 +16,8 @@ import floodmap.celeryconfig
 
 from shapely.geometry import Polygon, Point
 
-pixel_size = 1.0/1200.0
-
-increase = 20
+NUMBER_PIXELS = 1201.0
+DATA_VOID = -32768
 
 celery = Celery()
 celery.config_from_object('floodmap.celeryconfig')
@@ -41,31 +40,44 @@ db = connect_to_mongo()
 def process_tile(bb, increase, tile_id):
     flood_points = []
 
+    increase = 1000
+
     import sys
-    print >> sys.stderr, "process_tile %s" % tile_id
+    print >> sys.stderr, "process_tile %s, bb %s" % (tile_id, str(bb))
 
     tile = db.hgt.find_one({'_id': ObjectId(tile_id)})['tile']
 
     try:
         # If the min elevation is greater than the change we can skip this tile
+
+        print "increase: %d" % increase
+        print >> sys.stderr, tile['properties']['minElevation']
+
         if tile['properties']['minElevation'] > increase:
-            return flood_points
+            return
     except KeyError:
         print >> sys.stderr, "tile: %s" % str(tile)
 
     poly = Polygon(bb)
+
+    print >> sys.stderr, "bb: %s" % str(bb)
+
     elevations = cPickle.loads(tile['properties']['elevations'])
 
     origin = tile['coordinates'][0][0]
 
     it = np.nditer(elevations, flags=['f_index', 'multi_index'])
     while not it.finished:
-        coord = [origin[0] + (pixel_size*it.multi_index[1]),
-                 origin[1] + (pixel_size*it.multi_index[0])]
+        coord = [origin[0] + (it.multi_index[1]/(NUMBER_PIXELS-1)),
+                 origin[1] + (it.multi_index[0]/(NUMBER_PIXELS-1))]
 
-        elev= np.asscalar(it[0])
+        elev = np.asscalar(it[0])
 
         point = Point(coord)
+
+        if elev == DATA_VOID:
+            it.iternext()
+            continue
 
         if poly.contains(point) and elev > 0 and elev <= increase:
             point = [coord, elev]
@@ -80,4 +92,5 @@ def process_tile(bb, increase, tile_id):
     results = db[FLOODMAP_RESULT_COLLECTION]
 
     # Key off the group id
+    print >> sys.stderr, "Adding points: %d" % len(flood_points)
     results.insert({'group_id': process_tile.request.group, 'points': flood_points})
