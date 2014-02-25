@@ -267,9 +267,8 @@ add_custom_command(OUTPUT ${GEOWEB_DEPLOY_DIR}/server.conf
 )
 
 add_custom_target(deploy ALL DEPENDS ${_server_config})
-add_dependencies(pygeo geoweb_pre_deploy)
-add_dependencies(deploy pygeo)
-add_dependencies(ocgis geoweb_pre_deploy)
+add_dependencies(geoweb_pre_deploy pygeo)
+add_dependencies(geoweb_pre_deploy ocgis)
 add_dependencies(deploy ocgis)
 add_dependencies(deploy bar)
 

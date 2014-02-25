@@ -16,17 +16,4 @@ else:
   print >> sys.stderr, "Unable to locate celery, please install celery package"
   sys.exit(1)
 
-# Determine the path to this script.
-dir = os.path.dirname(os.path.abspath(__file__))
-
-new_python_path = [os.path.join(dir, "pygeo", "thirdparty", "MyProxyClient-1.3.0"),
-                   os.path.join(dir, "pygeo")]
-
-python_path = os.getenv('PYTHONPATH')
-
-if python_path:
-  new_python_path.append(python_path)
-
-os.putenv('PYTHONPATH', str(os.pathsep).join(new_python_path))
-
-subprocess.call([celery, '-A', 'esgf.download', 'worker'], stderr=subprocess.STDOUT)
+subprocess.call([celery, '-A', 'pygeo.esgf.download', 'worker'], stderr=subprocess.STDOUT)
