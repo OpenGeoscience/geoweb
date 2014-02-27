@@ -7,10 +7,11 @@ import os
 import sys
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
-modules_dir = os.path.join(current_dir, "..", "modules")
-sys.path.append(modules_dir)
+pygeo_dir = os.path.join(current_dir, "../../")
+sys.path.append(pygeo_dir)
 
-from standardtime import attrib_to_converters
+import pygeo
+from pygeo.time.standardtime import attrib_to_converters
 
 class mongo_import:
     def __init__(self, server, database):

@@ -1,6 +1,6 @@
 import cherrypy
 import os
-from standardtime import attrib_to_converters
+from pygeo.time.standardtime import attrib_to_converters
 
 vtkOK = False
 try:
