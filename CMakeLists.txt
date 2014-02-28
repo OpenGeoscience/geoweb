@@ -270,7 +270,7 @@ add_custom_target(deploy ALL DEPENDS ${_server_config})
 add_dependencies(geoweb_pre_deploy pygeo)
 add_dependencies(geoweb_pre_deploy ocgis)
 add_dependencies(deploy ocgis)
-add_dependencies(deploy bar)
+add_dependencies(deploy geoweb_pre_deploy)
 
 # Testing
 if (BUILD_TESTING)
