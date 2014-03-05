@@ -40,8 +40,6 @@ db = connect_to_mongo()
 def process_tile(bb, increase, tile_id):
     flood_points = []
 
-    increase = 1000
-
     import sys
     print >> sys.stderr, "process_tile %s, bb %s" % (tile_id, str(bb))
 
