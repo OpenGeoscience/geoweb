@@ -18,14 +18,14 @@ except:
 db = connect_to_mongo()
 
 #bb = [[-80.4845, 34.9813], [-80.4845, 48.7153], [-65.4894, 48.7153],[-65.4894, 34.9813],[-80.4845, 34.9813]]
-bb = [[-75.0, 40.5], [-75.0, 41.5], [-73.0, 41.5], [-73.0, 40.5], [-75.0, 40.5]]
+#bb = [[-75.0, 40.5], [-75.0, 41.5], [-73.0, 41.5], [-73.0, 40.5], [-75.0, 40.5]]
 
-def find_tiles():
+def find_tiles(bbox):
     cherrypy.log("Finding tiles")
     results = db.hgt.find({"tile": {"$geoIntersects": { "$geometry": { "type": "Polygon",
-                                                                       "coordinates": [bb]}}}}, {'_id': 1})
+                                                                       "coordinates": [bbox]}}}}, {'_id': 1})
 
-    cherrypy.log("Got tiles:")
+    cherrypy.log("Got tiles: %d" % results.count())
 
     return results
 
@@ -37,18 +37,29 @@ def to_geojson(points):
 
     return geojson
 
+total_points = 0
 
 def generate(bbox, rise):
+
+    cherrypy.log(bbox)
+    bbox = json.loads(bbox)
+
+
 
 #     response = geoweb.empty_response();
 #     response['result'] = {'id': 'test'}
 #
 #     return response
-
+    global total_points
+    total_points = 0
     try:
-        cherrypy.log("Creating group")
-        group_result = group(floodmap.tile.process_tile.s(bb, rise, str(doc['_id'])) for doc in find_tiles()).apply_async()
+        cherrypy.log("Creating group: host: %s, port: %d" % (celery.backend.host, celery.backend.port))
+
+        group_result = group(floodmap.tile.process_tile.s(bbox, int(rise), str(doc['_id'])) for doc in find_tiles(bbox)).apply_async()
         group_result.save(backend=celery.backend)
+
+        cherrypy.log(group_result.id)
+
         cherrypy.log("Done")
         response = geoweb.empty_response();
         response['result'] = {'id': group_result.id}
@@ -95,6 +106,11 @@ def points(id):
 
         geoJson = None
         cherrypy.log("Got %d point" % len(points))
+        global total_points
+        total_points += len(points)
+        cherrypy.log("Total points %d" % total_points)
+
+
 
         if len(points) > 0:
             geoJson = to_geojson(points)
@@ -165,7 +181,6 @@ def next(id):
 
 def cancel(id):
     pass
-
 
 
 
