@@ -717,7 +717,7 @@ archive.main = function() {
     archive.myMap = ogs.geo.map(document.getElementById("glcanvas"), mapOptions);
     var canvas = document.getElementById('glcanvas');
 
-    $(archive.myMap.viewer()).on(vglModule.command.mouseReleaseEvent, function(event) {
+    $(archive.myMap.viewer()).on(vgl.command.mouseReleaseEvent, function(event) {
 
       if ($('#drawRegion').hasClass('active')) {
         var latFrom = parseFloat($('#latitudeFrom').val());
@@ -830,8 +830,8 @@ archive.main = function() {
       archive.myMap.queryLocation(mapCoord);
 
       // Keep querying on this position at every animateEvent
-      $(archive.myMap).off(geoModule.command.animateEvent + ".extraInfoBox");
-      $(archive.myMap).on(geoModule.command.animateEvent + ".extraInfoBox",
+      $(archive.myMap).off(geo.command.animateEvent + ".extraInfoBox");
+      $(archive.myMap).on(geo.command.animateEvent + ".extraInfoBox",
                           function() {
                             extraInfoContent.empty();
                             archive.myMap.queryLocation(mapCoord);
@@ -848,7 +848,7 @@ archive.main = function() {
     });
 
     // React to queryResultEvent
-    $(archive.myMap).on(geoModule.command.queryResultEvent, function(event, queryResult) {
+    $(archive.myMap).on(geo.command.queryResultEvent, function(event, queryResult) {
       var extraInfoContent = $("#map-extra-info-content");
       var layer = queryResult.layer;
       var layerSource = layer.dataSource();
@@ -1506,7 +1506,7 @@ archive.addLayer = function(target) {
             // Calculate the timestep in UTC
             var start = target.timeInfo.dateRange[0];
             var time = new Date(Date.UTC(start[0], start[1], start[2]));
-            geoModule.time.incrementTime(time, target.timeInfo.nativeUnits,
+            geo.time.incrementTime(time, target.timeInfo.nativeUnits,
               target.timeInfo.nativeDelta*timeval);
             archive.addLayerToMap(target.dataset_id, target.name, target.basename,
               varval, time.getTime(), algorithm);
