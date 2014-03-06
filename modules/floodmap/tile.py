@@ -41,24 +41,16 @@ def process_tile(bb, increase, tile_id):
     flood_points = []
 
     import sys
-    print >> sys.stderr, "process_tile %s, bb %s" % (tile_id, str(bb))
-
     tile = db.hgt.find_one({'_id': ObjectId(tile_id)})['tile']
 
     try:
         # If the min elevation is greater than the change we can skip this tile
-
-        print "increase: %d" % increase
-        print >> sys.stderr, tile['properties']['minElevation']
-
         if tile['properties']['minElevation'] > increase:
             return
     except KeyError:
         print >> sys.stderr, "tile: %s" % str(tile)
 
     poly = Polygon(bb)
-
-    print >> sys.stderr, "bb: %s" % str(bb)
 
     elevations = cPickle.loads(tile['properties']['elevations'])
 
