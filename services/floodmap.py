@@ -20,10 +20,12 @@ db = connect_to_mongo()
 #bb = [[-80.4845, 34.9813], [-80.4845, 48.7153], [-65.4894, 48.7153],[-65.4894, 34.9813],[-80.4845, 34.9813]]
 #bb = [[-75.0, 40.5], [-75.0, 41.5], [-73.0, 41.5], [-73.0, 40.5], [-75.0, 40.5]]
 
-def find_tiles(bbox):
+def find_tiles(bbox, rise):
     cherrypy.log("Finding tiles")
+    cherrypy.log("rise: %d" % int(rise))
     results = db.hgt.find({"tile": {"$geoIntersects": { "$geometry": { "type": "Polygon",
-                                                                       "coordinates": [bbox]}}}}, {'_id': 1})
+                                                                       "coordinates": [bbox]}}},
+                                   "tile.properties.minElevation": {"$lt": rise}}, {'_id': 1})
 
     cherrypy.log("Got tiles: %d" % results.count())
 
@@ -43,6 +45,7 @@ def generate(bbox, rise):
 
     cherrypy.log(bbox)
     bbox = json.loads(bbox)
+    rise = int(rise)
 
 
 
@@ -55,7 +58,7 @@ def generate(bbox, rise):
     try:
         cherrypy.log("Creating group: host: %s, port: %d" % (celery.backend.host, celery.backend.port))
 
-        group_result = group(floodmap.tile.process_tile.s(bbox, int(rise), str(doc['_id'])) for doc in find_tiles(bbox)).apply_async()
+        group_result = group(floodmap.tile.process_tile.s(bbox, int(rise), str(doc['_id'])) for doc in find_tiles(bbox, rise)).apply_async()
         group_result.save(backend=celery.backend)
 
         cherrypy.log(group_result.id)
