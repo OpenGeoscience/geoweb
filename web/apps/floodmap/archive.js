@@ -1474,6 +1474,11 @@ archive.addLayerToMap = function(bbox) {
   var layer = ogs.geo.featureLayer(),
       floodSource = ogs.geo.floodLayerSource(bbox);
 
+  var image = new Image();
+  image.src = '/common/radial_gradient.png';
+
+  layer.setUsePointSprites(true);
+  layer.setPointSpritesImage(image);
   layer.setDataSource(floodSource);
   layer.update(ogs.geo.updateRequest(1));
 
