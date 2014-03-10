@@ -1457,6 +1457,9 @@ archive.downloadESGF = function(target, onComplete, message) {
   });
 };
 
+image = new Image();
+image.src = '/common/radial_gradient.png';
+
 //////////////////////////////////////////////////////////////////////////////
 /**
  * Add a new layer to the map
@@ -1473,9 +1476,6 @@ archive.addLayerToMap = function(bbox) {
 
   var layer = ogs.geo.featureLayer(),
       floodSource = ogs.geo.floodLayerSource(bbox);
-
-  var image = new Image();
-  image.src = '/common/radial_gradient.png';
 
   layer.setUsePointSprites(true);
   layer.setPointSpritesImage(image);
