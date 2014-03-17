@@ -1480,9 +1480,9 @@ archive.addLayerToMap = function(bbox) {
   layer.setUsePointSprites(true);
   layer.setPointSpritesImage(image);
   layer.setDataSource(floodSource);
-  layer.update(ogs.geo.updateRequest(1));
 
   archive.myMap.addLayer(layer);
+  layer.update(ogs.geo.updateRequest(1));
   archive.myMap.draw();
 };
 

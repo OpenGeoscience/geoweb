@@ -20,6 +20,8 @@ db = connect_to_mongo()
 #bb = [[-80.4845, 34.9813], [-80.4845, 48.7153], [-65.4894, 48.7153],[-65.4894, 34.9813],[-80.4845, 34.9813]]
 #bb = [[-75.0, 40.5], [-75.0, 41.5], [-73.0, 41.5], [-73.0, 40.5], [-75.0, 40.5]]
 
+batch_size = 50000
+
 def find_tiles(bbox, rise):
     cherrypy.log("Finding tiles")
     cherrypy.log("rise: %d" % int(rise))
@@ -30,6 +32,40 @@ def find_tiles(bbox, rise):
     cherrypy.log("Got tiles: %d" % results.count())
 
     return results
+
+
+map = {'0_100000': '0_10',
+       '0_050000': '0_05',
+       '0_025000':'0_025'}
+
+def find_course_tiles(bbox, rise, res, batch):
+    try:
+        res = "%.6f" % res
+        res = res.replace('.', '_')
+
+        # Hack fo miss named collection, FIXME s
+        if res in map:
+          res = map[res]
+
+        collection = "hgt.%s" % res
+
+        cherrypy.log("coll: %s" % collection)
+
+        cherrypy.log("batch: %d" % batch)
+
+
+        results = db[collection].find({"tile": {"$geoIntersects": { "$geometry": { "type": "Polygon",
+                                                                           "coordinates": [bbox]}}},
+                                       "tile.properties.elevation": {"$lt": rise}}, {'_id': 1, 'tile.coordinates': 1}).skip(batch*batch_size).limit(batch_size)
+
+        cherrypy.log("Got tiles at %s: %d" % (res, results.count()))
+    except:
+         import traceback
+         cherrypy.log(traceback.format_exc())
+
+
+    return results
+
 
 def to_geojson(points):
     geojson = {"type": "FeatureCollection", "features": [{
@@ -76,19 +112,52 @@ def generate(bbox, rise):
 
 count = 1
 
+def course_points(bbox, rise, res, batch):
+
+    try:
+        bbox = json.loads(bbox)
+        rise = int(rise)
+        batch = int(batch)
+        res = float(res)
+
+        cherrypy.log("course points")
+
+        points = []
+        raw_points = find_course_tiles(bbox, rise, res, batch)
+
+        for point in raw_points:
+            points.append(point['tile']['coordinates'])
+
+
+        cherrypy.log("points size: %d" % len(points))
+
+        #points = points[:50000]
+        response = geoweb.empty_response();
+        geojson = to_geojson(points)
+
+        has_more = True
+
+        if len(points) == 0 or len(points) < batch_size:
+            has_more = False
+
+
+        response['result'] = {'id': '',
+                              'hasMore': has_more,
+                              'res': res,
+                              'batch': batch + 1,
+                              'geoJson': geojson}
+    except:
+        import traceback
+        cherrypy.log(traceback.format_exc())
+
+    return response
+
 def points(id):
-#     cherrypy.log("In points ...")
-#
+    cherrypy.log("In points ...")
+
 #     with open('/tmp/points1.json', 'r') as fp:
 #         geojson = json.load(fp)
 #
-#     response = geoweb.empty_response();
-#     response['result'] = {'id': id,
-#                           'hasMore': False,
-#                           'geoJson': geojson}
-#
-#     return response
-
     try:
         results = db[FLOODMAP_RESULT_COLLECTION].find({'group_id': id}, limit=FLOODMAP_POINT_QUERY_LIMIT)
 
@@ -159,7 +228,10 @@ def run(*pargs, **kwargs):
     #  hasMore: <true|false> }
     # }
     if method == 'GET':
-        response = points(*pargs)
+        if len(kwargs) > 1:
+            response = course_points(**kwargs)
+        else:
+            response = points(*pargs)
     # POST /floodmap?bbox=<bbox>&seaLevelChange=<seaLevelChange>
     # {id: <id>}
     elif method == 'POST':
