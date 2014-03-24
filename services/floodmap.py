@@ -7,6 +7,7 @@ from bson.objectid import ObjectId
 from celery import Celery, group
 from celery.result import GroupResult
 import json
+import uuid
 
 try:
     celery = Celery()
@@ -40,6 +41,11 @@ map = {'0_100000': '0_10',
 
 def find_course_tiles(bbox, rise, res, batch):
     try:
+        # Need to convert [lowerLeft, upperRight] into enclosing polygon
+        bbox = [bbox[0], [bbox[0][0], bbox[1][1]],
+                bbox[1], [bbox[1][0], bbox[0][1]],  bbox[0]]
+
+        cherrypy.log(str(bbox))
         res = "%.6f" % res
         res = res.replace('.', '_')
 
@@ -112,13 +118,16 @@ def generate(bbox, rise):
 
 count = 1
 
-def course_points(bbox, rise, res, batch):
+def course_points(id, bbox, rise, res, batch):
 
     try:
         bbox = json.loads(bbox)
         rise = int(rise)
         batch = int(batch)
         res = float(res)
+
+        if not id:
+            id = uuid.uuid4()
 
         cherrypy.log("course points")
 
@@ -141,7 +150,7 @@ def course_points(bbox, rise, res, batch):
             has_more = False
 
 
-        response['result'] = {'id': '',
+        response['result'] = {'id': str(id),
                               'hasMore': has_more,
                               'res': res,
                               'batch': batch + 1,

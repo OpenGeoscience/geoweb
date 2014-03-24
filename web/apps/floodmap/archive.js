@@ -1474,7 +1474,7 @@ image.src = '/common/radial_gradient.png';
 //////////////////////////////////////////////////////////////////////////////
 archive.addLayerToMap = function(bbox) {
 
-  var layer = ogs.geo.featureLayer(),
+  var layer = ogs.geo.floodLayer(),
       floodSource = ogs.geo.floodLayerSource(bbox);
 
   layer.setUsePointSprites(true);
