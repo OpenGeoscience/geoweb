@@ -60,9 +60,24 @@ def find_course_tiles(bbox, rise, res, batch):
         cherrypy.log("batch: %d" % batch)
 
 
-        results = db[collection].find({"tile": {"$geoIntersects": { "$geometry": { "type": "Polygon",
-                                                                           "coordinates": [bbox]}}},
-                                       "tile.properties.elevation": {"$lt": rise}}, {'_id': 1, 'tile.coordinates': 1}).skip(batch*batch_size).limit(batch_size)
+        results = db[collection].find({
+                                        "tile": {
+                                          "$geoIntersects": {
+                                            "$geometry": {
+                                              "type": "Polygon",
+                                              "coordinates": [bbox]
+                                            }
+                                          }
+                                        },
+                                        "tile.properties.elevation": {
+                                          "$lt": rise
+                                        }
+                                      },
+                                      {
+                                        '_id': 1,
+                                        'tile.coordinates': 1,
+                                        'tile.properties.elevation': 1
+                                      }).skip(batch*batch_size).limit(batch_size)
 
         cherrypy.log("Got tiles at %s: %d" % (res, results.count()))
     except:
@@ -135,7 +150,10 @@ def course_points(id, bbox, rise, res, batch):
         raw_points = find_course_tiles(bbox, rise, res, batch)
 
         for point in raw_points:
-            points.append(point['tile']['coordinates'])
+            elevation = point['tile']['properties']['elevation']
+            coordinates = point['tile']['coordinates']
+            coordinates.append(elevation)
+            points.append(coordinates)
 
 
         cherrypy.log("points size: %d" % len(points))
