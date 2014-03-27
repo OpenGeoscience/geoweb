@@ -3,7 +3,8 @@
 
 var archive = {};
 archive.myMap = null;
-archive.floodLayer = null
+archive.floodLayer = null;
+archive.floodLayerSource = null;
 
 //////////////////////////////////////////////////////////////////////////////
 /**
@@ -34,20 +35,8 @@ archive.main = function() {
   $('#draw-bbox').off('click').click(function() {
     console.log("click");
     var active = $(this).toggleClass('active').hasClass('active');
-    archive.myMap.viewer().interactorStyle().drawRegionMode(active);
-    if(active &&
-      $.trim($('#longitudeFrom').val()).length > 0 &&
-      $.trim($('#longitudeTo').val()).length > 0 &&
-      $.trim($('#latitudeFrom').val()).length > 0 &&
-      $.trim($('#latitudeTo').val()).length > 0
-    ) {
-      archive.myMap.getInteractorStyle().setDrawRegion(
-        parseFloat($('#latitudeFrom').val()),
-        parseFloat($('#longitudeFrom').val()),
-        parseFloat($('#latitudeTo').val()),
-        parseFloat($('#longitudeTo').val())
-      );
-    }
+      archive.myMap.viewer().interactorStyle().clearDrawRegion();
+      archive.myMap.viewer().interactorStyle().drawRegionMode(active);
   });
 
 
@@ -228,15 +217,20 @@ archive.removeLayer = function(target, layerId) {
 //////////////////////////////////////////////////////////////////////////////
 archive.addLayerToMap = function(rise, bbox) {
 
-  var layer = ogs.geo.floodLayer(),
-      floodSource = ogs.geo.floodLayerSource(rise, bbox);
+  if (archive.floodLayerSource == null)
+    archive.floodLayerSource = ogs.geo.floodLayerSource();
 
-  layer.setUsePointSprites(true);
-  //layer.setPointSpritesImage(image);
-  layer.setDataSource(floodSource);
+  archive.floodLayerSource.rise(rise)
+  archive.floodLayerSource.boundingBox(bbox);
 
-  archive.myMap.addLayer(layer);
-  layer.update(ogs.geo.updateRequest(1));
+  if (archive.floodLayer == null) {
+    archive.floodLayer = ogs.geo.floodLayer();
+    archive.floodLayer.setUsePointSprites(true);
+    archive.floodLayer.setDataSource(archive.floodLayerSource);
+    archive.myMap.addLayer(archive.floodLayer);
+  }
+
+  archive.floodLayer.update(ogs.geo.updateRequest(1));
   archive.myMap.draw();
 };
 
