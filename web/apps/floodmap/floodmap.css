@@ -222,3 +222,11 @@ input[type="checkbox"][class="group-selection"] {
 #draw-bbox {
   top: 10px;
 }
+
+#draw-bbox-div .tooltip-inner {
+  width: 100px;
+}
+
+#depth-slider-div > .tooltip > .tooltip-inner {
+  width: 100px;
+}

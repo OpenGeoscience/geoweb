@@ -29,8 +29,6 @@ archive.error = function(errorString, onClose) {
  */
 //////////////////////////////////////////////////////////////////////////////
 archive.main = function() {
-  init();
-
   $('#error-dialog').hide();
   $('#draw-bbox').off('click').click(function() {
     console.log("click");
@@ -86,7 +84,7 @@ archive.main = function() {
       archive.myMap.resize(width, height);
       archive.myMap.update();
       archive.myMap.draw();
-    }
+    };
 
     // Ask for mouseMove events
     $(canvas).on("mousemove", function(event) {
@@ -178,9 +176,39 @@ archive.main = function() {
   $('#depth-slider-input').slider({
     tooltip: 'always',
     reversed: true,
+    orientation: 'vertical',
     formater: function(value) { return value + " m" }
   });
 
+  function addToolTips() {
+    $('#draw-bbox').tooltip({
+                             placement: 'right',
+                             trigger: 'manual'
+                            });
+
+    $('#draw-bbox').tooltip('show');
+    $('#draw-bbox').one('click', function()  {
+
+      setTimeout(function() {
+        $('#draw-bbox').tooltip('hide');
+      }, 1000);
+    });
+
+
+    $('#depth-slider').attr('title', "Use slider to select sea level rise");
+    $('#depth-slider').tooltip({
+                                placement: 'right',
+                                trigger: 'manual'
+                               });
+    $('#depth-slider').tooltip('show');
+    $('#depth-slider').one('slide', function()  {
+
+      setTimeout(function() {
+        $('#depth-slider').tooltip('hide');
+      }, 1000);
+    });
+  };
+  addToolTips();
 };
 
 //////////////////////////////////////////////////////////////////////////////
