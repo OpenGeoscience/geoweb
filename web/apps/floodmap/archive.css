@@ -200,3 +200,25 @@ input[type="checkbox"][class="group-selection"] {
   stroke: steelblue;
   stroke-width: 1.5px;
 }
+
+#controls {
+  top: 70px;
+  left: 20px;
+}
+
+#depth-slider {
+  height: 300px;
+}
+
+#depth-slider .slider-track {
+  width: 10px;
+  background: #0480be;
+}
+
+#depth-slider .slider-selection {
+
+}
+
+#draw-bbox {
+  top: 10px;
+}

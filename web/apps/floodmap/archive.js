@@ -138,7 +138,7 @@ archive.initQueryInterface = function() {
     }
   });
 
-  $('#drawRegion').off('click').click(function() {
+  $('#draw-bbox').off('click').click(function() {
     console.log("click");
     var active = $(this).toggleClass('active').hasClass('active');
     archive.myMap.viewer().interactorStyle().drawRegionMode(active);
@@ -718,24 +718,21 @@ archive.main = function() {
     var canvas = document.getElementById('glcanvas');
 
     $(archive.myMap.viewer()).on(vgl.command.mouseReleaseEvent, function(event) {
+      var rise, coords, latFrom, latTo, longFrom, longTo, bbox;
 
-      if ($('#drawRegion').hasClass('active')) {
-        var latFrom = parseFloat($('#latitudeFrom').val());
-        var latTo = parseFloat($('#latitudeTo').val());
-        var longFrom = parseFloat($('#longitudeFrom').val());
-        var longTo = parseFloat($('#longitudeTo').val());
+      if ($('#draw-bbox').hasClass('active')) {
 
-        var bbox = [[longFrom, latFrom], [longFrom, latTo], [longTo, latTo], [longTo, latFrom], [longFrom, latFrom]]
+        rise = $('#depth-slider-input').slider('getValue');
+        coords = archive.myMap.getInteractorStyle().getDrawRegion();
+        latFrom = coords[0] < coords[2] ? coords[0] : coords[2];
+        latTo = coords[0] > coords[2] ? coords[0] : coords[2];
+        longFrom = coords[1] < coords[3] ? coords[1] : coords[3]
+        longTo = coords[1] > coords[3] ? coords[1] : coords[3];
+        bbox = [[longFrom, latFrom], [longFrom, latTo], [longTo, latTo], [longTo, latFrom], [longFrom, latFrom]]
 
-        console.log("bbox: " + bbox);
-
-        archive.addLayerToMap(bbox);
-
+        archive.addLayerToMap(rise, bbox);
         archive.myMap.viewer().interactorStyle().drawRegionMode(false);
-        $('#drawRegion').toggleClass('active')
-
-        //$('#drawRegion').toggleClass('active')
-        console.log("mouse released");
+        $('#draw-bbox').toggleClass('active')
       }
     });
 
@@ -756,11 +753,6 @@ archive.main = function() {
       archive.myMap.update();
       archive.myMap.draw();
     }
-
-    // Create a placeholder for the layers
-    var layersTable = ogs.ui.gis.createLayerList(archive.myMap,
-        'layers', 'Layers', archive.toggleLayer, archive.removeLayer,
-        archive.timeRange);
 
     // Ask for mouseMove events
     $(canvas).on("mousemove", function(event) {
@@ -998,6 +990,13 @@ archive.main = function() {
   });
 
   //archive.addLayerToMap();
+
+  $('#depth-slider-input').slider({
+    tooltip: 'always',
+    reversed: true,
+    formater: function(value) { return value + " m" }
+  });
+
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1472,10 +1471,10 @@ image.src = '/common/radial_gradient.png';
  * @param algorithm
  */
 //////////////////////////////////////////////////////////////////////////////
-archive.addLayerToMap = function(bbox) {
+archive.addLayerToMap = function(rise, bbox) {
 
   var layer = ogs.geo.floodLayer(),
-      floodSource = ogs.geo.floodLayerSource(bbox);
+      floodSource = ogs.geo.floodLayerSource(rise, bbox);
 
   layer.setUsePointSprites(true);
   layer.setPointSpritesImage(image);
