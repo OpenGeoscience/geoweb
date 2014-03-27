@@ -106,20 +106,6 @@ archive.main = function() {
       var mapCoord = archive.myMap.displayToMap(mousePos.x, mousePos.y);
       infoBox.html(mapCoord.x.toFixed(2)+" , "+mapCoord.y.toFixed(2)+"<br/>");
 
-/*
-      // This version shows the info box near the mouse
-      var x = event.pageX+24;
-      var y = event.pageY+24;
-      var w = infoBox.outerWidth();
-      var h = infoBox.outerHeight();
-      var cw = $(canvas).width();
-      var ch = $(canvas).height();
-      // don't overflow the canvas
-      if (x + w > cw)
-        x = event.pageX - 24 - w;
-      if (y + h > ch)
-        y = event.pageY - 24 - h;
-*/
       // this version shows the info box in the lower left corner
       var h = infoBox.outerHeight();
       var cw = $(canvas).width();
@@ -143,38 +129,6 @@ archive.main = function() {
       var mousePos = canvas.relMouseCoords(event);
       var infoBox = $("#map-info-box");
       infoBox.fadeIn();
-      return true;
-    });
-
-    // Ask for click events
-    $(canvas).on("dblclick", function(event) {
-      var mousePos = canvas.relMouseCoords(event),
-        extraInfoBox = $("#map-extra-info-box"),
-        extraInfoContent = $("#map-extra-info-content"),
-        mapCoord = archive.myMap.displayToMap(mousePos.x, mousePos.y);
-
-      extraInfoContent.empty();
-
-      extraInfoBox.animate({
-        top: mousePos.y,
-        left: mousePos.x
-      }, {
-        duration: 200,
-        queue: false
-      }).fadeIn({duration: 200, queue: false});
-
-      mapCoord.event = event;
-      archive.myMap.queryLocation(mapCoord);
-
-      // Keep querying on this position at every animateEvent
-      $(archive.myMap).off(geo.command.animateEvent + ".extraInfoBox");
-      $(archive.myMap).on(geo.command.animateEvent + ".extraInfoBox",
-                          function() {
-                            extraInfoContent.empty();
-                            archive.myMap.queryLocation(mapCoord);
-                          }
-                         );
-
       return true;
     });
 
