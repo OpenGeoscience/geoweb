@@ -78,8 +78,6 @@ def find_course_tiles(bbox, rise, res, batch_size = BATCH_SIZE,  batch = 0):
 
         results = db[collection].find(
             query, proj).skip(batch*batch_size).limit(batch_size)
-
-        cherrypy.log("Got tiles at %s: %d" % (res, results.count()))
     except:
          import traceback
          cherrypy.log(traceback.format_exc())
@@ -244,12 +242,12 @@ def points(id):
 
     return response
 
-def count_points(bbox, res):
+def count_points(bbox, res, limit=1):
     bbox = json.loads(bbox)
     res = float(res)
     response = geoweb.empty_response()
 
-    count = find_course_tiles(bbox, None, res, sys.maxint, 0).count()
+    count = find_course_tiles(bbox, None, res, limit, 0).count(True)
 
     response['result'] = {'count': count}
 
