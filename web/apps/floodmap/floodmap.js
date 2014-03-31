@@ -60,16 +60,30 @@ archive.main = function() {
         latTo = coords[0] > coords[2] ? coords[0] : coords[2];
         longFrom = coords[1] < coords[3] ? coords[1] : coords[3]
         longTo = coords[1] > coords[3] ? coords[1] : coords[3];
-        bbox = [[longFrom, latFrom], [longFrom, latTo], [longTo, latTo], [longTo, latFrom], [longFrom, latFrom]]
+        bbox = [[longFrom, latFrom], [longTo, latTo]]
 
-        archive.addLayerToMap(rise, bbox);
-        archive.myMap.viewer().interactorStyle().drawRegionMode(false);
-        $('#draw-bbox').toggleClass('active')
+        archive.checkRegion(bbox).then(function(ok) {
+
+            if (ok) {
+              archive.addLayerToMap(rise, bbox);
+            }
+            else {
+              $('#error-modal-heading').html("No data available");
+              $('#error-modal-text').html("Data is currently only available for North America. " +
+                                          "Please select an area with in this region.");
+              $('#error-modal').modal();
+            }
+
+            archive.myMap.viewer().interactorStyle().drawRegionMode(false);
+            $('#draw-bbox').toggleClass('active');
+        });
       }
     });
 
     // Resize the canvas to fill browser window dynamically
     window.addEventListener('resize', resizeCanvas, false);
+
+
 
     function resizeCanvas() {
       canvas.width = window.innerWidth;
@@ -262,6 +276,32 @@ archive.addLayerToMap = function(rise, bbox) {
   archive.myMap.draw();
 };
 
+archive.checkRegion = function(bbox) {
+
+  var defer, pointUrl;
+
+  defer = new $.Deferred();
+  countUrl = '/services/floodmap/points/count',
+
+  $.get(countUrl,
+      {
+        'bbox': JSON.stringify(bbox),
+        'res': 0.100000
+      },
+      null,
+      'json').then(function(response) {
+        if (response.error !== null) {
+          errorString = "[error] " + response.error ?
+          response.error : "no results returned from server";
+          console.log(errorString);
+          defer.reject();
+        } else {
+          defer.resolve(response.result.count !== 0);
+        }
+     }, function(error) { console.log(error); });
+
+  return defer
+}
 
 //////////////////////////////////////////////////////////////////////////////
 /**

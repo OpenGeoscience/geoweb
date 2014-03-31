@@ -60,7 +60,7 @@
    </div>
    <div id=depth-slider-div class=row-fluid style="padding-top: 10px; text-align: center;">
     <input id=depth-slider-input data-slider-id=depth-slider
-     data-slider-min="0" data-slider-max="100" data-slider-step="1"
+     data-slider-min="0" data-slider-max="20" data-slider-step="1"
      data-slider-value="10" data-slider-orientation="vertical"/>
    </div>
   </div>
@@ -142,8 +142,8 @@
 <div id=error-modal class="modal hide">
  <div class="modal-dialog">
   <div class="modal-header">
-   <button type="button" class="close" data-dismiss="modal">x</button>
-   <h3>Internal Application Error</h3>
+   <button type="button" class="close" data-dismiss="modal"></button>
+   <h3 id='error-modal-heading'></h3>
   </div>
   <div id=error-modal-body class="modal-body">
    <p id=error-modal-text class="text-warning"></p>

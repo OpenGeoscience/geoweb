@@ -8,6 +8,7 @@ from celery import Celery, group
 from celery.result import GroupResult
 import json
 import uuid
+import sys
 
 try:
     celery = Celery()
@@ -18,10 +19,7 @@ except:
 
 db = connect_to_mongo()
 
-#bb = [[-80.4845, 34.9813], [-80.4845, 48.7153], [-65.4894, 48.7153],[-65.4894, 34.9813],[-80.4845, 34.9813]]
-#bb = [[-75.0, 40.5], [-75.0, 41.5], [-73.0, 41.5], [-73.0, 40.5], [-75.0, 40.5]]
-
-batch_size = 50000
+BATCH_SIZE = 50000
 
 def find_tiles(bbox, rise):
     cherrypy.log("Finding tiles")
@@ -39,7 +37,7 @@ map = {'0_100000': '0_10',
        '0_050000': '0_05',
        '0_025000':'0_025'}
 
-def find_course_tiles(bbox, rise, res, batch):
+def find_course_tiles(bbox, rise, res, batch_size = BATCH_SIZE,  batch = 0):
     try:
         # Need to convert [lowerLeft, upperRight] into enclosing polygon
         bbox = [bbox[0], [bbox[0][0], bbox[1][1]],
@@ -59,25 +57,27 @@ def find_course_tiles(bbox, rise, res, batch):
 
         cherrypy.log("batch: %d" % batch)
 
+        query = {
+                  "tile": {
+                    "$geoIntersects": {
+                      "$geometry": {
+                        "type": "Polygon",
+                        "coordinates": [bbox]
+                      }
+                    }
+                  }
+                }
 
-        results = db[collection].find({
-                                        "tile": {
-                                          "$geoIntersects": {
-                                            "$geometry": {
-                                              "type": "Polygon",
-                                              "coordinates": [bbox]
-                                            }
-                                          }
-                                        },
-                                        "tile.properties.elevation": {
-                                          "$lt": rise
-                                        }
-                                      },
-                                      {
-                                        '_id': 1,
-                                        'tile.coordinates': 1,
-                                        'tile.properties.elevation': 1
-                                      }).skip(batch*batch_size).limit(batch_size)
+        proj = {}
+
+        if rise:
+            query["tile.properties.elevation"] = { "$lt": rise }
+            proj['_id'] = 1,
+            proj['tile.coordinates'] = 1,
+            proj['tile.properties.elevation'] = 1
+
+        results = db[collection].find(
+            query, proj).skip(batch*batch_size).limit(batch_size)
 
         cherrypy.log("Got tiles at %s: %d" % (res, results.count()))
     except:
@@ -86,7 +86,6 @@ def find_course_tiles(bbox, rise, res, batch):
 
 
     return results
-
 
 def to_geojson(points):
     geojson = {"type": "FeatureCollection", "features": [{
@@ -147,7 +146,7 @@ def course_points(id, bbox, rise, res, batch):
         cherrypy.log("course points")
 
         points = []
-        raw_points = find_course_tiles(bbox, rise, res, batch)
+        raw_points = find_course_tiles(bbox, rise, res, BATCH_SIZE, batch)
 
         for point in raw_points:
             elevation = point['tile']['properties']['elevation']
@@ -159,12 +158,12 @@ def course_points(id, bbox, rise, res, batch):
         cherrypy.log("points size: %d" % len(points))
 
         #points = points[:50000]
-        response = geoweb.empty_response();
+        response = geoweb.empty_response()
         geojson = to_geojson(points)
 
         has_more = True
 
-        if len(points) == 0 or len(points) < batch_size:
+        if len(points) == 0 or len(points) < BATCH_SIZE:
             has_more = False
 
 
@@ -179,6 +178,7 @@ def course_points(id, bbox, rise, res, batch):
 
     return response
 
+
 def points(id):
     cherrypy.log("In points ...")
 
@@ -186,6 +186,7 @@ def points(id):
 #         geojson = json.load(fp)
 #
     try:
+
         results = db[FLOODMAP_RESULT_COLLECTION].find({'group_id': id}, limit=FLOODMAP_POINT_QUERY_LIMIT)
 
         points = []
@@ -243,6 +244,17 @@ def points(id):
 
     return response
 
+def count_points(bbox, res):
+    bbox = json.loads(bbox)
+    res = float(res)
+    response = geoweb.empty_response()
+
+    count = find_course_tiles(bbox, None, res, sys.maxint, 0).count()
+
+    response['result'] = {'count': count}
+
+    return response
+
 def cancel(id):
     pass
 
@@ -255,7 +267,10 @@ def run(*pargs, **kwargs):
     #  hasMore: <true|false> }
     # }
     if method == 'GET':
-        if len(kwargs) > 1:
+        if len(pargs) == 1 and pargs[0] == 'count':
+            cherrypy.log("here")
+            response = count_points(**kwargs)
+        elif len(kwargs) > 1:
             response = course_points(**kwargs)
         else:
             response = points(*pargs)
