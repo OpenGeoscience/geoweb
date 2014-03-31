@@ -139,22 +139,10 @@ archive.main = function() {
       $(archive.myMap).off(ogs.geo.command.animateEvent + ".extraInfoBox"); // stop re-querying during animations
     });
 
-    // Setup tutorial bitmask
-    archive.tutorialMask = new NamedBitMask();
-    archive.tutorialMask.add('query');
-    archive.tutorialMask.add('dragAndDrop');
-    archive.tutorialMask.add('layerOptions');
-
     // setup tooltips
     $('#query-input').tooltip();
     $('#document-table-body').tooltip();
     $('#layers').tooltip();
-
-    //@todo: check save/load tutorial mask to determine whether or not to show
-    if(archive.tutorialMask.isOff('query')) {
-      $('#query-input').tooltip('show');
-      archive.tutorialMask.turnOn('query');
-    }
 
     //setup map draw region listener
     $(archive.myMap.getInteractorStyle()).on(
