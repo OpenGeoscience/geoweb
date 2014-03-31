@@ -250,6 +250,8 @@ archive.addLayerToMap = function(rise, bbox) {
   if (archive.floodLayerSource == null)
     archive.floodLayerSource = ogs.geo.floodLayerSource();
 
+  console.log('rise ', rise);
+  archive.floodLayerSource.setScalarRange("rise", [0, rise]);
   archive.floodLayerSource.rise(rise)
   archive.floodLayerSource.boundingBox(bbox);
 
