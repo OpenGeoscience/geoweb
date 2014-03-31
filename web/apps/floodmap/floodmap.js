@@ -181,8 +181,8 @@ archive.main = function() {
     $('#user-name').html(parts[parts.length-1]);
   });
 
-  $('#logout').click(function(event) {
-    archive.logOut();
+  $('#about').click(function(event) {
+    $('#about-dialog').modal('show');
   });
 
   //archive.addLayerToMap();
