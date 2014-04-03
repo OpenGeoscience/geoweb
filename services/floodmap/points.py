@@ -81,6 +81,29 @@ def to_geojson(points):
 
     return geojson
 
+try:
+    import pcl
+    import numpy as np
+# If we don't have pcl or numpy install then  don't do the filtering
+except ImportError:
+    cherrypy.log("[warn] Skipping outlier filter as PCL is not available.")
+    pcl = None
+
+def remove_outliers(points):
+    # If we don't have pcl install then  don't do the filtering
+    if not pcl:
+        return points
+
+    p = pcl.PointCloud()
+    p.from_list(points)
+
+    fil = p.make_statistical_outlier_filter()
+    fil.set_mean_k(50)
+    fil.set_std_dev_mul_thresh (2.0)
+    points = fil.filter().to_list()
+
+    return points
+
 def points(id, bbox, rise, res, batch):
 
     try:
@@ -102,6 +125,8 @@ def points(id, bbox, rise, res, batch):
             coordinates = point['tile']['coordinates']
             coordinates.append(elevation)
             points.append(coordinates)
+
+        points = remove_outliers(points)
 
         response = geoweb.empty_response()
         geojson = to_geojson(points)
