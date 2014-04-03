@@ -89,7 +89,7 @@ except ImportError:
     cherrypy.log("[warn] Skipping outlier filter as PCL is not available.")
     pcl = None
 
-def remove_outliers(points):
+def remove_outliers(points, thresh):
     # If we don't have pcl install then  don't do the filtering
     if not pcl:
         return points
@@ -99,18 +99,19 @@ def remove_outliers(points):
 
     fil = p.make_statistical_outlier_filter()
     fil.set_mean_k(50)
-    fil.set_std_dev_mul_thresh (2.0)
+    fil.set_std_dev_mul_thresh (thresh)
     points = fil.filter().to_list()
 
     return points
 
-def points(id, bbox, rise, res, batch):
+def points(id, bbox, rise, res, thresh, batch):
 
     try:
         bbox = json.loads(bbox)
         rise = int(rise)
         batch = int(batch)
         res = float(res)
+        thresh = float(thresh)
 
         if not id:
             id = uuid.uuid4()
@@ -126,7 +127,8 @@ def points(id, bbox, rise, res, batch):
             coordinates.append(elevation)
             points.append(coordinates)
 
-        points = remove_outliers(points)
+        if thresh != -1.0:
+            points = remove_outliers(points, thresh)
 
         response = geoweb.empty_response()
         geojson = to_geojson(points)

@@ -51,12 +51,38 @@
      <i class="icon-edit"></i>
     </button>
    </div>
-   <div id=depth-slider-div class=row-fluid style="padding-top: 10px; text-align: center;">
+   <div id=depth-slider-div class=row-fluid
+    style="padding-top: 10px; text-align: center;">
     <input id=depth-slider-input type=hidden data-slider-id=depth-slider
      data-slider-min="0" data-slider-max="20" data-slider-step="1"
-     data-slider-value="10" data-slider-orientation="vertical"/>
+     data-slider-value="10" data-slider-orientation="vertical" />
    </div>
   </div>
+
+  <div id=filter-div class=container-fluid  style="position: absolute">
+  <div class=row-fluid style="display: inline">
+   <label style="float:left">K-means Threshold: </label>
+   <div class="btn-group dropup" style="float:left; padding-left: 2px;">
+    <button id=threshold-value class="btn btn-mini" title="Enable filtering using k-means">
+     2.0</button>
+    <button class="btn btn-mini dropdown-toggle" data-toggle="dropdown">
+     <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu">
+     <li><a role=menuitem href="#">Off</a></li>
+     <li><a role=menuitem href="#">4.0</a></li>
+     <li><a role=menuitem href="#">3.5</a></li>
+     <li><a role=menuitem href="#">3.0</a></li>
+     <li><a role=menuitem href="#">2.5</a></li>
+     <li><a role=menuitem href="#">2.0</a></li>
+     <li><a role=menuitem href="#">1.5</a></li>
+     <li><a role=menuitem href="#">1.0</a></li>
+     <li><a role=menuitem href="#">0.5</a></li>
+    </ul>
+   </div>
+   </div>
+  </div>
+
   <canvas id="glcanvas" style="width: 100%; height: 100%;">
 
   </canvas>

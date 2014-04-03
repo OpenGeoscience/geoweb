@@ -73,7 +73,7 @@ archive.main = function() {
         archive.checkRegion(bbox).then(function(ok) {
 
             if (ok) {
-              archive.addLayerToMap(rise, bbox);
+              archive.update(rise, bbox);
             }
             else {
               $('#error-modal-heading').html("No data available");
@@ -222,11 +222,23 @@ archive.main = function() {
 
   $('#depth-slider').on('slideStop', function() {
     var bbox, rise;
-
     bbox = getBoundingBox();
     rise = $('#depth-slider-input').slider('getValue');
 
-    archive.addLayerToMap(rise, bbox);
+    archive.update(rise, bbox);
+  });
+
+  $(".dropdown-menu li a").click(function(){
+    var thresh = -1;
+    $('#threshold-value').html($(this).text());
+    bbox = getBoundingBox();
+    rise = $('#depth-slider-input').slider('getValue');
+
+    if ($(this).text() !== "Off")
+      thresh = parseFloat($(this).text())
+
+    archive.floodLayerSource.threshold(thresh);
+    archive.update(rise, bbox);
   });
 };
 
@@ -252,17 +264,10 @@ archive.removeLayer = function(target, layerId) {
 };
 //////////////////////////////////////////////////////////////////////////////
 /**
- * Add a new layer to the map
- *
- * @param id
- * @param name
- * @param filePath
- * @param parameter
- * @param timeval
- * @param algorithm
+ * Update view
  */
 //////////////////////////////////////////////////////////////////////////////
-archive.addLayerToMap = function(rise, bbox) {
+archive.update = function(rise, bbox) {
 
   if (archive.floodLayerSource == null)
     archive.floodLayerSource = ogs.geo.floodLayerSource();

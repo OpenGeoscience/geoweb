@@ -230,3 +230,12 @@ input[type="checkbox"][class="group-selection"] {
 #depth-slider-div > .tooltip > .tooltip-inner {
   width: 100px;
 }
+
+#filter-div {
+  bottom: 20px;
+  right: 20px;
+}
+
+.dropdown-menu {
+  min-width: 0px;
+}
