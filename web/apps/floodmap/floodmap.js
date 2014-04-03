@@ -228,7 +228,7 @@ archive.main = function() {
     archive.update(rise, bbox);
   });
 
-  $(".dropdown-menu li a").click(function(){
+  $("#threshold-menu .dropdown-menu li a").click(function(){
     var thresh = -1;
     $('#threshold-value').html($(this).text());
     bbox = getBoundingBox();
@@ -240,6 +240,26 @@ archive.main = function() {
     archive.floodLayerSource.threshold(thresh);
     archive.update(rise, bbox);
   });
+
+  var i, count = 0, stepSize = 10;
+
+  for(i=22; i>0; i--) {
+    $('#cluster-menu .dropdown-menu').append(
+        $('<li>').append($('<a>', { role: 'menuitem', href: '#' }).html(i*stepSize)).on(
+            'click', function() {
+              var cluster;
+
+              $('#cluster-value').html($(this).text());
+              cluster = parseInt($(this).text());
+              archive.floodLayerSource.clusterSize(cluster);
+              bbox = getBoundingBox();
+              rise = $('#depth-slider-input').slider('getValue');
+              archive.update(rise, bbox);
+            })
+        );
+  }
+
+
 };
 
 //////////////////////////////////////////////////////////////////////////////

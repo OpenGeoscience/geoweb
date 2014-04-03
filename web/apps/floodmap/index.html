@@ -59,27 +59,48 @@
    </div>
   </div>
 
-  <div id=filter-div class=container-fluid  style="position: absolute">
-  <div class=row-fluid style="display: inline">
-   <label style="float:left">K-means Threshold: </label>
-   <div class="btn-group dropup" style="float:left; padding-left: 2px;">
-    <button id=threshold-value class="btn btn-mini" title="Enable filtering using k-means">
-     2.0</button>
-    <button class="btn btn-mini dropdown-toggle" data-toggle="dropdown">
-     <span class="caret"></span>
-    </button>
-    <ul class="dropdown-menu">
-     <li><a role=menuitem href="#">Off</a></li>
-     <li><a role=menuitem href="#">4.0</a></li>
-     <li><a role=menuitem href="#">3.5</a></li>
-     <li><a role=menuitem href="#">3.0</a></li>
-     <li><a role=menuitem href="#">2.5</a></li>
-     <li><a role=menuitem href="#">2.0</a></li>
-     <li><a role=menuitem href="#">1.5</a></li>
-     <li><a role=menuitem href="#">1.0</a></li>
-     <li><a role=menuitem href="#">0.5</a></li>
-    </ul>
+  <div id=filter-div class=container-fluid style="position: absolute">
+   <div class=row-fluid style="display: inline">
+    <div class=span10>
+     <label>K-means Threshold: </label>
+    </div>
+    <div class=span2>
+     <div id=threshold-menu class="btn-group dropup">
+      <button id=threshold-value class="btn btn-mini"
+       title="Enable filtering using k-means">2.0</button>
+      <button class="btn btn-mini dropdown-toggle"
+       data-toggle="dropdown">
+       <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu">
+       <li><a role=menuitem href="#">Off</a></li>
+       <li><a role=menuitem href="#">4.0</a></li>
+       <li><a role=menuitem href="#">3.5</a></li>
+       <li><a role=menuitem href="#">3.0</a></li>
+       <li><a role=menuitem href="#">2.5</a></li>
+       <li><a role=menuitem href="#">2.0</a></li>
+       <li><a role=menuitem href="#">1.5</a></li>
+       <li><a role=menuitem href="#">1.0</a></li>
+       <li><a role=menuitem href="#">0.5</a></li>
+      </ul>
+     </div>
+    </div>
    </div>
+   <div class=row-fluid style="display: inline">
+    <div class=span10>
+     <label style="float: left">K-means Cluster Size: </label>
+    </div>
+    <div class=span2>
+     <div id=cluster-menu class="btn-group dropup">
+      <button id=cluster-value class="btn btn-mini">50</button>
+      <button class="btn btn-mini dropdown-toggle"
+       data-toggle="dropdown">
+       <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu">
+      </ul>
+     </div>
+    </div>
    </div>
   </div>
 
