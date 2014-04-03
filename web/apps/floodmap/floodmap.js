@@ -22,6 +22,19 @@ archive.error = function(errorString, onClose) {
     $('#error-modal').off('hidden.bs.modal').one('hidden.bs.modal', onClose)
 };
 
+var getBoundingBox = function() {
+  var latFrom, longFrom, latTo, longTo, bbox;
+
+  coords = archive.myMap.getInteractorStyle().getDrawRegion();
+  latFrom = coords[0] < coords[2] ? coords[0] : coords[2];
+  latTo = coords[0] > coords[2] ? coords[0] : coords[2];
+  longFrom = coords[1] < coords[3] ? coords[1] : coords[3]
+  longTo = coords[1] > coords[3] ? coords[1] : coords[3];
+  bbox = [[longFrom, latFrom], [longTo, latTo]];
+
+  return bbox;
+};
+
 //////////////////////////////////////////////////////////////////////////////
 /**
  * Main program
@@ -50,17 +63,12 @@ archive.main = function() {
     var canvas = document.getElementById('glcanvas');
 
     $(archive.myMap.viewer()).on(vgl.command.mouseReleaseEvent, function(event) {
-      var rise, coords, latFrom, latTo, longFrom, longTo, bbox;
+      var rise, bbox;
 
       if ($('#draw-bbox').hasClass('active')) {
 
         rise = $('#depth-slider-input').slider('getValue');
-        coords = archive.myMap.getInteractorStyle().getDrawRegion();
-        latFrom = coords[0] < coords[2] ? coords[0] : coords[2];
-        latTo = coords[0] > coords[2] ? coords[0] : coords[2];
-        longFrom = coords[1] < coords[3] ? coords[1] : coords[3]
-        longTo = coords[1] > coords[3] ? coords[1] : coords[3];
-        bbox = [[longFrom, latFrom], [longTo, latTo]]
+        bbox = getBoundingBox();
 
         archive.checkRegion(bbox).then(function(ok) {
 
@@ -211,6 +219,15 @@ archive.main = function() {
     });
   };
   addToolTips();
+
+  $('#depth-slider').on('slideStop', function() {
+    var bbox, rise;
+
+    bbox = getBoundingBox();
+    rise = $('#depth-slider-input').slider('getValue');
+
+    archive.addLayerToMap(rise, bbox);
+  });
 };
 
 //////////////////////////////////////////////////////////////////////////////
