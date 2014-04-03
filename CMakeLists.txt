@@ -37,6 +37,8 @@ set(GEOWEB_USER $ENV{USER} CACHE STRING "User to run geoweb as when dropping pri
 set(GEOWEB_GROUP $ENV{USER} CACHE STRING "Group to run geoweb as when dropping privileges")
 set(BUILD_TESTING OFF CACHE BOOL "Enable testing")
 
+option(ENABLE_OCGIS OFF "Enable OpenClimateGis")
+
 
 #/////////////////////////////////////////////////////////////////////////////
 #
@@ -159,15 +161,16 @@ add_custom_target(pygeo ALL DEPENDS
   "${GEOWEB_DEPLOY_DIR}/lib/python${PYVER}/site-packages/pygeo")
 
 # Install OCGIS
-add_custom_command(
-  OUTPUT "${GEOWEB_DEPLOY_DIR}/lib/python${PYVER}/site-packages/ocgis"
-  COMMAND "${PYTHON_EXECUTABLE}" setup.py build --build-base "${${PROJECT_NAME}_BINARY_DIR}" install
-          --prefix="${GEOWEB_DEPLOY_DIR}"
-  WORKING_DIRECTORY "${geoweb_SOURCE_DIR}/ocgis"
-)
-add_custom_target(ocgis ALL DEPENDS
-  "${GEOWEB_DEPLOY_DIR}/lib/python${PYVER}/site-packages/ocgis")
-
+if (ENABLE_OCGIS)
+  add_custom_command(
+    OUTPUT "${GEOWEB_DEPLOY_DIR}/lib/python${PYVER}/site-packages/ocgis"
+    COMMAND "${PYTHON_EXECUTABLE}" setup.py build --build-base "${${PROJECT_NAME}_BINARY_DIR}" install
+            --prefix="${GEOWEB_DEPLOY_DIR}"
+    WORKING_DIRECTORY "${geoweb_SOURCE_DIR}/ocgis"
+  )
+  add_custom_target(ocgis ALL DEPENDS
+    "${GEOWEB_DEPLOY_DIR}/lib/python${PYVER}/site-packages/ocgis")
+endif()
 
 # Uglify and concatenate the library js files.
 if(NOT ${MINIFY})
@@ -268,8 +271,9 @@ add_custom_command(OUTPUT ${GEOWEB_DEPLOY_DIR}/server.conf
 
 add_custom_target(deploy ALL DEPENDS ${_server_config})
 add_dependencies(geoweb_pre_deploy pygeo)
-add_dependencies(geoweb_pre_deploy ocgis)
-add_dependencies(deploy ocgis)
+if (ENABLE_OCGIS)
+  add_dependencies(geoweb_pre_deploy ocgis)
+endif()
 add_dependencies(deploy geoweb_pre_deploy)
 
 # Testing
