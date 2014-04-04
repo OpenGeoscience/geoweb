@@ -42,6 +42,7 @@ var getBoundingBox = function() {
  */
 //////////////////////////////////////////////////////////////////////////////
 archive.main = function() {
+  $('#about-dialog').modal('show');
   $('#error-dialog').hide();
   $('#draw-bbox').off('click').click(function() {
     console.log("click");
