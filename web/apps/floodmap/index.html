@@ -195,18 +195,37 @@
   <h3>Disclaimer</h3>
  </div>
  <div class="modal-body">
-  <p class="text-info">
-  KITWARE, INC. MAKES NO REPRESENTATION OF ANY KIND, INCLUDING, BUT NOT LIMITED TO, WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE OR USE, NOR ARE ANY SUCH WARRANTIES TO BE IMPLIED WITH RESPECT TO THE INFORMATION, DATA OR SERVICES FURNISHED HEREIN.
-  </p>
-  <p class="text-info">
-  IN NO EVENT SHALL KITWARE, INC., NOR ITS EMPLOYEES, OFFICERS OR AGENTS BECOME LIABLE TO USERS OF THE DATA, INFORMATION OR SERVICES PROVIDED HEREIN, OR TO ANY OTHER PARTY, FOR ANY LOSS OR DAMAGE, CONSEQUENTIAL OR OTHERWISE, INCLUDING BUT NOT LIMITED TO TIME, MONEY OR GOODWILL, ARISING FROM THE USE, OPERATION OR MODIFICATION OF THE DATA OR INFORMATION, OR FOR THE FAILURE TO TRANSMIT A COPY OF ANY PARTICULAR DOCUMENT. IN USING THE INFORMATION OR DATA, USERS ASSUME THE RISK FOR RELYING ON SUCH DATA OR INFORMATION, AND FURTHER AGREE TO INDEMNIFY, DEFEND, AND HOLD HARMLESS KITWARE, INC., AND ITS EMPLOYEES, OFFICERS AND AGENTS FOR ANY AND ALL LIABILITY OF ANY NATURE ARISING OUT OF OR RESULTING FROM THE LACK OF ACCURACY OR CORRECTNESS OF THE INFORMATION OR DATA, OR THE USE OF THE INFORMATION OR DATA. FURTHER, IN USING THIS INFORMATION OR DATA THE USER ACKNOWLEDGES THAT THE USER IS RESPONSIBLE FOR ASSESSING THE ACCURACY AND RELIABILITY OF THE DATA OR INFORMATION PROVIDED, AND THAT THE IMAGES PROVIDED ARE COPIES, ARE SUBJECT TO ERROR AND OMISSION, AND ARE NOT GUARANTEED OR REPRESENTED TO BE TRUE, COMPLETE OR CORRECT.
-  </p>
-  <p class="text-info">
-  NO PERSON, ENTITY OR USER SHALL SELL, GIVE OR RECEIVE FOR THE PURPOSE OF SELLING OR OFFERING FOR SALE, ANY PORTION OF THE INFORMATION OR DATA PROVIDED HEREIN, NOR MAY THEY USE THE INFORMATION IN A MANNER THAT IS IN VIOLATION OF ANY FEDERAL, STATE OR LOCAL LAW OR REGULATION.
-  </p>
+  <p class="text-info">KITWARE, INC. MAKES NO REPRESENTATION OF ANY
+   KIND, INCLUDING, BUT NOT LIMITED TO, WARRANTIES OF MERCHANTABILITY OR
+   FITNESS FOR A PARTICULAR PURPOSE OR USE, NOR ARE ANY SUCH WARRANTIES
+   TO BE IMPLIED WITH RESPECT TO THE INFORMATION, DATA OR SERVICES
+   FURNISHED HEREIN.</p>
+  <p class="text-info">IN NO EVENT SHALL KITWARE, INC., NOR ITS
+   EMPLOYEES, OFFICERS OR AGENTS BECOME LIABLE TO USERS OF THE DATA,
+   INFORMATION OR SERVICES PROVIDED HEREIN, OR TO ANY OTHER PARTY, FOR
+   ANY LOSS OR DAMAGE, CONSEQUENTIAL OR OTHERWISE, INCLUDING BUT NOT
+   LIMITED TO TIME, MONEY OR GOODWILL, ARISING FROM THE USE, OPERATION
+   OR MODIFICATION OF THE DATA OR INFORMATION, OR FOR THE FAILURE TO
+   TRANSMIT A COPY OF ANY PARTICULAR DOCUMENT. IN USING THE INFORMATION
+   OR DATA, USERS ASSUME THE RISK FOR RELYING ON SUCH DATA OR
+   INFORMATION, AND FURTHER AGREE TO INDEMNIFY, DEFEND, AND HOLD
+   HARMLESS KITWARE, INC., AND ITS EMPLOYEES, OFFICERS AND AGENTS FOR
+   ANY AND ALL LIABILITY OF ANY NATURE ARISING OUT OF OR RESULTING FROM
+   THE LACK OF ACCURACY OR CORRECTNESS OF THE INFORMATION OR DATA, OR
+   THE USE OF THE INFORMATION OR DATA. FURTHER, IN USING THIS
+   INFORMATION OR DATA THE USER ACKNOWLEDGES THAT THE USER IS
+   RESPONSIBLE FOR ASSESSING THE ACCURACY AND RELIABILITY OF THE DATA OR
+   INFORMATION PROVIDED, AND THAT THE IMAGES PROVIDED ARE COPIES, ARE
+   SUBJECT TO ERROR AND OMISSION, AND ARE NOT GUARANTEED OR REPRESENTED
+   TO BE TRUE, COMPLETE OR CORRECT.</p>
+  <p class="text-info">NO PERSON, ENTITY OR USER SHALL SELL, GIVE OR
+   RECEIVE FOR THE PURPOSE OF SELLING OR OFFERING FOR SALE, ANY PORTION
+   OF THE INFORMATION OR DATA PROVIDED HEREIN, NOR MAY THEY USE THE
+   INFORMATION IN A MANNER THAT IS IN VIOLATION OF ANY FEDERAL, STATE OR
+   LOCAL LAW OR REGULATION.</p>
  </div>
  <div class="modal-footer">
- <button class="btn" data-dismiss="modal" aria-hidden="true">Accept</button>
+  <button class="btn" data-dismiss="modal" aria-hidden="true">Accept</button>
  </div>
 </div>
 <div id="about-dialog" class="modal hide fade">
@@ -215,7 +234,59 @@
   <h3>About</h3>
  </div>
  <div class="modal-body">
+  <p class="text-info">This application enables users to dynamically
+   visualize the possible effect of rising sea level on coastal areas
+   around the world. The goal of the work is to make policy makers,
+   business owners, teachers, students understand possible effects of
+   climate change. We should mention that the simulation done here is
+   inaccurate and cannot be used for any evidence legal or not. This
+   work has been supported by the Department of Energy (DOE) under award
+   number DE-SC0006493.</p>
+  <h4>Usage</h4>
+  <p class="text-info">The application have two main controls that
+   will affect the flood simulation that will be performed.</p>
+  <ol class="text-info">
+   <li>The selection icon is the click, that allows a bounding box
+    to be drawn around the region of interest.
+    <button id="draw-bbox" type="button"
+     class="btn btn-default btn-small">
+     <i class="icon-edit"></i>
+    </button>
+   </li>
+   <li>The sea level rise is selected using the slider below the
+    selection icon</li>
+  </ol>
+  <p class="text-info">The map can be navigated using used the
+   following controls:</p>
+  <ul class="text-info">
+   <li>pan - Right click drag</li>
+   <li>zoom - Left click drag</li>
+  </ul>
+  <h4>Technology</h4>
   <p class="text-info">
+   The application is a <a href='http://www.cherrypy.org/'>CherryPy</a>
+   application built using <a href='https://www.mongodb.org/'>MongoDB</a>
+   for data storage and celery for data processing. On the client side
+   the visualization is performed using <a
+    href='https://github.com/OpenGeoscience/geojs'>GeoJS</a>, an open
+   source JavaScript library of Geo visualization and analysis. <a
+    href='http://pointclouds.org/'>PCL</a> is also used on the backend
+   to remove outliers from the datasets.
+  </p>
+  <h4>Method</h4>
+
+  <p class="text-info">
+   The application builds on the elevation data from Shuttle Radar
+   Topography Mission (<a href='http://www2.jpl.nasa.gov/srtm'>SRTM</a>).
+   It uses a 90 meter resolution dataset. In order to achieve a
+   responsive experience, the data is aggregated to several levels of
+   detail, so as the user zoom in, the application displays higher
+   resolution data and uses low resolution data when zoomed out to main
+   realtime performance. The flood level is calculated using a ‘naive’
+   selection of all points with an elevation that is less than the
+   selected rise. A <a href='http://pointclouds.org/'>PCL</a> outlier
+   filter is used to remove points that are not clustered along the
+   coastline, such as inland bodies of water.
   </p>
  </div>
 </div>
