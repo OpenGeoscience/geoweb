@@ -83,8 +83,7 @@ def to_geojson(points):
 
 try:
     import pcl
-    import numpy as np
-# If we don't have pcl or numpy install then  don't do the filtering
+# If we don't have pcl install then  don't do the filtering
 except ImportError:
     cherrypy.log("[warn] Skipping outlier filter as PCL is not available.")
     pcl = None
