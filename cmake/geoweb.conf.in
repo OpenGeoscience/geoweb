@@ -14,6 +14,11 @@ tools.staticdir.index: "index.html"
 tools.response_headers.on: True
 tools.response_headers.headers: [('Expires', 'Sun, 19 Nov 1985 05:00:00 GMT'), ('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0'), ('Pragma', 'no-cache')]
 
+[/apps/floodmap]
+tools.staticdir.on: True
+tools.staticdir.dir: "web/apps/floodmap"
+
+
 [/services]
 #tools.sessions.on = True
 #tools.esgf_session_auth.on = True
