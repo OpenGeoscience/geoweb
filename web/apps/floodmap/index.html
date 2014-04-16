@@ -67,21 +67,16 @@
     <div class=span2>
      <div id=threshold-menu class="btn-group dropup">
       <button id=threshold-value class="btn btn-mini"
-       title="Enable filtering using k-means">2.0</button>
+       title="Enable filtering using k-means">Medium</button>
       <button class="btn btn-mini dropdown-toggle"
        data-toggle="dropdown">
        <span class="caret"></span>
       </button>
       <ul class="dropdown-menu">
-       <li><a role=menuitem href="#">Off</a></li>
-       <li><a role=menuitem href="#">4.0</a></li>
-       <li><a role=menuitem href="#">3.5</a></li>
-       <li><a role=menuitem href="#">3.0</a></li>
-       <li><a role=menuitem href="#">2.5</a></li>
-       <li><a role=menuitem href="#">2.0</a></li>
-       <li><a role=menuitem href="#">1.5</a></li>
-       <li><a role=menuitem href="#">1.0</a></li>
-       <li><a role=menuitem href="#">0.5</a></li>
+       <li><a role=menuitem href="#" data-value='Off'>Off</a></li>
+       <li><a role=menuitem href="#" data-value='4.0'>High</a></li>
+       <li><a role=menuitem href="#" data-value='2.0'>Medium</a></li>
+       <li><a role=menuitem href="#" data-value='0.5'>Low</a></li>
       </ul>
      </div>
     </div>
@@ -92,12 +87,15 @@
     </div>
     <div class=span2>
      <div id=cluster-menu class="btn-group dropup">
-      <button id=cluster-value class="btn btn-mini">50</button>
+      <button id=cluster-value class="btn btn-mini">Medium</button>
       <button class="btn btn-mini dropdown-toggle"
        data-toggle="dropdown">
        <span class="caret"></span>
       </button>
       <ul class="dropdown-menu">
+       <li><a role=menuitem href="#" data-value='100'>Large</a></li>
+       <li><a role=menuitem href="#" data-value='50'>Medium</a></li>
+       <li><a role=menuitem href="#" data-value='10'>Small</a></li>
       </ul>
      </div>
     </div>

@@ -234,36 +234,28 @@ archive.main = function() {
 
   $("#threshold-menu .dropdown-menu li a").click(function(){
     var thresh = -1;
+
     $('#threshold-value').html($(this).text());
     bbox = getBoundingBox();
     rise = $('#depth-slider-input').slider('getValue');
 
-    if ($(this).text() !== "Off")
-      thresh = parseFloat($(this).text())
-
+    if ($(this).text() !== "Off") {
+      thresh = parseFloat($(this).data('value'));
+    }
     archive.floodLayerSource.threshold(thresh);
     archive.update(rise, bbox);
   });
 
-  var i, count = 0, stepSize = 10;
+  $('#cluster-menu .dropdown-menu li a' ).click(function() {
+    var cluster;
 
-  for(i=22; i>0; i--) {
-    $('#cluster-menu .dropdown-menu').append(
-        $('<li>').append($('<a>', { role: 'menuitem', href: '#' }).html(i*stepSize)).on(
-            'click', function() {
-              var cluster;
-
-              $('#cluster-value').html($(this).text());
-              cluster = parseInt($(this).text());
-              archive.floodLayerSource.clusterSize(cluster);
-              bbox = getBoundingBox();
-              rise = $('#depth-slider-input').slider('getValue');
-              archive.update(rise, bbox);
-            })
-        );
-  }
-
-
+    $('#cluster-value').html($(this).text());
+    cluster = parseInt($(this).data('value'));
+    archive.floodLayerSource.clusterSize(cluster);
+    bbox = getBoundingBox();
+    rise = $('#depth-slider-input').slider('getValue');
+    archive.update(rise, bbox);
+  });
 };
 
 //////////////////////////////////////////////////////////////////////////////
