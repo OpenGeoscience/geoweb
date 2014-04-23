@@ -1465,9 +1465,8 @@ archive.addLayerToMap = function(id, name, filePath, parameter, timeval, algorit
   layer.setName(name);
   layer.setDataSource(source);
   layer.setId(id);
-  layer.update(ogs.geo.updateRequest(timeval));
-
   archive.myMap.addLayer(layer);
+  layer.update(ogs.geo.updateRequest(timeval));
   archive.myMap.draw();
 
   if(archive.tutorialMask.isOff('layerOptions')) {
