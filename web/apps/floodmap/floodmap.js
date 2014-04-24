@@ -59,14 +59,15 @@ archive.main = function() {
 
 
   var mapOptions = {
+    node: '#glcanvas',
     zoom : 6,
-    center : ogs.geo.latlng(0.0, 0.0),
+    center : geo.latlng(0.0, 0.0),
     source: '/services/data/land_shallow_topo_2048.png',
     country_boundaries: true
   };
 
   $(function() {
-    archive.myMap = ogs.geo.map(document.getElementById("glcanvas"), mapOptions);
+    archive.myMap = geo.map(mapOptions);
     var canvas = document.getElementById('glcanvas');
 
     archive.myMap.on(geo.event.regionSelect, function(event) {
@@ -108,10 +109,7 @@ archive.main = function() {
     resizeCanvas();
 
     function updateAndDraw(width, height) {
-
-      archive.myMap.draw();
-      archive.myMap.resize(width, height);
-      archive.myMap.update();
+      archive.myMap.resize(0, 0, width, height);
       archive.myMap.draw();
     };
 
