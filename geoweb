@@ -9,11 +9,11 @@ import argparse
 import platform
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(current_dir, "modules"))
-sys.path.append(os.path.join(current_dir, "modules", "thirdparty",
+sys.path.append(os.path.join(current_dir, "pygeo"))
+sys.path.append(os.path.join(current_dir, "pygeo", "thirdparty",
     "MyProxyClient-1.3.0"))
 
-#import authentication
+#import pygeo.security.authentication
 
 def read_pid(pidfile):
     # Open the file and convert the contents to an integer - if this fails for

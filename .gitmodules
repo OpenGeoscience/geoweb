@@ -2,3 +2,6 @@
 	path = web/lib/geojs
 	url = git://github.com/OpenGeoscience/geojs.git
 	pushurl = git@github.com:OpenGeoscience/geojs.git
+[submodule "ocgis"]
+	path = ocgis
+	url = 	git://github.com/NCPP/ocgis.git

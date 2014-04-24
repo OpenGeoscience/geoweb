@@ -43,7 +43,7 @@ def run(method='read', sub_method=None, expr=None, vars=None, time=None, fields=
         pass
     elif method == 'read':
         # Load reader module
-        import reader
+        import io.reader as reader
         try:
             it = reader.read(expr, vars, time)
 

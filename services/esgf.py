@@ -9,11 +9,11 @@ import geoweb
 from urlparse import urlparse
 import requests
 
-from esgf.utils import url_to_download_filepath
-from esgf.utils import user_cert_file
-import esgf.download
-import esgf.registration
-from esgf.query import query
+from pygeo.esgf.utils import url_to_download_filepath
+from pygeo.esgf.utils import user_cert_file
+import pygeo.esgf.download
+import pygeo.esgf.registration
+from pygeo.esgf.query import query
 
 streams = dict()
 
@@ -74,20 +74,20 @@ def run(method, **kwargs):
         url = kwargs['url'].strip('"')
         size = kwargs['size']
         checksum = kwargs['checksum']
-        r = esgf.download.download.delay(url, size, checksum, user_url);
+        r = pygeo.esgf.download.download.delay(url, size, checksum, user_url);
         response['result'] = {'taskId': r.task_id}
     elif method == 'download_status':
-        response['result'] = esgf.download.status(**kwargs)
+        response['result'] = pygeo.esgf.download.status(**kwargs)
     elif method == 'cancel_download':
-        esgf.download.cancel(**kwargs)
+        pygeo.esgf.download.cancel(**kwargs)
     elif method == 'filepath':
         user_url = cherrypy.session['username']
         url = kwargs['url'].strip('"')
         response['result'] = {'filepath': url_to_download_filepath(user_url, url)}
     elif method == 'registerGroups':
-        response['result'] = {'groups': esgf.registration.register_groups(**kwargs)}
+        response['result'] = {'groups': pygeo.esgf.registration.register_groups(**kwargs)}
     elif method == 'register':
-        response['result'] = {'success': esgf.registration.register_with_group(**kwargs)}
+        response['result'] = {'success': pygeo.esgf.registration.register_with_group(**kwargs)}
     else:
         raise RuntimeError("illegal method '%s' in module 'esgf'" % (method))
 

@@ -25,4 +25,4 @@ tools.staticdir.dir: "web/apps/floodmap"
 
 [/ws]
 tools.websocket.on: True
-tools.websocket.handler_cls: modules.geowebsocket.WebSocketRouter
+tools.websocket.handler_cls: pygeo.net.geowebsocket.WebSocketRouter
