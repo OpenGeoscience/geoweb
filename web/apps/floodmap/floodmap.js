@@ -22,14 +22,17 @@ archive.error = function(errorString, onClose) {
     $('#error-modal').off('hidden.bs.modal').one('hidden.bs.modal', onClose)
 };
 
-var getBoundingBox = function() {
+var getBoundingBox = function(regionSelectEvent) {
   var latFrom, longFrom, latTo, longTo, bbox;
 
-  coords = archive.myMap.getInteractorStyle().getDrawRegion();
-  latFrom = coords[0] < coords[2] ? coords[0] : coords[2];
-  latTo = coords[0] > coords[2] ? coords[0] : coords[2];
-  longFrom = coords[1] < coords[3] ? coords[1] : coords[3]
-  longTo = coords[1] > coords[3] ? coords[1] : coords[3];
+  latFrom = regionSelectEvent.lowerRight[0] < regionSelectEvent.upperLeft[0] ?
+            regionSelectEvent.lowerRight[0] : regionSelectEvent.upperLeft[0];
+  latTo = regionSelectEvent.lowerRight[0] > regionSelectEvent.upperLeft[0] ?
+          regionSelectEvent.lowerRight[0] : regionSelectEvent.upperLeft[0];
+  longFrom = regionSelectEvent.lowerRight[1] < regionSelectEvent.upperLeft[1] ?
+             regionSelectEvent.lowerRight[1] : regionSelectEvent.upperLeft[1]
+  longTo = regionSelectEvent.lowerRight[1] > regionSelectEvent.upperLeft[1] ?
+           regionSelectEvent.lowerRight[1] : regionSelectEvent.upperLeft[1];
   bbox = [[longFrom, latFrom], [longTo, latTo]];
 
   return bbox;
@@ -66,7 +69,7 @@ archive.main = function() {
     archive.myMap = ogs.geo.map(document.getElementById("glcanvas"), mapOptions);
     var canvas = document.getElementById('glcanvas');
 
-    $(archive.myMap.viewer()).on(vgl.command.mouseReleaseEvent, function(event) {
+    archive.myMap.on(geo.event.regionSelect, function(event) {
       var rise, bbox;
 
       if ($('#draw-bbox').hasClass('active')) {
@@ -155,19 +158,6 @@ archive.main = function() {
     $('#query-input').tooltip();
     $('#document-table-body').tooltip();
     $('#layers').tooltip();
-
-    //setup map draw region listener
-    $(archive.myMap.getInteractorStyle()).on(
-      ogs.geo.command.updateDrawRegionEvent,
-      function() {
-        var coords = archive.myMap.getInteractorStyle().getDrawRegion();
-
-        $('#latitudeFrom').val(coords[0] < coords[2] ? coords[0] : coords[2]);
-        $('#longitudeFrom').val(coords[1] < coords[3] ? coords[1] : coords[3]);
-        $('#latitudeTo').val(coords[0] > coords[2] ? coords[0] : coords[2] );
-        $('#longitudeTo').val(coords[1] > coords[3] ? coords[1] : coords[3]);
-      }
-    );
 
     //init tooltips on time and space inputs
     $('#collapse-documents').find('.input-small').tooltip();
