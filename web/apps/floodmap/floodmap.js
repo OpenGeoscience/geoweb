@@ -59,7 +59,7 @@ archive.main = function() {
 
 
   var mapOptions = {
-    node: '#glcanvas',
+    node: '#geojs-map',
     zoom : 6,
     center : geo.latlng(0.0, 0.0),
     source: '/services/data/land_shallow_topo_2048.png',
@@ -67,8 +67,12 @@ archive.main = function() {
   };
 
   $(function() {
+    var layer = geo.osmLayer({'renderer' : 'vglRenderer'});
     archive.myMap = geo.map(mapOptions);
-    var canvas = document.getElementById('glcanvas');
+    archive.myMap.addLayer(layer);
+    archive.myMap.draw();
+
+    var canvas = document.getElementById('geojs-map');
 
     archive.myMap.on(geo.event.regionSelect, function(event) {
       var rise, bbox;
@@ -115,9 +119,8 @@ archive.main = function() {
 
     // Ask for mouseMove events
     $(canvas).on("mousemove", function(event) {
-      var mousePos = canvas.relMouseCoords(event);
       var infoBox = $("#map-info-box");
-      var mapCoord = archive.myMap.displayToMap(mousePos.x, mousePos.y);
+      var mapCoord = archive.myMap.displayToGcs([event.pageX, event.pageY]);
       infoBox.html(mapCoord.x.toFixed(2)+" , "+mapCoord.y.toFixed(2)+"<br/>");
 
       // this version shows the info box in the lower left corner
@@ -132,7 +135,6 @@ archive.main = function() {
 
     // hide when moving out of the map
     $(canvas).on("mouseleave", function(event) {
-      var mousePos = canvas.relMouseCoords(event);
       var infoBox = $("#map-info-box");
       infoBox.fadeOut();
       return true;
@@ -140,7 +142,6 @@ archive.main = function() {
 
     // show when moving into the map
     $(canvas).on("mouseenter", function(event) {
-      var mousePos = canvas.relMouseCoords(event);
       var infoBox = $("#map-info-box");
       infoBox.fadeIn();
       return true;
