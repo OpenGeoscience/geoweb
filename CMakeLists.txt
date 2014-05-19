@@ -148,6 +148,7 @@ add_custom_target(bar ALL DEPENDS ${all_targets})
 
 message(STATUS "${geoweb_SOURCE_DIR}/ocgis")
 
+set(PYGEO_BUILD_BASE "${${PROJECT_NAME}_BINARY_DIR}")
 add_subdirectory(pygeo)
 
 # Install OCGIS
