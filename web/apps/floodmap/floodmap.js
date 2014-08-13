@@ -53,8 +53,8 @@ archive.main = function() {
   $('#draw-bbox').off('click').click(function() {
     console.log("click");
     var active = $(this).toggleClass('active').hasClass('active');
-      archive.myMap.baseLayer().renderer().interactorStyle().clearDrawRegion();
-      archive.myMap.baseLayer().renderer().interactorStyle().drawRegionMode(active);
+      archive.myMap.baseLayer().renderer().viewer().interactorStyle().clearRegionSelection();
+      archive.myMap.baseLayer().renderer().viewer().interactorStyle().selectRegion(active);
   });
 
 
