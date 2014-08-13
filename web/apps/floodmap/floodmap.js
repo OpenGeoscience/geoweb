@@ -61,15 +61,15 @@ archive.main = function() {
   var mapOptions = {
     node: '#geojs-map',
     zoom : 6,
-    center : geo.latlng(0.0, 0.0),
+    center : [0.0, 0.0],
     source: '/services/data/land_shallow_topo_2048.png',
     country_boundaries: true
   };
 
   $(function() {
-    var layer = geo.osmLayer({'renderer' : 'vglRenderer'});
+    var layer = null;
     archive.myMap = geo.map(mapOptions);
-    archive.myMap.addLayer(layer);
+    layer = archive.myMap.createLayer('osm', {'renderer' : 'vglRenderer'});
     archive.myMap.draw();
 
     var canvas = document.getElementById('geojs-map');
