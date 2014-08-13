@@ -53,8 +53,8 @@ archive.main = function() {
   $('#draw-bbox').off('click').click(function() {
     console.log("click");
     var active = $(this).toggleClass('active').hasClass('active');
-      archive.myMap.viewer().interactorStyle().clearDrawRegion();
-      archive.myMap.viewer().interactorStyle().drawRegionMode(active);
+      archive.myMap.baseLayer().renderer().interactorStyle().clearDrawRegion();
+      archive.myMap.baseLayer().renderer().interactorStyle().drawRegionMode(active);
   });
 
 
@@ -94,7 +94,7 @@ archive.main = function() {
               $('#error-modal').modal();
             }
 
-            archive.myMap.viewer().interactorStyle().drawRegionMode(false);
+            archive.myMap.interactorStyle().drawRegionMode(false);
             $('#draw-bbox').toggleClass('active');
         });
       }
