@@ -80,7 +80,7 @@ archive.main = function() {
       if ($('#draw-bbox').hasClass('active')) {
 
         rise = $('#depth-slider-input').slider('getValue');
-        bbox = getBoundingBox();
+        bbox = getBoundingBox(event);
 
         archive.checkRegion(bbox).then(function(ok) {
 
