@@ -1,10 +1,9 @@
 // Disable console log
 // console.log = function() {}
 
-var archive = {};
-archive.myMap = null;
-archive.floodLayer = null;
-archive.floodLayerSource = null;
+floodmap.myMap = null;
+floodmap.floodLayer = null;
+floodmap.floodLayerSource = null;
 
 //////////////////////////////////////////////////////////////////////////////
 /**
@@ -14,7 +13,7 @@ archive.floodLayerSource = null;
  * @param onClose
  */
 //////////////////////////////////////////////////////////////////////////////
-archive.error = function(errorString, onClose) {
+floodmap.error = function(errorString, onClose) {
 
   $('#error-modal-text').html(errorString);
   $('#error-modal').modal();
@@ -44,7 +43,7 @@ var getBoundingBox = function(regionSelectEvent) {
  *
  */
 //////////////////////////////////////////////////////////////////////////////
-archive.main = function() {
+floodmap.main = function() {
   $('#disclaimer-dialog').modal({
                                   backdrop: 'static',
                                   keyboard: false
@@ -53,8 +52,8 @@ archive.main = function() {
   $('#draw-bbox').off('click').click(function() {
     console.log("click");
     var active = $(this).toggleClass('active').hasClass('active');
-      archive.myMap.baseLayer().renderer().viewer().interactorStyle().clearRegionSelection();
-      archive.myMap.baseLayer().renderer().viewer().interactorStyle().selectRegion(active);
+      floodmap.myMap.baseLayer().renderer().viewer().interactorStyle().clearRegionSelection();
+      floodmap.myMap.baseLayer().renderer().viewer().interactorStyle().selectRegion(active);
   });
 
 
@@ -68,13 +67,13 @@ archive.main = function() {
 
   $(function() {
     var layer = null;
-    archive.myMap = geo.map(mapOptions);
-    layer = archive.myMap.createLayer('osm', {'renderer' : 'vglRenderer'});
-    archive.myMap.draw();
+    floodmap.myMap = geo.map(mapOptions);
+    layer = floodmap.myMap.createLayer('osm', {'renderer' : 'vglRenderer'});
+    floodmap.myMap.draw();
 
     var canvas = document.getElementById('geojs-map');
 
-    archive.myMap.on(geo.event.regionSelect, function(event) {
+    $(floodmap.myMap.baseLayer().renderer().viewer().interactorStyle()).on(geo.event.regionSelect, function(event) {
       var rise, bbox;
 
       if ($('#draw-bbox').hasClass('active')) {
@@ -82,10 +81,10 @@ archive.main = function() {
         rise = $('#depth-slider-input').slider('getValue');
         bbox = getBoundingBox(event);
 
-        archive.checkRegion(bbox).then(function(ok) {
+        floodmap.checkRegion(bbox).then(function(ok) {
 
             if (ok) {
-              archive.update(rise, bbox);
+              floodmap.update(rise, bbox);
             }
             else {
               $('#error-modal-heading').html("No data available");
@@ -94,7 +93,7 @@ archive.main = function() {
               $('#error-modal').modal();
             }
 
-            archive.myMap.interactorStyle().drawRegionMode(false);
+            floodmap.myMap.interactorStyle().selectRegion(false);
             $('#draw-bbox').toggleClass('active');
         });
       }
@@ -113,14 +112,14 @@ archive.main = function() {
     resizeCanvas();
 
     function updateAndDraw(width, height) {
-      archive.myMap.resize(0, 0, width, height);
-      archive.myMap.draw();
+      floodmap.myMap.resize(0, 0, width, height);
+      floodmap.myMap.draw();
     };
 
     // Ask for mouseMove events
     $(canvas).on("mousemove", function(event) {
       var infoBox = $("#map-info-box");
-      var mapCoord = archive.myMap.displayToGcs([event.pageX, event.pageY]);
+      var mapCoord = floodmap.myMap.displayToGcs([event.pageX, event.pageY]);
       infoBox.html(mapCoord.x.toFixed(2)+" , "+mapCoord.y.toFixed(2)+"<br/>");
 
       // this version shows the info box in the lower left corner
@@ -150,7 +149,7 @@ archive.main = function() {
     //hook up extra info close click
     $('#close-extra-info').off('click').click(function() {
       $("#map-extra-info-box").fadeOut({duration: 200, queue: false});
-      $(archive.myMap).off(ogs.geo.command.animateEvent + ".extraInfoBox"); // stop re-querying during animations
+      $(floodmap.myMap).off(ogs.geo.command.animateEvent + ".extraInfoBox"); // stop re-querying during animations
     });
 
     // setup tooltips
@@ -165,7 +164,7 @@ archive.main = function() {
   $('.ui-resizeable-s').css('bottom', 0);
   $('.ui-resizeable-e').css('right', 0);
 
-  archive.userName(function(openIdUri) {
+  floodmap.userName(function(openIdUri) {
     var parts = openIdUri.split('/');
     $('#user-name').html(parts[parts.length-1]);
   });
@@ -174,7 +173,7 @@ archive.main = function() {
     $('#about-dialog').modal('show');
   });
 
-  //archive.addLayerToMap();
+  //floodmap.addLayerToMap();
 
   $('#depth-slider-input').slider({
     tooltip: 'always',
@@ -218,7 +217,7 @@ archive.main = function() {
     bbox = getBoundingBox();
     rise = $('#depth-slider-input').slider('getValue');
 
-    archive.update(rise, bbox);
+    floodmap.update(rise, bbox);
   });
 
   $("#threshold-menu .dropdown-menu li a").click(function(){
@@ -231,8 +230,8 @@ archive.main = function() {
     if ($(this).text() !== "Off") {
       thresh = parseFloat($(this).data('value'));
     }
-    archive.floodLayerSource.threshold(thresh);
-    archive.update(rise, bbox);
+    floodmap.floodLayerSource.threshold(thresh);
+    floodmap.update(rise, bbox);
   });
 
   $('#cluster-menu .dropdown-menu li a' ).click(function() {
@@ -240,10 +239,10 @@ archive.main = function() {
 
     $('#cluster-value').html($(this).text());
     cluster = parseInt($(this).data('value'));
-    archive.floodLayerSource.clusterSize(cluster);
+    floodmap.floodLayerSource.clusterSize(cluster);
     bbox = getBoundingBox();
     rise = $('#depth-slider-input').slider('getValue');
-    archive.update(rise, bbox);
+    floodmap.update(rise, bbox);
   });
 };
 
@@ -256,12 +255,12 @@ archive.main = function() {
  * @returns {boolean}
  */
 //////////////////////////////////////////////////////////////////////////////
-archive.removeLayer = function(target, layerId) {
+floodmap.removeLayer = function(target, layerId) {
   ogs.ui.gis.removeLayer(target, layerId);
-  var layer = archive.myMap.findLayerById(layerId);
+  var layer = floodmap.myMap.findLayerById(layerId);
   if (layer != null) {
-    archive.myMap.removeLayer(layer);
-    archive.myMap.draw();
+    floodmap.myMap.removeLayer(layer);
+    floodmap.myMap.draw();
     return true;
   }
 
@@ -272,28 +271,29 @@ archive.removeLayer = function(target, layerId) {
  * Update view
  */
 //////////////////////////////////////////////////////////////////////////////
-archive.update = function(rise, bbox) {
+floodmap.update = function(rise, bbox) {
 
-  if (archive.floodLayerSource == null)
-    archive.floodLayerSource = ogs.geo.floodLayerSource();
+  if (floodmap.floodLayer === null)
+    floodmap.floodLayer = ogs.geo.floodLayerSource();
 
   console.log('rise ', rise);
-  archive.floodLayerSource.setScalarRange("rise", [0, rise]);
-  archive.floodLayerSource.rise(rise)
-  archive.floodLayerSource.boundingBox(bbox);
 
-  if (archive.floodLayer == null) {
-    archive.floodLayer = ogs.geo.floodLayer();
-    archive.floodLayer.setUsePointSprites(true);
-    archive.floodLayer.setDataSource(archive.floodLayerSource);
-    archive.myMap.addLayer(archive.floodLayer);
+  if (floodmap.floodLayer == null) {
+    floodmap.floodLayer = ogs.geo.floodLayer();
+    floodmap.floodLayer.setUsePointSprites(true);
+    floodmap.floodLayer.setDataSource(floodmap.floodLayerSource);
+    floodmap.floodLayer.setScalarRange("rise", [0, rise]);
+    floodmap.floodLayer.rise(rise)
+    floodmap.floodLayer.boundingBox(bbox);
+
+    floodmap.myMap.addLayer(floodmap.floodLayer);
   }
 
-  archive.floodLayer.update(ogs.geo.updateRequest(1));
-  archive.myMap.draw();
+  floodmap.floodLayer.update(ogs.geo.updateRequest(1));
+  floodmap.myMap.draw();
 };
 
-archive.checkRegion = function(bbox) {
+floodmap.checkRegion = function(bbox) {
 
   var defer, pointUrl;
 
@@ -328,7 +328,7 @@ archive.checkRegion = function(bbox) {
  */
 //////////////////////////////////////////////////////////////////////////////
 
-archive.userName = function(onUserName) {
+floodmap.userName = function(onUserName) {
   $.ajax({
     type: 'GET',
     url: '/services/session',
@@ -339,13 +339,13 @@ archive.userName = function(onUserName) {
     success: function(response) {
       if (response.error !== null) {
         console.log("[error] " + response.error ? response.error : "no results returned from server");
-        $(archive).trigger('query-error');
+        $(floodmap).trigger('query-error');
       } else {
         onUserName(response.result.value);
       }
     },
     error: function(jqXHR, textStatus, errorThrown) {
-      archive.error(errorThrown);
+      floodmap.error(errorThrown);
     }
   });
 };
@@ -355,7 +355,7 @@ archive.userName = function(onUserName) {
  * End the session
  */
 //////////////////////////////////////////////////////////////////////////////
-archive.logOut = function() {
+floodmap.logOut = function() {
   $.ajax({
     type: 'DELETE',
     url: '/services/session',
@@ -363,13 +363,13 @@ archive.logOut = function() {
     success: function(response) {
       if (response.error !== null) {
         console.log("[error] " + response.error ? response.error : "no results returned from server");
-        $(archive).trigger('query-error');
+        $(floodmap).trigger('query-error');
       } else {
         location.reload();
       }
     },
     error: function(jqXHR, textStatus, errorThrown) {
-      archive.error(errorThrown);
+      floodmap.error(errorThrown);
     }
   });
 };
