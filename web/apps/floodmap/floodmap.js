@@ -24,14 +24,14 @@ floodmap.error = function(errorString, onClose) {
 var getBoundingBox = function(regionSelectEvent) {
   var latFrom, longFrom, latTo, longTo, bbox;
 
-  latFrom = regionSelectEvent.lowerRight[0] < regionSelectEvent.upperLeft[0] ?
-            regionSelectEvent.lowerRight[0] : regionSelectEvent.upperLeft[0];
-  latTo = regionSelectEvent.lowerRight[0] > regionSelectEvent.upperLeft[0] ?
-          regionSelectEvent.lowerRight[0] : regionSelectEvent.upperLeft[0];
-  longFrom = regionSelectEvent.lowerRight[1] < regionSelectEvent.upperLeft[1] ?
-             regionSelectEvent.lowerRight[1] : regionSelectEvent.upperLeft[1]
-  longTo = regionSelectEvent.lowerRight[1] > regionSelectEvent.upperLeft[1] ?
-           regionSelectEvent.lowerRight[1] : regionSelectEvent.upperLeft[1];
+  latFrom = regionSelectEvent.lowerRight[1] < regionSelectEvent.upperLeft[1] ?
+            regionSelectEvent.lowerRight[1] : regionSelectEvent.upperLeft[1];
+  latTo = regionSelectEvent.lowerRight[1] > regionSelectEvent.upperLeft[1] ?
+          regionSelectEvent.lowerRight[1] : regionSelectEvent.upperLeft[1];
+  longFrom = regionSelectEvent.lowerRight[0] < regionSelectEvent.upperLeft[0] ?
+             regionSelectEvent.lowerRight[0] : regionSelectEvent.upperLeft[0]
+  longTo = regionSelectEvent.lowerRight[0] > regionSelectEvent.upperLeft[0] ?
+           regionSelectEvent.lowerRight[0] : regionSelectEvent.upperLeft[0];
   bbox = [[longFrom, latFrom], [longTo, latTo]];
 
   return bbox;
