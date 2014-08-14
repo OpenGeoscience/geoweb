@@ -11,9 +11,10 @@ floodmap.floodLayer = function(rise, bbox) {
     return new floodmap.floodLayer(rise, bbox);
   }
 
+  geo.featureLayer.call(this);
+
   /** @private */
-  var m_super = callSuper(floodmap.featureLayer, this),
-      m_that = this,
+  var m_that = this,
       m_pointSize = 10,
       m_time = -1,
       m_rise = rise,

@@ -2,7 +2,7 @@
 // console.log = function() {}
 
 floodmap.myMap = null;
-floodmap.floodLayer = null;
+floodmap.layer = null;
 
 //////////////////////////////////////////////////////////////////////////////
 /**
@@ -229,7 +229,7 @@ floodmap.main = function() {
     if ($(this).text() !== "Off") {
       thresh = parseFloat($(this).data('value'));
     }
-    floodmap.floodLayer.threshold(thresh);
+    floodmap.layer.threshold(thresh);
     floodmap.update(rise, bbox);
   });
 
@@ -238,7 +238,7 @@ floodmap.main = function() {
 
     $('#cluster-value').html($(this).text());
     cluster = parseInt($(this).data('value'));
-    floodmap.floodLayer.clusterSize(cluster);
+    floodmap.layer.clusterSize(cluster);
     bbox = getBoundingBox();
     rise = $('#depth-slider-input').slider('getValue');
     floodmap.update(rise, bbox);
@@ -273,17 +273,17 @@ floodmap.removeLayer = function(target, layerId) {
 floodmap.update = function(rise, bbox) {
   console.log('rise ', rise);
 
-  if (floodmap.floodLayer == null) {
-    floodmap.floodLayer = ogs.geo.floodLayer();
-    floodmap.floodLayer.setUsePointSprites(true);
-    floodmap.floodLayer.setScalarRange("rise", [0, rise]);
-    floodmap.floodLayer.rise(rise)
-    floodmap.floodLayer.boundingBox(bbox);
+  if (floodmap.layer == null) {
+    floodmap.layer = floodmap.floodLayer();
+    floodmap.layer.setUsePointSprites(true);
+    floodmap.layer.setScalarRange("rise", [0, rise]);
+    floodmap.layer.rise(rise)
+    floodmap.layer.boundingBox(bbox);
 
-    floodmap.myMap.addLayer(floodmap.floodLayer);
+    floodmap.myMap.addLayer(floodmap.layer);
   }
 
-  floodmap.floodLayer.update(ogs.geo.updateRequest(1));
+  floodmap.layer.update(ogs.geo.updateRequest(1));
   floodmap.myMap.draw();
 };
 
