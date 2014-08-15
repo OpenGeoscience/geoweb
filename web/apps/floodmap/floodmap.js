@@ -274,16 +274,15 @@ floodmap.update = function(rise, bbox) {
   console.log('rise ', rise);
 
   if (floodmap.layer == null) {
-    floodmap.layer = floodmap.floodLayer();
-    floodmap.layer.setUsePointSprites(true);
+    floodmap.layer = floodmap.myMap.createLayer('flood');
+    // TODO fix, this is a hack!
+    floodmap.layer.map(floodmap.myMap);
     floodmap.layer.setScalarRange("rise", [0, rise]);
     floodmap.layer.rise(rise)
     floodmap.layer.boundingBox(bbox);
-
-    floodmap.myMap.addLayer(floodmap.layer);
   }
 
-  floodmap.layer.update(ogs.geo.updateRequest(1));
+  floodmap.layer.update();
   floodmap.myMap.draw();
 };
 

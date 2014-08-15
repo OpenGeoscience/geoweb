@@ -474,3 +474,6 @@ var intersection = function(a, b) {
 };
 
 inherit(floodmap.floodLayer, geo.featureLayer);
+
+geo.registerLayer("flood", floodmap.floodLayer);
+
