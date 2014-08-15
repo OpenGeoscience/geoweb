@@ -39,14 +39,57 @@ floodmap.floodLayer = function(rise, bbox) {
     }
   };
 
-  this.addData = function(data, append) {
-    var i, features;
+  this.addData = function(geoJson, append) {
+    var i, features, reader;
 
     append = append !== undefined ? append : false;
 
-    m_super.addData.call(this, data, append);
+    var i = 0,
+    geomFeature = null,
+    noOfPrimitives = 0;
+
+    if ((geoJson && geoJson.length < 1) || !geoJson) {
+      this.deleteLegend();
+      return;
+    }
+
+    // Clear our existing features
+    if (!append) {
+      this.deleteAllFeatures();
+    }
+
+    reader = new geo.jsonReader({layer: this});
+    reader.read(geoJson, function(features) {
+      m_that.map().draw();
+    });
+
+//    for(i = 0; i < data.length; ++i) {
+//      switch(data[i].type()) {
+//        case vgl.data.geometry:
+//            geomFeature = geo.geometryFeature(data[i]);
+//            geo.geoTransform.osmTransformFeature(this.container().options().gcs, geomFeature);
+//            geomFeature.setVisible(this.visible());
+//            geomFeature.material().setBinNumber(this.binNumber());
+//          // Check if geometry has points only
+//          // TODO this code could be moved to vgl
+//          noOfPrimitives = data[i].numberOfPrimitives();
+//          if (m_usePointSprites && noOfPrimitives === 1 &&
+//            data[i].primitive(0).primitiveType() === gl.POINTS) {
+//             geomFeature.setMaterial(vgl.utils.createPointSpritesMaterial(
+//              m_pointSpritesImage, this.lookupTable()));
+//          } else {
+//          }
+//          m_newFeatures.push(geomFeature);
+//          break;
+//        case vgl.data.raster:
+//          break;
+//        default:
+//          console.log('[warning] Data type not handled', data.type());
+//      }
+//    }
+
     // Now set the point size
-    this.updatePointSize(m_pointSize);
+    //this.updatePointSize(m_pointSize);
   };
 
   this.pointSpriteSize = function(pointSize) {
@@ -102,12 +145,8 @@ floodmap.floodLayer = function(rise, bbox) {
           if (response.result.id === m_currentQuery) {
             if (response.result.geoJson) {
               console.log("Starting to read GeoJSON")
-              reader = vgl.geojsonReader();
-              geoJson = reader.readGJObject(response.result.geoJson);
 
-              m_featureLayer.addData(geoJson, !clear);
-              m_that.updatePointSize();
-              m_featureLayer.redraw();
+              m_that.addData(response.result.geoJson, !clear);
               m_resolutionChanged = false;
             }
 
