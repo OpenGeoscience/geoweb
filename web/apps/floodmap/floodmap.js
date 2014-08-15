@@ -92,7 +92,7 @@ floodmap.main = function() {
               $('#error-modal').modal();
             }
 
-            floodmap.myMap.interactorStyle().selectRegion(false);
+            floodmap.myMap.baseLayer().renderer().viewer().interactorStyle().selectRegion(false);
             $('#draw-bbox').toggleClass('active');
         });
       }
