@@ -74,10 +74,15 @@ def find_points(bbox, rise, res, batch_size = BATCH_SIZE,  batch = 0):
     return results
 
 def to_geojson(points):
-    geojson = {"type": "FeatureCollection", "features": [{
-                 "type": "MultiPoint",
-                 "coordinates": points
-              }]}
+    geojson = {"type": "FeatureCollection",
+               "features": [{
+                             "type": "Feature",
+                             "geometry": {
+                                          "type": "MultiPoint",
+                                          "coordinates": points
+                                          }
+                             }]
+               }
 
     return geojson
 
@@ -190,7 +195,4 @@ def run(*pargs, **kwargs):
         response['error'] =  "Unsupported HTTP method"
 
     return json.dumps(response)
-
-
-
 
