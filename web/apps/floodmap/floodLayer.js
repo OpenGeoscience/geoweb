@@ -275,8 +275,8 @@ var intersection = function(a, b) {
     res = selectResolution(zoomLevel);
 
     // Clip bounding box based on view extent
-    start = this.featureLayer().container().displayToMap(0, $('#glcanvas').height())
-    end = this.featureLayer().container().displayToMap($('#glcanvas').width(), 0);
+    start = this.map().displayToGcs([0, $('#glcanvas').height()])
+    end = this.map().displayToGcs([$('#glcanvas').width(), 0]);
 
     clippedBBox = intersection([[start.x, start.y], [end.x, end.y]],
                                 [m_bbox[0], m_bbox[1]]);
