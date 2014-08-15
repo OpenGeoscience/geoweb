@@ -270,7 +270,7 @@ var intersection = function(a, b) {
 
   this.fetchPoints = function() {
     var start, end, delta, res, clippedBBox, pointSpriteSize, clear = true,
-    zoomLevel = this.featureLayer().container().zoom();
+    zoomLevel = this.map().zoom();
 
     res = selectResolution(zoomLevel);
 
