@@ -332,24 +332,23 @@ var intersection = function(a, b) {
 
   ////////////////////////////////////////////////////////////////////////////
   /**
-   * Return raw data
+   *
    */
   ////////////////////////////////////////////////////////////////////////////
-  this.getData = function(time) {
+  this.update = function() {
     var that = this, start, end, delta, pointSpriteSize;
 
     // If this is our first pass then set things up
     if (m_dataResolution == null) {
-      $(this.featureLayer().container())
-      .off(geo.command.updateViewZoomEvent)
-        .on(geo.command.updateViewZoomEvent, function() { that.fetchPoints(); });
+      $(this.map().baseLayer().renderer().viewer().interactorStyle())
+      .off(geo.event.zoom)
+        .on(geo.event.zoom, function() { that.fetchPoints(); });
 
-      $(this.featureLayer().container().getInteractorStyle())
-        .off(vgl.command.leftButtonPressEvent)
-          .on(vgl.command.leftButtonPressEvent, function(event, x, y) {
-                m_panX += x;
-                m_panY += y;
-                console.log(m_panX);
+      $(this.map().baseLayer().renderer().viewer().interactorStyle())
+        .off(geo.event.pan)
+          .on(geo.event.pan, function(event) {
+                m_panX += event.curr_display_pos.x;
+                m_panY += event.curr_display_pos.y;
 
                 if (Math.abs(m_panX) >= m_currentBBox.width()/4 ||
                     Math.abs(m_panY) >= m_currentBBox.height()/4) {
