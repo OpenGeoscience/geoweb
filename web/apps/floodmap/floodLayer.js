@@ -366,31 +366,6 @@ var intersection = function(a, b) {
       this.updatePointSize();
 
     return;
-
-    $.ajax({
-      type: 'POST',
-      url: '/services/floodmap/points',
-      data: {
-        bbox: JSON.stringify(m_bbox),
-        rise: 20
-      },
-      dataType: 'json',
-      success: function(response) {
-        if (response.error !== null) {
-          errorString = "[error] " + response.error ?
-            response.error : "no results returned from server";
-          console.log(errorString);
-        } else {
-          getPoints(response.result.id);
-        }
-      },
-      error: function(jqXHR, textStatus, errorThrown ) {
-        errorString = "Error reading: " + errorThrown;
-        console.log(errorString);
-      }
-    });
-
-    return null;
   };
 
   ////////////////////////////////////////////////////////////////////////////
