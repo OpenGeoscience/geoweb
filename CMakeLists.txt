@@ -296,12 +296,23 @@ if (BUILD_TESTING)
   endif()
 endif()
 
-# Now include sub-directories
-add_subdirectory(web)
-add_dependencies(geojs geoweb_pre_deploy)
+# Call npm install in GeoJS directory
+add_custom_target(geojs ALL
+  COMMAND npm install
+  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/web/lib/geojs"
+  COMMENT "Configuring server configuration script"
+  VERBATIM
+)
 
+# Now copy files over into build tree
+add_custom_target( geojs_copy ALL
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+  "${CMAKE_CURRENT_SOURCE_DIR}/web/lib/geojs/dist" "${GEOWEB_DEPLOY_DIR}/web/lib"
+  DEPENDS geojs
+  )
 
 #/////////////////////////////////////////////////////////////////////////////
+
 #
 # Add pieces for testing if enabled
 #
