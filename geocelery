@@ -16,4 +16,4 @@ else:
   print >> sys.stderr, "Unable to locate celery, please install celery package"
   sys.exit(1)
 
-subprocess.call([celery, '-A', 'pygeo.esgf.download', 'worker'], stderr=subprocess.STDOUT)
+subprocess.call([celery, '-A', 'gaia.esgf.download', 'worker'], stderr=subprocess.STDOUT)

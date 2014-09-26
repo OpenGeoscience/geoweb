@@ -6,6 +6,6 @@
 	path = ocgis
 	url = 	git://github.com/NCPP/ocgis.git
 [submodule "pygeo"]
-	path = pygeo
-        url = git://github.com/OpenGeoscience/pygeo.git
-        pushurl = git@github.com:OpenGeoscience/pygeo.git
+	path = gaia
+        url = git://github.com/OpenGeoscience/gaia.git
+        pushurl = git@github.com:OpenGeoscience/gaia.git

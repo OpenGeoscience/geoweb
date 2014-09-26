@@ -14,7 +14,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 
 from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
 
-import pygeo.net.geowebsocket #used by config for websockets
+import gaia.net.geowebsocket #used by config for websockets
 
 from mako.template import Template
 from mako.lookup import TemplateLookup
@@ -22,7 +22,7 @@ template_dir = os.path.dirname(os.path.abspath(__file__))
 lookup = TemplateLookup(directories=[template_dir])
 
 #render demo
-from pygeo.misc.ogsvtk import VTKRoot
+from gaia.misc.ogsvtk import VTKRoot
 
 #make sure WebSocketPlugin runs after daemonizer plugin (priority 65)
 #see cherrypy plugin documentation for default plugin priorities

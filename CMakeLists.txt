@@ -148,8 +148,8 @@ add_custom_target(bar ALL DEPENDS ${all_targets})
 
 message(STATUS "${geoweb_SOURCE_DIR}/ocgis")
 
-set(PYGEO_BUILD_BASE "${${PROJECT_NAME}_BINARY_DIR}")
-add_subdirectory(pygeo)
+set(GAIA_BUILD_BASE "${${PROJECT_NAME}_BINARY_DIR}")
+add_subdirectory(gaia)
 
 # Install OCGIS
 add_custom_command(
@@ -260,7 +260,7 @@ add_custom_command(OUTPUT ${GEOWEB_DEPLOY_DIR}/server.conf
 )
 
 add_custom_target(deploy ALL DEPENDS ${_server_config})
-add_dependencies(geoweb_pre_deploy pygeo)
+add_dependencies(geoweb_pre_deploy gaia)
 add_dependencies(geoweb_pre_deploy ocgis)
 add_dependencies(deploy ocgis)
 add_dependencies(deploy geoweb_pre_deploy)

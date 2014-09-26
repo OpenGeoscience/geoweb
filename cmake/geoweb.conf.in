@@ -20,4 +20,4 @@ tools.esgf_session_auth.on = True
 
 [/ws]
 tools.websocket.on: True
-tools.websocket.handler_cls: pygeo.net.geowebsocket.WebSocketRouter
+tools.websocket.handler_cls: gaia.net.geowebsocket.WebSocketRouter
