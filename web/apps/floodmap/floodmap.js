@@ -55,7 +55,8 @@ floodmap.main = function() {
   var mapOptions = {
     node: '#geojs-map',
     zoom : 6,
-    center : [0.0, 0.0],
+    // Center of US
+    center : [39.8282, -98.5795],
     source: '/services/data/land_shallow_topo_2048.png',
     country_boundaries: true
   };
