@@ -103,7 +103,7 @@ floodmap.main = function() {
         }
       });
 
-      $('#draw-bbox').toggleClass('active');
+      $('#draw-bbox').click();
     });
 
     // Resize the canvas to fill browser window dynamically
