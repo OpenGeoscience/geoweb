@@ -32,13 +32,6 @@ floodmap.floodLayer = function(rise, bbox) {
       m_thresh = 2.0,
       m_clusterSize = 50;
 
-  this.updatePointSize = function(pointSize) {
-    var i, features = this.features();
-    for(i=0; i< features.length; i++) {
-      features[i].material().shaderProgram().uniform("pointSize").set(pointSize)
-    }
-  };
-
   this.addData = function(geoJson, append) {
     var i, features, reader;
 
