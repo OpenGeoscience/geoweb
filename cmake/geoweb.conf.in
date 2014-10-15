@@ -18,6 +18,14 @@ tools.response_headers.headers: [('Expires', 'Sun, 19 Nov 1985 05:00:00 GMT'), (
 tools.staticdir.on: True
 tools.staticdir.dir: "web/apps/floodmap"
 
+[/src]
+tools.staticdir.on: True
+tools.staticdir.dir: "web/lib/src"
+
+[/built]
+tools.staticdir.on: True
+tools.staticdir.dir: "web/lib/built"
+
 
 [/services]
 #tools.sessions.on = True
