@@ -55,7 +55,7 @@ floodmap.floodLayer = function(rise, bbox) {
 
     // Clear our existing features
     if (!append) {
-      this.deleteAllFeatures();
+      this.clear();
     }
 
     reader = new geo.jsonReader({layer: this});
