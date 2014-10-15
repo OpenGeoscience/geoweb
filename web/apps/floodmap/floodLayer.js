@@ -300,27 +300,27 @@ var intersection = function(a, b) {
   };
 
   this.updatePointSize = function() {
-    var canvasWidth, canvasHeight, start, factor, end, delta, deltaX, deltaY, pointSpriteSize;
-
-    canvasWidth = $('#glcanvas').width();
-    canvasHeight = $('#glcanvas').height();
-
-    start = this.featureLayer().container().displayToMap(0, 0);
-    end = this.featureLayer().container().displayToMap(canvasWidth, 0);
-
-    deltaX = Math.abs(end.x - start.x);
-
-    start = this.featureLayer().container().displayToMap(0, 0);
-    end = this.featureLayer().container().displayToMap(0, canvasHeight);
-
-    deltaY = Math.abs(end.y - start.y);
-    delta = deltaX > deltaY ? deltaY : deltaX;
-
-    factor = deltaX > deltaY ? canvasHeight : canvasWidth;
-
-    // Calculate point sprite size
-    pointSpriteSize = (m_dataResolution/delta)*factor;
-    this.featureLayer().pointSpriteSize(pointSpriteSize);
+//    var canvasWidth, canvasHeight, start, factor, end, delta, deltaX, deltaY, pointSpriteSize;
+//
+//    canvasWidth = $('#glcanvas').width();
+//    canvasHeight = $('#glcanvas').height();
+//
+//    start = this.featureLayer().container().displayToMap(0, 0);
+//    end = this.featureLayer().container().displayToMap(canvasWidth, 0);
+//
+//    deltaX = Math.abs(end.x - start.x);
+//
+//    start = this.featureLayer().container().displayToMap(0, 0);
+//    end = this.featureLayer().container().displayToMap(0, canvasHeight);
+//
+//    deltaY = Math.abs(end.y - start.y);
+//    delta = deltaX > deltaY ? deltaY : deltaX;
+//
+//    factor = deltaX > deltaY ? canvasHeight : canvasWidth;
+//
+//    // Calculate point sprite size
+//    pointSpriteSize = (m_dataResolution/delta)*factor;
+//    this.featureLayer().pointSpriteSize(pointSpriteSize);
   };
 
   ////////////////////////////////////////////////////////////////////////////
