@@ -239,3 +239,7 @@ input[type="checkbox"][class="group-selection"] {
 .dropdown-menu {
   min-width: 0px;
 }
+
+body, html {
+  height: 100%;
+}
