@@ -20,18 +20,21 @@ floodmap.error = function(errorString, onClose) {
     $('#error-modal').off('hidden.bs.modal').one('hidden.bs.modal', onClose)
 };
 
-var getBoundingBox = function(regionSelectEvent) {
+var getBoundingBox = function(brushEndEvent) {
   var latFrom, longFrom, latTo, longTo, bbox;
 
-  latFrom = regionSelectEvent.lowerRight[1] < regionSelectEvent.upperLeft[1] ?
-            regionSelectEvent.lowerRight[1] : regionSelectEvent.upperLeft[1];
-  latTo = regionSelectEvent.lowerRight[1] > regionSelectEvent.upperLeft[1] ?
-          regionSelectEvent.lowerRight[1] : regionSelectEvent.upperLeft[1];
-  longFrom = regionSelectEvent.lowerRight[0] < regionSelectEvent.upperLeft[0] ?
-             regionSelectEvent.lowerRight[0] : regionSelectEvent.upperLeft[0]
-  longTo = regionSelectEvent.lowerRight[0] > regionSelectEvent.upperLeft[0] ?
-           regionSelectEvent.lowerRight[0] : regionSelectEvent.upperLeft[0];
-  bbox = [[longFrom, latFrom], [longTo, latTo]];
+//  latFrom = regionSelectEvent.lowerRight[1] < regionSelectEvent.upperLeft[1] ?
+//            regionSelectEvent.lowerRight[1] : regionSelectEvent.upperLeft[1];
+//  latTo = regionSelectEvent.lowerRight[1] > regionSelectEvent.upperLeft[1] ?
+//          regionSelectEvent.lowerRight[1] : regionSelectEvent.upperLeft[1];
+//  longFrom = regionSelectEvent.lowerRight[0] < regionSelectEvent.upperLeft[0] ?
+//             regionSelectEvent.lowerRight[0] : regionSelectEvent.upperLeft[0]
+//  longTo = regionSelectEvent.lowerRight[0] > regionSelectEvent.upperLeft[0] ?
+//           regionSelectEvent.lowerRight[0] : regionSelectEvent.upperLeft[0];
+//  bbox = [[longFrom, latFrom], [longTo, latTo]];
+
+  bbox = [[brushEndEvent.gcs.lowerLeft.x, brushEndEvent.gcs.lowerLeft.y],
+          [brushEndEvent.gcs.upperRight.x, brushEndEvent.gcs.upperRight.y]]
 
   return bbox;
 };
@@ -48,13 +51,6 @@ floodmap.main = function() {
                                   keyboard: false
                                 });
   $('#error-dialog').hide();
-  $('#draw-bbox').off('click').click(function() {
-    console.log("click");
-    var active = $(this).toggleClass('active').hasClass('active');
-      floodmap.myMap.baseLayer().renderer().viewer().interactorStyle().clearRegionSelection();
-      floodmap.myMap.baseLayer().renderer().viewer().interactorStyle().selectRegion(active);
-  });
-
 
   var mapOptions = {
     node: '#geojs-map',
@@ -67,35 +63,54 @@ floodmap.main = function() {
   $(function() {
     var layer = null;
     floodmap.myMap = geo.map(mapOptions);
+
+    floodmap.myMap.interactor().options({
+      panMoveButton: 'left',
+    });
+
     layer = floodmap.myMap.createLayer('osm', {'renderer' : 'vglRenderer'});
     floodmap.myMap.draw();
 
-    var canvas = document.getElementById('geojs-map');
+    var originalOptions = floodmap.myMap.interactor().options();
+    $('#draw-bbox').off('click').click(function() {
 
-    $(floodmap.myMap.baseLayer().renderer().viewer().interactorStyle()).on(geo.event.regionSelect, function(event) {
-      var rise, bbox;
+      var active = $(this).toggleClass('active').hasClass('active');
 
-      if ($('#draw-bbox').hasClass('active')) {
-
-        rise = $('#depth-slider-input').slider('getValue');
-        bbox = getBoundingBox(event);
-
-        floodmap.checkRegion(bbox).then(function(ok) {
-
-            if (ok) {
-              floodmap.update(rise, bbox);
-            }
-            else {
-              $('#error-modal-heading').html("No data available");
-              $('#error-modal-text').html("Data is currently only available for North America. " +
-                                          "Please select an area with in this region.");
-              $('#error-modal').modal();
-            }
-
-            floodmap.myMap.baseLayer().renderer().viewer().interactorStyle().selectRegion(false);
-            $('#draw-bbox').toggleClass('active');
+      if (active) {
+        floodmap.myMap.interactor().options({
+          panMoveButton: null,
+          selectionButton: 'left',
+          selectionModifiers: {}
         });
       }
+      else {
+        floodmap.myMap.interactor().options(originalOptions);
+      }
+
+    });
+
+    var canvas = document.getElementById('geojs-map');
+
+    layer.geoOn(geo.event.brushend, function(event) {
+      var rise, bbox;
+
+      rise = $('#depth-slider-input').slider('getValue');
+      bbox = getBoundingBox(event);
+
+      floodmap.checkRegion(bbox).then(function(ok) {
+
+        if (ok) {
+          floodmap.update(rise, bbox);
+        }
+        else {
+          $('#error-modal-heading').html("No data available");
+          $('#error-modal-text').html("Data is currently only available for North America. " +
+          "Please select an area with in this region.");
+          $('#error-modal').modal();
+        }
+      });
+
+      $('#draw-bbox').toggleClass('active');
     });
 
     // Resize the canvas to fill browser window dynamically
@@ -115,11 +130,9 @@ floodmap.main = function() {
       floodmap.myMap.draw();
     };
 
-    // Ask for mouseMove events
-    $(canvas).on("mousemove", function(event) {
+    floodmap.myMap.geoOn(geo.event.mousemove, function(event) {
       var infoBox = $("#map-info-box");
-      var mapCoord = floodmap.myMap.displayToGcs([event.pageX, event.pageY]);
-      infoBox.html(mapCoord.x.toFixed(2)+" , "+mapCoord.y.toFixed(2)+"<br/>");
+      var mapCoord = event.geo.x + " , " + event.geo.y;
 
       // this version shows the info box in the lower left corner
       var h = infoBox.outerHeight();

@@ -340,13 +340,11 @@ var intersection = function(a, b) {
 
     // If this is our first pass then set things up
     if (m_dataResolution == null) {
-      $(this.map().baseLayer().renderer().viewer().interactorStyle())
-        .on(geo.event.zoom, function() { that.fetchPoints(); });
+      this.map().baseLayer().geoOn(geo.event.zoom, function() { that.fetchPoints(); });
 
-      $(this.map().baseLayer().renderer().viewer().interactorStyle())
-        .on(geo.event.pan, function(event) {
-          m_panX += event.curr_display_pos.x;
-          m_panY += event.curr_display_pos.y;
+      this.map().baseLayer().geoOn(geo.event.pan, function(event) {
+          m_panX += event.screenDelta.x;
+          m_panY += event.screenDelta.y;
 
           if (Math.abs(m_panX) >= m_currentBBox.width()/4 ||
               Math.abs(m_panY) >= m_currentBBox.height()/4) {
