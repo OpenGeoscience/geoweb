@@ -220,6 +220,11 @@ floodmap.main = function() {
   $('#depth-slider').on('slideStop', function() {
     var bbox, rise;
     bbox = getBoundingBox();
+
+    if (!bbox) {
+      return;
+    }
+
     rise = $('#depth-slider-input').slider('getValue');
 
     floodmap.update(rise, bbox);
@@ -283,11 +288,11 @@ floodmap.update = function(rise, bbox) {
     floodmap.layer = floodmap.myMap.createLayer('flood');
     // TODO fix, this is a hack!
     floodmap.layer.map(floodmap.myMap);
-    floodmap.layer.setScalarRange("rise", [0, rise]);
-    floodmap.layer.rise(rise)
-    floodmap.layer.boundingBox(bbox);
   }
 
+  floodmap.layer.setScalarRange("rise", [0, rise]);
+  floodmap.layer.rise(rise)
+  floodmap.layer.boundingBox(bbox);
   floodmap.layer.update();
   floodmap.myMap.draw();
 };
