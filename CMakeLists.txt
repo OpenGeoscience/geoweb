@@ -87,7 +87,7 @@ include(FindPythonInterp)
 find_package(PythonInterp 2.7)
 set(PYVER ${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR})
 
-message(STATUS "Python version is ", ${PYVER})
+message(STATUS "Python version is ${PYVER}")
 
 #/////////////////////////////////////////////////////////////////////////////
 #
@@ -147,6 +147,16 @@ foreach(m ${paths})
     list(APPEND all_targets ${outpath})
 endforeach()
 add_custom_target(bar ALL DEPENDS ${all_targets})
+
+set(_source "${CMAKE_SOURCE_DIR}/modules/floodmap")
+set(_dest "${GEOWEB_DEPLOY_DIR}/lib/python${PYVER}/site-packages/floodmap")
+add_custom_command(
+   OUTPUT ${_dest}
+   COMMAND ${CMAKE_COMMAND} -E copy_directory
+           ${_source} ${_dest}
+   DEPENDS ${_source}
+  )
+list(APPEND all_targets ${_dest})
 
 message(STATUS "${geoweb_SOURCE_DIR}/ocgis")
 
@@ -300,7 +310,7 @@ endif()
 add_custom_target(geojs ALL
   COMMAND npm install
   WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/web/lib/geojs"
-  COMMENT "Configuring server configuration script"
+  COMMENT "Build GeoJs"
   VERBATIM
 )
 
