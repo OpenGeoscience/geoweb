@@ -5,20 +5,20 @@
 //////////////////////////////////////////////////////////////////////////////
 var floodmap = {};
 
-floodmap.floodLayer = function(rise, bbox) {
+floodmap.floodLayer = function(arg) {
   "use strict";
   if (!(this instanceof floodmap.floodLayer)) {
-    return new floodmap.floodLayer(rise, bbox);
+    return new floodmap.floodLayer(arg);
   }
 
-  geo.featureLayer.call(this);
+  geo.featureLayer.call(this, arg);
 
   /** @private */
   var m_that = this,
       m_pointSize = 10,
       m_time = -1,
-      m_rise = rise,
-      m_bbox = bbox,
+      m_rise = 0,
+      m_bbox = null,
       m_resultCache = null,
       m_featureLayer = null,
       m_dataResolution = null,
