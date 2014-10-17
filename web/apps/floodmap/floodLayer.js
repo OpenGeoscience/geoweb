@@ -82,6 +82,19 @@ floodmap.floodLayer = function(arg) {
 
     reader = new geo.jsonReader({layer: this});
     reader.read(geoJson, function(features) {
+
+      features.forEach(function(feature) {
+        feature.style('fillColor', function(d) {
+          var color = lookupColor(d.z())
+          return {r: color[0], g: color[1], b: color[2]}
+        }).style('stroke', function() {
+          return false;
+        }).style('fillOpacity', function() {
+          return 0.3;
+        });
+
+      });
+
       m_that.map().draw();
     });
 
