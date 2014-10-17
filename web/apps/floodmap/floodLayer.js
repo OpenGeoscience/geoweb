@@ -30,7 +30,36 @@ floodmap.floodLayer = function(arg) {
       m_refresh = true,
       m_scalarsRange = [0, 20],
       m_thresh = 2.0,
-      m_clusterSize = 50;
+      m_clusterSize = 50,
+      m_colorTable  = [
+                       {end: 3 , color: [ 0.07514311, 0.468049805, 1 ]},
+                       {end: 5, color: [ 0.568724526, 0.646924167, 1 ]},
+                       {end: 9, color: [ 0.821573924, 0.837809045, 1 ]},
+                       {end: 12, color: [ 1, 0.88332677, 0.861943246 ]},
+                       {end: 15, color: [ 1, 0.6289553, 0.568237474 ]},
+                       {end: 18, color: [ 1, 0.380759558, 0.320428137]}
+                      ];
+
+  var lookupColor  = function(elv) {
+   var i, color, start, step;
+
+   color = m_colorTable[0].color;
+   start = Number.MIN_VALUE;
+
+   for (i=0; i< m_colorTable.length; i++) {
+     step = m_colorTable[i];
+
+     if (elv > start && elv <= step.end) {
+       color = step.color;
+       break;
+     }
+     start = step.end;
+   }
+
+   return color;
+  };
+
+
 
   this.addData = function(geoJson, append) {
     var i, features, reader;
