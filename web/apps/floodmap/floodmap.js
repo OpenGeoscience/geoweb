@@ -286,8 +286,6 @@ floodmap.update = function(rise, bbox) {
 
   if (floodmap.layer == null) {
     floodmap.layer = floodmap.myMap.createLayer('flood');
-    // TODO fix, this is a hack!
-    floodmap.layer.map(floodmap.myMap);
   }
 
   floodmap.layer.setScalarRange("rise", [0, rise]);
