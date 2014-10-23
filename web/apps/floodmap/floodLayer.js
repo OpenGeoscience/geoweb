@@ -60,9 +60,19 @@ floodmap.floodLayer = function(arg) {
   };
 
 
+  var calculateOpacity = function(zoomLevel) {
+    var minOpacity = 0.02, maxOpacity = 0.5, maxZoom = 20,
+    zoomLevel = m_that.map().zoom();
+
+    var opacity = minOpacity + ((maxZoom - zoomLevel)/maxZoom)*(maxOpacity-minOpacity);
+    console.log(opacity);
+
+    return opacity;
+  };
 
   this.addData = function(geoJson, append) {
-    var i, features, reader;
+    var i, features, reader, opacity = calculateOpacity(this.map().zoom()),
+        color;
 
     append = append !== undefined ? append : false;
 
@@ -85,46 +95,20 @@ floodmap.floodLayer = function(arg) {
 
       features.forEach(function(feature) {
         feature.style('fillColor', function(d) {
-          var color = lookupColor(d.z())
+          color = lookupColor(d.z())
           return {r: color[0], g: color[1], b: color[2]}
         }).style('stroke', function() {
           return false;
-        }).style('fillOpacity', function() {
-          return 0.3;
+        }).style('fillOpacity', function(d) {
+          return opacity;
+        }).position(function(d) {
+          return {x: d.x(), y: d.y(), z: 0};
         });
-
       });
 
       m_that.map().draw();
     });
 
-//    for(i = 0; i < data.length; ++i) {
-//      switch(data[i].type()) {
-//        case vgl.data.geometry:
-//            geomFeature = geo.geometryFeature(data[i]);
-//            geo.geoTransform.osmTransformFeature(this.container().options().gcs, geomFeature);
-//            geomFeature.setVisible(this.visible());
-//            geomFeature.material().setBinNumber(this.binNumber());
-//          // Check if geometry has points only
-//          // TODO this code could be moved to vgl
-//          noOfPrimitives = data[i].numberOfPrimitives();
-//          if (m_usePointSprites && noOfPrimitives === 1 &&
-//            data[i].primitive(0).primitiveType() === gl.POINTS) {
-//             geomFeature.setMaterial(vgl.utils.createPointSpritesMaterial(
-//              m_pointSpritesImage, this.lookupTable()));
-//          } else {
-//          }
-//          m_newFeatures.push(geomFeature);
-//          break;
-//        case vgl.data.raster:
-//          break;
-//        default:
-//          console.log('[warning] Data type not handled', data.type());
-//      }
-//    }
-
-    // Now set the point size
-    //this.updatePointSize(m_pointSize);
   };
 
   this.pointSpriteSize = function(pointSize) {
@@ -305,13 +289,13 @@ var intersection = function(a, b) {
 
   this.fetchPoints = function() {
     var start, end, delta, res, clippedBBox, pointSpriteSize, clear = true,
-    zoomLevel = this.map().zoom();
+    zoomLevel = this.map().zoom(), opacity;
 
     res = selectResolution(zoomLevel);
 
     // Clip bounding box based on view extent
-    start = this.map().displayToGcs([0, $('#glcanvas').height()])
-    end = this.map().displayToGcs([$('#glcanvas').width(), 0]);
+    start = this.map().displayToGcs({x: 0, y: $('.webgl-canvas').height()})
+    end = this.map().displayToGcs({x: $('.webgl-canvas').width(), y: 0});
 
     clippedBBox = intersection([[start.x, start.y], [end.x, end.y]],
                                 [m_bbox[0], m_bbox[1]]);
@@ -324,8 +308,18 @@ var intersection = function(a, b) {
     if (m_dataResolution === res && !m_refresh) {
       // If data resolution hasn't changed and we are in the currently selected
       // bounding box then just return
-      if (m_currentBBox.contains(clippedBBox))
-        return
+      if (m_currentBBox.contains(clippedBBox)) {
+
+        // Just update the opacity for the current zoom level
+        opacity = calculateOpacity(zoomLevel);
+        this.features().forEach(function(feature) {
+          feature.style('fillOpacity', function(d) {
+            return opacity;
+          });
+        });
+
+        return;
+      }
       // Select using the new bounding box, appending to existing features
       clear = true
     }
