@@ -26,7 +26,7 @@ floodmap.floodLayer = function(arg) {
       m_currentBBox = null,
       m_resolutionChanged = false,
       m_that = this,
-      m_panX = 0, m_panY = 0,
+      m_panLng = 0, m_panLat = 0,
       m_refresh = true,
       m_scalarsRange = [0, 20],
       m_thresh = 2.0,
@@ -61,18 +61,15 @@ floodmap.floodLayer = function(arg) {
 
 
   var calculateOpacity = function(zoomLevel) {
-    var minOpacity = 0.02, maxOpacity = 0.5, maxZoom = 20,
+    var minOpacity = 0.01, maxOpacity = 0.1, maxZoom = 20,
     zoomLevel = m_that.map().zoom();
 
-    var opacity = minOpacity + ((maxZoom - zoomLevel)/maxZoom)*(maxOpacity-minOpacity);
-    console.log(opacity);
-
-    return opacity;
+    return minOpacity + ((maxZoom - zoomLevel)/maxZoom)*(maxOpacity-minOpacity);
   };
 
   this.addData = function(geoJson, append) {
     var i, features, reader, opacity = calculateOpacity(this.map().zoom()),
-        color;
+        radius = this.calculatePointSize(), color;
 
     append = append !== undefined ? append : false;
 
@@ -103,23 +100,14 @@ floodmap.floodLayer = function(arg) {
           return opacity;
         }).position(function(d) {
           return {x: d.x(), y: d.y(), z: 0};
-        });
+        }).style('radius', function(d) {
+          return radius;
+        })
       });
 
       m_that.map().draw();
     });
 
-  };
-
-  this.pointSpriteSize = function(pointSize) {
-
-    if(pointSize !== undefined && pointSize != m_pointSize) {
-      m_pointSize = pointSize;
-      this.updatePointSize(pointSize);
-      return this;
-    }
-
-    return m_pointSize;
   };
 
   this.redraw = function() {
@@ -171,8 +159,6 @@ floodmap.floodLayer = function(arg) {
 
             if ( response.result.hasMore) {
               setTimeout(function() {
-
-                console.log("id: " + response.result.id);
 
                 getCoursePoints(bbox, response.result.res, thresh, cluster,
                     response.result.batch, false, response.result.id);
@@ -287,8 +273,8 @@ var intersection = function(a, b) {
     return null;
   };
 
-  this.fetchPoints = function() {
-    var start, end, delta, res, clippedBBox, pointSpriteSize, clear = true,
+  this.fetchPoints = function(zoomLevelChanged) {
+    var start, end, delta, res, clippedBBox, radius, clear = true,
     zoomLevel = this.map().zoom(), opacity;
 
     res = selectResolution(zoomLevel);
@@ -310,13 +296,22 @@ var intersection = function(a, b) {
       // bounding box then just return
       if (m_currentBBox.contains(clippedBBox)) {
 
-        // Just update the opacity for the current zoom level
-        opacity = calculateOpacity(zoomLevel);
-        this.features().forEach(function(feature) {
-          feature.style('fillOpacity', function(d) {
-            return opacity;
+
+        // Just update the radius and opacity for the current zoom level
+        if (zoomLevelChanged) {
+          radius = this.calculatePointSize()
+          opacity = calculateOpacity(zoomLevel);
+          this.features().forEach(function(feature) {
+            feature.style('fillOpacity', function(d) {
+              return opacity;
+            });
+
+            feature.style('radius', function(d) {
+              return radius;
+            });
+
           });
-        });
+        }
 
         return;
       }
@@ -326,8 +321,8 @@ var intersection = function(a, b) {
 
     m_dataResolution = res;
     m_currentBBox = clippedBBox;
-    m_panX = 0;
-    m_panY = 0;
+    m_panLng = 0;
+    m_panLat = 0;
 
     m_resolutionChanged = true;
 
@@ -335,28 +330,25 @@ var intersection = function(a, b) {
         m_dataResolution, m_thresh, m_clusterSize, 0, clear);
   };
 
-  this.updatePointSize = function() {
-//    var canvasWidth, canvasHeight, start, factor, end, delta, deltaX, deltaY, pointSpriteSize;
-//
-//    canvasWidth = $('#glcanvas').width();
-//    canvasHeight = $('#glcanvas').height();
-//
-//    start = this.featureLayer().container().displayToMap(0, 0);
-//    end = this.featureLayer().container().displayToMap(canvasWidth, 0);
-//
-//    deltaX = Math.abs(end.x - start.x);
-//
-//    start = this.featureLayer().container().displayToMap(0, 0);
-//    end = this.featureLayer().container().displayToMap(0, canvasHeight);
-//
-//    deltaY = Math.abs(end.y - start.y);
-//    delta = deltaX > deltaY ? deltaY : deltaX;
-//
-//    factor = deltaX > deltaY ? canvasHeight : canvasWidth;
-//
-//    // Calculate point sprite size
-//    pointSpriteSize = (m_dataResolution/delta)*factor;
-//    this.featureLayer().pointSpriteSize(pointSpriteSize);
+  this.calculatePointSize = function() {
+    var canvasWidth, canvasHeight, start, factor, end, delta, deltaX, deltaY;
+
+    canvasWidth = $('.webgl-canvas').width();
+    canvasHeight = $('.webgl-canvas').height();
+
+    start = this.map().displayToGcs([0, 0]);
+    end = this.map().displayToGcs([canvasWidth, 0]);
+    deltaX = Math.abs(end[0] - start[0]);
+
+    end = this.map().displayToGcs([0, canvasHeight]);
+
+    deltaY = Math.abs(end[1] - start[1]);
+    delta = deltaX > deltaY ? deltaY : deltaX;
+
+    factor = deltaX > deltaY ? canvasHeight : canvasWidth;
+
+    // Calculate point size
+    return (m_dataResolution/delta)*factor*2;
   };
 
   ////////////////////////////////////////////////////////////////////////////
@@ -365,19 +357,27 @@ var intersection = function(a, b) {
    */
   ////////////////////////////////////////////////////////////////////////////
   this.update = function() {
-    var that = this, start, end, delta, pointSpriteSize;
+    var start, end, delta, pointSpriteSize;
 
     // If this is our first pass then set things up
     if (m_dataResolution == null) {
-      this.map().baseLayer().geoOn(geo.event.zoom, function() { that.fetchPoints(); });
+      this.map().baseLayer().geoOn(geo.event.zoom, function() { m_that.fetchPoints(true); });
 
       this.map().baseLayer().geoOn(geo.event.pan, function(event) {
-          m_panX += event.screenDelta.x;
-          m_panY += event.screenDelta.y;
 
-          if (Math.abs(m_panX) >= m_currentBBox.width()/4 ||
-              Math.abs(m_panY) >= m_currentBBox.height()/4) {
-            that.fetchPoints();
+          var displayCurrentPoint = m_that.map().gcsToDisplay(event.center);
+          var displayPreviousPoint = {
+              x: displayCurrentPoint.x - event.screenDelta.x,
+              y: displayCurrentPoint.y - event.screenDelta.y
+          }
+          var gcsPreviousPoint = m_that.map().displayToGcs(displayPreviousPoint)
+
+          m_panLng += event.center.x - gcsPreviousPoint.x
+          m_panLat += event.center.y - gcsPreviousPoint.y
+
+          if (Math.abs(m_panLng) >= m_currentBBox.width()/4 ||
+              Math.abs(m_panLat) >= m_currentBBox.height()/4) {
+            m_that.fetchPoints();
           }
         });
     }
