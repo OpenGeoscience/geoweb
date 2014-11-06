@@ -32,12 +32,12 @@ floodmap.floodLayer = function(arg) {
       m_thresh = 2.0,
       m_clusterSize = 50,
       m_colorTable  = [
-                       {end: 3 , color: [ 0.07514311, 0.468049805, 1 ]},
-                       {end: 5, color: [ 0.568724526, 0.646924167, 1 ]},
-                       {end: 9, color: [ 0.821573924, 0.837809045, 1 ]},
-                       {end: 12, color: [ 1, 0.88332677, 0.861943246 ]},
-                       {end: 15, color: [ 1, 0.6289553, 0.568237474 ]},
-                       {end: 18, color: [ 1, 0.380759558, 0.320428137]}
+                       {end: 0.166 , color: [ 0.07514311, 0.468049805, 1 ]},
+                       {end: 0.333, color: [ 0.568724526, 0.646924167, 1 ]},
+                       {end: 0.5, color: [ 0.821573924, 0.837809045, 1 ]},
+                       {end: 0.666, color: [ 1, 0.88332677, 0.861943246 ]},
+                       {end: 0.833, color: [ 1, 0.6289553, 0.568237474 ]},
+                       {end: 1, color: [ 1, 0.380759558, 0.320428137]}
                       ];
 
   var lookupColor  = function(elv) {
@@ -45,6 +45,8 @@ floodmap.floodLayer = function(arg) {
 
    color = m_colorTable[0].color;
    start = Number.MIN_VALUE;
+
+   elv = elv / 10
 
    for (i=0; i< m_colorTable.length; i++) {
      step = m_colorTable[i];
