@@ -243,3 +243,10 @@ input[type="checkbox"][class="group-selection"] {
 body, html {
   height: 100%;
 }
+
+#scalar-bar {
+  position: absolute;
+  top: 70px;
+  right: 10px;
+  z-index: 1001;
+}
