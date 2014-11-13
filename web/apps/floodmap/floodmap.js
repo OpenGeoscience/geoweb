@@ -46,7 +46,7 @@ floodmap.main = function() {
 
   var mapOptions = {
     node: '#geojs-map',
-    zoom : 6,
+    zoom : 2,
     // Center of US
     center : [39.8282, -98.5795],
     source: '/services/data/land_shallow_topo_2048.png',
