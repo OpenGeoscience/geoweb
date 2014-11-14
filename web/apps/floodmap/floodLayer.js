@@ -377,7 +377,11 @@ var intersection = function(a, b) {
 
     // If this is our first pass then set things up
     if (m_dataResolution == null) {
-      this.map().baseLayer().geoOn(geo.event.zoom, function() { m_that.fetchPoints(true); });
+      this.map().baseLayer().geoOn(geo.event.zoom, function(event) {
+         m_panLng += event.gcsDelta.x;
+         m_panLat += event.gcsDelta.y;
+         m_that.fetchPoints(true);
+      });
 
       this.map().baseLayer().geoOn(geo.event.pan, function(event) {
 
